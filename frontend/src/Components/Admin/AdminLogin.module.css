@@ -1,0 +1,81 @@
+.background {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(
+    45deg,
+    #6a11cb,
+    /* Lighter purple */ #2575fc /* Lighter blue */
+  );
+}
+
+.formContainer {
+  background-color: #ffffff;
+  padding: 2rem 4rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: #3e4095; /* Logo color applied */
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  font-family: "Rajdhani", sans-serif;
+}
+
+.inputContainer {
+  margin-bottom: 1rem;
+}
+
+input,
+.MuiInputBase-root {
+  border-radius: 8px !important; /* Smooth corners for inputs */
+}
+
+input:focus,
+.Mui-focused {
+  border-color: #3e4095; /* Logo color as border on focus */
+}
+
+.forgotPassword {
+  color: #3e4095; /* Logo color for the link */
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-top: 0.8rem;
+  display: block;
+  font-family: "Roboto", sans-serif;
+}
+
+.forgotPassword:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.loginBtn {
+  font-size: 1rem;
+  padding: 0.8rem;
+  background-color: #3e4095; /* Logo color for the button */
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.loginBtn:hover {
+  background-color: #6a11cb; /* Lighter shade of logo color for hover effect */
+  transform: translateY(-2px);
+}
+
+.loginBtn:active {
+  transform: translateY(0);
+}
