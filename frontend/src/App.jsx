@@ -1,13 +1,7 @@
-import { useState } from "react";
-import { createBrowserRouter } from "react-router-dom";
-import AdminLogin from "./Components/Admin/AdminLogin";
+import React from "react";
+
 import "./App.css";
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <AdminLogin />,
-  },
-]);
+
 function App() {
   return (
     <RouterProvider
