@@ -69,6 +69,8 @@ input:focus,
   transform: translateY(0);
 }
 
+
 input {
   font-size: 0.8rem !important;
 }
+
