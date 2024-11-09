@@ -1,5 +1,7 @@
+// src/Components/Admin/AdminLogin.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import styles from "./AdminLogin.module.css";
 import TextField from "@mui/material/TextField";
 import { Button, InputAdornment } from "@mui/material";
@@ -7,6 +9,7 @@ import { FaUserCircle, FaEnvelope, FaLock } from "react-icons/fa";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import axios from "axios";
 import Swal from "sweetalert2";
+import "animate.css";
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,20 +17,15 @@ export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handlePasswordVisibility = () => {
     setShowPassword(!showPassword);
     setPasswordType(showPassword ? "password" : "text");
   };
 
-
-  // Initialize navigate function
-  const navigate = useNavigate();
-
-
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,27 +35,42 @@ export default function AdminLogin() {
         { username, email, password }
       );
 
-      // Store the token in localStorage
-      localStorage.setItem("token", response.data.token);
+      login(response.data.token); // Store token via context
 
-      // SweetAlert success message
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: "Successfully Login!.",
+        title: "Success!",
+        text: "You have logged in successfully!",
         showConfirmButton: false,
         timer: 3000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: "animate__animated animate__fadeInDown",
+          title: "text-success fw-bold",
+          text: "text-dark",
+        },
+        background: "#fff",
       }).then(() => {
         navigate("/dashboard");
       });
     } catch (err) {
       Swal.fire({
-        title: "Error!",
         position: "top-end",
         icon: "error",
-        text: "Invalid email or password",
+        title: "Error!",
+        text: err.response?.data?.message || "Invalid email or password",
         showConfirmButton: false,
-        timer: 3000,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: "animate__animated animate__shakeX",
+          title: "text-danger fw-bold",
+          text: "text-dark",
+        },
+        background: "#fff",
       });
     }
   };
@@ -68,6 +81,7 @@ export default function AdminLogin() {
         <h3 className={styles.subtitle}>Admin Login</h3>
 
         <form onSubmit={handleSubmit}>
+          {/* Username Input */}
           <div className={`${styles.inputContainer} mb-3`}>
             <TextField
               id="username-input"
@@ -91,6 +105,7 @@ export default function AdminLogin() {
             />
           </div>
 
+          {/* Email Input */}
           <div className={`${styles.inputContainer} mb-3`}>
             <TextField
               id="email-input"
@@ -114,6 +129,7 @@ export default function AdminLogin() {
             />
           </div>
 
+          {/* Password Input */}
           <div className={`${styles.inputContainer} mb-3`}>
             <TextField
               id="password-input"

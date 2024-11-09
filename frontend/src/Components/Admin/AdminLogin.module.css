@@ -63,7 +63,7 @@ input:focus,
 .loginBtn {
   font-size: 1rem;
   padding: 0.8rem;
-  background-color: #3e4095; /* Logo color for the button */
+  background-color: #3e4095; 
   color: #fff;
   font-family: "Roboto", sans-serif;
   border-radius: 8px;
@@ -72,7 +72,7 @@ input:focus,
 }
 
 .loginBtn:hover {
-  background-color: #6a11cb; /* Lighter shade of logo color for hover effect */
+  background-color: #6a11cb; 
   transform: translateY(-2px);
 }
 
