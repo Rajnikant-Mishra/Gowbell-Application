@@ -1,7 +1,7 @@
 import express from "express";
-import { login, logout } from "../controllers/authController.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
-import { Admin } from "../models/Admin.js"; // Import Admin model
+import { login, logout } from "../../controllers/Admin/authController.js";
+import { authMiddleware } from "../../middleware/authMiddleware.js";
+import { Admin } from "../../models/Admin/Admin.js";
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.post("/setup-admin", async (req, res) => {
     res.json({ message: "Admin details updated successfully." });
   } catch (error) {
     console.error("Error during admin setup:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });  
   }
 });
 

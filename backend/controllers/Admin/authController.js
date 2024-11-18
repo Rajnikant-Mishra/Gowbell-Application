@@ -1,7 +1,9 @@
 // backend/controllers/authController.js
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { Admin } from "../models/Admin.js";
+
+import { Admin } from "../../models/Admin/Admin.js";
+
 
 // Admin login controller
 export const login = async (req, res) => {

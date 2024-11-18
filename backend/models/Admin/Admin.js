@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { db } from "../config/db.js";
+import { db } from "../../config/db.js";
 
 export const Admin = {
   // Create a new admin
@@ -9,7 +9,7 @@ export const Admin = {
     return new Promise((resolve, reject) => {
       db.query(query, [username, email, hashedPassword], (err, result) => {
         if (err) {
-          console.error('Error creating admin:', err); // Log the error for debugging
+          console.error('Error creating admin:', err); 
           reject(err);
         } else {
           resolve(result);
@@ -38,7 +38,7 @@ export const Admin = {
   // Update admin details (username, email, password)
   updateAdminDetails: async (id, username, email, password) => {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const query = `
+    const query = `          
       UPDATE admin 
       SET username = ?, email = ?, password = ? 
       WHERE id = ?`;
