@@ -1,0 +1,9 @@
+.hamburgerIcon {
+  font-size: 1.3rem;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+.hamburgerIcon:hover {
+  color: #007bff;
+}

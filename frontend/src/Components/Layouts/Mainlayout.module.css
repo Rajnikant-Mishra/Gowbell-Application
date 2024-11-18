@@ -1,0 +1,155 @@
+/* Main Content */
+.mainContent {
+  width: 100%;
+  min-height: 100vh; /* Ensure it takes at least the full height of the viewport */
+  font-family: sans-serif;
+  font-size: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: padding-left 0.3s ease;
+}
+
+.header {
+  position: sticky; /* Make the header stick to the top */
+  top: 0; /* Stick it to the top */
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #313a46;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.scrolldiv {
+  flex-grow: 1; /* This ensures it takes up all remaining space */
+  overflow-y: auto; /* Allows scrolling */
+  padding: 30px 0px;
+  background-color: #f9f9f9;
+  padding-left: 0;
+  transition: padding-left 0.3s ease;
+
+  max-height: calc(100vh - 60px - 40px);
+}
+
+.footerdiv {
+  width: 100%;
+  background-color: #313a46;
+  color: #8391a2;
+  text-align: center;
+  padding: 10px;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  bottom: 0;
+  margin-top: auto; /* Ensures the footer stays at the bottom */
+  padding-bottom: 60px;
+}
+
+/* Sidebar */
+.sidbardiv {
+  font-family: sans-serif;
+  font-size: 14px;
+}
+
+.sidebar {
+  width: 270px;
+  font-family: "Nunito", sans-serif;
+  color: #8391a2;
+  transition: width 0.3s ease;
+  overflow-y: auto; /* Sidebar has its own scroll */
+  height: 100vh;
+  position: relative;
+}
+
+/* Sidebar Collapsed Styles */
+.collapsed {
+  width: 60px;
+}
+
+.nav {
+  list-style-type: none;
+  padding: 0;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  color: #8391a2;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  position: relative;
+}
+
+.navLink:hover {
+  color: #bccee4;
+}
+
+.icon {
+  font-size: 1rem;
+  margin-right: 10px;
+}
+
+.collapsed .icon {
+  margin-right: 0;
+}
+
+.collapsed .navLink span {
+  display: none;
+}
+
+.submenu {
+  list-style-type: none;
+  color: #8391a2;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background-color: #313a46;
+  border-radius: 4px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  z-index: 10;
+}
+
+.submenu li a {
+  display: block;
+  color: #8391a2;
+  padding: 10px 15px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.submenu li a:hover {
+  color: #bccee4;
+}
+
+.navItem:hover .submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* Scrollbars for the content */
+.scrolldiv::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrolldiv::-webkit-scrollbar-thumb {
+  background-color: #8391a2;
+  border-radius: 4px;
+}
+
+.scrolldiv::-webkit-scrollbar-thumb:hover {
+  background-color: #bccee4; /* Color on hover */
+}
+
+.scrolldiv::-webkit-scrollbar-track {
+  background-color: #313a46; /* Background of the scrollbar track */
+}
+
+/* jwelkfkldjfijipdsfjiopdf */

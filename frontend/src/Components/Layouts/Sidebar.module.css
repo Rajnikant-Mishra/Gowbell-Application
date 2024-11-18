@@ -1,0 +1,203 @@
+/* General Styles */
+.parentDiv {
+  background-color: #313a46;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar {
+  width: 270px;
+  font-family: "Nunito", sans-serif;
+  color: #8391a2;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  height: 100vh;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #808183;
+  border-radius: 8px;
+  height: 12px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background-color: #1d1c1c;
+  border-radius: 8px;
+}
+
+/* Collapsed state styles */
+.collapsed {
+  width: 60px;
+}
+
+.collapsed .navLink {
+  justify-content: center;
+}
+
+.collapsed .icon {
+  margin-right: 0;
+}
+
+.collapsed .navLink span {
+  display: none;
+}
+
+/* Sidebar header */
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 15px;
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+}
+
+/* Navigation Links */
+.nav {
+  list-style-type: none;
+  padding: 0;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 15px;
+  color: #8391a2;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 0 !important;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease-in-out;
+}
+
+.navLink:hover {
+  color: #bccee4;
+}
+
+.icon {
+  font-size: 1rem;
+  margin-right: 10px;
+}
+
+/* Submenu Styles */
+.submenu {
+  padding-left: 20px;
+  list-style-type: none;
+  color: #8391a2;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.7s ease, opacity 0.5s ease;
+}
+
+.collapsed .submenu {
+  display: none;
+}
+
+.submenu li a {
+  display: block;
+  color: #8391a2;
+  padding: 5px 0 5px 25px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  transition: color 0.2s;
+}
+
+.submenu li a:hover {
+  color: #bccee4;
+}
+
+/* Submenu Arrow */
+.submenuArrow {
+  margin-left: auto;
+  font-size: 0.7rem;
+  transition: transform 0.5s ease;
+}
+
+.submenuArrow.rotate {
+  transform: rotate(90deg);
+}
+
+/* Expanded Submenu */
+.submenu.expanded {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* Collapsed submenu (modal style) */
+.collapsedSubmenu {
+  position: absolute;
+  position: fixed;
+  top: 20%;
+  left: 13%;
+  transform: translateX(-50%);
+  background-color: #313a46;
+  color: #8391a2;
+  padding: 20px;
+  width: 250px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+.collapsedSubmenu.expanded {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
+  transition: visibility 0s 0s;
+}
+
+
+.collapsedSubmenu .closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #fff;
+  background: transparent;
+  border: none;
+}
+
+
+.submenuItem {
+  padding: 8px 10px;
+}
+
+.submenuLink {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.submenuLink:hover {
+  color: #bccee4;
+}
+
+.submenuIcon {
+  margin-left: 5px;
+  font-size: 0.9rem;
+}
+.collapsedSubmenu .submenuHeading {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #bccee4; 
+}

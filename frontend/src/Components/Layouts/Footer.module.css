@@ -1,0 +1,27 @@
+.footer {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+}
+
+.footer h5 {
+  font-size: 1.25rem;
+}
+
+.footer ul li a {
+  color: #6c757d;
+}
+
+.footer ul li a:hover {
+  color: #495057;
+}
+
+.footer .social-icons a {
+  color: #6c757d;
+}
+
+.footer .social-icons a:hover {
+  color: #495057;
+}

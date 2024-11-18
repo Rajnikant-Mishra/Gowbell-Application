@@ -1,9 +1,11 @@
 import React from "react";
+import Mainlayout from "../Layouts/Mainlayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const AdminDashboard = () => {
-    
+
+export default function Dashboard() {
+
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -26,13 +28,12 @@ const AdminDashboard = () => {
       console.error("Error during logout:", error);
     }
   };
-
   return (
-    <div>
+    <>
+      <Mainlayout>
       <h1>Admin Dashboard</h1>
       <button onClick={handleLogout}>Logout</button>
-    </div>
+      </Mainlayout>
+    </>
   );
-};
-
-export default AdminDashboard;
+}
