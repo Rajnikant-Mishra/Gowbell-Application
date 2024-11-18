@@ -21,8 +21,10 @@ import affiliatedRoutes from './routes/Master/affiliatedRoutes.js';
 //inventory
 import bookRoutes from './routes/Inventory/bookRoutes.js';
 import questionRoutes from './routes/Inventory/questionRoutes.js';
+import omrRoutes from './routes/Inventory/omrRoutes.js';
 
-
+//school
+import SchoolFormRoutes from './routes/School/SchoolFormRoutes.js';
 
 const app = express();
 
@@ -57,9 +59,11 @@ app.use('/api', affiliatedRoutes);
 
 //use the inventory routes
 app.use('/api',bookRoutes );
-app.use('/api', questionRoutes);
+app.use('/api/get', questionRoutes);
+app.use('/api/get',omrRoutes);
 
-
+//use the school routes
+app.use('/api/get',SchoolFormRoutes);
 
 
 
