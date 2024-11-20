@@ -1,10 +1,14 @@
-import {db} from '../../config/db.js';
+import { db } from '../../config/db.js';
 
-export const School = {
-    getAll: (callback) => {
-        const sql = 'SELECT * FROM school';
-        db.query(sql, callback);
-    },
+const School = {
+    
+
+        getAll: (callback) => {
+            const sql = 'SELECT * FROM school'; // Ensure correct SQL query
+            db.query(sql, callback);
+        },
+   
+
     getById: (id, callback) => {
         const sql = 'SELECT * FROM school WHERE id = ?';
         db.query(sql, [id], callback);

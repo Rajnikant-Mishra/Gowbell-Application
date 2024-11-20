@@ -1,13 +1,12 @@
-import  express from 'express';
+import express from 'express';
+import { getAllSchools, getSchoolById, createSchool, updateSchool, deleteSchool } from '../../controllers/School/SchoolFormController.js';
 
 const router = express.Router();
 
-import  {getAllSchools, getSchoolById, createSchool, updateSchool, deleteSchool} from '../../controllers/School/SchoolFormController.js';
-
-router.get('/school', getAllSchools);         // Get all schools
-router.get('/school/:id', getSchoolById);      // Get school by ID
-router.post('/school', createSchool);         // Create a new school
-router.put('/school/:id', updateSchool);       // Update school
-router.delete('/school/:id', deleteSchool);    // Delete school
+router.get('/schools', getAllSchools);          // Get all schools
+router.get('/schools/:id', getSchoolById);      // Get school by ID
+router.post('/schools', createSchool);          // Create a new school
+router.put('/schools/:id', updateSchool);       // Update school
+router.delete('/schools/:id', deleteSchool);    // Delete school
 
 export default router;
