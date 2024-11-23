@@ -25,22 +25,29 @@ import omrRoutes from './routes/Inventory/omrRoutes.js';
 
 //school
 import SchoolFormRoutes from './routes/School/SchoolFormRoutes.js';
+import inchargeRoutes from './routes/Incharge/inchargeRoutes.js';
+
+//student\
+import studentRoutes from './routes/Student/studentRoutes.js';
 
 const app = express();
 
-// Use CORS middleware with specific origin
 
+
+dotenv.config();
+// Your other middlewares and routes
+app.use(express.json());
+app.use(bodyParser.json());
+
+
+
+// Use CORS middleware with specific origin
 app.use(cors({
     origin: "http://localhost:5173", // Allow your frontend's origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
     credentials: true, // Allow cookies or other credentials if necessary
   }));
   
-  
-dotenv.config();
-// Your other middlewares and routes
-app.use(express.json());
-app.use(bodyParser.json());
 
 
 
@@ -64,6 +71,10 @@ app.use('/api/get',omrRoutes);
 
 //use the school routes
 app.use('/api/get',SchoolFormRoutes);
+app.use('/api/get',inchargeRoutes );
+
+//student
+app.use('/api/get', studentRoutes );
 
 
 

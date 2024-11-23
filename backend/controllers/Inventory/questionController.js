@@ -7,7 +7,7 @@ export const createQuestion = (req, res) => {
 
   Question.create(newQuestion, (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(201).send({ message: 'Question created', bookId: result.insertId });
+    res.status(201).send({ message: 'Question  is created', bookId: result.insertId });
   });
 };
 
