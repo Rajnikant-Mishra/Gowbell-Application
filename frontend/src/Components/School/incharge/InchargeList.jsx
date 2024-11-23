@@ -27,7 +27,7 @@ function CountryList() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/get/question")
+      .get("http://localhost:5000/api/get/incharges")
       .then((response) => {
         setCountries(response.data);
         setFilteredCountries(response.data);
@@ -51,7 +51,7 @@ function CountryList() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`http://localhost:5000/api/get/question/${id}`)
+          .delete(`http://localhost:5000/api/get/incharges/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setCountries((prevCountries) => prevCountries.filter((country) => country.id !== id));
@@ -92,30 +92,41 @@ function CountryList() {
 
   const columns = [
     {
-      name: "Id",
+      name: "ID",
       selector: (row) => row.id,
       sortable: true,
     },
     {
-      name: " paper Name",
-      selector: (row) => row.paper_name,
+      name: "School Name",
+      selector: (row) => row.school_name,
       sortable: true,
     },
     {
-      name: "exam_level",
-      selector: (row) => row.exam_level,
+      name: "InchargeName",
+      selector: (row) => row.incharge_name,
       sortable: true,
     },
     {
-      name: "Class",
-      selector: (row) => row.class_name,
+      name: "InchargeDOB",
+      selector: (row) => row.incharge_dob,
       sortable: true,
     },
     {
-      name: "Quantity",
-      selector: (row) => row.quantity,
+      name: "MobileNumber",
+      selector: (row) => row.mobile_number,
       sortable: true,
     },
+    {
+      name: "ClassForm",
+      selector: (row) => row.class_from,
+      sortable: true,
+    },
+    {
+      name: "ClassTo",
+      selector: (row) => row.class_to,
+      sortable: true,
+    },
+    
     {
       name: "Created_at",
       selector: (row) => row.created_at,
@@ -126,7 +137,7 @@ function CountryList() {
       cell: (row) => (
         <div className="actionButtons d-flex gap-2">
           
-          <Link to={`/question/update/${row.id}`} type="button" className="">
+          <Link to={`/incharge/update/${row.id}`} type="button" className="">
             <FaRegEdit />
           </Link>
           <button
@@ -150,7 +161,7 @@ function CountryList() {
       <div className="container">
         <div className="d-flex justify-content-end align-items-center mb-3">
         
-          <Link to={"/question/create"} className="btn btn-primary">
+          <Link to={"/incharge-create"} className="btn btn-primary">
             <FaPlus/>
           </Link>
         </div>

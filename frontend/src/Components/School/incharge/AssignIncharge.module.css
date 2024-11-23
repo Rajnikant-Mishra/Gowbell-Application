@@ -1,0 +1,221 @@
+.formContainer {
+  overflow-x: hidden;
+}
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.item {
+  flex: 1 1 20%;
+  max-width: 20%;
+}
+.formTitle {
+  font-family: Nunito, sans-serif;
+  font-weight: 500 !important;
+  color: #7E8183 !important;
+  font-size: 20px !important;
+  line-height: 16px !important;
+}
+.formContent {
+  display: flex;
+  flex-direction: column;
+  /* gap: 20px; */
+}
+/* dfjdiofjdipfsdiopfopsdifpood */
+.formContent .MuiFormControl-root {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+.divrow {
+  margin-top: -15px;
+}
+/* Add this to School.module.css */
+.formRow {
+  display: flex;
+  gap: 10px;
+}
+.formRow > * {
+  flex: 1;
+  min-width: 0;
+}
+.selectInput,
+.textInput {
+  height: 40px;
+}
+.filedelete {
+  background-color: "#FF4D4F";
+  color: "#fff";
+  border: "none";
+  padding: "5px 10px";
+  cursor: "pointer";
+  border-radius: "3px";
+}
+/* selectiondrop1  */
+.selectContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* gap: 8px; */
+}
+.selectinput {
+  position: relative;
+}
+/* Display selected options as chips */
+.selectedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* Each selected option displayed as a chip */
+.selectedTags .badge {
+  background-color: #90d14ff1;
+  font-family: "Nunito", sans-serif;
+  color: white;
+  padding: 0px 5px;
+  border-radius: 5px;
+  font-weight: bolder;
+  display: flex;
+  font-size: 12px;
+  margin: 2px 0px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.selectedTags .badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+.selectedTags .btnClose {
+  color: white;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  margin-left: 2px;
+  cursor: pointer;
+}
+.selectedTags .btnClose:hover {
+  color: white;
+}
+/* Dropdown menu styling */
+.dropdownMenu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+}
+.dropdownMenu.slideIn {
+  transform: translateY(0);
+  opacity: 1;
+}
+.dropdownMenu.slideOut {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+.dropdownMenu::-webkit-scrollbar {
+  width: 8px;
+}
+.dropdownMenu::-webkit-scrollbar-thumb {
+  background: #6FB344;
+}
+.dropdownMenu::-webkit-scrollbar-thumb:hover {
+  background: #90D14F;
+}
+.dropdownitem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.dropdownitem:hover {
+  background: #90D14F;
+  color: white;
+}
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 0.875rem;
+}
+.okButton {
+  display: block;
+  width: 20%;
+  padding: 4px;
+  margin-top: 8px;
+  border: none;
+  background-color: #00796B;
+  color: white;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.okButton:hover {
+  background-color: #004D40;
+}
+.okButton:focus {
+  outline: 2px solid #004D40;
+}
+.crossicon {
+  font-size: 12px;
+}
+.dropdownFooter {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  text-align: left;
+}
+/* jkhkjshjsojo */
+.selectedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+}
+.selectedBadgesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.selectedTags .badge {
+  background-color: #90d14ff1;
+  font-family: "Nunito", sans-serif;
+  color: white;
+  padding: 0px 5px;
+  border-radius: 2px;
+  font-weight: bolder;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.selectedTags .badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+.buttonContainer {
+  display: flex;
+}
+.cancelbtn {
+  background-color: red;
+}
+.formBox {
+  background-color: #fff;
+  box-shadow: rgb(210 217 229 / 35%) 0px 0px 7px;
+  padding: 5%;
+  border-radius: 5px;
+}

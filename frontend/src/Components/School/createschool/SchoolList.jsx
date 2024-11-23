@@ -27,7 +27,7 @@ function CountryList() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/get/question")
+      .get("http://localhost:5000/api/get/schools")
       .then((response) => {
         setCountries(response.data);
         setFilteredCountries(response.data);
@@ -51,7 +51,7 @@ function CountryList() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`http://localhost:5000/api/get/question/${id}`)
+          .delete(`http://localhost:5000/api/get/schools/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setCountries((prevCountries) => prevCountries.filter((country) => country.id !== id));
@@ -92,35 +92,46 @@ function CountryList() {
 
   const columns = [
     {
-      name: "Id",
+      name: "ID",
       selector: (row) => row.id,
       sortable: true,
     },
     {
-      name: " paper Name",
-      selector: (row) => row.paper_name,
+      name: "School Name",
+      selector: (row) => row.school_name,
       sortable: true,
     },
     {
-      name: "exam_level",
-      selector: (row) => row.exam_level,
+      name: " School Email",
+      selector: (row) => row.school_email,
       sortable: true,
     },
     {
-      name: "Class",
-      selector: (row) => row.class_name,
+      name: "State",
+      selector: (row) => row.state,
       sortable: true,
     },
     {
-      name: "Quantity",
-      selector: (row) => row.quantity,
+      name: "Dist",
+      selector: (row) => row.district,
       sortable: true,
     },
     {
-      name: "Created_at",
-      selector: (row) => row.created_at,
+      name: "City",
+      selector: (row) => row.city,
       sortable: true,
     },
+    {
+      name: "Principal Name",
+      selector: (row) => row.principal_name,
+      sortable: true,
+    },
+    {
+      name: "Principal contact",
+      selector: (row) => row.principal_contact_number,
+      sortable: true,
+    },
+    
     {
       name: "Action",
       cell: (row) => (
@@ -150,7 +161,7 @@ function CountryList() {
       <div className="container">
         <div className="d-flex justify-content-end align-items-center mb-3">
         
-          <Link to={"/question/create"} className="btn btn-primary">
+          <Link to={"/school-create"} className="btn btn-primary">
             <FaPlus/>
           </Link>
         </div>

@@ -1,0 +1,55 @@
+.inputField {
+  font-size: 1rem;
+  font-family: "Nunito", sans-serif;
+  border: none;
+  background-color: white;
+  transition: border-color 0.3s ease;
+}
+.css-1kfabtt-MuiFormLabel-root-MuiInputLabel-root {
+  color: rgb(133 115 115 / 60%) !important;
+}
+label#\:r1d\:-label {
+  font-size: 12px !important;
+}
+input:focus {
+  border-color: white !important;
+}
+.css-hvjq6j-MuiFormLabel-root-MuiInputLabel-root.Mui-focused {
+  color: white !important;
+}
+.css-hvjq6j-MuiFormLabel-root-MuiInputLabel-root.Mui-focused {
+  color: white !important;
+}
+/* .inputField:focus {
+  border-bottom: 2px solid #3E4095 !important;
+} */
+.formLabel {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: font-size 0.2s ease;
+}
+.MuiInputLabel-shrink {
+  font-size: 0.8rem;
+}
+@media (max-width: 768px) {
+  .formLabel {
+    font-size: 0.9rem;
+  }
+  .MuiInputLabel-shrink {
+    font-size: 0.75rem;
+  }
+}
+@media (max-width: 480px) {
+  .formLabel {
+    font-size: 0.8rem;
+  }
+  .MuiInputLabel-shrink {
+    font-size: 0.7rem;
+  }
+}
+.inputField {
+  font-size: 1rem;
+  font-family: "Nunito", sans-serif;
+  border: none;
+}

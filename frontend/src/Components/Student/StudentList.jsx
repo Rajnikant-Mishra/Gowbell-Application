@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Mainlayout from "../../Layouts/Mainlayout";
+import Mainlayout from "../Layouts/Mainlayout";
 import DataTable from "react-data-table-component";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -13,7 +13,7 @@ import { FaPlus } from "react-icons/fa6";
 
 
 
-function CountryList() {
+function StudentList() {
   const [countries, setCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [filters, setFilters] = useState({
@@ -27,7 +27,7 @@ function CountryList() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/get/question")
+      .get("http://localhost:5000/api/get/student")
       .then((response) => {
         setCountries(response.data);
         setFilteredCountries(response.data);
@@ -51,7 +51,7 @@ function CountryList() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`http://localhost:5000/api/get/question/${id}`)
+          .delete(`http://localhost:5000/api/get/student/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setCountries((prevCountries) => prevCountries.filter((country) => country.id !== id));
@@ -92,33 +92,44 @@ function CountryList() {
 
   const columns = [
     {
-      name: "Id",
+      name: "ID",
       selector: (row) => row.id,
       sortable: true,
     },
     {
-      name: " paper Name",
-      selector: (row) => row.paper_name,
+      name: "SchoolName",
+      selector: (row) => row.school_name,
       sortable: true,
     },
     {
-      name: "exam_level",
-      selector: (row) => row.exam_level,
+      name: "StudentName",
+      selector: (row) => row.student_name,
       sortable: true,
     },
     {
-      name: "Class",
+      name: "ClassName",
       selector: (row) => row.class_name,
       sortable: true,
     },
     {
-      name: "Quantity",
-      selector: (row) => row.quantity,
+      name: "Section",
+      selector: (row) => row.student_section,
       sortable: true,
     },
     {
-      name: "Created_at",
-      selector: (row) => row.created_at,
+      name: "MobileNumber",
+      selector: (row) => row.mobile_number,
+      sortable: true,
+    },
+    {
+      name: "WhatsappNumber",
+      selector: (row) => row.whatsapp_number,
+      sortable: true,
+    },
+    
+    {
+      name: "StudentSubject",
+      selector: (row) => row.student_subject,
       sortable: true,
     },
     {
@@ -126,7 +137,7 @@ function CountryList() {
       cell: (row) => (
         <div className="actionButtons d-flex gap-2">
           
-          <Link to={`/question/update/${row.id}`} type="button" className="">
+          <Link to={`/student/update/${row.id}`} type="button" className="">
             <FaRegEdit />
           </Link>
           <button
@@ -150,7 +161,7 @@ function CountryList() {
       <div className="container">
         <div className="d-flex justify-content-end align-items-center mb-3">
         
-          <Link to={"/question/create"} className="btn btn-primary">
+          <Link to={"/student-create"} className="btn btn-primary">
             <FaPlus/>
           </Link>
         </div>
@@ -230,4 +241,4 @@ function CountryList() {
   );
 }
 
-export default CountryList;
+export default StudentList;

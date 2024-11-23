@@ -13,7 +13,7 @@ const UpdateOMRForm = () => {
   
   useEffect(() => {
     // Fetch existing OMR entry data for editing
-    axios.get(`http://localhost:5000/api/omr/${id}`)
+    axios.get(`http://localhost:5000/api/get/omr/${id}`)
       .then((response) => {
         const { title, quantity } = response.data;
         setTitle(title);
@@ -24,13 +24,14 @@ const UpdateOMRForm = () => {
       });
   }, [id]);
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
     const omrData = { title, quantity };
 
     // Send PUT request to update the OMR entry
-    axios.put(`http://localhost:5000/api/omr/${id}`, omrData)
+    axios.put(`http://localhost:5000/api/get/omr/${id}`, omrData)
       .then((response) => {
         Swal.fire({
           title: 'Success!',

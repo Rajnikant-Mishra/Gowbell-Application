@@ -16,20 +16,18 @@ import { PiStudentFill } from "react-icons/pi";
 import { BsBookHalf } from "react-icons/bs";
 import { GrCertificate } from "react-icons/gr";
 import { SiGoogleanalytics } from "react-icons/si";
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from "react-router-dom";
 const Sidebar = ({ isCollapsed }) => {
   const [expandedMenus, setExpandedMenus] = React.useState({});
   const [submenuPosition, setSubmenuPosition] = React.useState({
     top: 0,
     left: 0,
   });
-
+  const navigate = useNavigate(); // React Router navigation hook
   const toggleSubMenu = (menu, e) => {
     const iconRect = e.currentTarget
       .querySelector(`.${styles.icon}`)
       .getBoundingClientRect();
-
     const newPosition =
       menu === "Account"
         ? { top: iconRect.top, left: iconRect.left + iconRect.width + 10 }
@@ -39,9 +37,7 @@ const Sidebar = ({ isCollapsed }) => {
               ? iconRect.right + 10
               : iconRect.left + iconRect.width + 10,
           };
-
     setSubmenuPosition(newPosition);
-
     setExpandedMenus((prevMenus) => {
       const newExpandedMenus = { ...prevMenus };
       for (let key in newExpandedMenus) {
@@ -53,11 +49,17 @@ const Sidebar = ({ isCollapsed }) => {
       return newExpandedMenus;
     });
   };
-
+  const navigateTo = (menuItem, e) => {
+    if (menuItem.subMenu.length === 0 && menuItem.link) {
+      // Navigate directly if there's no submenu and a link is provided
+      navigate(menuItem.link);
+    } else {
+      toggleSubMenu(menuItem.id, e); // Otherwise, toggle the submenu
+    }
+  };
   const closeSubMenu = () => {
     setExpandedMenus({});
   };
-
   const menuItems = [
     {
       id: "Region",
@@ -70,7 +72,8 @@ const Sidebar = ({ isCollapsed }) => {
         { label: "City", link: "/city" },
         { label: "Area", link: "/area" },
       ],
-    },   {
+    },
+    {
       id: "Master",
       icon: FaCompass,
       label: "Master",
@@ -78,7 +81,6 @@ const Sidebar = ({ isCollapsed }) => {
         { label: "Class", link: "/class" },
         { label: "Affiliated", link: "/affiliated" },
         { label: "Subject", link: "/subject" },
-       
       ],
     },
     {
@@ -87,21 +89,18 @@ const Sidebar = ({ isCollapsed }) => {
       label: "Inventory",
       subMenu: [
         { label: "Book", link: "/book" },
-        { label: "Question", link:"/question" },
-        { label: "Omr", link:"/omr" },
-        
+        { label: "Question", link: "/question" },
+        { label: "Omr", link: "/omr" },
       ],
       title: "Inventory",
     },
-
     {
       id: "School",
       icon: FaSchool,
       label: "School",
       subMenu: [
-        { label: "Create", link: "/school-create" },
-        { label: "Assign Incharge", link:"/incharge" },
-     
+        { label: "SchoolCreate", link: "/schoolList" },
+        { label: "Assign Incharge", link: "/inchargeList" },
       ],
       title: "School",
     },
@@ -109,12 +108,8 @@ const Sidebar = ({ isCollapsed }) => {
       id: "Student",
       icon: PiStudentFill,
       label: "Student",
-      subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
-      ],
+      link: "/studentList",
+      subMenu: [], // No submenu
       title: "Student",
     },
     {
@@ -122,86 +117,14 @@ const Sidebar = ({ isCollapsed }) => {
       icon: BsBookHalf,
       label: "Exam",
       subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
+        { label: "New", link: "/exam/new" },
+        { label: "Processed", link: "/exam/processed" },
+        { label: "Shipped", link: "/exam/shipped" },
+        { label: "Returned", link: "/exam/returned" },
       ],
       title: "Exam",
     },
-    {
-      id: "Consignment",
-      icon: MdOutlineAssignment,
-      label: "Consignment",
-      subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
-      ],
-      title: "Consignment",
-    },
-    {
-      id: "Certificate & Prize",
-      icon: GrCertificate,
-      label: "Certificate & Prize",
-      subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
-      ],
-      title: "Certificate & Prize",
-    },
-    {
-      id: "Reporting and Analytics",
-      icon: SiGoogleanalytics,
-      label: "Reporting and Analytics",
-      subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
-      ],
-      title: "Reporting and Analytics",
-    },
-    {
-      id: "User & Role Management",
-      icon: FaUsers,
-      label: "User & Role Management",
-      subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
-      ],
-      title: "User & Role Management",
-    },
-    {
-      id: "Notifications System",
-      icon: IoNotificationsSharp,
-      label: "Notifications System",
-      subMenu: [
-        { label: "New", href: "#" },
-        { label: "Processed", href: "#" },
-        { label: "Shipped", href: "#" },
-        { label: "Returned", href: "#" },
-      ],
-      title: "Notifications System",
-    },
-    {
-      id: "Account",
-      icon: FaUserCircle,
-      label: "Account",
-      subMenu: [
-        { label: "Profile", href: "#" },
-        { label: "Settings", href: "#" },
-        { label: "Sign Out", href: "#", icon: FaSignOutAlt },
-      ],
-      title: "Account",
-    },
   ];
-
   return (
     <div className={styles.parentDiv}>
       <div className={styles.sidebarHeader}>
@@ -218,7 +141,6 @@ const Sidebar = ({ isCollapsed }) => {
           )}
         </a>
       </div>
-
       <div
         className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
       >
@@ -233,47 +155,35 @@ const Sidebar = ({ isCollapsed }) => {
               {!isCollapsed && <span>Dashboard</span>}
             </a>
           </li>
-
-          {menuItems.map(({ id, icon: Icon, label, subMenu }) => (
-          <li key={id} className={styles.navItem}>
-            <div
-              className={styles.navLink}
-              onClick={(e) => toggleSubMenu(id, e)}
-              title={isCollapsed ? label : ""}
-            >
-              <Icon className={styles.icon} />
-              {!isCollapsed && <span>{label}</span>}
-              {!isCollapsed && subMenu.length > 0 && (
-                <FaChevronRight
-                  className={`${styles.submenuArrow} ${expandedMenus[id] ? styles.rotate : ""}`}
-                />
-              )}
-            </div>
-            {subMenu.length > 0 && (
-              <ul
-                className={`${styles.submenu} ${expandedMenus[id] ? styles.expanded : ""}`}
-                style={{ top: submenuPosition.top, left: submenuPosition.left }}
-              >
-                {subMenu.map((item, index) => (
-                  <li key={index} className={styles.submenuItem}>
-                    <Link to={item.link} className={styles.submenuLink}>
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {isCollapsed && expandedMenus[id] && subMenu.length !== 0 && (
+          {menuItems.map((menuItem) => (
+            <li key={menuItem.id} className={styles.navItem}>
               <div
-                className={`${styles.collapsedSubmenu} ${expandedMenus[id] ? styles.expanded : ""}`}
+                className={styles.navLink}
+                onClick={(e) => navigateTo(menuItem, e)}
+                title={isCollapsed ? menuItem.label : ""}
               >
-                <span className={styles.closeBtn} onClick={closeSubMenu}>
-                  ×
-                </span>
-                <h3 className={styles.submenuHeading}>{label}</h3>
-                <ul>
-                  {subMenu.map((item, index) => (
+                <menuItem.icon className={styles.icon} />
+                {!isCollapsed && <span>{menuItem.label}</span>}
+                {!isCollapsed &&
+                  menuItem.subMenu.length > 0 && (
+                    <FaChevronRight
+                      className={`${styles.submenuArrow} ${
+                        expandedMenus[menuItem.id] ? styles.rotate : ""
+                      }`}
+                    />
+                  )}
+              </div>
+              {menuItem.subMenu.length > 0 && (
+                <ul
+                  className={`${styles.submenu} ${
+                    expandedMenus[menuItem.id] ? styles.expanded : ""
+                  }`}
+                  style={{
+                    top: submenuPosition.top,
+                    left: submenuPosition.left,
+                  }}
+                >
+                  {menuItem.subMenu.map((item, index) => (
                     <li key={index} className={styles.submenuItem}>
                       <Link to={item.link} className={styles.submenuLink}>
                         {item.label}
@@ -281,14 +191,12 @@ const Sidebar = ({ isCollapsed }) => {
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
-          </li>
-        ))}
+              )}
+            </li>
+          ))}
         </ul>
       </div>
     </div>
   );
 };
-
 export default Sidebar;

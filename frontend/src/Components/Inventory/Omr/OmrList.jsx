@@ -18,14 +18,14 @@ function CountryList() {
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [filters, setFilters] = useState({
     id: "",
-    name: "",
-    status: "",
+    title: "",
+    quantity: "",
     created_at: ""
   });
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/omr")
+      .get("http://localhost:5000/api/get/omr")
       .then((response) => {
         setCountries(response.data);
         setFilteredCountries(response.data);
@@ -49,7 +49,7 @@ function CountryList() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`http://localhost:5000/api/omr${id}`)
+          .delete(`http://localhost:5000/api/get/omr/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setCountries((prevCountries) => prevCountries.filter((country) => country.id !== id));

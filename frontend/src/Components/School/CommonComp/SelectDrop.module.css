@@ -1,0 +1,30 @@
+.selectDropContainer {
+  /* margin-bottom: 16px; */
+  font-family: "Nunito", sans-serif;
+}
+.MuiOutlinedInput-root {
+  border-radius: 8px;
+  background-color: #F5F5F5;
+  /* padding: 10px; */
+  font-family: "Nunito", sans-serif;
+}
+.MuiFormLabel-root {
+  color: #4A90E2;
+  font-family: "Nunito", sans-serif;
+}
+.MuiInputBase-root {
+  border-radius: 8px;
+  font-family: "Nunito", sans-serif;
+}
+.MuiMenuItem-root {
+  font-size: 0.875rem;
+  color: #333;
+  font-family: "Nunito", sans-serif;
+}
+.MuiMenuItem-root:hover {
+  background-color: #E0F7FA;
+  font-family: "Nunito", sans-serif;
+}
+.css-16bevx5-MuiFormControl-root-MuiTextField-root {
+  margin-top: 0px !important;
+}
