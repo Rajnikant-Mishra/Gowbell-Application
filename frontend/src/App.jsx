@@ -64,6 +64,12 @@ import StudentForm from "./Components/Student/StudentForm";
 import StudentList from "./Components/Student/StudentList";
 import StudentUpdate from  "./Components/Student/StudentUpdate";
 
+import OmrcoList from "./Components/Consignment/omrco/OmrcoList";
+import OmrcoFrom from "./Components/Consignment/omrco/OmrcoForm";
+import OmrcoUpdate from "./Components/Consignment/omrco/OmrcoUpdate";
+
+
+
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? element : <Navigate to="/admin" />;
@@ -271,6 +277,20 @@ function App() {
           <Route
             path="/student/update/:id"
             element={<ProtectedRoute element={<StudentUpdate/>} />}
+          />
+
+          {/* omr route */}
+          <Route
+            path="/omr-list"
+            element={<ProtectedRoute element={<OmrcoList/>} />}
+          />
+          <Route
+            path="/omr-generate"
+            element={<ProtectedRoute element={<OmrcoFrom/>} />}
+          />
+          <Route
+            path="/omrco/update/:id"
+            element={<ProtectedRoute element={<OmrcoUpdate/>} />}
           />
         </Routes>
       </Router>

@@ -32,12 +32,12 @@
   margin-bottom: 1rem;
 }
 
-input,
+/* input, */
 .MuiInputBase-root {
   border-radius: 8px !important; /* Smooth corners for inputs */
 }
 
-input:focus,
+/* input:focus, */
 .Mui-focused {
   border-color: #3e4095; /* Logo color as border on focus */
 }

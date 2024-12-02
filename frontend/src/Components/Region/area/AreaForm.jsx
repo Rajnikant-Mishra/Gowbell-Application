@@ -73,7 +73,9 @@ const CreateArea = () => {
           title: 'Success!',
           text: `Area "${name}" created successfully.`,
           icon: 'success',
-          confirmButtonText: 'OK',
+          timer: 1000, // Auto close after 2 seconds
+          timerProgressBar: true,
+          showConfirmButton: false, 
         }).then(() => navigate('/area'));
       })
       .catch((error) => {
@@ -89,16 +91,16 @@ const CreateArea = () => {
 
   return (
     <Mainlayout>
-      <Container maxWidth="md">
-        <Box sx={{ marginTop: 6, padding: 5, borderRadius: 3, boxShadow: 4, backgroundColor: '#f9f9f9' }}>
-          <Typography variant="h4" align="center" sx={{ marginBottom: 4 }}>
+      <Container maxWidth="sm" sx={{height:"800px"}}>
+        <Box sx={{ marginTop: 2, padding: 5, borderRadius: 3, boxShadow: 4, backgroundColor: '#f9f9f9' }}>
+          <Typography variant="h4" align="center" sx={{ marginBottom: 1 }}>
             Create New Area
           </Typography>
           <form onSubmit={handleSubmit}>
             {/* Country selection */}
-            <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }}>
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }}>
               <InputLabel>Select Country</InputLabel>
-              <Select
+              <Select 
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 label="Select Country"
@@ -112,7 +114,7 @@ const CreateArea = () => {
             </FormControl>
 
             {/* State selection */}
-            <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }} disabled={!selectedCountry}>
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }} disabled={!selectedCountry}>
               <InputLabel>Select State</InputLabel>
               <Select
                 value={selectedState}
@@ -128,7 +130,7 @@ const CreateArea = () => {
             </FormControl>
 
             {/* District selection */}
-            <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }} disabled={!selectedState}>
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }} disabled={!selectedState}>
               <InputLabel>Select District</InputLabel>
               <Select
                 value={selectedDistrict}
@@ -144,7 +146,7 @@ const CreateArea = () => {
             </FormControl>
 
             {/* City selection */}
-            <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }} disabled={!selectedDistrict}>
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0}} disabled={!selectedDistrict}>
               <InputLabel>Select City</InputLabel>
               <Select
                 value={selectedCity}
@@ -160,7 +162,7 @@ const CreateArea = () => {
             </FormControl>
 
             {/* Area name input */}
-            <TextField
+            <TextField size='small'
               fullWidth
               label="Area Name"
               value={name}
@@ -168,11 +170,11 @@ const CreateArea = () => {
               required
               variant="outlined"
               margin="normal"
-              sx={{ marginBottom: 2 }}
+              sx={{ marginBottom: 0 }}
             />
 
             {/* Status selection */}
-            <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }}>
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }}>
               <InputLabel>Status</InputLabel>
               <Select
                 value={status}
@@ -190,7 +192,9 @@ const CreateArea = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3, padding: '10px 20px', fontSize: '1rem' }}
+              sx={{ marginTop: 3, padding: '10px 20px', fontSize: '1rem', backgroundColor: "#8fd14f",
+                "&:hover": { backgroundColor: "#7ec13f" }, }}
+              
             >
               Create
             </Button>

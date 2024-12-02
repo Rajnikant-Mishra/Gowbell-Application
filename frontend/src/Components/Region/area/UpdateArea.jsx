@@ -1,115 +1,220 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import Mainlayout from "../../Layouts/Mainlayout";
-import {
-  Container,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  Grid,
-  Typography,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-  Card,
-  CardContent,
-} from '@mui/material';
+import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Container, Typography, Box } from '@mui/material';
+import Swal from 'sweetalert2';
 
-const UpdateCountry = () => {
-  const [name, setName] = useState("");
-  const [status, setStatus] = useState("active");
-  const { id } = useParams();
+const UpdateArea = () => {
+  const { id } = useParams(); // Get the ID from the route parameters
+  const [name, setName] = useState('');
+  const [status, setStatus] = useState('active');
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const navigate = useNavigate();
 
+  // Fetch countries on component mount
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/areas/${id}`)
+    axios.get('http://localhost:5000/api/countries/')
+      .then((response) => setCountries(response.data))
+      .catch((error) => console.error('Error fetching countries:', error));
+  }, []);
+
+  // Fetch states based on selected country
+  useEffect(() => {
+    if (selectedCountry) {
+      axios.get(`http://localhost:5000/api/states?countryId=${selectedCountry}`)
+        .then((response) => setStates(response.data))
+        .catch((error) => console.error('Error fetching states:', error));
+    }
+  }, [selectedCountry]);
+
+  // Fetch districts based on selected state
+  useEffect(() => {
+    if (selectedState) {
+      axios.get(`http://localhost:5000/api/districts?stateId=${selectedState}`)
+        .then((response) => setDistricts(response.data))
+        .catch((error) => console.error('Error fetching districts:', error));
+    }
+  }, [selectedState]);
+
+  // Fetch cities based on selected district
+  useEffect(() => {
+    if (selectedDistrict) {
+      axios.get(`http://localhost:5000/api/cities?districtId=${selectedDistrict}`)
+        .then((response) => setCities(response.data))
+        .catch((error) => console.error('Error fetching cities:', error));
+    }
+  }, [selectedDistrict]);
+
+  // Fetch area details by ID and populate the form
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/areas/${id}`)
       .then((response) => {
-        setName(response.data.name);
-        setStatus(response.data.status);
+        const area = response.data;
+        setName(area.name);
+        setStatus(area.status);
+        setSelectedCountry(area.countryId);
+        setSelectedState(area.stateId);
+        setSelectedDistrict(area.districtId);
+        setSelectedCity(area.cityId);
       })
-      .catch((error) => {
-        console.error("Error fetching Area :", error);
-      });
+      .catch((error) => console.error('Error fetching area details:', error));
   }, [id]);
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios
-      .put(`http://localhost:5000/api/areas/${id}`, { name, status })
-      .then((response) => {
+    const data = {
+      name,
+      status,
+      countryId: selectedCountry,
+      stateId: selectedState,
+      districtId: selectedDistrict,
+      cityId: selectedCity,
+    };
+
+    axios.put(`http://localhost:5000/api/areas/${id}`, data)
+      .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: "Area   updated successfully.",
-          icon: "success",
-          timer: 2000,
+          title: 'Success!',
+          text: `Area "${name}" updated successfully.`,
+          icon: 'success',
+          timer: 1000,
+          timerProgressBar: true,
           showConfirmButton: false,
-        }).then(() => {
-          navigate("/area"); // Redirect after SweetAlert
-        });
+        }).then(() => navigate('/area'));
       })
       .catch((error) => {
-        console.error("Error updating Area  :", error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'There was an issue updating the area. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+        console.error('Error updating area:', error);
       });
   };
 
   return (
     <Mainlayout>
-      <Container maxWidth="sm">
-        <Typography variant="h4" gutterBottom align="center">
-          Update Area
-        </Typography>
-        
-        <Card sx={{ boxShadow: 3, padding: 3 }}>
-          <CardContent>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Area  Name"
-                    variant="outlined"
-                    fullWidth
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      label="Status"
-                    >
-                      <MenuItem value="active">Active</MenuItem>
-                      <MenuItem value="inactive">Inactive</MenuItem>
-                    </Select>
-                    <FormHelperText>Select the State  status</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    size="large"
-                  >
-                    Update Area
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
-          </CardContent>
-        </Card>
+      <Container maxWidth="sm" sx={{ height: "800px" }}>
+        <Box sx={{ marginTop: 2, padding: 5, borderRadius: 3, boxShadow: 4, backgroundColor: '#f9f9f9' }}>
+          <Typography variant="h4" align="center" sx={{ marginBottom: 1 }}>
+            Update Area
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }}>
+              <InputLabel>Select Country</InputLabel>
+              <Select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                label="Select Country"
+              >
+                {countries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }} disabled={!selectedCountry}>
+              <InputLabel>Select State</InputLabel>
+              <Select
+                value={selectedState}
+                onChange={(e) => setSelectedState(e.target.value)}
+                label="Select State"
+              >
+                {states.map((state) => (
+                  <MenuItem key={state.id} value={state.id}>
+                    {state.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }} disabled={!selectedState}>
+              <InputLabel>Select District</InputLabel>
+              <Select
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                label="Select District"
+              >
+                {districts.map((district) => (
+                  <MenuItem key={district.id} value={district.id}>
+                    {district.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }} disabled={!selectedDistrict}>
+              <InputLabel>Select City</InputLabel>
+              <Select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                label="Select City"
+              >
+                {cities.map((city) => (
+                  <MenuItem key={city.id} value={city.id}>
+                    {city.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              size='small'
+              fullWidth
+              label="Area Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              variant="outlined"
+              margin="normal"
+              sx={{ marginBottom: 0 }}
+            />
+
+            <FormControl fullWidth size='small' margin="normal" sx={{ marginBottom: 0 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                label="Status"
+              >
+                <MenuItem value="active">Active</MenuItem>
+                <MenuItem value="inactive">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                marginTop: 3,
+                padding: '10px 20px',
+                fontSize: '1rem',
+                backgroundColor: "#8fd14f",
+                "&:hover": { backgroundColor: "#7ec13f" },
+              }}
+            >
+              Update
+            </Button>
+          </form>
+        </Box>
       </Container>
     </Mainlayout>
   );
 };
 
-export default UpdateCountry;
+export default UpdateArea;

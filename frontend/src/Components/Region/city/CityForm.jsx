@@ -8,16 +8,16 @@ import Swal from 'sweetalert2';
 const CreateCity = () => {
   const [name, setName] = useState('');
   const [status, setStatus] = useState('active');
-  const [countries, setCountries] = useState([]);  // List of countries
-  const [states, setStates] = useState([]);        // List of states based on selected country
-  const [districts, setDistricts] = useState([]);  // List of districts based on selected state
-  const [selectedCountry, setSelectedCountry] = useState(''); // Country ID
-  const [selectedState, setSelectedState] = useState('');     // State ID
-  const [selectedDistrict, setSelectedDistrict] = useState(''); // District ID
+  const [countries, setCountries] = useState([]); // List of countries
+  const [states, setStates] = useState([]);       // Filtered states based on country
+  const [districts, setDistricts] = useState([]); // Filtered districts based on state
+  const [selectedCountry, setSelectedCountry] = useState(''); // Selected country ID
+  const [selectedState, setSelectedState] = useState('');     // Selected state ID
+  const [selectedDistrict, setSelectedDistrict] = useState(''); // Selected district ID
   const navigate = useNavigate();
 
+  // Fetch countries on component mount
   useEffect(() => {
-    // Fetch countries on component mount
     axios.get('http://localhost:5000/api/countries/')
       .then((response) => {
         setCountries(response.data);
@@ -27,55 +27,77 @@ const CreateCity = () => {
       });
   }, []);
 
+  // Fetch states for the selected country
   useEffect(() => {
     if (selectedCountry) {
-      // Fetch states when a country is selected
       axios.get(`http://localhost:5000/api/states?countryId=${selectedCountry}`)
         .then((response) => {
-          setStates(response.data);
-          setDistricts([]);  // Reset districts when country changes
-          setSelectedState('');  // Reset selected state when country changes
-          setSelectedDistrict(''); // Reset district when country changes
+          const stateData = response.data.map(state => ({
+            ...state,
+            districtCount: 0, // Default district count
+          }));
+          setStates(stateData);
+          setDistricts([]); // Reset districts when country changes
+          setSelectedState(''); // Reset selected state
+          setSelectedDistrict(''); // Reset selected district
+
+          // Fetch district counts for each state
+          stateData.forEach(state => {
+            axios.get(`http://localhost:5000/api/districts?stateId=${state.id}`)
+              .then((districtResponse) => {
+                const districtCount = districtResponse.data.length;
+                setStates(prevStates =>
+                  prevStates.map(s => s.id === state.id ? { ...s, districtCount } : s)
+                );
+              })
+              .catch(err => console.error('Error fetching district count:', err));
+          });
         })
         .catch((error) => {
           console.error('Error fetching states:', error);
         });
+    } else {
+      setStates([]);
+      setDistricts([]);
     }
   }, [selectedCountry]);
 
+  // Fetch districts for the selected state
   useEffect(() => {
     if (selectedState) {
-      // Fetch districts when a state is selected
       axios.get(`http://localhost:5000/api/districts?stateId=${selectedState}`)
         .then((response) => {
           setDistricts(response.data);
-          setSelectedDistrict('');  // Reset selected district when state changes
+          setSelectedDistrict(''); // Reset selected district
         })
         .catch((error) => {
           console.error('Error fetching districts:', error);
         });
+    } else {
+      setDistricts([]);
     }
   }, [selectedState]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Sending the POST request to the server
     axios.post('http://localhost:5000/api/cities/', {
       name,
       status,
-      country_id: selectedCountry, // Send selected country ID
-      state_id: selectedState,     // Send selected state ID
-      district_id: selectedDistrict // Send selected district ID
+      country_id: selectedCountry,
+      state_id: selectedState,
+      district_id: selectedDistrict
     })
-      .then((response) => {
+      .then(() => {
         Swal.fire({
           title: 'Success!',
           text: `City "${name}" created successfully.`,
           icon: 'success',
-          confirmButtonText: 'OK',
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
         }).then(() => {
-          navigate('/city'); // Redirect after the user clicks OK
+          navigate('/city');
         });
       })
       .catch((error) => {
@@ -107,7 +129,7 @@ const CreateCity = () => {
               >
                 {countries.map((country) => (
                   <MenuItem key={country.id} value={country.id}>
-                    {country.name}
+                    {country.name} ({country.stateCount || 0} States)
                   </MenuItem>
                 ))}
               </Select>
@@ -123,7 +145,7 @@ const CreateCity = () => {
               >
                 {states.map((state) => (
                   <MenuItem key={state.id} value={state.id}>
-                    {state.name}
+                    {state.name} ({state.districtCount || 0} Districts)
                   </MenuItem>
                 ))}
               </Select>
@@ -154,6 +176,7 @@ const CreateCity = () => {
               variant="outlined"
               margin="normal"
             />
+
             <FormControl fullWidth margin="normal" required>
               <InputLabel>Status</InputLabel>
               <Select
@@ -165,12 +188,18 @@ const CreateCity = () => {
                 <MenuItem value="inactive">Inactive</MenuItem>
               </Select>
             </FormControl>
+
             <Button
               type="submit"
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3 }}
+              
+              sx={{
+                backgroundColor: "#8fd14f",
+                "&:hover": { backgroundColor: "#7ec13f", marginTop: 3 },
+              }}
+              disabled={!selectedDistrict} // Disable submit until district is selected
             >
               Create
             </Button>

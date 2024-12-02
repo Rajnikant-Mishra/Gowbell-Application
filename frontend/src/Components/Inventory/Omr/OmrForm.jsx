@@ -43,7 +43,7 @@ const BookForm = () => {
 
     setIsSubmitting(true);
 
-    axios.post('http://localhost:5000/api/get/orm', { title, quantity: parseInt(quantity) })
+    axios.post('http://localhost:5000/api/get/omr', { title, quantity: parseInt(quantity) })
       .then(() => {
         Swal.fire({
           title: 'Success!',

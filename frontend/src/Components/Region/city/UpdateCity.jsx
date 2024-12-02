@@ -60,11 +60,12 @@ const UpdateCountry = () => {
   return (
     <Mainlayout>
       <Container maxWidth="sm">
+        
+        
+        <Card sx={{ boxShadow: 3, padding: 3, marginTop:5 }}>
         <Typography variant="h4" gutterBottom align="center">
           Update City
         </Typography>
-        
-        <Card sx={{ boxShadow: 3, padding: 3 }}>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
@@ -99,6 +100,10 @@ const UpdateCountry = () => {
                     color="primary"
                     fullWidth
                     size="large"
+                    sx={{
+                      backgroundColor: "#8fd14f",
+                      "&:hover": { backgroundColor: "#7ec13f" },
+                    }}
                   >
                     Update District
                   </Button>

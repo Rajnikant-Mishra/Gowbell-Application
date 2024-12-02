@@ -37,7 +37,9 @@ const CreateCountry = () => {
           title: 'Success!',
           text: `State "${name}" created successfully.`,
           icon: 'success',
-          confirmButtonText: 'OK',
+          timer: 1000, // Auto close after 2 seconds
+          timerProgressBar: true,
+          showConfirmButton: false, 
         }).then(() => {
           navigate('/state');
         });
@@ -103,7 +105,11 @@ const CreateCountry = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3 }}
+             
+              sx={{
+                backgroundColor: "#8fd14f",
+                "&:hover": { backgroundColor: "#7ec13f", marginTop: 3 },
+              }}
             >
               Create
             </Button>

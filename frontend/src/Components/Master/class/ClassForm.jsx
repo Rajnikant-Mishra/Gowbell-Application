@@ -21,7 +21,8 @@ const CreateCountry = () => {
           title: 'Success!',
           text: `Class "${name}" created successfully.`,
           icon: 'success',
-          confirmButtonText: 'OK',
+          timer: 2000,
+          showConfirmButton: false,
         }).then(() => {
           navigate('/class'); // Redirect after the user clicks OK
         });
@@ -72,7 +73,11 @@ const CreateCountry = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3 }}
+             
+              sx={{
+                backgroundColor: "#8fd14f",
+                "&:hover": { backgroundColor: "#7ec13f", marginTop: 3 },
+              }}
             >
               Create
             </Button>

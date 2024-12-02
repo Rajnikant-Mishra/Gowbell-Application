@@ -16,7 +16,7 @@ import {
   FormHelperText,
   Card,
   CardContent,
-} from '@mui/material';
+} from "@mui/material";
 
 const UpdateCountry = () => {
   const [name, setName] = useState("");
@@ -46,7 +46,8 @@ const UpdateCountry = () => {
           title: "Success!",
           text: "Country updated successfully.",
           icon: "success",
-          timer: 2000,
+          timer:  1000,
+          timerProgressBar: true,
           showConfirmButton: false,
         }).then(() => {
           navigate("/country"); // Redirect after SweetAlert
@@ -60,12 +61,13 @@ const UpdateCountry = () => {
   return (
     <Mainlayout>
       <Container maxWidth="sm">
-        <Typography variant="h4" gutterBottom align="center">
+        
+
+        <Card sx={{ boxShadow: 3, padding: 3, marginTop:5 }}>
+          <CardContent>
+          <Typography variant="h4" gutterBottom align="center" sx={{ marginBottom:5 }} >
           Update Country
         </Typography>
-        
-        <Card sx={{ boxShadow: 3, padding: 3 }}>
-          <CardContent>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
@@ -99,6 +101,10 @@ const UpdateCountry = () => {
                     color="primary"
                     fullWidth
                     size="large"
+                    sx={{
+                      backgroundColor: "#8fd14f",
+                      "&:hover": { backgroundColor: "#7ec13f" },
+                    }}
                   >
                     Update Country
                   </Button>

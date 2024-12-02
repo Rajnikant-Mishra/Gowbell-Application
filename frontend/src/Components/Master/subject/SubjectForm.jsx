@@ -21,7 +21,8 @@ const CreateCountry = () => {
           title: 'Success!',
           text: `subject"${name}" created successfully.`,
           icon: 'success',
-          confirmButtonText: 'OK',
+          timer: 2000,
+          showConfirmButton: false,
         }).then(() => {
           navigate('/subject'); // Redirect after the user clicks OK
         });
@@ -72,7 +73,8 @@ const CreateCountry = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3 }}
+              sx={{ marginTop: 3, backgroundColor: "#8fd14f", }}
+              
             >
               Create
             </Button>

@@ -47,6 +47,7 @@ const UpdateCountry = () => {
           text: " subject updated successfully.",
           icon: "success",
           timer: 2000,
+          
           showConfirmButton: false,
         }).then(() => {
           navigate("/subject"); // Redirect after SweetAlert
@@ -99,6 +100,10 @@ const UpdateCountry = () => {
                     color="primary"
                     fullWidth
                     size="large"
+                    sx={{
+                      backgroundColor: "#8fd14f",
+                      "&:hover": { backgroundColor: "#7ec13f" },
+                    }}
                   >
                     Update Class
                   </Button>

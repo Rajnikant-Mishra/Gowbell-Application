@@ -1,43 +1,49 @@
 import React from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import styles from "./Header.module.css";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header = ({ toggleSidebar }) => {
+
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        logout(); // Clear local authentication state
+        navigate("/admin"); // Redirect to admin login
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
+
   return (
-    <header className={`${styles.header} py-3 border-bottom bg-light`}>
-      <div className="container-fluid ">
+    <header className="py-3 px-3 border-bottom bg-light">
+      <div className="container-fluid px-0">
         <div className="d-flex flex-wrap align-items-center justify-content-between">
           <p onClick={toggleSidebar} className="my-auto">
             <RxHamburgerMenu className={styles.hamburgerIcon} />
           </p>
-          {/* <ul className="nav col-lg-auto mb-2 justify-content-center mx-auto mb-md-0">
-            <li>
-              <a href="#" className="nav-link px-2 text-secondary">
-                Overview
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link px-2 text-dark">
-                Inventory
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link px-2 text-dark">
-                Customers
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link px-2 text-dark">
-                Products
-              </a>
-            </li>
-          </ul> */}
           <form className="col-lg-auto me-lg-3" role="search">
             <input
               type="search"
               className="form-control"
               placeholder="Search..."
               aria-label="Search"
+              style={{ borderRadius: "0" }}
             />
           </form>
           <div className="dropdown text-end">
@@ -75,7 +81,7 @@ const Header = ({ toggleSidebar }) => {
                 <hr className="dropdown-divider" />
               </li>
               <li>
-                <a className="dropdown-item" href="#">
+                <a className="dropdown-item" href="#" onClick={handleLogout}> 
                   Sign out
                 </a>
               </li>

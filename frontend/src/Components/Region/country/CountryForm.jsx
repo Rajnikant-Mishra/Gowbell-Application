@@ -10,21 +10,27 @@ const CreateCountry = () => {
   const [status, setStatus] = useState('active');
   const navigate = useNavigate();
 
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     // Sending the POST request to the server
     axios.post('http://localhost:5000/api/countries/', { name, status })
       .then((response) => {
-        // Success: Show success alert and redirect
+        // Success: Show success alert with a timer
         Swal.fire({
           title: 'Success!',
           text: `Country "${name}" created successfully.`,
           icon: 'success',
-          confirmButtonText: 'OK',
+          timer: 1000, // Auto close after 2 seconds
+          timerProgressBar: true,
+          showConfirmButton: false, // Remove the confirm button
         }).then(() => {
-          navigate('/country'); // Redirect after the user clicks OK
+          navigate('/country'); // Redirect after the popup closes
         });
+  
+        // Optional: Trigger navigation after timer without waiting for user interaction
+        setTimeout(() => navigate('/country'), 2000); 
       })
       .catch((error) => {
         // Error: Show error alert
@@ -37,7 +43,7 @@ const CreateCountry = () => {
         console.error('Error creating country:', error);
       });
   };
-
+  
   return (
     <Mainlayout>
       <Container maxWidth="sm">
@@ -72,7 +78,11 @@ const CreateCountry = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3 }}
+            
+              sx={{
+                backgroundColor: "#8fd14f", marginTop: 3 ,
+                "&:hover": { backgroundColor: "#7ec13f" },
+              }}
             >
               Create
             </Button>

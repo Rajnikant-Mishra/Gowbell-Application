@@ -99,6 +99,10 @@ const UpdateCountry = () => {
                     color="primary"
                     fullWidth
                     size="large"
+                    sx={{
+                      backgroundColor: "#8fd14f",
+                      "&:hover": { backgroundColor: "#7ec13f" },
+                    }}
                   >
                     Update Class
                   </Button>

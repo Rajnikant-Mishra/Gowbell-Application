@@ -32,7 +32,7 @@ export default function Dashboard() {
     <>
       <Mainlayout>
       <h1>Admin Dashboard</h1>
-      <button onClick={handleLogout}>Logout</button>
+      {/* <button onClick={handleLogout}>Logout</button> */}
       </Mainlayout>
     </>
   );

@@ -1,9 +1,11 @@
+/* / Footer.module.css / */
 .footer {
   background-color: #f8f9fa;
   color: #6c757d;
   padding: 10px 0;
-  position: fixed;
-  bottom: 0;
+  width: 100%;
+  /* / This ensures the footer is pushed down when content is short / */
+  border-top: 1px solid #cfcccc;
 }
 
 .footer h5 {

@@ -115,12 +115,11 @@ const Sidebar = ({ isCollapsed }) => {
     {
       id: "Exam",
       icon: BsBookHalf,
-      label: "Exam",
+      label: "Consignment",
       subMenu: [
-        { label: "New", link: "/exam/new" },
+        { label: "Omr", link: "/omr-list" },
         { label: "Processed", link: "/exam/processed" },
-        { label: "Shipped", link: "/exam/shipped" },
-        { label: "Returned", link: "/exam/returned" },
+     
       ],
       title: "Exam",
     },
