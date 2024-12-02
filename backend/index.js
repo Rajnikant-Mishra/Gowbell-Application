@@ -30,6 +30,11 @@ import inchargeRoutes from './routes/Incharge/inchargeRoutes.js';
 //student\
 import studentRoutes from './routes/Student/studentRoutes.js';
 
+//consignment
+import coomrRoutes from './routes/Consignment/co-omrRoutes.js';
+
+
+
 const app = express();
 
 
@@ -75,6 +80,10 @@ app.use('/api/get',inchargeRoutes );
 
 //student
 app.use('/api/get', studentRoutes );
+
+//consignment
+app.use('/api/co',coomrRoutes);
+
 
 
 

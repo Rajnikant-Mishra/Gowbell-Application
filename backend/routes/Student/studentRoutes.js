@@ -1,5 +1,5 @@
 import express from 'express';
-import { createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent } from '../../controllers/Student/studentController.js';
+import { createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent, getStudentsByClassController } from '../../controllers/Student/studentController.js';
 
 const router = express.Router();
 
@@ -17,5 +17,8 @@ router.put('/student/:id', updateStudent);
 
 // Delete a student by ID
 router.delete('/student/:id', deleteStudent);
+
+// Define route for fetching students by class and school
+router.post('/students-by-class', getStudentsByClassController);
 
 export default router;

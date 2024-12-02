@@ -51,3 +51,14 @@ export const createStudent = (req, res) => {
       res.status(200).send({ message: 'Student deleted' });
     });
   };
+
+
+  // Get students by class and school
+export const getStudentsByClassController = (req, res) => {
+  const { school_name, class_from, class_to } = req.body;
+
+  Student.getStudentsByClass(school_name, class_from, class_to, (err, result) => {
+      if (err) return res.status(500).send(err);
+      res.status(200).json(result);
+  });
+};

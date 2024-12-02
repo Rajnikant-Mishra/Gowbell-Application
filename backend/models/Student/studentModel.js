@@ -27,7 +27,18 @@ export const Student = {
     delete: (id, callback) => {
       const query = 'DELETE FROM student WHERE id = ?';
       db.query(query, [id], callback);
-    }
+    },
+
+    getStudentsByClass: (school_name, class_from, class_to, callback) => {
+      const query = `
+          SELECT * FROM student
+          WHERE school_name = ? AND class_name BETWEEN ? AND ?;
+      `;
+      db.query(query, [school_name, class_from, class_to], callback);
+  }
+
+
+    
   };
   
 
