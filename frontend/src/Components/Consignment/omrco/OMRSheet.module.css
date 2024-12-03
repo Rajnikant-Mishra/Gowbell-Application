@@ -1,198 +1,239 @@
-/* src/components/OMRSheet.module.css */
-.logo {
-  height: 50px;
-  width: 100px;
-}
-.omrSheet {
-  width: 800px;
-  margin: 20px auto;
+.omrSheetContent {
   padding: 20px;
-  border: 2px solid #000;
-  font-family: "Arial, sans-serif";
+  margin: 20px auto;
+  background-color: #fff;
+  max-width: 800px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Nunito", sans-serif;
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.logoContainer {
-  flex: 1;
-  display: flex;
-  justify-content: flex-start;
-}
-.logoContainer img {
-  margin-top: -10%;
-}
-
-.headingContainer {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   text-align: center;
 }
 
+.title {
+  font-weight: bold;
+  font-size: 22px;
+  margin: 10px 0;
+  color: #1230ae;
+}
+
+.subtitle {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.content {
+  margin-top: 20px;
+}
+
+.instruction {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #333;
+}
 .logo {
   height: 50px;
-  width: 100px;
+  width: 150px;
+  margin-top: -15%;
+}
+.formContainer {
+  font-size: 0.8rem;
 }
 
-.heading {
-  margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.header h2 {
-  margin: 0;
-}
-
-.header h3 {
-  margin: 5px 0;
-}
-
-.candidateInfo {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.infoBox {
-  width: 45%;
-  display: flex;
-  flex-direction: column;
-}
-
-.infoBox label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.infoBox input {
-  padding: 5px;
-  font-size: 14px;
-}
-
-.examDetails {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.detailBox {
-  width: 30%;
-  display: flex;
-  flex-direction: column;
-}
-
-.detailBox label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.detailBox input {
-  padding: 5px;
-  font-size: 14px;
-}
-
-.rollInstructions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.rollBox {
-  width: 30%;
-  display: flex;
-  flex-direction: column;
-}
-
-.rollBox label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.rollBox input {
-  padding: 5px;
-  font-size: 14px;
-}
-
-.instructions {
-  width: 65%;
-  font-size: 12px;
-}
-
-.darkening {
-  margin-top: 20px;
-}
-
-.darkening p {
-  font-weight: bold;
-}
-
-.darkeningOptions {
-  display: flex;
-  gap: 20px;
-  margin-top: 5px;
-}
-
-.option {
+.formContainer .inputGroup {
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-
-.answerSection {
-  margin-top: 20px;
-}
-
-.answerSection p {
-  font-weight: bold;
   margin-bottom: 10px;
 }
 
-.answerSection table {
+.formContainer .labelContainer {
+  flex: none;
+  text-align: right;
+  padding-right: 8px;
+  white-space: nowrap;
+  width: 90px; /* Fixed width for label */
+}
+
+.formContainer .label {
+  display: block;
+  margin-bottom: -20px;
+}
+
+.formContainer .inputContainer {
+  flex: 1;
+}
+
+.formContainer .inputField {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.answerSection th,
-.answerSection td {
-  border: 1px solid #000;
+  border: none;
+  border-bottom: 1px solid #000; /* Only bottom border */
+  outline: none;
+  background: transparent;
   padding: 5px;
-  text-align: center;
+  margin-left: 0px !important;
+  border-radius: 0px !important;
+}
+/* hjjhjjk */
+.examDetails {
+  margin-bottom: 1rem;
 }
 
-.circle {
-  width: 15px;
-  height: 15px;
-  border: 1px solid #000;
-  border-radius: 50%;
-  margin: 0 auto;
-}
-
-.footer {
+.examDetails .row {
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.signature {
+.examDetails .column {
+  flex: 1;
+  /* min-width: 222.5px; */
+  min-width: 220px;
+  max-width: 28%;
+  border: 1px solid black;
+}
+
+/* .detailBox {
+  margin-bottom: 1rem;
+} */
+
+.examDetails .textBox {
   display: flex;
   flex-direction: column;
-  width: 45%;
+  align-items: center;
 }
 
-.signature label {
-  font-weight: bold;
-  margin-bottom: 5px;
+.examDetails .textBox label {
+  text-align: center;
+  margin-bottom: 8px; /* Adjust label spacing */
 }
 
-.line {
-  border-top: 1px solid #000;
+.examDetails .textBox p {
+  margin-top: 5px; /* Adjust margin for paragraph */
+}
+/* instruction */
+.instructionDetails .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.instructionDetails .column {
+  flex: 1;
+  min-width: 152px;
+  max-width: 20%;
+  border: 1px solid black;
+}
+
+.instructionDetails .middleColumn {
+  flex: 1;
+  min-width: 350px; /* Slightly bigger than the others */
+  max-width: 30% !important; /* Increase the max-width to make the middle column wider */
+}
+
+.instructionDetails .textBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.instructionDetails .textBox label {
+  text-align: center;
+  margin-bottom: 8px; /* Adjust label spacing */
+}
+
+.instructionDetails .textBox p {
+  margin-top: 5px; /* Adjust margin for paragraph */
+}
+.rollno {
+  background-color: #000;
+  color: #fff;
+}
+.ruleBox {
+  margin-bottom: 0px;
+  font-size: 0.8rem;
+}
+/* .instructionDetails .textBox1 {
+} */
+.instructionBox1 {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  justify-content: center;
+  text-align: center;
+}
+.instructionBoxLabel {
+  font-size: 12px;
+}
+.answerSectionTitle {
+  background-color: #000;
+  color: #fff;
+}
+.textBox2 {
+  margin-top: 6%;
+  height: 250px;
   width: 100%;
-  height: 20px;
+  border: 1px solid #000;
+
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+}
+.textBox4 {
+  height: 260px;
+  width: 100%;
+  border: 1px solid #000;
+
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+}
+.textBox3 {
+  height: 275px;
+  width: 100%;
+
+  font-size: 1rem;
+  border: 1px solid #000;
+
+  background-color: #f9f9f9;
+  color: #000;
+  box-sizing: border-box;
+}
+.textBox4 {
+  height: 260px;
+  width: 100%;
+  border: 1px solid #000;
+  margin-top: 5%;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+}
+.questiondiv {
+  width: "100%";
+  background-color: #000;
+  color: white;
+}
+table {
+  border: 1px solid black;
+  padding: 10px 0px !important;
+}
+td {
+  padding: 2px 8px !important;
+}
+.questionnumberdiv {
+  border-right: 1px solid black;
+}
+.footerdiv {
+  border: 1px solid black;
+}
+.inputUnderline {
+  border: none;
+  border-bottom: 1px solid #000;
+  width: 90%;
+  outline: none;
+  border-radius: 0px !important;
+  margin-left: 0px !important;
+}
+.bars {
+  margin-top: 15%;
+}
+.bars1 {
+  margin-top: 15%;
 }
