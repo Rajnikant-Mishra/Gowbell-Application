@@ -245,7 +245,7 @@ export default function DataTable() {
               onClick={handleClick}
               style={{ display: "flex", alignItems: "center" }}
             >
-              Subjects
+              Books
             </StyledBreadcrumb>
           </Breadcrumbs>
         </div>

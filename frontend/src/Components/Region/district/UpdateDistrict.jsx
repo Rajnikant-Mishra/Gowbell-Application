@@ -1,120 +1,226 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import Mainlayout from "../../Layouts/Mainlayout";
-import {
-  Container,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  Grid,
-  Typography,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-  Card,
-  CardContent,
-} from '@mui/material';
+import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Container, Typography, Box, CircularProgress } from '@mui/material';
+import Swal from 'sweetalert2';
 
-const UpdateCountry = () => {
-  const [name, setName] = useState("");
-  const [status, setStatus] = useState("active");
-  const { id } = useParams();
+const UpdateDistrict = () => {
+  const { id } = useParams(); // Get districtId from URL params
+  const [name, setName] = useState('');
+  const [status, setStatus] = useState('active');
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [filteredStates, setFilteredStates] = useState([]); // Filtered states for the selected country
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [loading, setLoading] = useState(true); // State for loading indicator
   const navigate = useNavigate();
 
+  // Fetch countries and states on component mount
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/districts/${id}`)
+    setLoading(true);
+    // Fetch countries
+    axios.get('http://localhost:5000/api/countries/')
       .then((response) => {
-        setName(response.data.name);
-        setStatus(response.data.status);
+        setCountries(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching District :", error);
+        console.error('Error fetching countries:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Unable to fetch countries data.',
+          icon: 'error',
+        });
       });
+
+    // Fetch states
+    axios.get('http://localhost:5000/api/states/')
+      .then((response) => {
+        setStates(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching states:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Unable to fetch states data.',
+          icon: 'error',
+        });
+      })
+      .finally(() => setLoading(false)); // Set loading to false after fetching
+  }, []);
+
+  // Filter states when a country is selected
+  useEffect(() => {
+    if (selectedCountry) {
+      const filtered = states.filter((state) => state.country_id === selectedCountry);
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]); // Clear filtered states if no country is selected
+    }
+  }, [selectedCountry, states]);
+
+  // Fetch district data when editing
+  useEffect(() => {
+    setLoading(true);
+    axios.get(`http://localhost:5000/api/districts/${id}`)
+      .then((response) => {
+        const district = response.data;
+        setName(district.name);
+        setStatus(district.status);
+        setSelectedCountry(district.country_id);
+        setSelectedState(district.state_id);
+      })
+      .catch((error) => {
+        console.error('Error fetching district data:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Unable to fetch district data.',
+          icon: 'error',
+        });
+      })
+      .finally(() => setLoading(false)); // Set loading to false after fetching
   }, [id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios
-      .put(`http://localhost:5000/api/districts/${id}`, { name, status })
-      .then((response) => {
+    if (!selectedState || !selectedCountry) {
+      Swal.fire({
+        title: 'Warning!',
+        text: 'Please select both country and state.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    const districtData = {
+      name,
+      status,
+      country_id: selectedCountry, // Ensure it's a valid number
+      state_id: selectedState, // Ensure it's a valid number
+    };
+
+    // Log the payload to debug
+    console.log(districtData);
+
+    axios.put(`http://localhost:5000/api/districts/${id}`, districtData)
+      .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: "District   updated successfully.",
-          icon: "success",
-          timer: 2000,
+          title: 'Success!',
+          text: `District "${name}" updated successfully.`,
+          icon: 'success',
+          timer: 1000,
+          timerProgressBar: true,
           showConfirmButton: false,
         }).then(() => {
-          navigate("/district"); // Redirect after SweetAlert
+          navigate('/district');
         });
       })
       .catch((error) => {
-        console.error("Error updating District  :", error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'There was an issue updating the District. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+        console.error('Error updating District:', error);
       });
   };
 
   return (
     <Mainlayout>
       <Container maxWidth="sm">
-        
-        
-        <Card sx={{ boxShadow: 3, padding: 3, marginTop:5 }}>
-        <Typography variant="h4" gutterBottom align="center">
-          Update District 
-        </Typography>
-          <CardContent>
+        <Box sx={{ marginTop: 4, padding: 3, borderRadius: 2, boxShadow: 3, backgroundColor: '#fff' }}>
+          <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
+            Update District
+          </Typography>
+
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+              <CircularProgress />
+            </Box>
+          ) : (
             <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    label="State  Name"
-                    variant="outlined"
-                    fullWidth
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      label="Status"
-                    >
-                      <MenuItem value="active">Active</MenuItem>
-                      <MenuItem value="inactive">Inactive</MenuItem>
-                    </Select>
-                    <FormHelperText>Select the State  status</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    size="large"
-                    sx={{
-                      backgroundColor: "#8fd14f",
-                      "&:hover": { backgroundColor: "#7ec13f" },
-                    }}
-                  >
-                    Update District
-                  </Button>
-                </Grid>
-              </Grid>
+              {/* Country Dropdown */}
+              <FormControl fullWidth margin="normal" required>
+                <InputLabel>Select Country</InputLabel>
+                <Select
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  label="Select Country"
+                >
+                  <MenuItem value="" disabled>
+                    -- Select Country --
+                  </MenuItem>
+                  {countries.map((country) => (
+                    <MenuItem key={country.id} value={country.id}>
+                      {country.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* State Dropdown */}
+              <FormControl fullWidth margin="normal" required disabled={!selectedCountry}>
+                <InputLabel>Select State</InputLabel>
+                <Select
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  label="Select State"
+                >
+                  <MenuItem value="" disabled>
+                    {filteredStates.length === 0 ? 'No states available for this country' : '-- Select State --'}
+                  </MenuItem>
+                  {filteredStates.map((state) => (
+                    <MenuItem key={state.id} value={state.id}>
+                      {state.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* District Name Input */}
+              <TextField
+                fullWidth
+                label="District Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                variant="outlined"
+                margin="normal"
+              />
+
+              {/* Status Dropdown */}
+              <FormControl fullWidth margin="normal" required>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  label="Status"
+                >
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
+              >
+                Update
+              </Button>
             </form>
-          </CardContent>
-        </Card>
+          )}
+        </Box>
       </Container>
     </Mainlayout>
   );
 };
 
-export default UpdateCountry;
+export default UpdateDistrict;

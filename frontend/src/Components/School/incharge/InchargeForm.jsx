@@ -47,24 +47,36 @@ export default function AssignInChargeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Check for empty fields
-    if (
-      !formData.school_name ||
-      !formData.incharge_name ||
-      !formData.incharge_dob ||
-      !formData.mobile_number ||
-      !formData.class_from ||
-      !formData.class_to
-    ) {
-      Swal.fire("Error", "All fields are required.", "error");
+// validation of form=====================================================================//
+    // Initialize an array to keep track of missing fields
+    let missingFields = [];
+
+    // Check each field individually and add missing fields to the array
+    if (!formData.school_name) missingFields.push("School Name");
+    if (!formData.incharge_name) missingFields.push("Incharge Name");
+    if (!formData.incharge_dob) missingFields.push("Incharge DOB");
+    if (!formData.mobile_number) missingFields.push("Mobile Number");
+    if (!formData.class_from) missingFields.push("Class From");
+    if (!formData.class_to) missingFields.push("Class To");
+
+    // If there are any missing fields, display an error message
+    if (missingFields.length > 0) {
+      const missingFieldsList = missingFields.join(", ");
+      Swal.fire(
+        "Error",
+        `The fields are required: ${missingFieldsList}`,
+        "error"
+      );
       return;
     }
-  
+
     try {
       // API request to submit data
-      const response = await axios.post(`http://localhost:5000/api/get/incharges`, formData);
-  
+      const response = await axios.post(
+        `http://localhost:5000/api/get/incharges`,
+        formData
+      );
+
       // Check if the response indicates success
       if (response.status === 200 || response.status === 201) {
         // Show success message and reset form
@@ -74,7 +86,7 @@ export default function AssignInChargeForm() {
           text: "The incharge has been assigned to the school.",
           confirmButtonText: "Go to Incharge List",
         });
-  
+
         // Clear the form and navigate after successful submission
         setFormData({
           school_name: "",
@@ -91,7 +103,7 @@ export default function AssignInChargeForm() {
       }
     } catch (error) {
       console.error("Error assigning incharge:", error);
-  
+
       // Show error message
       Swal.fire({
         icon: "error",
@@ -100,15 +112,16 @@ export default function AssignInChargeForm() {
       });
     }
   };
-  
 
   return (
     <Mainlayout>
       <Box className={`${styles.formContainer} container-fluid pt-5`}>
         <div className={`${styles.formBox}`}>
-          <Typography className={`${styles.formTitle} mb-4`}>Assign In Charge Form</Typography>
+          <Typography className={`${styles.formTitle} mb-4`}>
+            Assign In Charge Form
+          </Typography>
           <form className={styles.formContent} onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+            <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={6}>
                 <TextInput
                   className={styles.textInput}
@@ -156,7 +169,9 @@ export default function AssignInChargeForm() {
                   options={classOptions}
                   value={formData.class_from}
                   onChange={(e) =>
-                    handleChange({ target: { name: "class_from", value: e.target.value } })
+                    handleChange({
+                      target: { name: "class_from", value: e.target.value },
+                    })
                   }
                   fullWidth
                 />
@@ -168,13 +183,18 @@ export default function AssignInChargeForm() {
                   options={classOptions}
                   value={formData.class_to}
                   onChange={(e) =>
-                    handleChange({ target: { name: "class_to", value: e.target.value } })
+                    handleChange({
+                      target: { name: "class_to", value: e.target.value },
+                    })
                   }
                   fullWidth
                 />
               </Grid>
             </Grid>
-            <Box className={`${styles.buttonContainer} gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+            <Box
+              className={`${styles.buttonContainer} gap-2 mt-4`}
+              sx={{ display: "flex", gap: 2 }}
+            >
               <ButtonComp text="Submit" type="submit" sx={{ flexGrow: 1 }} />
               <ButtonComp
                 text="Cancel"

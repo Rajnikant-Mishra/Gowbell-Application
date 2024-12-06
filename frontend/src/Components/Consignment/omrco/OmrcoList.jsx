@@ -271,7 +271,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["school name", "class_from","class_to", "omr", "created_at" ].map((col) => (
+              {["school name", "class_from","class_to", "omr", "exam-level", "date" ].map((col) => (
                 <th key={col} className={styles.sortableHeader}>
                   <p className="d-flex justify-content-between">
                     <p>{col.charAt(0).toUpperCase() + col.slice(1)}</p>
@@ -287,7 +287,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["school name", "class_from","class_to", "omr", "created_at" ].map((col) => (
+            {["school name", "class_from","class_to", "omr", "exam-level", "date" ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -320,14 +320,18 @@ export default function DataTable() {
                 <td>{row.class_from}</td>         
                 <td>{row.class_to}</td>         
                 <td>{row.omr}</td>
-                <td>{row.created_at}</td>
+                <td>{row.exam_level}</td>
+                <td>{row.date}</td>
                
              
 
                 <td>
                   <div className={styles.actionButtons}>
                     {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/omrco/update/${row.id}`}>
+                    {/* <Link to={`/omrco/update/${row.id}`}>
+                      <FaEdit className={styles.FaEdit} />
+                    </Link> */}
+                     <Link to="#">
                       <FaEdit className={styles.FaEdit} />
                     </Link>
                     <FaTrash

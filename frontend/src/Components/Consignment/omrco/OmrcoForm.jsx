@@ -30,7 +30,7 @@ const OmrcoForm = ({ refreshData }) => {
     class_to: "",
     omr: "",
     date: "",
-    exam_level:"",
+    exam_level: "",
   });
   const [schools, setSchools] = useState([]);
   const [omrOptions, setOmrOptions] = useState([]);
@@ -59,15 +59,16 @@ const OmrcoForm = ({ refreshData }) => {
     fetchOmrOptions();
   }, []);
 
+
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
+  
+    // Check conditions for fetching students
     if (
       name === "school_name" ||
       name === "class_from" ||
       name === "class_to"
-      
     ) {
       // Only fetch students when all three fields are filled
       if (formData.school_name && formData.class_from && formData.class_to) {
@@ -75,7 +76,7 @@ const OmrcoForm = ({ refreshData }) => {
       }
     }
   };
-
+  
   useEffect(() => {
     const fetchStudentDetails = async () => {
       if (!formData.school_name || !formData.class_from || !formData.class_to)
@@ -145,6 +146,8 @@ const OmrcoForm = ({ refreshData }) => {
             schoolName={formData.school_name}
             classFrom={formData.class_from}
             classTo={formData.class_to}
+            level={formData.exam_level}
+            date={formData.date}
             student={student}
           />
         );
@@ -214,7 +217,7 @@ const OmrcoForm = ({ refreshData }) => {
           school_name: "",
           class_from: "",
           class_to: "",
-          exam_level:"",
+          exam_level: "",
           omr: "",
           date: "",
         });
@@ -246,7 +249,7 @@ const OmrcoForm = ({ refreshData }) => {
             >
               Create OMR Entry
             </Typography>
-            <form onSubmit={handleSubmit} >
+            <form onSubmit={handleSubmit}>
               <Box display="flex" flexDirection="column" gap={2}>
                 <TextField
                   select
@@ -319,9 +322,10 @@ const OmrcoForm = ({ refreshData }) => {
                 <Grid container spacing={2}>
                   {/* Exam Level Select */}
                   <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth >
+                    <FormControl fullWidth>
                       <InputLabel>Exam Level</InputLabel>
                       <Select
+                        name="exam_level"
                         value={formData.exam_level}
                         onChange={handleChange}
                         label="Exam Level"
@@ -377,8 +381,12 @@ const OmrcoForm = ({ refreshData }) => {
                 <Button
                   type="submit"
                   variant="contained"
-                  style={{ backgroundColor: "green", color: "white" }}
                   fullWidth
+                  sx={{
+                    fontSize: "1rem",
+                    backgroundColor: "#8fd14f",
+                    "&:hover": { backgroundColor: "#7ec13f" },
+                  }}
                 >
                   Generate
                 </Button>

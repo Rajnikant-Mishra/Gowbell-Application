@@ -328,7 +328,10 @@ export default function DataTable() {
                 <td>
                   <div className={styles.actionButtons}>
                     {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/question/update/${row.id}`}>
+                    {/* <Link to={`/question/update/${row.id}`}>
+                      <FaEdit className={styles.FaEdit} />
+                    </Link> */}
+                    <Link to="#">
                       <FaEdit className={styles.FaEdit} />
                     </Link>
                     <FaTrash

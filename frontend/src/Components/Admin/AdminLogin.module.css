@@ -73,7 +73,7 @@
 
 .loginBtn:hover {
   background-color: #6a11cb; 
-  transform: translateY(-2px);
+  transform: translateY(1px);
 }
 
 .loginBtn:active {

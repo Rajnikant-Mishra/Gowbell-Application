@@ -2,7 +2,8 @@ import React from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import styles from "./Header.module.css";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contextsAuthsecurity/AuthContext";
+import Swal from "sweetalert2";
 
 const Header = ({ toggleSidebar }) => {
 
@@ -17,19 +18,49 @@ const Header = ({ toggleSidebar }) => {
           "Content-Type": "application/json",
         },
       });
-
+  
       if (response.ok) {
         logout(); // Clear local authentication state
-        navigate("/admin"); // Redirect to admin login
+  
+        // SweetAlert for successful logout
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: "You have logged out successfully!",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "animate__animated animate__fadeInDown",
+            title: "text-success fw-bold",
+            text: "text-dark",
+          },
+          background: "#fff",
+          willClose: () => {
+            // Navigate to admin page after SweetAlert closes
+            navigate("/admin");
+          },
+        });
       } else {
-        console.error("Logout failed");
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Logout failed. Please try again.",
+          confirmButtonText: "Retry",
+        });
       }
     } catch (error) {
       console.error("Error during logout:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "An error occurred during logout. Please try again.",
+        confirmButtonText: "Retry",
+      });
     }
   };
-
-
   return (
     <header className="py-3 px-3 border-bottom bg-light">
       <div className="container-fluid px-0">

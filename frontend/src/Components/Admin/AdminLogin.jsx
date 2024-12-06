@@ -1,7 +1,7 @@
 // src/Components/Admin/AdminLogin.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contextsAuthsecurity/AuthContext";
 import styles from "./AdminLogin.module.css";
 import TextField from "@mui/material/TextField";
 import { Button, InputAdornment } from "@mui/material";
@@ -43,7 +43,7 @@ export default function AdminLogin() {
         title: "Success!",
         text: "You have logged in successfully!",
         showConfirmButton: false,
-        timer: 3000,
+        timer: 2000,
         timerProgressBar: true,
         toast: true,
         customClass: {

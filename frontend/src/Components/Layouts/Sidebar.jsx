@@ -119,7 +119,6 @@ const Sidebar = ({ isCollapsed }) => {
       subMenu: [
         { label: "Omr", link: "/omr-list" },
         { label: "Processed", link: "/exam/processed" },
-     
       ],
       title: "Exam",
     },
@@ -145,14 +144,16 @@ const Sidebar = ({ isCollapsed }) => {
       >
         <ul className={styles.nav}>
           <li className={styles.navItem}>
-            <a
-              href="#"
+
+            <Link
+              to="/dashboard"
               className={styles.navLink}
               title={!isCollapsed ? "Dashboard" : ""}
             >
               <FaTachometerAlt className={styles.icon} />
               {!isCollapsed && <span>Dashboard</span>}
-            </a>
+            </Link>
+            
           </li>
           {menuItems.map((menuItem) => (
             <li key={menuItem.id} className={styles.navItem}>
@@ -163,14 +164,13 @@ const Sidebar = ({ isCollapsed }) => {
               >
                 <menuItem.icon className={styles.icon} />
                 {!isCollapsed && <span>{menuItem.label}</span>}
-                {!isCollapsed &&
-                  menuItem.subMenu.length > 0 && (
-                    <FaChevronRight
-                      className={`${styles.submenuArrow} ${
-                        expandedMenus[menuItem.id] ? styles.rotate : ""
-                      }`}
-                    />
-                  )}
+                {!isCollapsed && menuItem.subMenu.length > 0 && (
+                  <FaChevronRight
+                    className={`${styles.submenuArrow} ${
+                      expandedMenus[menuItem.id] ? styles.rotate : ""
+                    }`}
+                  />
+                )}
               </div>
               {menuItem.subMenu.length > 0 && (
                 <ul

@@ -171,7 +171,7 @@ const CreateDistrict = () => {
               
               sx={{
                 backgroundColor: "#8fd14f",
-                "&:hover": { backgroundColor: "#7ec13f", marginTop: 3 },
+               marginTop: 3 ,
               }}
             >
               Create

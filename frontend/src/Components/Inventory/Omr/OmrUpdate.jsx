@@ -84,7 +84,7 @@ const UpdateOMRForm = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ marginTop: 3 }}
+              sx={{backgroundColor: "#8fd14f", marginTop: 3 }}
             >
               Update
             </Button>

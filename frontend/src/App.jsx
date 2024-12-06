@@ -1,11 +1,18 @@
 // src/App.js
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
+ 
 } from "react-router-dom";
-import { AuthProvider, useAuth } from "./Components/contexts/AuthContext";
+
+//for auth routes
+import { AuthProvider} from "./Components/contextsAuthsecurity/AuthContext";
+import ProtectedRoute from "./Components/contextsAuthsecurity/ProtectedRoute";
+import RedirectIfAuthenticated from "./Components/contextsAuthsecurity/RedirectIfAuthenticated";
+
+
 import AdminLogin from "./Components/Admin/AdminLogin";
 import Dashboard from "./Components/Pages/Dashboard";
 import CountryList from "./Components/Region/country/CountryList";
@@ -70,22 +77,12 @@ import OmrcoUpdate from "./Components/Consignment/omrco/OmrcoUpdate";
 
 
 
-const ProtectedRoute = ({ element }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? element : <Navigate to="/admin" />;
-};
-
-const RedirectIfAuthenticated = ({ element }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Navigate to="/dashboard" /> : element;
-};
-
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route
+          <Route    
             path="/admin"
             element={<RedirectIfAuthenticated element={<AdminLogin />} />}
           />

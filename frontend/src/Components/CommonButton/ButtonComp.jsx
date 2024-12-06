@@ -40,7 +40,7 @@ export default function ButtonComp({ link, text, type, onClick, disabled }) {
       type={type}
       variant="contained"
       className={`${styles.button} rounded-0`}
-      onClick={handleClick} // Use handleClick to handle both the onClick and navigation
+      onClick={handleClick} 
       disabled={disabled}
       sx={{
         backgroundColor: text === "Cancel" ? "red" : "#8fd14f",

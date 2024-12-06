@@ -3,7 +3,7 @@ import OMRGenerator from "./OMRGenerator";
 import styles from "./OMRSheet.module.css";
 
 
-export default function OMRSheet({ schoolName, classFrom, classTo, student }) {
+export default function OMRSheet({ schoolName, classFrom, classTo, student, date, level }) {
   
   return (
     
@@ -97,7 +97,7 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student }) {
                     <label htmlFor="exam-date" className="text-center">
                       Exam Date
                     </label>
-                    <p></p>
+                    <p>{date}</p>
                   </div>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student }) {
                     <label htmlFor="level" className="text-center">
                       Level
                     </label>
-                    <p></p>
+                    <p>{level}</p>
                   </div>
                 </div>
               </div>
