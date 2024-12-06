@@ -29,6 +29,12 @@ export const getCityById = (req, res) => {
 export const updateCity = (req, res) => {
   const { id } = req.params;
   const { name, country_id, state_id, district_id, status } = req.body;
+
+  // Check for undefined or invalid values
+  if (!name || !country_id || !state_id || !district_id || !status) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
   City.update(id, name, country_id, state_id, district_id, status, (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(200).json({ message: 'City updated' });

@@ -26,12 +26,38 @@ export const getDistrictById = (req, res) => {
   });
 };
 
+// export const updateDistrict = (req, res) => {
+//   const { id } = req.params;
+//   const { name, country_id, state_id, status } = req.body;
+//   District.update(id, name, country_id, state_id, status, (err, result) => {
+//     if (err) return res.status(500).json({ error: err.message });
+//     res.status(200).json({ message: 'District updated' });
+//   });
+// };
+
 export const updateDistrict = (req, res) => {
   const { id } = req.params;
   const { name, country_id, state_id, status } = req.body;
+
+  // Validate the request data
+  if (!name || !country_id || !state_id || !status) {
+    return res.status(400).json({ error: 'All fields (name, country_id, state_id, status) are required' });
+  }
+
+  // Call the model's update method
   District.update(id, name, country_id, state_id, status, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.status(200).json({ message: 'District updated' });
+    if (err) {
+      console.error('Error in controller:', err.message); // Log error from the model
+      return res.status(500).json({ error: 'Error updating district', details: err.message });
+    }
+    
+    // Check if the update affected any rows
+    if (result && result.affectedRows === 0) {
+      return res.status(404).json({ error: 'District not found' });
+    }
+
+    // Successful update
+    res.status(200).json({ message: 'District updated successfully' });
   });
 };
 

@@ -145,9 +145,9 @@ export const createSchool = async (req, res) => {
     const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful!`;
     
     const emailSubject = `School Registration Successful: ${schoolName}`;
-    const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful on ${data.created_at}.`;
+    const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successfully.`;
     const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
-                       <p>Your registration with Gowbell Foundation was successful on <strong>${data.created_at}</strong>.</p>`;
+                       <p>Your registration with Gowbell Foundation was successfully.</strong>.</p>`;
     
     // Send confirmation email
     await sendEmail(principalEmail, emailSubject, emailText, emailHtml);
