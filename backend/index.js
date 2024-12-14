@@ -32,6 +32,7 @@ import studentRoutes from './routes/Student/studentRoutes.js';
 
 //consignment
 import coomrRoutes from './routes/Consignment/co-omrRoutes.js';
+import questionCoRoutes from './routes/Consignment/questionCoRoutes.js';
 
 
 
@@ -83,6 +84,7 @@ app.use('/api/get', studentRoutes );
 
 //consignment
 app.use('/api/co',coomrRoutes);
+app.use('/api/co',questionCoRoutes);
 
 
 

@@ -2,8 +2,8 @@ import Omr from '../../models/Consignment/omrModel.js';
 
 // Create a new student
 export const createStudent = (req, res) => {
-    const { school_name, class_from, class_to, omr, exam_level, date } = req.body;
-    const newStudent = { school_name, class_from, class_to, omr, exam_level, date };
+    const { school_name, class_from, class_to, omr, exam_level, date, student_count } = req.body;
+    const newStudent = { school_name, class_from, class_to, omr, exam_level, date, student_count };
 
     Omr.create(newStudent, (err, result) => {
         if (err) return res.status(500).send(err);
@@ -32,8 +32,8 @@ export const getStudentById = (req, res) => {
 // Update a student by ID
 export const updateStudent = (req, res) => {
     const { id } = req.params;
-    const { school_name, class_from, class_to, omr, exam_level, date } = req.body;
-    const updatedStudent = { school_name, class_from, class_to, omr, exam_level, date };
+    const { school_name, class_from, class_to, omr, exam_level, date, student_count } = req.body;
+    const updatedStudent = { school_name, class_from, class_to, omr, exam_level, date, student_count };
 
     Omr.update(id, updatedStudent, (err, result) => {
         if (err) return res.status(500).send(err);

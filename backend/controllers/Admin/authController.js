@@ -11,8 +11,8 @@ export const login = async (req, res) => {
 
   try {
     // Ensure email is not null or undefined
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "username , Email and password  are required" });
+    if ( !email || !password) {
+      return res.status(400).json({ message: " Email and password  are required" });
     }
 
     // Fetch admin by email
@@ -36,7 +36,7 @@ export const login = async (req, res) => {
       token, 
       admin: {
         id: admin.id,
-        username:admin.username,
+        // username:admin.username,
         email: admin.email,
         // name: admin.name 
       }
