@@ -1,7 +1,7 @@
 .omrSheetContent {
   padding: 20px;
   margin: 20px auto;
-  background-color: #fff;
+  /* background-color: #fff; */
   max-width: 800px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   font-family: "Nunito", sans-serif;
@@ -14,12 +14,12 @@
 .title {
   font-weight: bold;
   font-size: 22px;
-  margin: 10px 0;
+  /* margin: 10px 0 0px 0px ; */
   color: #1230ae;
 }
 
 .subtitle {
-  margin: 5px 0;
+  /* margin: 5px 0; */
   font-size: 16px;
   color: #555;
 }
@@ -71,7 +71,8 @@
   border-bottom: 1px solid #000; /* Only bottom border */
   outline: none;
   background: transparent;
-  padding: 5px;
+
+padding-bottom: 15px;
   margin-left: 0px !important;
   border-radius: 0px !important;
 }
@@ -91,6 +92,7 @@
   /* min-width: 222.5px; */
   min-width: 220px;
   max-width: 28%;
+  height: 50px;
   border: 1px solid black;
 }
 
@@ -107,10 +109,12 @@
 .examDetails .textBox label {
   text-align: center;
   margin-bottom: 8px; /* Adjust label spacing */
+  font-size: 12px ;
 }
 
 .examDetails .textBox p {
   margin-top: 5px; /* Adjust margin for paragraph */
+  font-size: 12px ;
 }
 /* instruction */
 .instructionDetails .row {
@@ -147,12 +151,13 @@
   margin-top: 5px; /* Adjust margin for paragraph */
 }
 .rollno {
-  background-color: #000;
+  background-color: #000; 
   color: #fff;
+  font-size: 10px;
 }
 .ruleBox {
   margin-bottom: 0px;
-  font-size: 0.8rem;
+  font-size: 10px;
 }
 /* .instructionDetails .textBox1 {
 } */
@@ -161,13 +166,15 @@
   border-top: 1px solid black;
   justify-content: center;
   text-align: center;
+  font-size: 10px;
 }
 .instructionBoxLabel {
-  font-size: 12px;
+  font-size: 10px;
 }
 .answerSectionTitle {
   background-color: #000;
   color: #fff;
+  font-size: 12px;
 }
 .textBox2 {
   margin-top: 6%;
@@ -175,7 +182,7 @@
   width: 100%;
   border: 1px solid #000;
 
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   box-sizing: border-box;
 }
 .textBox4 {
@@ -183,7 +190,7 @@
   width: 100%;
   border: 1px solid #000;
 
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   box-sizing: border-box;
 }
 .textBox3 {
@@ -193,7 +200,7 @@
   font-size: 1rem;
   border: 1px solid #000;
 
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   color: #000;
   box-sizing: border-box;
 }
@@ -202,7 +209,7 @@
   width: 100%;
   border: 1px solid #000;
   margin-top: 5%;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   box-sizing: border-box;
 }
 .questiondiv {
@@ -210,10 +217,13 @@
   background-color: #000;
   color: white;
 }
-table {
+.questiondiv th{
+  font-size: 10px;
+}
+/* table {
   border: 1px solid black;
   padding: 10px 0px !important;
-}
+} */
 td {
   padding: 2px 8px !important;
 }
@@ -222,18 +232,31 @@ td {
 }
 .footerdiv {
   border: 1px solid black;
+  height: 60px;
 }
 .inputUnderline {
   border: none;
   border-bottom: 1px solid #000;
   width: 90%;
+  height: 100%;
   outline: none;
   border-radius: 0px !important;
   margin-left: 0px !important;
+  margin-top: 0px !important;
+}
+.footerdiv label{
+  font-size: 10px;
+}
+.footerdiv input{
+  height: 40px !important;
 }
 .bars {
   margin-top: 15%;
 }
 .bars1 {
   margin-top: 15%;
+}
+.omrtable {
+  border: 1px solid black;
+  padding: 10px 0px !important;
 }

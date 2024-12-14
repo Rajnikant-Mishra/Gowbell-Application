@@ -8,17 +8,16 @@ import {
 } from "@mui/material";
 import { FaPhoneAlt, FaTrash, FaWhatsapp } from "react-icons/fa";
 import Swal from "sweetalert2";
+import "animate.css";
 import { RxCross2 } from "react-icons/rx";
 import styles from "./School.module.css";
 import TextInput from "../CommonComp/TextInput";
 import SelectDrop from "../CommonComp/SelectDrop";
 import Mainlayout from "../../Layouts/Mainlayout";
-import axios from 'axios';
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
 export default function SchoolForm() {
-
   const [formData, setFormData] = useState({
     board: "",
     school_name: "",
@@ -40,7 +39,7 @@ export default function SchoolForm() {
     student_strength: "",
     classes: [],
   });
-  
+
   // States for managing dropdown
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,9 +50,9 @@ export default function SchoolForm() {
     left: 0,
     width: 0,
   });
-  
+
   const inputRef = useRef(null);
-  const navigate = useNavigate();  // Initialize navigate hook
+  const navigate = useNavigate(); // Initialize navigate hook
   const options = [
     { value: "0", label: "Class 1" },
     { value: "1", label: "Class 2" },
@@ -127,41 +126,86 @@ export default function SchoolForm() {
     { value: "ICSE", label: "ICSE" },
     { value: "State", label: "State Board" },
   ];
-
-  const stateOptions = [
-    { value: "State1", label: "State1" },
-    { value: "State2", label: "State2" },
-    { value: "State3", label: "State3" },
-  ];
-
-  const districtOptions = [
-    { value: "District1", label: "District1" },
-    { value: "District2", label: "District2" },
-    { value: "District3", label: "District3" },
-  ];
-
-  const cityOptions = [
-    { value: "City1", label: "City1" },
-    { value: "City2", label: "City2" },
-    { value: "City3", label: "City3" },
-  ];
-
   const pincodeOptions = [
     { value: "100015", label: "100015" },
     { value: "100025", label: "100025" },
     { value: "100035", label: "100035" },
   ];
 
+  //------------------------fetch api codes------------------------------------------//
+
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  // Fetch states dynamically
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/states/");
+        setStates(response.data);
+      } catch (error) {
+        console.error("Error fetching states:", error);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  // Fetch districts based on selected state
+  useEffect(() => {
+    if (formData.state) {
+      const fetchDistricts = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/districts/?state_id=${formData.state}`
+          );
+          setDistricts(response.data);
+        } catch (error) {
+          console.error("Error fetching districts:", error);
+        }
+      };
+
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+    }
+  }, [formData.state]);
+
+  // Fetch cities based on selected district
+  useEffect(() => {
+    if (formData.district) {
+      const fetchCities = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/cities/?district_id=${formData.district}`
+          );
+          setCities(response.data);
+        } catch (error) {
+          console.error("Error fetching cities:", error);
+        }
+      };
+
+      fetchCities();
+    } else {
+      setCities([]);
+    }
+  }, [formData.district]);
+
+  //-------------------------end code of api-------------------------------------------//
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    console.log("Submitting formData:", JSON.stringify(formData, null, 2)); // Debug formData
+
     // Show processing alert
     const loadingSwal = Swal.fire({
       title: "Processing...",
@@ -169,40 +213,62 @@ export default function SchoolForm() {
       icon: "info",
       showConfirmButton: false,
       willOpen: () => {
-        Swal.showLoading(); // Display loading spinner
-      }
+        Swal.showLoading();
+      },
     });
-  
+
     try {
-      const response = await axios.post("http://localhost:5000/api/get/schools", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      // After a 1 second delay, show success message and navigate
+      const response = await axios.post(
+        "http://localhost:5000/api/get/schools",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       setTimeout(() => {
-        loadingSwal.close(); // Close the loading Swal
+        loadingSwal.close();
         Swal.fire({
-          title: "Success!",
-          text: `School created successfully! School ID: ${response.data.id}`,
+          position: "top-end",
           icon: "success",
-          confirmButtonText: "OK",
+          title: "Success!",
+          text: 'School created successfully!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "animate__animated animate__fadeInDown",
+            title: "text-success fw-bold",
+            text: "text-dark",
+          },
+          background: "#fff",
         }).then(() => {
-          navigate("/schoolList"); // Navigate to /schoolList page after success
+          navigate("/schoolList");
         });
-      }, 1000); // 1-second delay before showing success alert
+      }, 1000);
     } catch (error) {
-      // Close loading Swal and show error alert
       loadingSwal.close();
+      console.error("Error details:", error.response?.data || error.message);
       Swal.fire({
+        position: "top-end",
+        icon: "error",
         title: "Error!",
         text: error.response?.data?.error || "An unexpected error occurred.",
-        icon: "error",
-        confirmButtonText: "OK",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: "animate__animated animate__shakeX",
+          title: "text-danger fw-bold",
+          text: "text-dark",
+        },
+        background: "#fff",
       });
     }
   };
-  
-  
+
   return (
     <Mainlayout>
       <Box className={styles.formContainer}>
@@ -267,10 +333,17 @@ export default function SchoolForm() {
                 <SelectDrop
                   label="State"
                   name="state"
-                  options={stateOptions}
+                  options={states.map((state) => ({
+                    value: String(state.id), // Convert `state.id` to a string
+                    label: state.name,
+                  }))}
                   value={formData.state}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, state: e.target.value }))
+                  onChange={
+                    (e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        state: e.target.value,
+                      })) // This now stores a string value
                   }
                   fullWidth
                 />
@@ -279,7 +352,10 @@ export default function SchoolForm() {
                 <SelectDrop
                   label="District"
                   name="district"
-                  options={districtOptions}
+                  options={districts.map((district) => ({
+                    value: String(district.id),
+                    label: district.name,
+                  }))}
                   value={formData.district}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -297,7 +373,10 @@ export default function SchoolForm() {
                 <SelectDrop
                   label="City"
                   name="city"
-                  options={cityOptions}
+                  options={cities.map((city) => ({
+                    value: String(city.id),
+                    label: city.name,
+                  }))}
                   value={formData.city}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, city: e.target.value }))
@@ -349,7 +428,7 @@ export default function SchoolForm() {
               <TextInput
                 label="Contact Number"
                 name="principal_contact_number"
-                options={cityOptions}
+                // options={cityOptions}
                 value={formData.principal_contact_number}
                 onChange={handleInputChange}
                 fullWidth
@@ -357,7 +436,7 @@ export default function SchoolForm() {
               <TextInput
                 label=" Whatsapp Number"
                 name="principal_whatsapp"
-                options={pincodeOptions}
+                // options={pincodeOptions}
                 value={formData.principal_whatsapp}
                 onChange={handleInputChange}
                 fullWidth
@@ -396,7 +475,7 @@ export default function SchoolForm() {
                   <TextInput
                     label="Contact Number"
                     name="vice_principal_contact_number"
-                    options={cityOptions}
+                    // options={cityOptions}
                     value={formData.vice_principal_contact_number}
                     onChange={handleInputChange}
                     fullWidth
@@ -406,7 +485,7 @@ export default function SchoolForm() {
                   <TextInput
                     label="Whatsapp Number"
                     name="vice_principal_whatsapp"
-                    options={pincodeOptions}
+                    // options={pincodeOptions}
                     value={formData.vice_principal_whatsapp}
                     onChange={handleInputChange}
                     fullWidth
@@ -438,15 +517,14 @@ export default function SchoolForm() {
                         );
                       })}
                     </div>
-                   
+
                     <TextField
                       name="classes"
                       type="text"
                       size="small"
-                      placeholder="Select Your Classes" 
+                      placeholder="Select Your Classes"
                       className="form-control mb-2 selectinput"
                       value={formData.classes}
-                     
                       onChange={(e) => handleInputChange(e, "classes")}
                       onClick={toggleDropdown}
                       ref={inputRef}

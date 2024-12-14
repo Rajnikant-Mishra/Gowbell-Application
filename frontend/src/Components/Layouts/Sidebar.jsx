@@ -1,22 +1,22 @@
 import React from "react";
-import {
-  FaChevronRight,
-  FaSignOutAlt,
-  FaCompass,
-  FaBoxOpen,
-  FaUserCircle,
-  FaTachometerAlt,
-  FaSchool,
-  FaUsers,
-} from "react-icons/fa";
-import { IoNotificationsSharp } from "react-icons/io5";
-import { MdOutlineAssignment } from "react-icons/md";
+import { FaChevronRight } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
-import { PiStudentFill } from "react-icons/pi";
-import { BsBookHalf } from "react-icons/bs";
-import { GrCertificate } from "react-icons/gr";
-import { SiGoogleanalytics } from "react-icons/si";
+import {
+  UilCreateDashboard,
+  UilCompass,
+  UilFileInfoAlt,
+  UilArchiveAlt,
+  UilUniversity,
+  UilBookReader,
+  UilTruck,
+  UilSignalAlt3,
+  UilUsersAlt,
+  UilTrophy,
+} from "@iconscout/react-unicons";
 import { Link, useNavigate } from "react-router-dom";
+import MainLogo from "../../assets/logo GOWBELL.png";
+import pathlogo from "../../assets/sidelogo.png";
+import { MenuItem } from "@mui/material";
 const Sidebar = ({ isCollapsed }) => {
   const [expandedMenus, setExpandedMenus] = React.useState({});
   const [submenuPosition, setSubmenuPosition] = React.useState({
@@ -51,10 +51,9 @@ const Sidebar = ({ isCollapsed }) => {
   };
   const navigateTo = (menuItem, e) => {
     if (menuItem.subMenu.length === 0 && menuItem.link) {
-      // Navigate directly if there's no submenu and a link is provided
       navigate(menuItem.link);
     } else {
-      toggleSubMenu(menuItem.id, e); // Otherwise, toggle the submenu
+      toggleSubMenu(menuItem.id, e);
     }
   };
   const closeSubMenu = () => {
@@ -63,7 +62,7 @@ const Sidebar = ({ isCollapsed }) => {
   const menuItems = [
     {
       id: "Region",
-      icon: FaCompass,
+      icon: UilCompass,
       label: "Region",
       subMenu: [
         { label: "Country", link: "/country" },
@@ -75,7 +74,7 @@ const Sidebar = ({ isCollapsed }) => {
     },
     {
       id: "Master",
-      icon: FaCompass,
+      icon: UilFileInfoAlt,
       label: "Master",
       subMenu: [
         { label: "Class", link: "/class" },
@@ -85,7 +84,7 @@ const Sidebar = ({ isCollapsed }) => {
     },
     {
       id: "Inventory",
-      icon: FaBoxOpen,
+      icon: UilArchiveAlt,
       label: "Inventory",
       subMenu: [
         { label: "Book", link: "/book" },
@@ -96,7 +95,7 @@ const Sidebar = ({ isCollapsed }) => {
     },
     {
       id: "School",
-      icon: FaSchool,
+      icon: UilUniversity,
       label: "School",
       subMenu: [
         { label: "SchoolCreate", link: "/schoolList" },
@@ -106,7 +105,7 @@ const Sidebar = ({ isCollapsed }) => {
     },
     {
       id: "Student",
-      icon: PiStudentFill,
+      icon: UilBookReader,
       label: "Student",
       link: "/studentList",
       subMenu: [], // No submenu
@@ -114,46 +113,70 @@ const Sidebar = ({ isCollapsed }) => {
     },
     {
       id: "Exam",
-      icon: BsBookHalf,
+      icon: UilTruck,
       label: "Consignment",
       subMenu: [
         { label: "Omr", link: "/omr-list" },
-        { label: "Processed", link: "/exam/processed" },
+        { label: "Question", link: "/question-list" },
+        { label: "Books", link: "#" },
       ],
       title: "Exam",
+    },
+    {
+      id: "Reports",
+      icon: UilSignalAlt3,
+      label: "Reports",
+      subMenu: [
+          { label: "School", link: "/schools-report" }, 
+          { label: "Student", link: "/students-report" },
+      ],
+      title: "Reports",
+    },
+    {
+      id: "User&Roles",
+      icon: UilUsersAlt,
+      label: "User & Roles",
+      subMenu: [
+        // { label: "Omr", link: "/omr-list" },
+        // { label: "Processed", link: "/exam/processed" },
+      ],
+      title: "User&Roles",
+    },
+    {
+      id: "Prize",
+      icon: UilTrophy,
+      label: "Prize&Certificates",
+      subMenu: [
+        // { label: "Omr", link: "/omr-list" },
+        // { label: "Processed", link: "/exam/processed" },
+      ],
+      title: "Prize",
     },
   ];
   return (
     <div className={styles.parentDiv}>
       <div className={styles.sidebarHeader}>
-        <a href="/" className={styles.sidebarLogo}>
+        <Link to="/dashboard" className={styles.sidebarLogo}>
           {!isCollapsed ? (
-            <img
-              src="./src/assets/logo GOWBELL.png"
-              alt="Logo"
-              width="150"
-              height="32"
-            />
+            <img src={MainLogo} alt="Logo" width="160" height="32" />
           ) : (
-            <span className={styles.sidebarTitle}>Gowbell</span>
+            <img src={pathlogo} alt="Logo" className={styles.sqichedicon} />
           )}
-        </a>
+        </Link>
       </div>
       <div
         className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
       >
         <ul className={styles.nav}>
           <li className={styles.navItem}>
-
             <Link
               to="/dashboard"
               className={styles.navLink}
               title={!isCollapsed ? "Dashboard" : ""}
             >
-              <FaTachometerAlt className={styles.icon} />
+              <UilCreateDashboard className={styles.icon} />
               {!isCollapsed && <span>Dashboard</span>}
             </Link>
-            
           </li>
           {menuItems.map((menuItem) => (
             <li key={menuItem.id} className={styles.navItem}>
@@ -182,13 +205,20 @@ const Sidebar = ({ isCollapsed }) => {
                     left: submenuPosition.left,
                   }}
                 >
-                  {menuItem.subMenu.map((item, index) => (
-                    <li key={index} className={styles.submenuItem}>
-                      <Link to={item.link} className={styles.submenuLink}>
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {isCollapsed && (
+                    <p className={`${styles.collapsedheading}  mb-0  fw-bold`}>
+                      {menuItem.label}
+                    </p>
+                  )}
+                  <>
+                    {menuItem.subMenu.map((item, index) => (
+                      <li key={index} className={styles.submenuItem}>
+                        <Link to={item.link} className={styles.submenuLink}>
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </>
                 </ul>
               )}
             </li>

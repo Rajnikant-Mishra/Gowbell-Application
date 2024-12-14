@@ -16,12 +16,17 @@ const SelectDrop = ({ label, name, options, value, onChange }) => {
         InputProps={{
           style: {
             fontFamily: "Nunito, sans-serif",
-            fontSize: "0.8rem",
+            // fontSize: "0.8rem",
+            fontSize: "14px",
             backgroundColor: "white",
           },
         }}
         InputLabelProps={{
-          style: { fontFamily: "Nunito, sans-serif", fontSize: "0.85rem" },
+          style: {
+            fontFamily: "Nunito, sans-serif",
+            // fontSize: "0.85rem" ,
+            fontSize: "14px",
+          },
         }}
       >
         {options.map((option) => (

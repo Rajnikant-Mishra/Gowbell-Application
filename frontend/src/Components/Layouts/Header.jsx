@@ -3,10 +3,10 @@ import { RxHamburgerMenu } from "react-icons/rx";
 import styles from "./Header.module.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contextsAuthsecurity/AuthContext";
+import { UilSearch } from "@iconscout/react-unicons";
 import Swal from "sweetalert2";
 
 const Header = ({ toggleSidebar }) => {
-
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -18,11 +18,9 @@ const Header = ({ toggleSidebar }) => {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (response.ok) {
-        logout(); // Clear local authentication state
-  
-        // SweetAlert for successful logout
+        logout();
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -40,7 +38,7 @@ const Header = ({ toggleSidebar }) => {
           background: "#fff",
           willClose: () => {
             // Navigate to admin page after SweetAlert closes
-            navigate("/admin");
+            navigate("/");
           },
         });
       } else {
@@ -68,19 +66,19 @@ const Header = ({ toggleSidebar }) => {
           <p onClick={toggleSidebar} className="my-auto">
             <RxHamburgerMenu className={styles.hamburgerIcon} />
           </p>
-          <form className="col-lg-auto me-lg-3" role="search">
+          <form className={styles.searchForm} role="search">
             <input
               type="search"
-              className="form-control"
+              className={styles.searchInput}
               placeholder="Search..."
               aria-label="Search"
-              style={{ borderRadius: "0" }}
             />
+            <UilSearch className={styles.searchIcon} />
           </form>
-          <div className="dropdown text-end">
+          <div className={`${styles.dropdowndiv} dropdown text-end `}>
             <a
               href="#"
-              className="d-block link-dark text-decoration-none dropdown-toggle"
+              className={`${styles.dropdowna} d-flex flex-direction-row link-dark text-decoration-none dropdown-toggle gap-1`}
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
@@ -89,30 +87,20 @@ const Header = ({ toggleSidebar }) => {
                 alt="Profile"
                 width="32"
                 height="32"
-                className="rounded-circle"
+                className="rounded-2"
               />
+              <p className={`${styles.para} my-auto`}>Welcome Admin</p>
             </a>
+
             <ul className="dropdown-menu text-small">
-              <li>
-                <a className="dropdown-item" href="#">
-                  New project...
-                </a>
-              </li>
-              <li>
-                <a className="dropdown-item" href="#">
-                  Settings
-                </a>
-              </li>
               <li>
                 <a className="dropdown-item" href="#">
                   Profile
                 </a>
               </li>
+
               <li>
-                <hr className="dropdown-divider" />
-              </li>
-              <li>
-                <a className="dropdown-item" href="#" onClick={handleLogout}> 
+                <a className="dropdown-item" href="#" onClick={handleLogout}>
                   Sign out
                 </a>
               </li>

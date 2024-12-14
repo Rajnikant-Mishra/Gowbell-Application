@@ -46,7 +46,7 @@ const UpdateCountry = () => {
           title: "Success!",
           text: "Country updated successfully.",
           icon: "success",
-          timer:  1000,
+          timer: 1000,
           timerProgressBar: true,
           showConfirmButton: false,
         }).then(() => {
@@ -61,13 +61,16 @@ const UpdateCountry = () => {
   return (
     <Mainlayout>
       <Container maxWidth="sm">
-        
-
-        <Card sx={{ boxShadow: 3, padding: 3, marginTop:5 }}>
+        <Card sx={{ boxShadow: 3, padding: 3, marginTop: 5 }}>
           <CardContent>
-          <Typography variant="h4" gutterBottom align="center" sx={{ marginBottom:5 }} >
-          Update Country
-        </Typography>
+            <Typography
+              variant="h4"
+              gutterBottom
+              align="center"
+              sx={{ marginBottom: 5 }}
+            >
+              Update Country
+            </Typography>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>

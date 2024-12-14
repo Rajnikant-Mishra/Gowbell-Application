@@ -107,10 +107,10 @@ const CreateArea = () => {
 
   return (
     <Mainlayout>
-      <Container maxWidth="sm" sx={{ height: "800px" }}>
+      <Container maxWidth="sm" sx={{ height: "auto" }}>
         <Box
           sx={{
-            marginTop: 7,
+            marginTop: 9,
             padding: 5,
             borderRadius: 2,
             boxShadow: 4,
@@ -128,18 +128,26 @@ const CreateArea = () => {
               margin="normal"
               sx={{ marginBottom: 0 }}
             >
-              <InputLabel>Select Country</InputLabel>
-              <Select
+              {/* <InputLabel>Select Country</InputLabel> */}
+              <TextField
+                select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 label="Select Country"
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 {countries.map((country) => (
                   <MenuItem key={country.id} value={country.id}>
                     {country.name}
                   </MenuItem>
                 ))}
-              </Select>
+              </TextField>
             </FormControl>
 
             <Grid container spacing={2}>
@@ -152,18 +160,26 @@ const CreateArea = () => {
                   sx={{ marginBottom: 0 }}
                   disabled={!selectedCountry}
                 >
-                  <InputLabel>Select State</InputLabel>
-                  <Select
+                  {/* <InputLabel>Select State</InputLabel> */}
+                  <TextField
+                    select
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)}
                     label="Select State"
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   >
                     {states.map((state) => (
                       <MenuItem key={state.id} value={state.id}>
                         {state.name}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </TextField>
                 </FormControl>
               </Grid>
 
@@ -176,18 +192,26 @@ const CreateArea = () => {
                   sx={{ marginBottom: 0 }}
                   disabled={!selectedState}
                 >
-                  <InputLabel>Select District</InputLabel>
-                  <Select
+                  {/* <InputLabel>Select District</InputLabel> */}
+                  <TextField
+                    select
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)}
                     label="Select District"
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   >
                     {districts.map((district) => (
                       <MenuItem key={district.id} value={district.id}>
                         {district.name}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </TextField>
                 </FormControl>
               </Grid>
             </Grid>
@@ -203,25 +227,32 @@ const CreateArea = () => {
                   sx={{ marginBottom: 0 }}
                   disabled={!selectedDistrict}
                 >
-                  <InputLabel>Select City</InputLabel>
-                  <Select
+                  {/* <InputLabel>Select City</InputLabel> */}
+                  <TextField
+                    select
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
                     label="Select City"
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   >
                     {cities.map((city) => (
                       <MenuItem key={city.id} value={city.id}>
                         {city.name}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </TextField>
                 </FormControl>
               </Grid>
 
               {/* Area Name input */}
               <Grid item xs={12} sm={6}>
                 <TextField
-                  size="small"
                   fullWidth
                   label="Area Name"
                   value={name}
@@ -229,7 +260,13 @@ const CreateArea = () => {
                   required
                   variant="outlined"
                   margin="normal"
-                  sx={{ marginBottom: 0 }}
+                  size="small"
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
             </Grid>
@@ -241,15 +278,23 @@ const CreateArea = () => {
               margin="normal"
               sx={{ marginBottom: 0 }}
             >
-              <InputLabel>Status</InputLabel>
-              <Select
+              {/* <InputLabel>Status</InputLabel> */}
+              <TextField
+                select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 label="Status"
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>
-              </Select>
+              </TextField>
             </FormControl>
 
             {/* Submit button */}
@@ -259,11 +304,13 @@ const CreateArea = () => {
               color="primary"
               fullWidth
               sx={{
-                marginTop: 3,
-                padding: "8px 17px",
-                fontSize: "1rem",
                 backgroundColor: "#8fd14f",
-                "&:hover": { backgroundColor: "#7ec13f" },
+                marginTop: 3,
+                height: "36px", // Set the height of the button
+                minWidth: "120px", // Ensure the button width doesn't collapse
+                padding: "4px 16px", // Adjust padding to make the button smaller
+                fontSize: "14px", // Adjust font size for better appearance
+                textTransform: "none", // Optional: Prevents the button text from being uppercase
               }}
             >
               Create

@@ -69,6 +69,13 @@ const UpdateOMRForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <TextField
               fullWidth
@@ -78,6 +85,13 @@ const UpdateOMRForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <Button
               type="submit"

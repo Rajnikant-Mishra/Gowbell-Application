@@ -8,9 +8,15 @@ import {
   FaHome,
   FaPlus,
 } from "react-icons/fa";
+import {
+  UilTrashAlt,
+  UilEditAlt,
+  UilAngleRightB,
+  UilAngleLeftB,
+} from "@iconscout/react-unicons";
 
 import Mainlayout from "../../Layouts/Mainlayout";
-import styles from "./DataTable.module.css";
+import styles from "./../../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../../CommonButton/ButtonComp";
 import { Breadcrumbs } from "@mui/material";
@@ -238,9 +244,6 @@ export default function DataTable() {
               <FaHome fontSize="small" style={{ marginRight: 4 }} />
               Dashboard
             </StyledBreadcrumb>
-            {/* <StyledBreadcrumb component="a" href="#">
-              Catalog
-            </StyledBreadcrumb> */}
             <StyledBreadcrumb
               onClick={handleClick}
               style={{ display: "flex", alignItems: "center" }}
@@ -263,20 +266,22 @@ export default function DataTable() {
           className={`${styles.table} `}
           style={{ fontFamily: "Nunito, sans-serif" }}
         >
-          <thead>
-            <tr
-              className={styles.headerRow}
-              style={{ fontFamily: "Nunito, sans-serif" }}
-            >
+         <thead>
+            <tr className={`${styles.headerRow} pt-0 pb-0`}>
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["board", "school name", "email", "contact","state","district","city","pincode" ].map((col) => (
-                <th key={col} className={styles.sortableHeader}>
-                  <p className="d-flex justify-content-between">
-                    <p>{col.charAt(0).toUpperCase() + col.slice(1)}</p>
-                    <span>{getSortIcon(col)}</span>
-                  </p>
+              {["board", "school ", "email", "contact","state","district","city","pincode" ].map((col) => (
+                <th
+                  key={col}
+                  className={styles.sortableHeader}
+                  onClick={() => handleSort(col)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    {getSortIcon(col)}
+                  </div>
                 </th>
               ))}
               <th>Action</th>
@@ -328,12 +333,12 @@ export default function DataTable() {
                 <td>
                   <div className={styles.actionButtons}>
                     {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    {/* <Link to={`/question/update/${row.id}`}>
-                      <FaEdit className={styles.FaEdit} />
-                    </Link> */}
-                    <Link to="#">
+                    <Link to={`/school/update/${row.id}`}>
                       <FaEdit className={styles.FaEdit} />
                     </Link>
+                    {/* <Link to="#">
+                      <FaEdit className={styles.FaEdit} />
+                    </Link> */}
                     <FaTrash
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
@@ -344,62 +349,78 @@ export default function DataTable() {
             ))}
           </tbody>
         </table>
-        <div className="d-flex justify-content-between flex-wrap my-2">
-          <div className={`${styles.pageSizeSelector} d-flex flex-wrap`}>
-            {pageSizes.map((size) => (
-              <ButtonComp
-                key={size}
-                onClick={() => {
-                  setPageSize(size);
-                  setPage(1);
-                }}
-                className={`${styles.pageSizeButton} ${
-                  pageSize === size ? styles.activeButton : ""
-                }`}
-                text={`${size}`}
-              />
-            ))}
+        <div className="d-flex justify-content-between flex-wrap mt-2">
+          <div
+            className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
+          >
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                const selectedSize = parseInt(e.target.value, 10);
+                setPageSize(selectedSize);
+                setPage(1);
+              }}
+              className={styles.pageSizeSelect}
+            >
+              {pageSizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+            data per Page
           </div>
-          {/* Pagination Information */}
-          <div className="my-0 d-flex justify-content-center align-items-center">
+          <div className="my-0 d-flex justify-content-center align-items-center my-auto">
             <label
               htmlFor="pageSize"
               style={{ fontFamily: "Nunito, sans-serif" }}
             >
-              <p className={`${styles.paginationButton} ${styles.activePage}`}>
+              <p className={`  my-auto`}>
                 {filteredRecords.length} of {page}-
                 {Math.ceil(filteredRecords.length / pageSize)}
               </p>
             </label>
           </div>
-          {/* Pagination Buttons */}
-          <div className={styles.pagination}>
-            <ButtonComp
+          <div className={`${styles.pagination} my-auto`}>
+            <button
               onClick={handlePreviousPage}
               disabled={page === 1}
               className={styles.paginationButton}
-              text={"Previous"}
-            />
+            >
+              <UilAngleLeftB />
+            </button>
             {Array.from(
               { length: Math.ceil(filteredRecords.length / pageSize) },
               (_, i) => i + 1
-            ).map((pg) => (
-              <ButtonComp
-                key={pg}
-                text={pg}
-                onClick={() => setPage(pg)}
-                disabled={false}
-                className={pg === page ? styles.activePage : ""}
-              >
-                {pg}
-              </ButtonComp>
-            ))}
-            <ButtonComp
+            )
+              .filter(
+                (pg) =>
+                  pg === 1 ||
+                  pg === Math.ceil(filteredRecords.length / pageSize) ||
+                  Math.abs(pg - page) <= 2
+              )
+              .map((pg, index, array) => (
+                <React.Fragment key={pg}>
+                  {index > 0 && pg > array[index - 1] + 1 && (
+                    <span className={styles.ellipsis}>...</span>
+                  )}
+                  <button
+                    onClick={() => setPage(pg)}
+                    className={`${styles.paginationButton} ${
+                      page === pg ? styles.activePage : ""
+                    }`}
+                  >
+                    {pg}
+                  </button>
+                </React.Fragment>
+              ))}
+            <button
               onClick={handleNextPage}
               disabled={page === Math.ceil(filteredRecords.length / pageSize)}
               className={styles.paginationButton}
-              text={"Next"}
-            />
+            >
+              <UilAngleRightB />
+            </button>
           </div>
         </div>
       </div>

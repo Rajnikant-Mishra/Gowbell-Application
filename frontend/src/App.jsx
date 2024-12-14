@@ -1,17 +1,11 @@
 // src/App.js
 import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
- 
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 //for auth routes
-import { AuthProvider} from "./Components/contextsAuthsecurity/AuthContext";
+import { AuthProvider } from "./Components/contextsAuthsecurity/AuthContext";
 import ProtectedRoute from "./Components/contextsAuthsecurity/ProtectedRoute";
 import RedirectIfAuthenticated from "./Components/contextsAuthsecurity/RedirectIfAuthenticated";
-
 
 import AdminLogin from "./Components/Admin/AdminLogin";
 import Dashboard from "./Components/Pages/Dashboard";
@@ -69,21 +63,26 @@ import InchargeUpdate from "./Components/School/incharge/InchargeUpdate";
 
 import StudentForm from "./Components/Student/StudentForm";
 import StudentList from "./Components/Student/StudentList";
-import StudentUpdate from  "./Components/Student/StudentUpdate";
+import StudentUpdate from "./Components/Student/StudentUpdate";
 
 import OmrcoList from "./Components/Consignment/omrco/OmrcoList";
 import OmrcoFrom from "./Components/Consignment/omrco/OmrcoForm";
 import OmrcoUpdate from "./Components/Consignment/omrco/OmrcoUpdate";
 
+import QuestionCoCreate from "./Components/Consignment/question/QuestionCoCreate";
+import QuestionCoList from "./Components/Consignment/question/QuestionCoList";
+import QuestionCoUpdate from "./Components/Consignment/question/QuestionCoUpdate";
 
+import StudentReport from "./Components/Reports/StudentReport";
+import SchoolReport from "./Components/Reports/SchoolReport";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route    
-            path="/admin"
+          <Route
+            path="/"
             element={<RedirectIfAuthenticated element={<AdminLogin />} />}
           />
           <Route
@@ -232,62 +231,85 @@ function App() {
             path="/omr/update/:id"
             element={<ProtectedRoute element={<OmrUpdate />} />}
           />
-         
+
           {/* School route */}
           <Route
             path="/school-create"
-            element={<ProtectedRoute element={<SchoolForm/>} />}
+            element={<ProtectedRoute element={<SchoolForm />} />}
           />
           <Route
             path="/schoolList"
-            element={<ProtectedRoute element={<SchoolList/>} />}
+            element={<ProtectedRoute element={<SchoolList />} />}
           />
           <Route
             path="/school/update/:id"
-            element={<ProtectedRoute element={<SchoolUpdate/>} />}
+            element={<ProtectedRoute element={<SchoolUpdate />} />}
           />
-
 
           {/* incharge route */}
           <Route
             path="/incharge-create"
-            element={<ProtectedRoute element={<InchargeForm/>} />}
+            element={<ProtectedRoute element={<InchargeForm />} />}
           />
           <Route
             path="/inchargeList"
-            element={<ProtectedRoute element={<InchargeList/>} />}
+            element={<ProtectedRoute element={<InchargeList />} />}
           />
           <Route
             path="/incharge/update/:id"
-            element={<ProtectedRoute element={<InchargeUpdate/>} />}
+            element={<ProtectedRoute element={<InchargeUpdate />} />}
           />
 
-          {/* student route */}
           <Route
             path="/student-create"
-            element={<ProtectedRoute element={<StudentForm/>} />}
+            element={<ProtectedRoute element={<StudentForm />} />}
           />
           <Route
             path="/studentList"
-            element={<ProtectedRoute element={<StudentList/>} />}
+            element={<ProtectedRoute element={<StudentList />} />}
           />
           <Route
             path="/student/update/:id"
-            element={<ProtectedRoute element={<StudentUpdate/>} />}
+            element={<ProtectedRoute element={<StudentUpdate />} />}
           />
 
           {/* omr route */}
           <Route
             path="/omr-list"
-            element={<ProtectedRoute element={<OmrcoList/>} />}
+            element={<ProtectedRoute element={<OmrcoList />} />}
           />
           <Route
             path="/omr-generate"
-            element={<ProtectedRoute element={<OmrcoFrom/>} />}
+            element={<ProtectedRoute element={<OmrcoFrom />} />}
           />
           <Route
             path="/omrco/update/:id"
-            element={<ProtectedRoute element={<OmrcoUpdate/>} />}
+            element={<ProtectedRoute element={<OmrcoUpdate />} />}
+          />
+
+          {/* qustions*/}
+          <Route
+            path="/question-list"
+            element={<ProtectedRoute element={<QuestionCoList/>} />}
+          />
+          <Route
+            path="/co-question"
+            element={<ProtectedRoute element={<QuestionCoCreate/>} />}
+          />
+          <Route
+            path="/co-question/update/:id"
+            element={<ProtectedRoute element={<QuestionCoUpdate/>} />}
+          />
+         
+
+          {/* report*/}
+          <Route
+            path="/students-report"
+            element={<ProtectedRoute element={<StudentReport/>} />} 
+          />
+          <Route
+            path="/schools-report"
+            element={<ProtectedRoute element={<SchoolReport/>} />}
           />
         </Routes>
       </Router>

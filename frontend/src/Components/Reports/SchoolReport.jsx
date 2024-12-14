@@ -1,31 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaCaretDown,
-  FaCaretUp,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaHome,
-  FaPlus,
-} from "react-icons/fa";
-import {
-  UilTrashAlt,
-  UilEditAlt,
-  UilAngleRightB,
-  UilAngleLeftB,
-} from "@iconscout/react-unicons";
+import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
+import { UilAngleRightB, UilAngleLeftB } from "@iconscout/react-unicons";
 
-import Mainlayout from "../../Layouts/Mainlayout";
-import styles from "./../../CommonTable/DataTable.module.css";
+import Mainlayout from "../Layouts/Mainlayout";
+import styles from "./../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../../CommonButton/ButtonComp";
-import { Breadcrumbs } from "@mui/material";
-import { styled, emphasize } from "@mui/material/styles";
 import axios from "axios";
-import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { jsPDF } from "jspdf";
+import * as XLSX from "xlsx";
+import { Menu, MenuItem, Button,  Box } from "@mui/material";
 
-export default function DataTable() {
+export default function SchoolReport() {
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [sortConfig, setSortConfig] = useState({
@@ -40,7 +25,7 @@ export default function DataTable() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get("http://localhost:5000/api/districts/") // Your API URL here
+      .get("http://localhost:5000/api/get/schools") // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -49,46 +34,6 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
-
-  const handleDelete = (id) => {
-    // Show SweetAlert confirmation dialog
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Proceed with the delete request
-        axios
-          .delete(`http://localhost:5000/api/districts/${id}`)
-          .then((response) => {
-            // Update the state after successful deletion
-            setRecords((prevCountries) =>
-              prevCountries.filter((country) => country.id !== id)
-            );
-            setFilteredRecords((prevFiltered) =>
-              prevFiltered.filter((country) => country.id !== id)
-            );
-
-            // Show a success alert
-            Swal.fire("Deleted!", "The state has been deleted.", "success");
-          })
-          .catch((error) => {
-            console.error("Error deleting country:", error);
-            // Show an error alert if deletion fails
-            Swal.fire(
-              "Error!",
-              "There was an issue deleting the country.",
-              "error"
-            );
-          });
-      }
-    });
-  };
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
@@ -179,30 +124,6 @@ export default function DataTable() {
     });
   };
 
-  //breadcrumb codes
-  const StyledBreadcrumb = styled("span")(({ theme }) => {
-    const backgroundColor =
-      theme.palette.mode === "light"
-        ? theme.palette.grey[100]
-        : theme.palette.grey[800];
-    return {
-      backgroundColor,
-      height: theme.spacing(3),
-      color: theme.palette.text.primary,
-      fontWeight: theme.typography.fontWeightRegular,
-      borderRadius: theme.shape.borderRadius,
-      fontFamily: '"Nunito", sans-serif !important',
-      fontSize: "14px",
-
-      "&:active": {
-        color: "#1230AE",
-      },
-      "&:hover": {
-        color: "#1230AE",
-      },
-    };
-  });
-
   function handleClick(event) {
     event.preventDefault();
     console.info("You clicked a breadcrumb.");
@@ -220,6 +141,7 @@ export default function DataTable() {
     }
     setIsAllChecked(!isAllChecked);
   };
+
   useEffect(() => {
     if (filteredRecords.every((row) => checkedRows[row.id])) {
       setIsAllChecked(true);
@@ -227,54 +149,104 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
+  // pdf generate codes--------------------------------------------//
+
+  const [exportType, setExportType] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleExportClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleExportClose = () => {
+    setAnchorEl(null);
+  };
+
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    let yPosition = 10;
+
+    // Add Table Headers
+    doc.text(
+      "Board | School | Email | Contact | State | District | City | Pincode",
+      10,
+      yPosition
+    );
+    yPosition += 10;
+
+    // Add Table Rows
+    records.forEach((row) => {
+      const rowData = `${row.board} | ${row.school_name} | ${row.school_email} | ${row.school_contact_number} | ${row.state} | ${row.district} | ${row.city} | ${row.pincode}`;
+      doc.text(rowData, 10, yPosition);
+      yPosition += 10;
+    });
+
+    doc.save("school_report.pdf");
+    handleExportClose();
+  };
+
+  //excell generate codes ----------------------------------------------------------------//
+  // const generateExcel = () => {
+  //   const ws = XLSX.utils.json_to_sheet(filteredRecords);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "School Report");
+  //   XLSX.writeFile(wb, "school-report.xlsx");
+  // };
+  const exportExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredRecords);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "School Report");
+
+    XLSX.writeFile(wb, "school_report.xlsx");
+    handleExportClose();
+  };
+
   return (
     <Mainlayout>
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-end">
         <div
           role="presentation"
           onClick={handleClick}
-          className={`${styles.breadcrumb} my-4`}
+          className={`${styles.breadcrumb} my-1`}
         >
-          <Breadcrumbs aria-label="breadcrumb">
-            <StyledBreadcrumb
-              component="a"
-              href="#"
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              <FaHome fontSize="small" style={{ marginRight: 4 }} />
-              Dashboard
-            </StyledBreadcrumb>
-            {/* <StyledBreadcrumb component="a" href="#">
-              Catalog
-            </StyledBreadcrumb> */}
-            <StyledBreadcrumb
-              onClick={handleClick}
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              Districts
-            </StyledBreadcrumb>
-          </Breadcrumbs>
-        </div>
-        <div>
-          <ButtonComp
-            link="/district/create"
-            text={<FaPlus />}
-            type={"button"}
-            disabled={false}
-          />
+         {/* //export button */}
+         <Box display="flex" justifyContent="flex-end" p={0}>
+        <Button onClick={handleExportClick} variant="contained">
+          Export <FaCaretDown />
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleExportClose}
+        >
+          <MenuItem onClick={exportPDF}>Export as PDF</MenuItem>
+          <MenuItem onClick={exportExcel}>Export as Excel</MenuItem>
+        </Menu>
+      </Box>
+
         </div>
       </div>
-      <div className={`${styles.tablecont} mt-0`}>
+      <div className={`${styles.tablecont} mt-3`}>
         <table
           className={`${styles.table} `}
           style={{ fontFamily: "Nunito, sans-serif" }}
         >
-         <thead>
+          <thead>
             <tr className={`${styles.headerRow} pt-0 pb-0`}>
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name", "created_at", "updated_at"].map((col) => (
+              {[
+                "board",
+                "school",
+                "email",
+                "contact",
+                "state",
+                "district",
+                "city",
+                "pincode",
+              ].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -287,7 +259,7 @@ export default function DataTable() {
                   </div>
                 </th>
               ))}
-              <th>Action</th>
+              {/* <th>Action</th> */}
             </tr>
           </thead>
           <tr
@@ -295,7 +267,16 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["name", "created_at", "updated_at"].map((col) => (
+            {[
+              "board",
+              "school",
+              "email",
+              "contact",
+              "state",
+              "district",
+              "city",
+              "pincode",
+            ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -308,7 +289,6 @@ export default function DataTable() {
                 </div>
               </th>
             ))}
-            <th></th>
           </tr>
           <tbody>
             {currentRecords.map((row) => (
@@ -323,26 +303,20 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.name}</td>
-                <td>{row.created_at}</td>
-                <td>{row.updated_at}</td>
-
-                <td>
-                  <div className={styles.actionButtons}>
-                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/district/update/${row.id}`}>
-                      <FaEdit className={styles.FaEdit} />
-                    </Link>
-                    <FaTrash
-                      onClick={() => handleDelete(row.id)}
-                      className={`${styles.FaTrash}`}
-                    />
-                  </div>
-                </td>
+                <td>{row.board}</td>
+                <td>{row.school_name}</td>
+                <td>{row.school_email}</td>
+                <td>{row.school_contact_number}</td>
+                <td>{row.state}</td>
+                <td>{row.district}</td>
+                <td>{row.city}</td>
+                <td>{row.pincode}</td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* pagination */}
         <div className="d-flex justify-content-between flex-wrap mt-2">
           <div
             className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
@@ -364,7 +338,6 @@ export default function DataTable() {
             </select>
             data per Page
           </div>
-
           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
             <label
               htmlFor="pageSize"
@@ -376,7 +349,6 @@ export default function DataTable() {
               </p>
             </label>
           </div>
-
           <div className={`${styles.pagination} my-auto`}>
             <button
               onClick={handlePreviousPage}
@@ -385,7 +357,6 @@ export default function DataTable() {
             >
               <UilAngleLeftB />
             </button>
-
             {Array.from(
               { length: Math.ceil(filteredRecords.length / pageSize) },
               (_, i) => i + 1
@@ -411,7 +382,6 @@ export default function DataTable() {
                   </button>
                 </React.Fragment>
               ))}
-
             <button
               onClick={handleNextPage}
               disabled={page === Math.ceil(filteredRecords.length / pageSize)}

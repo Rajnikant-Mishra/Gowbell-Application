@@ -84,6 +84,13 @@ const UpdateBookForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <TextField
               fullWidth
@@ -93,6 +100,13 @@ const UpdateBookForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <FormControl fullWidth margin="normal">
               <InputLabel>Choose Class</InputLabel>
@@ -101,6 +115,13 @@ const UpdateBookForm = () => {
                 onChange={(e) => setClassName(e.target.value)}
                 label="Select Class"
                 required
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 {masterData.map((item) => (
                   <MenuItem key={item.id} value={item.name}>
@@ -117,6 +138,13 @@ const UpdateBookForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <Button
               type="submit"

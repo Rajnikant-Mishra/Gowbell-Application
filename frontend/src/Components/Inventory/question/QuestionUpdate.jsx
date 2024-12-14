@@ -1,129 +1,203 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom"; // Import useParams for dynamic routing
 import Mainlayout from "../../Layouts/Mainlayout";
-import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Container, Typography, Box } from '@mui/material';
-import Swal from 'sweetalert2';
+import {
+  TextField,
+  Button,
+  MenuItem,
+  FormControl,
+  Container,
+  Typography,
+  Box,
+} from "@mui/material";
+import Swal from "sweetalert2";
 
-const UpdateBookForm = () => {
-  const [name, setName] = useState('');
-  const [publishedyear, setPublishedYear] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [class_name, setClassName] = useState('');
-  const [masterData, setMasterData] = useState([]); // State for master data
+const UpdateQuestionForm = () => {
+  const { id } = useParams(); // Get the ID from the route params
+  const [paper_name, setName] = useState("");
+  const [exam_level, setExam_level] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [class_name, setClassName] = useState("");
+  const [masterData, setMasterData] = useState([]);
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the book ID from the URL params for updating
 
+  // Fetch master data for the "Choose Class" dropdown
   useEffect(() => {
-    // Fetching master data for the "Choose Class" select input
-    axios.get('http://localhost:5000/api/master')
-      .then((response) => {
-        setMasterData(response.data); // Set the master data from the API response
-      })
-      .catch((error) => {
-        console.error('Error fetching master data:', error);
-      });
+    axios
+      .get("http://localhost:5000/api/master")
+      .then((response) => setMasterData(response.data))
+      .catch((error) => console.error("Error fetching master data:", error));
+  }, []);
 
-    // Fetching the existing book data for updating
-    axios.get(`http://localhost:5000/api/${id}`)
+  // Fetch question data for the given ID
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/api/get/question/${id}`)
       .then((response) => {
-        const book = response.data;
-        setName(book.name);
-        setPublishedYear(book.publishedyear);
-        setQuantity(book.quantity);
-        setClassName(book.class_name);
+        const { paper_name, exam_level, quantity, class_name } = response.data;
+        setName(paper_name);
+        setExam_level(exam_level);
+        setQuantity(quantity);
+        setClassName(class_name);
       })
-      .catch((error) => {
-        console.error('Error fetching book data:', error);
-      });
+      .catch((error) => console.error("Error fetching question data:", error));
   }, [id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const bookData = { name, publishedyear, quantity, class_name };
+    if (isNaN(quantity) || quantity <= 0) {
+      Swal.fire({
+        title: "Error!",
+        text: "Please enter a valid quantity.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
 
-    // Sending the PUT request to update the book data
-    axios.put(`http://localhost:5000/api/${id}`, bookData)
-      .then((response) => {
-        // Success: Show success alert and redirect
+    // Send a PUT request to update the question
+    axios
+      .put(`http://localhost:5000/api/get/question/${id}`, {
+        paper_name,
+        exam_level,
+        quantity,
+        class_name,
+      })
+      .then(() => {
         Swal.fire({
-          title: 'Success!',
-          text: `Book "${name}" updated successfully.`,
-          icon: 'success',
-          confirmButtonText: 'OK',
+          title: "Success!",
+          text: `Question updated successfully.`,
+          icon: "success",
+          timer: 1000,
+          timerProgressBar: true,
+          showConfirmButton: false,
         }).then(() => {
-          navigate('/book'); // Redirect after the user clicks OK
+          navigate("/question");
         });
       })
       .catch((error) => {
-        // Error: Show error alert
         Swal.fire({
-          title: 'Error!',
-          text: 'There was an issue updating the book. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'OK',
+          title: "Error!",
+          text:
+            error.response?.data?.message ||
+            "There was an issue updating the question. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
         });
-        console.error('Error updating book:', error);
+        console.error("Error updating question:", error);
       });
   };
 
   return (
     <Mainlayout>
       <Container maxWidth="sm">
-        <Box sx={{ marginTop: 4, padding: 3, borderRadius: 2, boxShadow: 3, backgroundColor: '#fff' }}>
+        <Box
+          sx={{
+            marginTop: 4,
+            padding: 3,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#fff",
+          }}
+        >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
-            Update Book
+            Update Question
           </Typography>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Name of the Book"
-              value={name}
+              label="Question Paper Name"
+              value={paper_name}
               onChange={(e) => setName(e.target.value)}
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" },
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" },
+              }}
             />
-            <TextField
-              fullWidth
-              label="Published Year"
-              value={publishedyear}
-              onChange={(e) => setPublishedYear(e.target.value)}
-              required
-              variant="outlined"
-              margin="normal"
-            />
+
             <FormControl fullWidth margin="normal">
-              <InputLabel>Choose Class</InputLabel>
-              <Select
+              <TextField
+                select
                 value={class_name}
                 onChange={(e) => setClassName(e.target.value)}
                 label="Select Class"
                 required
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" },
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" },
+                }}
               >
                 {masterData.map((item) => (
                   <MenuItem key={item.id} value={item.name}>
                     {item.name}
                   </MenuItem>
                 ))}
-              </Select>
+              </TextField>
             </FormControl>
+
+            <FormControl fullWidth margin="normal">
+              <TextField
+                select
+                value={exam_level}
+                onChange={(e) => setExam_level(e.target.value)}
+                label="Exam Level"
+                required
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" },
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" },
+                }}
+              >
+                <MenuItem value="level1">Level 1</MenuItem>
+                <MenuItem value="level2">Level 2</MenuItem>
+                <MenuItem value="level3">Level 3</MenuItem>
+                <MenuItem value="level4">Level 4</MenuItem>
+              </TextField>
+            </FormControl>
+
             <TextField
               fullWidth
               label="Quantity"
               value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" },
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" },
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!value || /^[0-9]*$/.test(value)) {
+                  setQuantity(value);
+                }
+              }}
               required
               variant="outlined"
               margin="normal"
+              type="number"
+              inputProps={{ min: 0 }}
             />
+
             <Button
               type="submit"
               variant="contained"
               color="primary"
               fullWidth
-              sx={{backgroundColor: "#8fd14f", marginTop: 3 }}
+              sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
             >
               Update
             </Button>
@@ -134,4 +208,4 @@ const UpdateBookForm = () => {
   );
 };
 
-export default UpdateBookForm;
+export default UpdateQuestionForm;

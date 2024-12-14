@@ -1,6 +1,7 @@
 import React from "react";
 import OMRGenerator from "./OMRGenerator";
 import styles from "./OMRSheet.module.css";
+import sheetlogo from "../../../../public/logo GOWBELL.png";
 
 
 export default function OMRSheet({ schoolName, classFrom, classTo, student, date, level }) {
@@ -45,7 +46,7 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student, date
           </div>
 
           <img
-            src="./src/assets/logo GOWBELL1.png"
+            src={sheetlogo}
             alt="Logo"
             className={styles.logo}
           />
@@ -192,7 +193,7 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student, date
                     className={`${styles.textBox1} textBox d-flex flex-column p-0`}
                   >
                     <div
-                      className={`${styles.instructionBox} d-flex justify-content-center py-2 `}
+                      className={`${styles.instructionBox} d-flex justify-content-center  `}
                     >
                       <label
                         htmlFor="standard"
@@ -204,7 +205,7 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student, date
                     <div className={styles.instructionBox1}>
                       <label
                         htmlFor="standard"
-                        className={`${styles.instructionBoxLabel} mb-2`}
+                        className={`${styles.instructionBoxLabel}`}
                       >
                         CORRECT
                       </label>
@@ -215,7 +216,7 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student, date
                     >
                       <label
                         htmlFor="standard"
-                        className={`${styles.instructionBoxLabel} mb-2`}
+                        className={`${styles.instructionBoxLabel}`}
                       >
                         WRONG
                       </label>
@@ -421,8 +422,8 @@ export default function OMRSheet({ schoolName, classFrom, classTo, student, date
           </div>
         </div>
         <div className={`${styles.bars1}`}>
-          {Array.from({ length: 143 }).map((_, index) =>
-            index === 0 || index === 142 ? (
+          {Array.from({ length: 132 }).map((_, index) =>
+            index === 0 || index === 131 ? (
               <div
                 key={index}
                 style={{

@@ -238,7 +238,7 @@ const OmrcoForm = ({ refreshData }) => {
 
   return (
     <Mainlayout>
-      <Container maxWidth="sm" style={{ marginTop: "20px" }}>
+      <Container maxWidth="sm" style={{ marginTop: "7%" }}>
         <Card elevation={3}>
           <CardContent>
             <Typography
@@ -260,6 +260,13 @@ const OmrcoForm = ({ refreshData }) => {
                   onChange={handleChange}
                   variant="outlined"
                   required
+                  size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
                 >
                   {schools.map((school) => (
                     <MenuItem key={school.id} value={school.school_name}>
@@ -280,6 +287,13 @@ const OmrcoForm = ({ refreshData }) => {
                       onChange={handleChange}
                       variant="outlined"
                       required
+                      size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
                     >
                       {schools
                         .filter(
@@ -305,6 +319,13 @@ const OmrcoForm = ({ refreshData }) => {
                       onChange={handleChange}
                       variant="outlined"
                       required
+                      size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
                     >
                       {schools
                         .filter(
@@ -323,19 +344,27 @@ const OmrcoForm = ({ refreshData }) => {
                   {/* Exam Level Select */}
                   <Grid item xs={12} sm={6}>
                     <FormControl fullWidth>
-                      <InputLabel>Exam Level</InputLabel>
-                      <Select
+                      {/* <InputLabel>Exam Level</InputLabel> */}
+                      <TextField 
+                      select
                         name="exam_level"
                         value={formData.exam_level}
                         onChange={handleChange}
                         label="Exam Level"
                         required
+                        size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
                       >
                         <MenuItem value="level1">Level 1</MenuItem>
                         <MenuItem value="level2">Level 2</MenuItem>
                         <MenuItem value="level3">Level 3</MenuItem>
                         <MenuItem value="level4">Level 4</MenuItem>
-                      </Select>
+                      </TextField>
                     </FormControl>
                   </Grid>
 
@@ -350,6 +379,13 @@ const OmrcoForm = ({ refreshData }) => {
                       onChange={handleChange}
                       variant="outlined"
                       required
+                      size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
                     >
                       {omrOptions.map((omr) => (
                         <MenuItem key={omr.id} value={omr.title}>
@@ -368,9 +404,16 @@ const OmrcoForm = ({ refreshData }) => {
                   onChange={handleChange}
                   variant="outlined"
                   required
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                  shrink:true,
+                }}
+                  
+                  
                 />
                 {students.length > 0 && (
                   <Typography variant="body2" color="textSecondary">
@@ -382,10 +425,19 @@ const OmrcoForm = ({ refreshData }) => {
                   type="submit"
                   variant="contained"
                   fullWidth
+                  // sx={{
+                  //   fontSize: "1rem",
+                  //   backgroundColor: "#8fd14f",
+                  //   "&:hover": { backgroundColor: "#7ec13f" },
+                  // }}
                   sx={{
-                    fontSize: "1rem",
-                    backgroundColor: "#8fd14f",
-                    "&:hover": { backgroundColor: "#7ec13f" },
+                    backgroundColor: "#8FD14F",
+                    marginTop: 3,
+                    height: "36px", // Set the height of the button
+                    minWidth: "120px", // Ensure the button width doesn't collapse
+                    padding: "4px 16px", // Adjust padding to make the button smaller
+                    fontSize: "14px", // Adjust font size for better appearance
+                    textTransform: "none", // Optional: Prevents the button text from being uppercase
                   }}
                 >
                   Generate

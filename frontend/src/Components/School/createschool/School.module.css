@@ -1,258 +1,249 @@
 .formContainer {
-    padding: 10px 20px 10px 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    /* max-width: 90%; */
-    margin: 0 auto;
-    /* box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
-    padding: 2% 3% 5% 3%;
-    margin-top: 30px;
-  }
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  
-  .item {
-    flex: 1 1 20%;
-    max-width: 20%;
-  }
-  
-  .formTitle {
-    text-align: left;
-    color: #3b3e86;
-    font-weight: 500 !important;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 1.5rem !important;
-  }
-  
-  .formContent {
-    display: flex;
-    flex-direction: column;
-    /* gap: 20px; */
-  }
-  
-  .submitButton {
-    width: 150px;
-    text-transform: none;
-    color: #fdfdfd;
-    background-color: #8fd14f !important;
-  }
-  
-  /* dfjdiofjdipfsdiopfopsdifpood */
-  .formContent .MuiFormControl-root {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding: 0 !important;
-  }
-  /* .divnegative {
-    margin-top: -20px;
-  } */
-  .divrow {
-    margin-top: -15px;
-  }
-  /* Add this to School.module.css */
-  .formRow {
-    display: flex;
-    gap: 10px; /* Adjust space between elements */
-  }
-  
-  .formRow > * {
-    flex: 1; /* This makes each element take an equal amount of space */
-    min-width: 0; /* Helps with flex layout */
-  }
-  
-  .selectInput,
-  .textInput {
-    height: 40px; /* Adjust to your desired input height */
-  }
-  .filedelete {
-    background-color: "#ff4d4f";
-    color: "#fff";
-    border: "none";
-    padding: "5px 10px";
-    cursor: "pointer";
-    border-radius: "3px";
-  }
-  .submitbutton {
-    background-color: #8fd14f !important;
-    color: #fdfdfd;
-    font-family: "Nunito", sans-serif;
-  }
-  
+  padding: 10px 20px 10px 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
 
-  /* //select multiple  */
-  .selectContainer {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .selectinput {
-    position: relative;
-  }
-  /* Display selected options as chips */
-  .selectedTags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  /* Each selected option displayed as a chip */
-  .selectedTags .badge {
-    background-color: #90d14ff1; /* Background color for the chip */
-    font-family: "Nunito", sans-serif;
-    color: white;
-    padding: 0px 5px;
-    border-radius: 5px;
-    font-weight: bolder;
-    display: flex;
-    font-size: 12px;
-  
-    align-items: center;
-    justify-content: space-between;
-    max-width: 100px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .selectedTags .badge:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .selectedTags .btnClose {
-    color: white;
-    background: transparent;
-    border: none;
-    font-size: 1.2rem;
-    margin-left: 2px;
-    cursor: pointer;
-  }
-  
-  .selectedTags .btnClose:hover {
-    color: white; /* Change color on hover */
-  }
-  
-  /* Dropdown menu styling */
-  .dropdownMenu {
-    position: absolute;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 10;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    opacity: 1;
-  }
-  
-  .dropdownMenu.slideIn {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  
-  .dropdownMenu.slideOut {
-    transform: translateY(-10px);
-    opacity: 0;
-  }
-  
-  .dropdownMenu::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .dropdownMenu::-webkit-scrollbar-thumb {
-    background: #6fb344;
-    /* border-radius: 10px; */
-  }
-  
-  .dropdownMenu::-webkit-scrollbar-thumb:hover {
-    background: #90d14f;
-  }
-  
-  .dropdownitem {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    cursor: pointer;
-  }
-  .dropdownitem:hover {
-    background: #90d14f;
-    color: white;
-  }
-  .checkboxLabel {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    font-size: 0.875rem;
-  }
-  
-  .okButton {
-    display: block;
-    width: 20%;
-    padding: 4px;
-    margin-top: 8px;
-    border: none;
-    background-color: #00796b;
-    color: white;
-    font-size: 0.875rem;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  
-  .okButton:hover {
-    background-color: #004d40;
-  }
-  
-  .okButton:focus {
-    outline: 2px solid #004d40;
-  }
-  
-  .crossicon {
-    font-size: 12px;
-  }
-  .dropdownFooter {
-    position: sticky; /* Keeps the OK button visible at the bottom */
-    bottom: 0;
-    background: white; /* Matches dropdown background */
-    padding: 8px;
-    border-top: 1px solid #ddd;
-    text-align: center; /* Centers the OK button */
-  }
-  /* jkhkjshjsojo */
-  .selectedTags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-width: 100%;
-  }
-  
-  .selectedBadgesContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .selectedTags .badge {
-    background-color: #90d14ff1;
-    font-family: "Nunito", sans-serif;
-    color: white;
-    padding: 0px 5px;
-    border-radius: 5px;
-    font-weight: bolder;
-    display: flex;
-    font-size: 12px;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 100px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .selectedTags .badge:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
+  margin: 0 auto;
+  box-shadow: rgb(50 50 93 / 0%) 0px 13px 27px -5px,
+    rgb(0 0 0 / 10%) 0px 8px 16px -8px;
+  padding: 2% 3% 5% 3%;
+  margin-top: 30px;
+}
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.item {
+  flex: 1 1 20%;
+  max-width: 20%;
+}
+
+.formTitle {
+  text-align: left;
+  color: #3b3e86;
+  font-weight: 500 !important;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.5rem !important;
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.submitButton {
+  width: 150px;
+  text-transform: none;
+  color: #fdfdfd;
+  background-color: #8fd14f !important;
+}
+
+.formContent .MuiFormControl-root {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+.divrow {
+  margin-top: -15px;
+}
+
+.formRow {
+  display: flex;
+  gap: 10px;
+}
+
+.formRow > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.selectInput,
+.textInput {
+  height: 40px;
+}
+.filedelete {
+  background-color: "#ff4d4f";
+  color: "#fff";
+  border: "none";
+  padding: "5px 10px";
+  cursor: "pointer";
+  border-radius: "3px";
+}
+.submitbutton {
+  background-color: #8fd14f !important;
+  color: #fdfdfd;
+  font-family: "Nunito", sans-serif;
+}
+
+.selectContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.selectinput {
+  position: relative;
+}
+
+.selectedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectedTags .badge {
+  background-color: #90d14ff1;
+  font-family: "Nunito", sans-serif;
+  color: white;
+  padding: 0px 5px;
+  border-radius: 5px;
+  font-weight: bolder;
+  display: flex;
+  font-size: 12px;
+
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.selectedTags .badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.selectedTags .btnClose {
+  color: white;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+.selectedTags .btnClose:hover {
+  color: white;
+}
+
+.dropdownMenu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+}
+
+.dropdownMenu.slideIn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.dropdownMenu.slideOut {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+.dropdownMenu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb {
+  background: #6fb344;
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb:hover {
+  background: #90d14f;
+}
+
+.dropdownitem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.dropdownitem:hover {
+  background: #90d14f;
+  color: white;
+}
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.okButton {
+  display: block;
+  width: 20%;
+  padding: 4px;
+  margin-top: 8px;
+  border: none;
+  background-color: #00796b;
+  color: white;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.okButton:hover {
+  background-color: #004d40;
+}
+
+.okButton:focus {
+  outline: 2px solid #004d40;
+}
+
+.crossicon {
+  font-size: 12px;
+}
+.dropdownFooter {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  text-align: center;
+}
+
+.selectedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.selectedBadgesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectedTags .badge {
+  background-color: #90d14ff1;
+  font-family: "Nunito", sans-serif;
+  color: white;
+  padding: 0px 5px;
+  border-radius: 5px;
+  font-weight: bolder;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.selectedTags .badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}

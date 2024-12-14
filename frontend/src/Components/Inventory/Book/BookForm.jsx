@@ -1,26 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Mainlayout from "../../Layouts/Mainlayout";
-import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Container, Typography, Box } from '@mui/material';
-import Swal from 'sweetalert2';
+import {
+  TextField,
+  Button,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Container,
+  Typography,
+  Box,
+} from "@mui/material";
+import Swal from "sweetalert2";
 
 const BookForm = () => {
-  const [name, setName] = useState('');
-  const [publishedyear, setPublishedYear] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [class_name, setClassName] = useState('');
+  const [name, setName] = useState("");
+  const [publishedyear, setPublishedYear] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [class_name, setClassName] = useState("");
   const [masterData, setMasterData] = useState([]); // State for master data
   const navigate = useNavigate();
 
   useEffect(() => {
     // Fetching master data for the "Choose Class" select input
-    axios.get('http://localhost:5000/api/master')
+    axios
+      .get("http://localhost:5000/api/master")
       .then((response) => {
         setMasterData(response.data); // Set the master data from the API response
       })
       .catch((error) => {
-        console.error('Error fetching master data:', error);
+        console.error("Error fetching master data:", error);
       });
   }, []);
 
@@ -28,34 +39,48 @@ const BookForm = () => {
     e.preventDefault();
 
     // Sending the POST request to the server
-    axios.post('http://localhost:5000/api/book', { name, publishedyear, quantity, class_name })
+    axios
+      .post("http://localhost:5000/api/book", {
+        name,
+        publishedyear,
+        quantity,
+        class_name,
+      })
       .then((response) => {
         // Success: Show success alert and redirect
         Swal.fire({
-          title: 'Success!',
+          title: "Success!",
           text: `Book "${name}" created successfully.`,
-          icon: 'success',
-          confirmButtonText: 'OK',
+          icon: "success",
+          confirmButtonText: "OK",
         }).then(() => {
-          navigate('/book'); // Redirect after the user clicks OK
+          navigate("/book"); // Redirect after the user clicks OK
         });
       })
       .catch((error) => {
         // Error: Show error alert
         Swal.fire({
-          title: 'Error!',
-          text: 'There was an issue creating the book. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'OK',
+          title: "Error!",
+          text: "There was an issue creating the book. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
         });
-        console.error('Error creating book:', error);
+        console.error("Error creating book:", error);
       });
   };
 
   return (
     <Mainlayout>
       <Container maxWidth="sm">
-        <Box sx={{ marginTop: 4, padding: 3, borderRadius: 2, boxShadow: 3, backgroundColor: '#fff' }}>
+        <Box
+          sx={{
+            marginTop: 4,
+            padding: 3,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#fff",
+          }}
+        >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
             Create Book
           </Typography>
@@ -68,6 +93,13 @@ const BookForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <TextField
               fullWidth
@@ -77,21 +109,36 @@ const BookForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <FormControl fullWidth margin="normal">
-              <InputLabel>Choose Class</InputLabel>
-              <Select
+              {/* <InputLabel>Choose Class</InputLabel> */}
+              <TextField
+                select
                 value={class_name}
                 onChange={(e) => setClassName(e.target.value)}
-                  label="Select Class"
+                label="Select Class"
                 required
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 {masterData.map((item) => (
                   <MenuItem key={item.id} value={item.name}>
                     {item.name}
                   </MenuItem>
                 ))}
-              </Select>
+              </TextField>
             </FormControl>
             <TextField
               fullWidth
@@ -101,14 +148,20 @@ const BookForm = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <Button
               type="submit"
               variant="contained"
               color="primary"
               fullWidth
-             
-              sx={{backgroundColor: "#8fd14f", marginTop: 3 }}
+              sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
             >
               Create
             </Button>

@@ -136,7 +136,7 @@ const CreateCity = () => {
       <Container maxWidth="sm">
         <Box
           sx={{
-            marginTop: 4,
+            marginTop: 9,
             padding: 3,
             borderRadius: 2,
             boxShadow: 3,
@@ -149,18 +149,26 @@ const CreateCity = () => {
           <form onSubmit={handleSubmit}>
             {/* Country selection input */}
             <FormControl fullWidth margin="normal" required>
-              <InputLabel>Select Country</InputLabel>
-              <Select
+              {/* <InputLabel>Select Country</InputLabel> */}
+              <TextField
+                select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)} // Update selected country ID
                 label="Select Country"
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 {countries.map((country) => (
                   <MenuItem key={country.id} value={country.id}>
                     {country.name} ({country.stateCount || 0} States)
                   </MenuItem>
                 ))}
-              </Select>
+              </TextField>
             </FormControl>
 
             {/* State selection input */}
@@ -177,18 +185,26 @@ const CreateCity = () => {
                   required
                   disabled={!selectedCountry}
                 >
-                  <InputLabel>Select State</InputLabel>
-                  <Select
+                  {/* <InputLabel>Select State</InputLabel> */}
+                  <TextField
+                    select
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)} // Update selected state ID
                     label="Select State"
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   >
                     {states.map((state) => (
                       <MenuItem key={state.id} value={state.id}>
                         {state.name} ({state.districtCount || 0} Districts)
                       </MenuItem>
                     ))}
-                  </Select>
+                  </TextField>
                 </FormControl>
               </Grid>
 
@@ -200,18 +216,26 @@ const CreateCity = () => {
                   required
                   disabled={!selectedState}
                 >
-                  <InputLabel>Select District</InputLabel>
-                  <Select
+                  {/* <InputLabel>Select District</InputLabel> */}
+                  <TextField
+                    select
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)} // Update selected district ID
                     label="Select District"
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   >
                     {districts.map((district) => (
                       <MenuItem key={district.id} value={district.id}>
                         {district.name}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </TextField>
                 </FormControl>
               </Grid>
             </Grid>
@@ -227,21 +251,36 @@ const CreateCity = () => {
                   required
                   variant="outlined"
                   margin="normal"
+                  size="small"
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
 
               {/* Status Field */}
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth margin="normal" required>
-                  <InputLabel>Status</InputLabel>
-                  <Select
+                  {/* <InputLabel>Status</InputLabel> */}
+                  <TextField
+                    select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     label="Status"
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   >
                     <MenuItem value="active">Active</MenuItem>
                     <MenuItem value="inactive">Inactive</MenuItem>
-                  </Select>
+                  </TextField>
                 </FormControl>
               </Grid>
             </Grid>
@@ -254,6 +293,11 @@ const CreateCity = () => {
               sx={{
                 backgroundColor: "#8fd14f",
                 marginTop: 3,
+                height: "36px", // Set the height of the button
+                minWidth: "120px", // Ensure the button width doesn't collapse
+                padding: "4px 16px", // Adjust padding to make the button smaller
+                fontSize: "14px", // Adjust font size for better appearance
+                textTransform: "none", // Optional: Prevents the button text from being uppercase
               }}
               // disabled={!selectedDistrict} // Disable submit until district is selected
             >

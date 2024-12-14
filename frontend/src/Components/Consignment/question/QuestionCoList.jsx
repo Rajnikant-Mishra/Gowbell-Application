@@ -40,7 +40,7 @@ export default function DataTable() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get("http://localhost:5000/api/districts/") // Your API URL here
+      .get("http://localhost:5000/api/co/question") // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -64,7 +64,7 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`http://localhost:5000/api/districts/${id}`)
+          .delete(`http://localhost:5000/api/co/question/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -75,7 +75,7 @@ export default function DataTable() {
             );
 
             // Show a success alert
-            Swal.fire("Deleted!", "The state has been deleted.", "success");
+            Swal.fire("Deleted!", "The country has been deleted.", "success");
           })
           .catch((error) => {
             console.error("Error deleting country:", error);
@@ -251,13 +251,13 @@ export default function DataTable() {
               onClick={handleClick}
               style={{ display: "flex", alignItems: "center" }}
             >
-              Districts
+              questions
             </StyledBreadcrumb>
           </Breadcrumbs>
         </div>
         <div>
           <ButtonComp
-            link="/district/create"
+            link="/co-question"
             text={<FaPlus />}
             type={"button"}
             disabled={false}
@@ -269,12 +269,12 @@ export default function DataTable() {
           className={`${styles.table} `}
           style={{ fontFamily: "Nunito, sans-serif" }}
         >
-         <thead>
+        <thead>
             <tr className={`${styles.headerRow} pt-0 pb-0`}>
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name", "created_at", "updated_at"].map((col) => (
+              {["question name", "exam_date","school", "tracking_number", "quantity"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -295,7 +295,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["name", "created_at", "updated_at"].map((col) => (
+            {["question name", "exam_date","school", "tracking_number", "quantity"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -323,16 +323,23 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.name}</td>
-                <td>{row.created_at}</td>
-                <td>{row.updated_at}</td>
+              
+                <td>{row.question_name}</td> 
+                <td>{row.exam_date}</td>         
+                <td>{row.school_name_co}</td>         
+                <td>{row.tracking_no}</td>
+                <td>{row.quantity_co}</td>
+              
+               
+             
 
                 <td>
                   <div className={styles.actionButtons}>
                     {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/district/update/${row.id}`}>
+                    <Link to={`/co-question/update/${row.id}`}>
                       <FaEdit className={styles.FaEdit} />
                     </Link>
+                     
                     <FaTrash
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
@@ -364,7 +371,6 @@ export default function DataTable() {
             </select>
             data per Page
           </div>
-
           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
             <label
               htmlFor="pageSize"
@@ -376,7 +382,6 @@ export default function DataTable() {
               </p>
             </label>
           </div>
-
           <div className={`${styles.pagination} my-auto`}>
             <button
               onClick={handlePreviousPage}
@@ -385,7 +390,6 @@ export default function DataTable() {
             >
               <UilAngleLeftB />
             </button>
-
             {Array.from(
               { length: Math.ceil(filteredRecords.length / pageSize) },
               (_, i) => i + 1
@@ -411,7 +415,6 @@ export default function DataTable() {
                   </button>
                 </React.Fragment>
               ))}
-
             <button
               onClick={handleNextPage}
               disabled={page === Math.ceil(filteredRecords.length / pageSize)}

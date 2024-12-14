@@ -1,8 +1,62 @@
 .hamburgerIcon {
   font-size: 1.3rem;
-  color: #6C757D;
+  color: #6c757d;
   cursor: pointer;
 }
 .hamburgerIcon:hover {
-  color: #007BFF;
+  color: #007bff;
+}
+
+.para {
+  color: black;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.dropdowndiv {
+  background-color: #ffff;
+  padding: 10px;
+}
+::after {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.dropdowndiv ul {
+  margin-left: 17%;
+  margin-top: 4%;
+  margin-left: 10% !important;
+
+  border-radius: 0px !important;
+}
+.searchForm {
+  position: relative;
+  width: 100%; 
+  max-width: 30%;
+  margin-right: 48%;
+}
+
+.searchInput {
+  width: 100%;
+  padding-left: 2.5rem; 
+  font-size: 14px;
+  border-radius: 0;
+  border: 1px solid #e2e8ef;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(207, 212, 217, 0.5);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #007bff; 
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  transform: translateY(-50%);
+  color: #1230aea6;
+  pointer-events: none; 
+  font-size: 1.3rem;
 }
