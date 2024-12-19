@@ -35,7 +35,6 @@ import coomrRoutes from './routes/Consignment/co-omrRoutes.js';
 import questionCoRoutes from './routes/Consignment/questionCoRoutes.js';
 
 
-
 const app = express();
 
 

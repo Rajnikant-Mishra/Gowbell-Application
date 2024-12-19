@@ -2,11 +2,19 @@ import { db } from '../../config/db.js';
 
 export const Student = {
     
+    // create: (studentData, callback) => {
+    //   const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = studentData;
+    //   const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+    //   db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by], callback);
+    // },
     create: (studentData, callback) => {
-      const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = studentData;
-      const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
-      db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by], callback);
+      const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
+      
+      const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+      
+      db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code], callback);
     },
+    
   
     getAll: (callback) => {
       const query = 'SELECT * FROM student';

@@ -46,10 +46,7 @@ const schoolValidationSchema = Joi.object({
   principal_name: Joi.string().required().messages({
     "string.empty": "Principal name is required",
   }),
-  principal_email: Joi.string().email().required().messages({
-    "string.email": "A valid principal email is required",
-    "string.empty": "Principal email is required",
-  }),
+ 
   principal_contact_number: Joi.string()
     .pattern(/^[0-9]{10}$/)
     .required()
@@ -69,9 +66,7 @@ const schoolValidationSchema = Joi.object({
   vice_principal_name: Joi.string().optional().allow("").messages({
     "string.empty": "Vice Principal name can be empty",
   }),
-  vice_principal_email: Joi.string().email().optional().allow("").messages({
-    "string.email": "A valid vice principal email is required if provided",
-  }),
+ 
   vice_principal_contact_number: Joi.string()
     .pattern(/^[0-9]{10}$/)
     .optional()
@@ -89,13 +84,203 @@ const schoolValidationSchema = Joi.object({
         "Vice Principal WhatsApp must be a valid 10-digit number",
     }),
 
-  student_strength: Joi.number().integer().optional().allow(null).messages({
-    "number.base": "Student strength must be a valid number or null",
-  }),
-  classes: Joi.array().items(Joi.string()).optional().allow().messages({
-    "array.base": "Classes must be an array of strings or null",
-  }),
+    student_strength: Joi.number()
+    .integer()
+    .required()
+    .messages({
+      "any.required": "Student strength is a required field.",
+      "number.base": "Student strength must be a valid number.",
+      "number.integer": "Student strength must be an integer.",
+      
+    }),
+  
+    classes: Joi.array()
+    .items(Joi.string().required())
+    .required()
+    .messages({
+       "any.required": "Classes are required.",
+      "array.base": "Classes must be an array of strings.",
+      "array.includesRequiredUnknowns": "Each class must be a valid string.",
+     
+    }),
+  
 });
+
+
+
+// export const createSchool = async (req, res) => {
+//   const { error } = schoolValidationSchema.validate(req.body);
+//   if (error) {
+//     return res.status(400).json({ error: error.details[0].message });
+//   }
+
+//   const data = req.body;
+
+//   try {
+//     // Create school in the database
+//     const results = await School.create(data);
+
+//     // Check if results is defined and has insertId
+//     if (!results || !results.insertId) {
+//       return res.status(500).json({ message: "School creation failed, no ID returned" });
+//     }
+
+//     const schoolId = results.insertId;
+
+//     // Prepare details for email and SMS
+//     const schoolName = data.school_name;
+//     const schoolEmail = data.school_email;
+//     const principalEmail = data.principal_email;
+//     const principalPhoneNumber = data.principal_contact_number;
+//     const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful!`;
+    
+//     const emailSubject = `School Registration Successful: ${schoolName}`;
+//     const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successfully.`;
+//     const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
+//                        <p>Your registration with Gowbell Foundation was successfully.</strong>.</p>`;
+    
+//     // Send confirmation email
+//     await sendEmail(principalEmail, emailSubject, emailText, emailHtml);
+    
+//     // Validate and send SMS
+//     if (!principalPhoneNumber || !/^\+?\d{10,15}$/.test(principalPhoneNumber)) {
+//       return res.status(400).json({ message: "Invalid principal contact number" });
+//     }
+//     await sendSms(principalPhoneNumber, smsMessage);
+
+//     // Success response
+//     res.status(201).json({
+//       message: "School created, email sent successfully, and SMS sent!",
+//       id: schoolId, // Use the `insertId` returned by the `create` method
+//     });
+//   } catch (err) {
+//     console.error("Error during school creation:", err);
+
+//     // Check if the error occurred while sending email or SMS
+//     if (err.response) {
+//       return res.status(500).json({ message: "Error in external service", error: err.response.data });
+//     }
+
+//     res.status(500).json({ message: "An error occurred", error: err.message });
+//   }
+// };
+
+// export const createSchool = async (req, res) => {
+//   const { error } = schoolValidationSchema.validate(req.body);
+//   if (error) {
+//     return res.status(400).json({ error: error.details[0].message });
+//   }
+
+//   const data = req.body;
+
+//   try {
+//     // Create school in the database
+//     const results = await School.create(data);
+
+//     if (!results || !results.insertId) {
+//       return res.status(500).json({ message: "School creation failed, no ID returned" });
+//     }
+
+//     const schoolId = results.insertId;
+//     const schoolCode = results.school_code; // Get the generated school_code
+
+//     // Prepare details for email and SMS
+//     const schoolName = data.school_name;
+//     const principalEmail = data.principal_email;
+//     const principalPhoneNumber = data.principal_contact_number;
+//     const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
+    
+//     const emailSubject = `School Registration Successful: ${schoolName}`;
+//     const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
+//     const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
+//                        <p>Your registration with Gowbell Foundation was successful.</p>
+//                        <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
+    
+//     // Send confirmation email
+//     await sendEmail(principalEmail, emailSubject, emailText, emailHtml);
+    
+//     // Validate and send SMS
+//     if (!principalPhoneNumber || !/^\+?\d{10,15}$/.test(principalPhoneNumber)) {
+//       return res.status(400).json({ message: "Invalid principal contact number" });
+//     }
+//     await sendSms(principalPhoneNumber, smsMessage);
+
+//     // Success response
+//     res.status(201).json({
+//       message: "School created, email sent successfully, and SMS sent!",
+//       id: schoolId,
+//       school_code: schoolCode, // Return the school_code in the response
+//     });
+//   } catch (err) {
+//     console.error("Error during school creation:", err);
+
+//     if (err.response) {
+//       return res.status(500).json({ message: "Error in external service", error: err.response.data });
+//     }
+
+//     res.status(500).json({ message: "An error occurred", error: err.message });
+//   }
+// };
+
+export const createSchool = async (req, res) => {
+  const { error } = schoolValidationSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  const data = req.body;
+
+  try {
+    // Create school in the database
+    const results = await School.create(data);
+
+    if (!results || !results.insertId) {
+      return res.status(500).json({ message: "School creation failed, no ID returned" });
+    }
+
+    const schoolId = results.insertId;
+    const schoolCode = results.school_code; // Get the generated school_code
+
+    // Prepare details for email and SMS
+    const schoolName = data.school_name;
+    const schoolEmail = data.school_email;
+    const principalPhoneNumber = data.principal_contact_number;
+    const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
+    
+    const emailSubject = `School Registration Successful: ${schoolName}`;
+    const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
+    const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
+                       <p>Your registration with Gowbell Foundation was successful.</p>
+                       <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
+    
+    // Send confirmation email
+    await sendEmail(schoolEmail, emailSubject, emailText, emailHtml);
+    
+    // Validate and send SMS
+    if (!principalPhoneNumber || !/^\+?\d{10,15}$/.test(principalPhoneNumber)) {
+      return res.status(400).json({ message: "Invalid principal contact number" });
+    }
+    await sendSms(principalPhoneNumber, smsMessage);
+
+    // Success response
+    res.status(201).json({
+      message: "School created, email sent successfully, and SMS sent!",
+      id: schoolId,
+      school_code: schoolCode, // Return the school_code in the response
+    });
+  } catch (err) {
+    console.error("Error during school creation:", err);
+
+    if (err.response) {
+      return res.status(500).json({ message: "Error in external service", error: err.response.data });
+    }
+
+    res.status(500).json({ message: "An error occurred", error: err.message });
+  }
+};
+
+
+
 
 // Get all schools
 export const getAllSchools = (req, res) => {
@@ -118,76 +303,35 @@ export const getSchoolById = (req, res) => {
 
 
 
-export const createSchool = async (req, res) => {
-  const { error } = schoolValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
-
-  const data = req.body;
-
-  try {
-    // Create school in the database
-    const results = await School.create(data);
-
-    // Check if results is defined and has insertId
-    if (!results || !results.insertId) {
-      return res.status(500).json({ message: "School creation failed, no ID returned" });
-    }
-
-    const schoolId = results.insertId;
-
-    // Prepare details for email and SMS
-    const schoolName = data.school_name;
-    const schoolEmail = data.school_email;
-    const principalEmail = data.principal_email;
-    const principalPhoneNumber = data.principal_contact_number;
-    const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful!`;
-    
-    const emailSubject = `School Registration Successful: ${schoolName}`;
-    const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successfully.`;
-    const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
-                       <p>Your registration with Gowbell Foundation was successfully.</strong>.</p>`;
-    
-    // Send confirmation email
-    await sendEmail(principalEmail, emailSubject, emailText, emailHtml);
-    
-    // Validate and send SMS
-    if (!principalPhoneNumber || !/^\+?\d{10,15}$/.test(principalPhoneNumber)) {
-      return res.status(400).json({ message: "Invalid principal contact number" });
-    }
-    await sendSms(principalPhoneNumber, smsMessage);
-
-    // Success response
-    res.status(201).json({
-      message: "School created, email sent successfully, and SMS sent!",
-      id: schoolId, // Use the `insertId` returned by the `create` method
-    });
-  } catch (err) {
-    console.error("Error during school creation:", err);
-
-    // Check if the error occurred while sending email or SMS
-    if (err.response) {
-      return res.status(500).json({ message: "Error in external service", error: err.response.data });
-    }
-
-    res.status(500).json({ message: "An error occurred", error: err.message });
-  }
-};
-
-
-
 
 // Update school
+// export const updateSchool = (req, res) => {
+//   const id = req.params.id;
+//   const { error } = schoolValidationSchema.validate(req.body);
+//   if (error) return res.status(400).json({ error: error.details[0].message });
+
+//   const data = req.body;
+//   School.update(id, data, (err, results) => {
+//     if (err) return res.status(500).send(err);
+//     res.status(200).json({ message: "School updated" });
+//   });
+// };
 export const updateSchool = (req, res) => {
   const id = req.params.id;
-  const { error } = schoolValidationSchema.validate(req.body);
-  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  // Validate request body
+  const { error } = schoolValidationSchema.validate(req.body, { abortEarly: false });
+  if (error) {
+    const messages = error.details.map((detail) => detail.message); // Collect all error messages
+    return res.status(400).json({ message: "Validation error", errors: messages });
+  }
 
   const data = req.body;
+
+  // Update school in the database (replace `School.update` with your database query)
   School.update(id, data, (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.status(200).json({ message: "School updated" });
+    if (err) return res.status(500).json({ message: "Database error", error: err });
+    res.status(200).json({ message: "School updated successfully", data: results });
   });
 };
 

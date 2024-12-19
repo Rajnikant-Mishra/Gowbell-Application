@@ -1,15 +1,42 @@
 import  Student from '../../models/Student/studentModel.js';
 
 // Create a new student
-export const createStudent = (req, res) => {
-    const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = req.body;
-    const newStudent = { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by };
+// export const createStudent = (req, res) => {
+//     const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = req.body;
+//     const newStudent = { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by };
   
-    Student.create(newStudent, (err, result) => {
-      if (err) return res.status(500).send(err);
-      res.status(201).send({ message: 'Student is created', studentId: result.insertId });
-    });
+//     Student.create(newStudent, (err, result) => {
+//       if (err) return res.status(500).send(err);
+//       res.status(201).send({ message: 'Student is created', studentId: result.insertId });
+//     });
+//   };
+
+export const createStudent = (req, res) => {
+  const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = req.body;
+
+  // Generate a student code (this could be a more complex generation logic)
+  const student_code = `${school_name.slice(0, 3).toUpperCase()}-${Date.now()}`;
+
+  const newStudent = {
+    school_name,
+    student_name,
+    class_name,
+    student_section,
+    mobile_number,
+    whatsapp_number,
+    student_subject,
+    approved,
+    approved_by,
+    student_code // Add the student code to the new student object
   };
+
+  Student.create(newStudent, (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.status(201).send({ message: 'Student is created', studentId: result.insertId, studentCode: student_code });
+  });
+};
+
+
   
   // Get all students
   export const getAllStudents = (req, res) => {
