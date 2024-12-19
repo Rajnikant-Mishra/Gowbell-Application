@@ -15,6 +15,9 @@ import {
   Grid,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const CreateCity = () => {
   const [name, setName] = useState("");
@@ -30,7 +33,7 @@ const CreateCity = () => {
   // Fetch countries on component mount
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/countries/")
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => {
         setCountries(response.data);
       })
@@ -43,7 +46,7 @@ const CreateCity = () => {
   useEffect(() => {
     if (selectedCountry) {
       axios
-        .get(`http://localhost:5000/api/states?countryId=${selectedCountry}`)
+        .get(`${API_BASE_URL}/api/states?countryId=${selectedCountry}`)
         .then((response) => {
           const stateData = response.data.map((state) => ({
             ...state,
@@ -57,7 +60,7 @@ const CreateCity = () => {
           // Fetch district counts for each state
           stateData.forEach((state) => {
             axios
-              .get(`http://localhost:5000/api/districts?stateId=${state.id}`)
+              .get(`${API_BASE_URL}/api/districts?stateId=${state.id}`)
               .then((districtResponse) => {
                 const districtCount = districtResponse.data.length;
                 setStates((prevStates) =>
@@ -84,7 +87,7 @@ const CreateCity = () => {
   useEffect(() => {
     if (selectedState) {
       axios
-        .get(`http://localhost:5000/api/districts?stateId=${selectedState}`)
+        .get(`${API_BASE_URL}/api/districts?stateId=${selectedState}`)
         .then((response) => {
           setDistricts(response.data);
           setSelectedDistrict(""); // Reset selected district
@@ -101,7 +104,7 @@ const CreateCity = () => {
     e.preventDefault();
 
     axios
-      .post("http://localhost:5000/api/cities/", {
+      .post(`${API_BASE_URL}/api/cities/`, {
         name,
         status,
         country_id: selectedCountry,
@@ -110,12 +113,18 @@ const CreateCity = () => {
       })
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `City "${name}" created successfully.`,
+          position: "top-end",
           icon: "success",
-          timer: 2000,
-          timerProgressBar: true,
+          title: "Success!",
+          text: `City "${name}" created successfully!`,
           showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/city");
         });
@@ -133,6 +142,13 @@ const CreateCity = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "City", link: "/city" }, { name: "Update City" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

@@ -1,0 +1,5 @@
+.small-swal {
+  padding: 10px !important; /* Adjust padding to decrease the modal height */
+  font-size: 13px  !important;; /* Optionally reduce text size for smaller height */
+  line-height: 1.5  !important;; /* Adjust line-height for compactness */
+}

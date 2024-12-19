@@ -17,25 +17,23 @@ const TextInput = ({ label, name, value, onChange, type }) => {
         style: {
           fontFamily: "Nunito, sans-serif",
           padding: "0px 0px",
-          fontSize: "14px",
+          fontSize: "0.8rem",
         },
       }}
       InputLabelProps={{
         style: {
           fontFamily: "Nunito, sans-serif",
-          // fontSize: "0.85rem",
-          fontSize: "14px",
+          fontSize: "0.85rem",
+          fontWeight: "bolder",
         },
       }}
       sx={{
         "& .MuiInputBase-input::placeholder": {
-          // fontSize: "0.9rem",
-          fontSize: "14px",
+          fontSize: "0.9rem",
           transition: "font-size 0.3s",
         },
         "&.Mui-focused .MuiInputBase-input::placeholder": {
-          // fontSize: "10px",
-          fontSize: "14px",
+          fontSize: "10px",
         },
       }}
     />

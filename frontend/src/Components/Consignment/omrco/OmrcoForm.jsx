@@ -21,6 +21,9 @@ import html2canvas from "html2canvas";
 import { createRoot } from "react-dom/client";
 import OMRSheet from "./OMRSheet";
 import { MdPadding } from "react-icons/md";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const OmrcoForm = ({ refreshData }) => {
   const navigate = useNavigate();
@@ -39,7 +42,7 @@ const OmrcoForm = ({ refreshData }) => {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/get/student");
+        const response = await fetch(`${API_BASE_URL}/api/get/student`);
         const data = await response.json();
         setSchools(data);
       } catch (error) {
@@ -48,7 +51,7 @@ const OmrcoForm = ({ refreshData }) => {
     };
     const fetchOmrOptions = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/get/omr");
+        const response = await fetch(`${API_BASE_URL}/api/get/omr`);
         const data = await response.json();
         setOmrOptions(data);
       } catch (error) {
@@ -59,11 +62,10 @@ const OmrcoForm = ({ refreshData }) => {
     fetchOmrOptions();
   }, []);
 
-
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-  
+
     // Check conditions for fetching students
     if (
       name === "school_name" ||
@@ -76,7 +78,7 @@ const OmrcoForm = ({ refreshData }) => {
       }
     }
   };
-  
+
   useEffect(() => {
     const fetchStudentDetails = async () => {
       if (!formData.school_name || !formData.class_from || !formData.class_to)
@@ -84,7 +86,7 @@ const OmrcoForm = ({ refreshData }) => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/get/students-by-class",
+          `${API_BASE_URL}/api/get/students-by-class`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -190,7 +192,7 @@ const OmrcoForm = ({ refreshData }) => {
       Swal.close();
 
       // Continue with the backend submission
-      const response = await fetch("http://localhost:5000/api/co/omr", {
+      const response = await fetch(`${API_BASE_URL}/api/co/omr`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -204,10 +206,18 @@ const OmrcoForm = ({ refreshData }) => {
 
       if (response.ok) {
         Swal.fire({
+          position: "top-end",
           icon: "success",
-          title: "Success",
-          text: "OMR entry created, and PDF generated successfully!",
-          timer: 2000,
+          title: "Success!",
+          text: `co-omr created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
         if (refreshData) refreshData();
         navigate("/omr-list");
@@ -238,6 +248,16 @@ const OmrcoForm = ({ refreshData }) => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "OMR-Co.", link: "/omr-list" },
+              { name: "CreateOMR-Co." },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm" style={{ marginTop: "7%" }}>
         <Card elevation={3}>
           <CardContent>
@@ -261,12 +281,12 @@ const OmrcoForm = ({ refreshData }) => {
                   variant="outlined"
                   required
                   size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   {schools.map((school) => (
                     <MenuItem key={school.id} value={school.school_name}>
@@ -288,12 +308,12 @@ const OmrcoForm = ({ refreshData }) => {
                       variant="outlined"
                       required
                       size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
+                      InputProps={{
+                        style: { fontSize: "14px" }, // Adjust input text size
+                      }}
+                      InputLabelProps={{
+                        style: { fontSize: "14px" }, // Adjust label size
+                      }}
                     >
                       {schools
                         .filter(
@@ -320,12 +340,12 @@ const OmrcoForm = ({ refreshData }) => {
                       variant="outlined"
                       required
                       size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
+                      InputProps={{
+                        style: { fontSize: "14px" }, // Adjust input text size
+                      }}
+                      InputLabelProps={{
+                        style: { fontSize: "14px" }, // Adjust label size
+                      }}
                     >
                       {schools
                         .filter(
@@ -345,20 +365,20 @@ const OmrcoForm = ({ refreshData }) => {
                   <Grid item xs={12} sm={6}>
                     <FormControl fullWidth>
                       {/* <InputLabel>Exam Level</InputLabel> */}
-                      <TextField 
-                      select
+                      <TextField
+                        select
                         name="exam_level"
                         value={formData.exam_level}
                         onChange={handleChange}
                         label="Exam Level"
                         required
                         size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
+                        InputProps={{
+                          style: { fontSize: "14px" }, // Adjust input text size
+                        }}
+                        InputLabelProps={{
+                          style: { fontSize: "14px" }, // Adjust label size
+                        }}
                       >
                         <MenuItem value="level1">Level 1</MenuItem>
                         <MenuItem value="level2">Level 2</MenuItem>
@@ -380,12 +400,12 @@ const OmrcoForm = ({ refreshData }) => {
                       variant="outlined"
                       required
                       size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
+                      InputProps={{
+                        style: { fontSize: "14px" }, // Adjust input text size
+                      }}
+                      InputLabelProps={{
+                        style: { fontSize: "14px" }, // Adjust label size
+                      }}
                     >
                       {omrOptions.map((omr) => (
                         <MenuItem key={omr.id} value={omr.title}>
@@ -405,15 +425,13 @@ const OmrcoForm = ({ refreshData }) => {
                   variant="outlined"
                   required
                   size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                  shrink:true,
-                }}
-                  
-                  
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                    shrink: true,
+                  }}
                 />
                 {students.length > 0 && (
                   <Typography variant="body2" color="textSecondary">

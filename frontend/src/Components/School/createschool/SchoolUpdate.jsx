@@ -2,9 +2,10 @@ import React, { useRef, useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  Button,
-  InputAdornment,
   TextField,
+  Grid,
+  Autocomplete,
+  Checkbox,
 } from "@mui/material";
 import { FaPhoneAlt, FaTrash, FaWhatsapp } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -14,8 +15,12 @@ import styles from "./School.module.css";
 import TextInput from "../CommonComp/TextInput";
 import SelectDrop from "../CommonComp/SelectDrop";
 import Mainlayout from "../../Layouts/Mainlayout";
+import ButtonComp from "../CommonComp/ButtonComp";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom"; // Added useParams to fetch school ID
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 export default function SchoolForm() {
   const { id } = useParams(); // Fetching school ID from URL
@@ -29,15 +34,15 @@ export default function SchoolForm() {
     city: "",
     pincode: "",
     principal_name: "",
-    principal_email: "",
+ 
     principal_contact_number: "",
     principal_whatsapp: "",
     vice_principal_name: "",
-    vice_principal_email: "",
+    
     vice_principal_contact_number: "",
     vice_principal_whatsapp: "",
     student_strength: "",
-    classes: [],
+    classes: [], // Ensure it's an empty array initially
   });
 
   // States for dropdown options
@@ -46,86 +51,64 @@ export default function SchoolForm() {
   const [cities, setCities] = useState([]);
 
   const navigate = useNavigate();
+  const inputRef = useRef(null);
 
-const [selectedOptions, setSelectedOptions] = useState([]);
-const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-    const [temporarySelection, setTemporarySelection] = useState([]);
- const [dropdownPosition, setDropdownPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-  });
- const inputRef = useRef(null);
-const [options, setOptions] = useState([
-  { value: "class1", label: "Class 1" },
-  { value: "class2", label: "Class 2" },
-  { value: "class3", label: "Class 3" },
-]);
+  const boardOptions = [
+    { value: "CBSE", label: "CBSE" },
+    { value: "ICSE", label: "ICSE" },
+    // { value: "State Board", label: "State Board" },
+  ];
+  const pincodeOptions = [
+    { value: "100015", label: "100015" },
+    { value: "100025", label: "100025" },
+    { value: "100035", label: "100035" },
+  ];
 
 
-  // Handle checkbox selection
-  const handleCheckboxChange = (value) => {
-    setTemporarySelection((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value]
-    );
-  };
+  //classes codes ----------------------------------------------------------//
+  const classOptions = [
+    { value: "Class 1", label: "Class 1" },
+    { value: "Class 2", label: "Class 2" },
+    { value: "Class 3", label: "Class 3" },
+    { value: "Class 4", label: "Class 4" },
+    { value: "Class 5", label: "Class 5" },
+    { value: "Class 6", label: "Class 6" },
+    { value: "Class 7", label: "Class 7" },
+    { value: "Class 8", label: "Class 8" },
+    { value: "Class 9", label: "Class 9" },
+  ];
 
-  // Handle adding selected options
-  const handleOkClick = () => {
-    setSelectedOptions([...selectedOptions, ...temporarySelection]);
-    setTemporarySelection([]);
-    setIsOpen(false); // Close dropdown
-  };
+  const handleChange = (e, newValue) => {
+    const { name } = e.target;
 
-  // Handle deleting chips
-  const handleChipDelete = (value) => {
-    setSelectedOptions((prevSelected) =>
-      prevSelected.filter((item) => item !== value)
-    );
-  };
-
-  // Open dropdown and calculate its position
-  const toggleDropdown = () => {
-    setIsOpen(true);
-  };
-
-  const updateDropdownPosition = () => {
-    if (inputRef.current) {
-      const { bottom, left, width } = inputRef.current.getBoundingClientRect();
-      setDropdownPosition({ top: bottom + window.scrollY, left, width });
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      updateDropdownPosition();
-      window.addEventListener("scroll", updateDropdownPosition);
-      window.addEventListener("resize", updateDropdownPosition);
+    if (name === "classes" && newValue !== undefined) {
+      setFormData((prev) => ({
+        ...prev,
+        classes: newValue.map((item) => item.value),
+      }));
+    } else if (name.includes("schoolAddress")) {
+      const addressField = name.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        schoolAddress: {
+          ...prev.schoolAddress,
+          [addressField]: e.target.value,
+        },
+      }));
     } else {
-      window.removeEventListener("scroll", updateDropdownPosition);
-      window.removeEventListener("resize", updateDropdownPosition);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: e.target.value,
+      }));
     }
-    return () => {
-      window.removeEventListener("scroll", updateDropdownPosition);
-      window.removeEventListener("resize", updateDropdownPosition);
-    };
-  }, [isOpen]);
+  };
 
-  // Filtered options for search
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-
-
+  
   // Fetch states dynamically
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/states/");
+        const response = await axios.get(`${ API_BASE_URL }/api/states/`);
         setStates(response.data);
       } catch (error) {
         console.error("Error fetching states:", error);
@@ -140,7 +123,7 @@ const [options, setOptions] = useState([
       const fetchSchoolData = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/use/schools/${id}`
+            `${ API_BASE_URL }/api/get/schools/${id}`
           );
           setFormData(response.data); // Pre-fill form with fetched data
         } catch (error) {
@@ -157,7 +140,7 @@ const [options, setOptions] = useState([
       const fetchDistricts = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/districts/?state_id=${formData.state}`
+            `${ API_BASE_URL }/api/districts/?state_id=${formData.state}`
           );
           setDistricts(response.data);
         } catch (error) {
@@ -176,7 +159,7 @@ const [options, setOptions] = useState([
       const fetchCities = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/cities/?district_id=${formData.district}`
+            `${ API_BASE_URL }/api/cities/?district_id=${formData.district}`
           );
           setCities(response.data);
         } catch (error) {
@@ -189,50 +172,73 @@ const [options, setOptions] = useState([
     }
   }, [formData.district]);
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
   // Handle form submission (update)
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+    const { id, school_code, created_at, updated_at, ...payload } = { ...formData };
+  
     try {
+      console.log("Submitting data: ", payload);
+  
       const response = await axios.put(
-        `http://localhost:5000/api/use/schools/${id}`,
-        formData,  // Use the formData state directly
+        `${ API_BASE_URL }/api/get/schools/${id}`,
+        payload,
         {
           headers: { "Content-Type": "application/json" },
         }
       );
   
-      setTimeout(() => {
+      // Display success notification
+     Swal.fire({
+               position: "top-end",
+               icon: "success",
+               title: "Success!",
+               text: `school updated successfully!`,
+               showConfirmButton: false,
+               timer: 1000,
+               timerProgressBar: true,
+               toast: true,
+               background: "#fff",
+               customClass: {
+                 popup: "small-swal",
+               },
+             }).then(() => navigate("/schoolList"));
+    } catch (error) {
+      console.error("Error during update: ", error.response?.data || error);
+  
+      // Check for validation errors
+      if (error.response?.data?.errors) {
+        const validationErrors = error.response.data.errors;
+  
+        // Display each validation error as a toast
+        validationErrors.forEach((message) => {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Validation Error",
+            text: message,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            toast: true,
+          });
+        });
+      } else {
+        // Generic error handling
         Swal.fire({
           position: "top-end",
-          icon: "success",
-          title: "Success!",
-          text: "School updated successfully!",
+          icon: "error",
+          title: "Error!",
+          text:
+            error.response?.data?.message ||
+            "An error occurred while updating the school.",
           showConfirmButton: false,
           timer: 2000,
           timerProgressBar: true,
           toast: true,
-        }).then(() => {
-          navigate("/schoolList"); // Redirect after success
         });
-      }, 1000);
-    } catch (error) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Error!",
-        text: "An error occurred while updating the school.",
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-        toast: true,
-      });
+      }
     }
   };
   
@@ -240,290 +246,331 @@ const [options, setOptions] = useState([
 
   return (
     <Mainlayout>
-      <Box className={styles.formContainer}>
-        <Typography variant="h4" className={`${styles.formTitle} mb-3`}>
-          {id ? "Update School Form" : "School Registration Form"}
-        </Typography>
-        <form onSubmit={handleSubmit} className={styles.formContent}>
-          <div className={`${styles.formRow} mb-3`}>
-            <div>
-              <SelectDrop
-                label="Board Name"
-                name="board"
-                options={[
-                  { value: "CBSE", label: "CBSE" },
-                  { value: "ICSE", label: "ICSE" },
-                  { value: "State", label: "State Board" },
-                ]}
-                value={formData.board}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-            <div>
-              <TextInput
-                label="School Name"
-                name="school_name"
-                value={formData.school_name}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-            <div>
-              <TextInput
-                label="School Email"
-                name="school_email"
-                value={formData.school_email}
-                onChange={handleInputChange}
-                type="email"
-                fullWidth
-              />
-            </div>
-          </div>
-
-          <div className={`${styles.formRow} mb-3`}>
-            <div>
-              <TextInput
-                label="School Contact Number"
-                name="school_contact_number"
-                value={formData.school_contact_number}
-                onChange={handleInputChange}
-                type="tel"
-                fullWidth
-              />
-            </div>
-            <div>
-              <SelectDrop
-                label="State"
-                name="state"
-                options={states.map((state) => ({
-                  value: String(state.id),
-                  label: state.name,
-                }))}
-                value={formData.state}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-            <div>
-              <SelectDrop
-                label="District"
-                name="district"
-                options={districts.map((district) => ({
-                  value: String(district.id),
-                  label: district.name,
-                }))}
-                value={formData.district}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-            <div>
-              <SelectDrop
-                label="City"
-                name="city"
-                options={cities.map((city) => ({
-                  value: String(city.id),
-                  label: city.name,
-                }))}
-                value={formData.city}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-            <div>
-              <SelectDrop
-                label="Pincode"
-                name="pincode"
-                options={[
-                  { value: "100015", label: "100015" },
-                  { value: "100025", label: "100025" },
-                  { value: "100035", label: "100035" },
-                ]}
-                value={formData.pincode}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-          </div>
-
-          {/* Principal Details */}
-      <div className={`${styles.formRow} mb-3`}>
-        <div>
-          <TextInput
-            label="Principal Name"
-            name="principal_name"
-            value={formData.principal_name}
-            placeholder
-            onChange={handleInputChange}
-            type="tel"
-            fullWidth
-          />
-        </div>
-        <div>
-          <TextInput
-            label="Principal Email-ID"
-            name="principal_email"
-            value={formData.principal_email}
-            onChange={handleInputChange}
-            type="email"
-            fullWidth
-          />
-        </div>
-        <div className="d-flex flex-row gap-2">
-          <TextInput
-            label="Contact Number"
-            name="principal_contact_number"
-            value={formData.principal_contact_number}
-            onChange={handleInputChange}
-            fullWidth
-          />
-          <TextInput
-            label="Whatsapp Number"
-            name="principal_whatsapp"
-            value={formData.principal_whatsapp}
-            onChange={handleInputChange}
-            fullWidth
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "School", link: "/schoolList" },
+              { name: "Create School" },
+            ]}
           />
         </div>
       </div>
-
-      {/* Vice Principal Details */}
-      <div className={`${styles.formRow} mb-2`}>
-        <div className="row gx-3">
-          <div className="col-12 col-sm-6 col-md-4 d-flex gap-1 mb-2 py-0 pe-1 ps-2">
-            <TextInput
-              label="Vice Principal Name"
-              name="vice_principal_name"
-              value={formData.vice_principal_name}
-              onChange={handleInputChange}
-              type="text"
-              fullWidth
-            />
+      <Box className={`${styles.formContainer} container-fluid pt-5`}>
+        <div className={`${styles.formBox}`}>
+          <div>
+            <Typography className={`${styles.formTitle} mb-4`}>
+              School Registration Form
+            </Typography>
           </div>
-
-          <div className="col-12 col-sm-6 col-md-4 d-flex gap-1 mb-2 py-0 pe-1 ps-1">
-            <TextInput
-              label="Vice Principal Email-ID"
-              name="vice_principal_email"
-              value={formData.vice_principal_email}
-              onChange={handleInputChange}
-              type="email"
-              fullWidth
-            />
-          </div>
-
-          <div className="col-12 col-sm-6 col-md-4 d-flex gap-1 mb-2 py-0 pe-1 ps-1">
-            <div className="col-6" style={{ paddingRight: "0.4rem", paddingLeft: "0.1rem" }}>
-              <TextInput
-                label="Contact Number"
-                name="vice_principal_contact_number"
-                value={formData.vice_principal_contact_number}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-            <div className="col-6 " style={{ paddingRight: "0.50rem" }}>
-              <TextInput
-                label="Whatsapp Number"
-                name="vice_principal_whatsapp"
-                value={formData.vice_principal_whatsapp}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Class Selection */}
-      <div className={`${styles.formRow} mb-3`}>
-        <div className="row gx-3">
-          <div className="col-12 col-sm-6 col-md-4 mb-2">
-            <div className="mb-3">
-              <div className={styles.selectContainer}>
-                <div className={styles.selectedTags}>
-                  {selectedOptions.map((value) => {
-                    const option = options.find((option) => option.value === value);
-                    return (
-                      <span key={value} className={styles.badge}>
-                        {option?.label}
-                        <p className={styles.btnClose} onClick={() => handleChipDelete(value)}>
-                          <RxCross2 className={styles.crossicon} />
-                        </p>
-                      </span>
-                    );
-                  })}
-                </div>
-
-                <TextField
-                  name="classes"
-                  type="text"
-                  size="small"
-                  placeholder="Select Your Classes"
-                  className="form-control mb-2 selectinput"
-                  value={formData.classes}
-                  onChange={(e) => handleInputChange(e, "classes")}
-                  onClick={toggleDropdown}
-                  ref={inputRef}
+          <form onSubmit={handleSubmit} className={styles.formContent}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <SelectDrop
+                  className={styles.selectInput}
+                  label="Board Name"
+                  name="board"
+                  options={boardOptions}
+                  value={formData.board}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, board: e.target.value }))
+                  }
+                  fullWidth
                 />
-              </div>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  className={styles.textInput}
+                  label="School Name"
+                  name="school_name"
+                  value={formData.school_name}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  className={styles.textInput}
+                  label="School Email"
+                  name="school_email"
+                  value={formData.school_email}
+                  onChange={handleChange}
+                  type="email"
+                  fullWidth
+                />
+              </Grid>
+              {/* School Contact Number, State, District */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="School Contact Number"
+                  name="school_contact_number"
+                  value={formData.school_contact_number}
+                  onChange={handleChange}
+                  type="tel"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={2}>
+                
+                <SelectDrop
+                  label="State"
+                  name="state"
+                  options={states.map((state) => ({
+                    value: String(state.name), 
+                    label: state.name,
+                  }))}
+                  value={formData.state}
+                  onChange={
+                    (e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        state: e.target.value,
+                      })) 
+                  }
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={2}>
+                
+                <SelectDrop
+                  label="District"
+                  name="district"
+                  options={districts.map((district) => ({
+                    value: String(district.name),
+                    label: district.name,
+                  }))}
+                  value={formData.district}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      district: e.target.value,
+                    }))
+                  }
+                  fullWidth
+                />
+              </Grid>
+              {/* City, Pincode */}
+              <Grid item xs={12} sm={6} md={2}>
+               
+                 <SelectDrop
+                  label="City"
+                  name="city"
+                  options={cities.map((city) => ({
+                    value: String(city.name),
+                    label: city.name,
+                  }))}
+                  value={formData.city}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, city: e.target.value }))
+                  }
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={2}>
+                <SelectDrop
+                  label="Pincode"
+                  name="pincode"
+                  options={pincodeOptions}
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              {/* Principal Name, Principal Email-ID */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Principal Name"
+                  name="principal_name"
+                  value={formData.principal_name}
+                  onChange={handleChange}
+                  type="text"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Contact Number"
+                  name="principal_contact_number"
+                  value={formData.principal_contact_number}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              {/* Whatsapp Number */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Whatsapp Number"
+                  name="principal_whatsapp"
+                  value={formData.principal_whatsapp}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              {/* Vice Principal Details */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Vice Principal Name"
+                  name="vice_principal_name"
+                  value={formData.vice_principal_name}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Contact Number"
+                  name="vice_principal_contact_number"
+                  value={formData.vice_principal_contact_number}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
 
-              {isOpen && (
-                <div
-                  className={`${styles.dropdownMenu} ${isOpen ? styles.slideIn : ''}`}
-                  style={{
-                    top: dropdownPosition.top,
-                    width: dropdownPosition.width,
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Whatsapp Number"
+                  name="vice_principal_whatsapp"
+                  value={formData.vice_principal_whatsapp}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              {/* Student Strength */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextInput
+                  label="Student Strength"
+                  name="student_strength"
+                  value={formData.student_strength}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              {/* Select Your Classes */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Autocomplete
+                  multiple
+                  id="classes"
+                  options={classOptions}
+                  value={formData.classes.map((classItem) => ({
+                    value: classItem,
+                    label: classItem,
+                  }))}
+                  size="small"
+                  onChange={(e, newValue) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      classes: newValue.map((item) => item.value),
+                    }));
                   }}
-                >
-                  {filteredOptions.map((option) => (
-                    <div key={option.value} className={styles.dropdownitem}>
-                      <label className={`${styles.checkboxLabel} d-flex`}>
-                        <input
-                          type="checkbox"
-                          checked={temporarySelection.includes(option.value)}
-                          onChange={() => handleCheckboxChange(option.value)}
-                          className="col-2"
+                  disableCloseOnSelect
+                  getOptionLabel={(option) => option.label}
+                  isOptionEqualToValue={(option, value) =>
+                    option.value === value.value
+                  }
+                  renderOption={(props, option, { selected }) => (
+                    <li
+                      {...props}
+                      style={{
+                        fontSize: "12px",
+                        padding: "5px 10px",
+                        margin: "0",
+                        lineHeight: "1.5",
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      <Checkbox
+                        checked={formData.classes.includes(option.value)}
+                        color="primary"
+                      />
+                      {option.label}
+                    </li>
+                  )}
+                  renderTags={(tagValue, getTagProps) =>
+                    tagValue.map((option, index) => (
+                      <span
+                        {...getTagProps({ index })}
+                        style={{
+                          backgroundColor: "#90D14F",
+                          color: "white",
+                          borderRadius: "2px",
+                          padding: "4px 6px",
+                          fontSize: "12px",
+                          margin: "2px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          fontFamily: "Poppins",
+                        }}
+                      >
+                        {option.label}
+                        <RxCross2
+                          size={12}
+                          style={{
+                            marginLeft: "6px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            color: "white",
+                          }}
+                          onClick={() => {
+                            const newClasses = formData.classes.filter(
+                              (item) => item !== option.value
+                            );
+                            setFormData((prev) => ({
+                              ...prev,
+                              classes: newClasses,
+                            }));
+                          }}
                         />
-                        <p className="col-10 my-auto">{option.label}</p>
-                      </label>
-                    </div>
-                  ))}
-                  <div className={styles.dropdownFooter}>
-                    <button className={styles.okButton} onClick={handleOkClick}>
-                      OK
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Student Strength */}
-          <div className="col-12 col-sm-6 col-md-4 mb-2">
-            <TextInput
-              label="Student Strength"
-              name="student_strength"
-              value={formData.student_strength}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </div>
+                      </span>
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Classes"
+                      placeholder="Choose classes"
+                      variant="outlined"
+                      InputProps={{
+                        ...params.InputProps,
+                        style: {
+                          fontSize: "0.8rem",
+                          padding: "6px 12px",
+                          fontFamily: "Poppins",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "0.85rem",
+                          lineHeight: "1.5",
+                          fontFamily: "Poppins",
+                          fontWeight: "bolder",
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+            {/* Submit and Cancel Buttons */}
+            <Box
+              className={`${styles.buttonContainer} gap-2 mt-3`}
+              sx={{ display: "flex", gap: 2 }}
+            >
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                onClick={handleSubmit}
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/school-create")}
+              />
+            </Box>
+          </form>
         </div>
-      </div>
-
-      {/* Submit Button */}
-      <Box className={styles.buttonContainer}>
-        <Button
-          type="submit"
-          variant="contained"
-          className={styles.submitbutton}
-        >
-          Submit
-        </Button>
-      </Box>
-        </form>
       </Box>
     </Mainlayout>
   );

@@ -9,6 +9,8 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
 import { Menu, MenuItem, Button, Box } from "@mui/material";
+import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../ApiConfig/APIConfig";
 
 export default function StudentReport() {
   const [records, setRecords] = useState([]);
@@ -25,7 +27,7 @@ export default function StudentReport() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get("http://localhost:5000/api/get/student") // Your API URL here
+      .get(`${ API_BASE_URL }/api/get/student`) // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -167,7 +169,6 @@ export default function StudentReport() {
     const doc = new jsPDF();
     let yPosition = 10;
 
-    
     // Add Table Headers
     doc.text(
       "school_name | student_name | class_name | student_section | mobile_number | student_subject ",
@@ -205,6 +206,11 @@ export default function StudentReport() {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb data={[{ name: "Student Report" }]} />
+        </div>
+      </div>
       <div className="d-flex justify-content-end">
         <div
           role="presentation"
@@ -311,81 +317,85 @@ export default function StudentReport() {
           </tbody>
         </table>
 
-        {/* pagination */}
-        <div className="d-flex justify-content-between flex-wrap mt-2">
-          <div
-            className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
-          >
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                const selectedSize = parseInt(e.target.value, 10);
-                setPageSize(selectedSize);
-                setPage(1);
-              }}
-              className={styles.pageSizeSelect}
-            >
-              {pageSizes.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-            data per Page
-          </div>
-          <div className="my-0 d-flex justify-content-center align-items-center my-auto">
-            <label
-              htmlFor="pageSize"
-              style={{ fontFamily: "Nunito, sans-serif" }}
-            >
-              <p className={`  my-auto`}>
-                {filteredRecords.length} of {page}-
-                {Math.ceil(filteredRecords.length / pageSize)}
-              </p>
-            </label>
-          </div>
-          <div className={`${styles.pagination} my-auto`}>
-            <button
-              onClick={handlePreviousPage}
-              disabled={page === 1}
-              className={styles.paginationButton}
-            >
-              <UilAngleLeftB />
-            </button>
-            {Array.from(
-              { length: Math.ceil(filteredRecords.length / pageSize) },
-              (_, i) => i + 1
-            )
-              .filter(
-                (pg) =>
-                  pg === 1 ||
-                  pg === Math.ceil(filteredRecords.length / pageSize) ||
-                  Math.abs(pg - page) <= 2
-              )
-              .map((pg, index, array) => (
-                <React.Fragment key={pg}>
-                  {index > 0 && pg > array[index - 1] + 1 && (
-                    <span className={styles.ellipsis}>...</span>
-                  )}
-                  <button
-                    onClick={() => setPage(pg)}
-                    className={`${styles.paginationButton} ${
-                      page === pg ? styles.activePage : ""
-                    }`}
-                  >
-                    {pg}
-                  </button>
-                </React.Fragment>
-              ))}
-            <button
-              onClick={handleNextPage}
-              disabled={page === Math.ceil(filteredRecords.length / pageSize)}
-              className={styles.paginationButton}
-            >
-              <UilAngleRightB />
-            </button>
-          </div>
-        </div>
+         {/* pagination */}
+               <div className="d-flex justify-content-between flex-wrap mt-2">
+                 <div
+                   className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
+                 >
+                   <select
+                     value={pageSize}
+                     onChange={(e) => {
+                       const selectedSize = parseInt(e.target.value, 10);
+                       setPageSize(selectedSize);
+                       setPage(1);
+                     }}
+                     className={styles.pageSizeSelect}
+                   >
+                     {pageSizes.map((size) => (
+                       <option key={size} value={size}>
+                         {size}
+                       </option>
+                     ))}
+                   </select>
+                   <p className={`  my-auto text-secondary`}>data per Page</p>
+                 </div>
+       
+                 <div className="my-0 d-flex justify-content-center align-items-center my-auto">
+                   <label
+                     htmlFor="pageSize"
+                     style={{ fontFamily: "Nunito, sans-serif" }}
+                   >
+                     <p className={`  my-auto text-secondary`}>
+                       {filteredRecords.length} of {page}-
+                       {Math.ceil(filteredRecords.length / pageSize)}
+                     </p>
+                   </label>
+                 </div>
+       
+                 <div className={`${styles.pagination} my-auto`}>
+                   <button
+                     onClick={handlePreviousPage}
+                     disabled={page === 1}
+                     className={styles.paginationButton}
+                   >
+                     <UilAngleLeftB />
+                   </button>
+       
+                   {Array.from(
+                     { length: Math.ceil(filteredRecords.length / pageSize) },
+                     (_, i) => i + 1
+                   )
+                     .filter(
+                       (pg) =>
+                         pg === 1 ||
+                         pg === Math.ceil(filteredRecords.length / pageSize) ||
+                         Math.abs(pg - page) <= 2
+                     )
+                     .map((pg, index, array) => (
+                       <React.Fragment key={pg}>
+                         {index > 0 && pg > array[index - 1] + 1 && (
+                           <span className={styles.ellipsis}>...</span>
+                         )}
+                         <button
+                           onClick={() => setPage(pg)}
+                           className={`${styles.paginationButton} ${
+                             page === pg ? styles.activePage : ""
+                           }`}
+                         >
+                           {pg}
+                         </button>
+                       </React.Fragment>
+                     ))}
+       
+                   <button
+                     onClick={handleNextPage}
+                     disabled={page === Math.ceil(filteredRecords.length / pageSize)}
+                     className={styles.paginationButton}
+                   >
+                     <UilAngleRightB />
+                   </button>
+                 </div>
+               </div>
       </div>
     </Mainlayout>
   );

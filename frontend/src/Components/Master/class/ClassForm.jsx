@@ -13,7 +13,10 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb"; // Import SweetAlert2
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const CreateCountry = () => {
   const [name, setName] = useState("");
@@ -25,16 +28,23 @@ const CreateCountry = () => {
 
     // Sending the POST request to the server
     axios
-      .post("http://localhost:5000/api/master", { name, status })
+      .post(`${ API_BASE_URL }/api/master`, { name, status })
       .then((response) => {
         // Success: Show success alert and redirect
-        Swal.fire({
-          title: "Success!",
-          text: `Class "${name}" created successfully.`,
-          icon: "success",
-          timer: 2000,
-          showConfirmButton: false,
-        }).then(() => {
+       Swal.fire({
+                         position: "top-end",
+                         icon: "success",
+                         title: "Success!",
+                         text: `class "${name}" created successfully!`,
+                         showConfirmButton: false,
+                         timer: 1000,
+                         timerProgressBar: true,
+                         toast: true,
+                         background: "#fff",
+                         customClass: {
+                           popup: "small-swal",
+                         },
+                       }).then(() => {
           navigate("/class"); // Redirect after the user clicks OK
         });
       })
@@ -52,6 +62,13 @@ const CreateCountry = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Class", link: "/class" }, { name: "Create Class" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

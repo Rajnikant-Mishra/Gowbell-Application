@@ -17,13 +17,15 @@ import {
 
 import Mainlayout from "../../Layouts/Mainlayout";
 import styles from "./../../CommonTable/DataTable.module.css";
+import "../../Common-Css/DeleteSwal.css";
+import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../../CommonButton/ButtonComp";
-import { Breadcrumbs } from "@mui/material";
-import { styled, emphasize } from "@mui/material/styles";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -40,7 +42,7 @@ export default function DataTable() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get("http://localhost:5000/api/countries/") // Your API URL here
+      .get(`${API_BASE_URL}/api/countries/`) // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -55,16 +57,19 @@ export default function DataTable() {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: "warning",
+      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`http://localhost:5000/api/countries/${id}`)
+          .delete(`${API_BASE_URL}/api/countries/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -74,8 +79,21 @@ export default function DataTable() {
               prevFiltered.filter((country) => country.id !== id)
             );
 
-            // Show a success alert
-            Swal.fire("Deleted!", "The country has been deleted.", "success");
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The country has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
           })
           .catch((error) => {
             console.error("Error deleting country:", error);
@@ -180,33 +198,6 @@ export default function DataTable() {
   };
 
   //breadcrumb codes
-  const StyledBreadcrumb = styled("span")(({ theme }) => {
-    const backgroundColor =
-      theme.palette.mode === "light"
-        ? theme.palette.grey[100]
-        : theme.palette.grey[800];
-    return {
-      backgroundColor,
-      height: theme.spacing(3),
-      color: theme.palette.text.primary,
-      fontWeight: theme.typography.fontWeightRegular,
-      borderRadius: theme.shape.borderRadius,
-      fontFamily: '"Nunito", sans-serif !important',
-      fontSize: "14px",
-
-      "&:active": {
-        color: "#1230AE",
-      },
-      "&:hover": {
-        color: "#1230AE",
-      },
-    };
-  });
-
-  function handleClick(event) {
-    event.preventDefault();
-    console.info("You clicked a breadcrumb.");
-  }
 
   const handleSelectAll = () => {
     if (isAllChecked) {
@@ -231,30 +222,8 @@ export default function DataTable() {
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <div
-          role="presentation"
-          onClick={handleClick}
-          className={`${styles.breadcrumb} `}
-        >
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link to="/dashboard" style={{ textDecoration: "none" }}>
-              <StyledBreadcrumb
-                style={{ display: "flex", alignItems: "center" }}
-              >
-                <FaHome fontSize="small" style={{ marginRight: 4 }} />
-                Dashboard
-              </StyledBreadcrumb>
-            </Link>
-            {/* <StyledBreadcrumb component="a" href="#">
-              Catalog
-            </StyledBreadcrumb> */}
-            <StyledBreadcrumb
-              onClick={handleClick}
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              Countrys
-            </StyledBreadcrumb>
-          </Breadcrumbs>
+        <div role="presentation">
+          <Breadcrumb data={[{ name: "Country" }]} />
         </div>
         <div>
           <ButtonComp
@@ -265,6 +234,7 @@ export default function DataTable() {
           />
         </div>
       </div>
+
       <div className={`${styles.tablecont} mt-0`}>
         <table
           className={`${styles.table} `}
@@ -330,7 +300,6 @@ export default function DataTable() {
 
                 <td>
                   <div className={styles.actionButtons}>
-                 
                     <Link to={`/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
                     </Link>
@@ -371,7 +340,7 @@ export default function DataTable() {
               htmlFor="pageSize"
               style={{ fontFamily: "Nunito, sans-serif" }}
             >
-             <p className={`  my-auto text-secondary`}>
+              <p className={`  my-auto text-secondary`}>
                 {filteredRecords.length} of {page}-
                 {Math.ceil(filteredRecords.length / pageSize)}
               </p>

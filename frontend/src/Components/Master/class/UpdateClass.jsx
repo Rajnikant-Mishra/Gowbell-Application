@@ -16,7 +16,9 @@ import {
   FormHelperText,
   Card,
   CardContent,
-} from '@mui/material';
+} from "@mui/material";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 
 const UpdateCountry = () => {
   const [name, setName] = useState("");
@@ -26,7 +28,7 @@ const UpdateCountry = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/master/${id}`)
+      .get(`${API_BASE_URL}/api/master/${id}`)
       .then((response) => {
         setName(response.data.name);
         setStatus(response.data.status);
@@ -40,14 +42,21 @@ const UpdateCountry = () => {
     e.preventDefault();
 
     axios
-      .put(`http://localhost:5000/api/master/${id}`, { name, status })
+      .put(`${API_BASE_URL}/api/master/${id}`, { name, status })
       .then((response) => {
         Swal.fire({
-          title: "Success!",
-          text: " class updated successfully.",
+          position: "top-end",
           icon: "success",
-          timer: 2000,
+          title: "Success!",
+          text: `class "${name}" updated successfully!`,
           showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/class"); // Redirect after SweetAlert
         });
@@ -59,12 +68,20 @@ const UpdateCountry = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Class", link: "/class" }, { name: "Update Class" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
+       
+
+        <Card sx={{ boxShadow: 3, padding: 3 }}>
         <Typography variant="h4" gutterBottom align="center">
           Update Class
         </Typography>
-        
-        <Card sx={{ boxShadow: 3, padding: 3 }}>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>

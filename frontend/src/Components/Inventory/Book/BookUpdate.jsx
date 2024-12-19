@@ -4,6 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Mainlayout from "../../Layouts/Mainlayout";
 import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Container, Typography, Box } from '@mui/material';
 import Swal from 'sweetalert2';
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const UpdateBookForm = () => {
   const [name, setName] = useState('');
@@ -16,7 +19,7 @@ const UpdateBookForm = () => {
 
   useEffect(() => {
     // Fetching master data for the "Choose Class" select input
-    axios.get('http://localhost:5000/api/master')
+    axios.get(`${ API_BASE_URL }/api/master`)
       .then((response) => {
         setMasterData(response.data); // Set the master data from the API response
       })
@@ -25,7 +28,7 @@ const UpdateBookForm = () => {
       });
 
     // Fetching the existing book data for updating
-    axios.get(`http://localhost:5000/api/${id}`)
+    axios.get(`${ API_BASE_URL }/api/${id}`)
       .then((response) => {
         const book = response.data;
         setName(book.name);
@@ -44,15 +47,23 @@ const UpdateBookForm = () => {
     const bookData = { name, publishedyear, quantity, class_name };
 
     // Sending the PUT request to update the book data
-    axios.put(`http://localhost:5000/api/${id}`, bookData)
+    axios.put(`${ API_BASE_URL }/api/${id}`, bookData)
       .then((response) => {
         // Success: Show success alert and redirect
         Swal.fire({
-          title: 'Success!',
-          text: `Book "${name}" updated successfully.`,
-          icon: 'success',
-          confirmButtonText: 'OK',
-        }).then(() => {
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `book "${name}" updated successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => {
           navigate('/book'); // Redirect after the user clicks OK
         });
       })
@@ -70,6 +81,13 @@ const UpdateBookForm = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Book", link: "/book" }, { name: "Update Book" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box sx={{ marginTop: 4, padding: 3, borderRadius: 2, boxShadow: 3, backgroundColor: '#fff' }}>
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>

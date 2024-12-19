@@ -15,6 +15,9 @@ import {
   Grid,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const UpdateArea = () => {
   const [name, setName] = useState("");
@@ -33,7 +36,7 @@ const UpdateArea = () => {
   // Fetch countries on component mount
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/countries/")
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => setCountries(response.data))
       .catch((error) => console.error("Error fetching countries:", error));
   }, []);
@@ -42,7 +45,7 @@ const UpdateArea = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:5000/api/areas/${id}`)
+        .get(`${API_BASE_URL}/api/areas/${id}`)
         .then((response) => {
           const area = response.data;
           setName(area.name);
@@ -60,7 +63,7 @@ const UpdateArea = () => {
   useEffect(() => {
     if (selectedCountry) {
       axios
-        .get(`http://localhost:5000/api/states?countryId=${selectedCountry}`)
+        .get(`${API_BASE_URL}/api/states?countryId=${selectedCountry}`)
         .then((response) => setStates(response.data))
         .catch((error) => console.error("Error fetching states:", error));
     }
@@ -70,7 +73,7 @@ const UpdateArea = () => {
   useEffect(() => {
     if (selectedState) {
       axios
-        .get(`http://localhost:5000/api/districts?stateId=${selectedState}`)
+        .get(`${API_BASE_URL}/api/districts?stateId=${selectedState}`)
         .then((response) => setDistricts(response.data))
         .catch((error) => console.error("Error fetching districts:", error));
     }
@@ -80,7 +83,7 @@ const UpdateArea = () => {
   useEffect(() => {
     if (selectedDistrict) {
       axios
-        .get(`http://localhost:5000/api/cities?districtId=${selectedDistrict}`)
+        .get(`${API_BASE_URL}/api/cities?districtId=${selectedDistrict}`)
         .then((response) => setCities(response.data))
         .catch((error) => console.error("Error fetching cities:", error));
     }
@@ -101,15 +104,21 @@ const UpdateArea = () => {
 
     // Sending the PUT request to update the area
     axios
-      .put(`http://localhost:5000/api/areas/${id}`, data)
+      .put(`${API_BASE_URL}/api/areas/${id}`, data)
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `Area "${name}" updated successfully.`,
+          position: "top-end",
           icon: "success",
+          title: "Success!",
+          text: `Area "${name}" updated successfully!`,
+          showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
-          showConfirmButton: false,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => navigate("/area"));
       })
       .catch((error) => {
@@ -125,6 +134,14 @@ const UpdateArea = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Area", link: "/area" }, { name: "Update Area" }]}
+          />
+        </div>
+      </div>
+
       <Container maxWidth="sm" sx={{ height: "800px" }}>
         <Box
           sx={{

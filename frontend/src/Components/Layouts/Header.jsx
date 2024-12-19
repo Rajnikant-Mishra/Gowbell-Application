@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contextsAuthsecurity/AuthContext";
 import { UilSearch } from "@iconscout/react-unicons";
 import Swal from "sweetalert2";
+import { API_BASE_URL } from "../ApiConfig/APIConfig";
 
 const Header = ({ toggleSidebar }) => {
   const { logout } = useAuth();
@@ -12,7 +13,7 @@ const Header = ({ toggleSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/logout", {
+      const response = await fetch(`${ API_BASE_URL }/api/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +93,7 @@ const Header = ({ toggleSidebar }) => {
               <p className={`${styles.para} my-auto`}>Welcome Admin</p>
             </a>
 
-            <ul className="dropdown-menu text-small">
+            <ul className={`${styles.dropdown} dropdown-menu text-small`}>
               <li>
                 <a className="dropdown-item" href="#">
                   Profile

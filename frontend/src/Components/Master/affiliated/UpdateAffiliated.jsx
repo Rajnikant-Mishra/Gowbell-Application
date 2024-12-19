@@ -17,6 +17,8 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 
 const UpdateCountry = () => {
   const [name, setName] = useState("");
@@ -26,7 +28,7 @@ const UpdateCountry = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/affiliated/${id}`)
+      .get(`${ API_BASE_URL }/api/affiliated/${id}`)
       .then((response) => {
         setName(response.data.name);
         setStatus(response.data.status);
@@ -40,15 +42,22 @@ const UpdateCountry = () => {
     e.preventDefault();
 
     axios
-      .put(`http://localhost:5000/api/affiliated/${id}`, { name, status })
+      .put(`${ API_BASE_URL }/api/affiliated/${id}`, { name, status })
       .then((response) => {
-        Swal.fire({
-          title: "Success!",
-          text: " affiliated  updated successfully.",
-          icon: "success",
-          timer: 2000,
-          showConfirmButton: false,
-        }).then(() => {
+         Swal.fire({
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `affiliated "${name}" updated successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => {
           navigate("/affiliated "); // Redirect after SweetAlert      
         });
       })
@@ -59,6 +68,16 @@ const UpdateCountry = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Affiliated", link: "/affiliated" },
+              { name: "Update Affiliated" },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         
         

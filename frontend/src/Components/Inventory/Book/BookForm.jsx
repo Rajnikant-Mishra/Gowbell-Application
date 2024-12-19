@@ -14,6 +14,9 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const BookForm = () => {
   const [name, setName] = useState("");
@@ -26,7 +29,7 @@ const BookForm = () => {
   useEffect(() => {
     // Fetching master data for the "Choose Class" select input
     axios
-      .get("http://localhost:5000/api/master")
+      .get(`${ API_BASE_URL }/api/master`)
       .then((response) => {
         setMasterData(response.data); // Set the master data from the API response
       })
@@ -40,7 +43,7 @@ const BookForm = () => {
 
     // Sending the POST request to the server
     axios
-      .post("http://localhost:5000/api/book", {
+      .post(`${ API_BASE_URL }/api/book`, {
         name,
         publishedyear,
         quantity,
@@ -49,11 +52,19 @@ const BookForm = () => {
       .then((response) => {
         // Success: Show success alert and redirect
         Swal.fire({
-          title: "Success!",
-          text: `Book "${name}" created successfully.`,
-          icon: "success",
-          confirmButtonText: "OK",
-        }).then(() => {
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `Country "${name}" updated successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => {
           navigate("/book"); // Redirect after the user clicks OK
         });
       })
@@ -71,6 +82,13 @@ const BookForm = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Book", link: "/book" }, { name: "Create Book" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

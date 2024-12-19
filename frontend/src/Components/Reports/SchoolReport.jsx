@@ -9,6 +9,8 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
 import { Menu, MenuItem, Button,  Box } from "@mui/material";
+import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../ApiConfig/APIConfig";
 
 export default function SchoolReport() {
   const [records, setRecords] = useState([]);
@@ -25,7 +27,7 @@ export default function SchoolReport() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get("http://localhost:5000/api/get/schools") // Your API URL here
+      .get(`${ API_BASE_URL }/api/get/schools`) // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -187,12 +189,7 @@ export default function SchoolReport() {
   };
 
   //excell generate codes ----------------------------------------------------------------//
-  // const generateExcel = () => {
-  //   const ws = XLSX.utils.json_to_sheet(filteredRecords);
-  //   const wb = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(wb, ws, "School Report");
-  //   XLSX.writeFile(wb, "school-report.xlsx");
-  // };
+
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredRecords);
     const wb = XLSX.utils.book_new();
@@ -204,6 +201,11 @@ export default function SchoolReport() {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb data={[{ name: "School Report" }]} />
+        </div>
+      </div>
       <div className="d-flex justify-content-end">
         <div
           role="presentation"
@@ -336,19 +338,21 @@ export default function SchoolReport() {
                 </option>
               ))}
             </select>
-            data per Page
+            <p className={`  my-auto text-secondary`}>data per Page</p>
           </div>
+
           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
             <label
               htmlFor="pageSize"
               style={{ fontFamily: "Nunito, sans-serif" }}
             >
-              <p className={`  my-auto`}>
+              <p className={`  my-auto text-secondary`}>
                 {filteredRecords.length} of {page}-
                 {Math.ceil(filteredRecords.length / pageSize)}
               </p>
             </label>
           </div>
+
           <div className={`${styles.pagination} my-auto`}>
             <button
               onClick={handlePreviousPage}
@@ -357,6 +361,7 @@ export default function SchoolReport() {
             >
               <UilAngleLeftB />
             </button>
+
             {Array.from(
               { length: Math.ceil(filteredRecords.length / pageSize) },
               (_, i) => i + 1
@@ -382,6 +387,7 @@ export default function SchoolReport() {
                   </button>
                 </React.Fragment>
               ))}
+
             <button
               onClick={handleNextPage}
               disabled={page === Math.ceil(filteredRecords.length / pageSize)}

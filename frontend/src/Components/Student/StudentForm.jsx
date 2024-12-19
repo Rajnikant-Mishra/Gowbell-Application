@@ -6,7 +6,11 @@ import TextInput from "../School/CommonComp/TextInput";
 import SelectDrop from "../School/CommonComp/SelectDrop";
 import Mainlayout from "../Layouts/Mainlayout";
 import Swal from "sweetalert2";
+import "animate.css";
 import { useNavigate } from "react-router-dom"; // import useNavigate
+import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../ApiConfig/APIConfig";
+import "../Common-Css/Swallfire.css";
 
 export default function StudentForm() {
   const [formData, setFormData] = useState({
@@ -28,7 +32,7 @@ export default function StudentForm() {
     // Fetch school data when the component mounts
     const fetchSchools = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/get/schools"); // API endpoint for schools
+        const response = await fetch(`${API_BASE_URL}/api/get/schools`); // API endpoint for schools
         if (response.ok) {
           const data = await response.json();
           // Set school options dynamically
@@ -54,7 +58,7 @@ export default function StudentForm() {
     // Fetch class data
     const fetchClasses = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/master"); // API endpoint for class options
+        const response = await fetch(`${API_BASE_URL}/api/master`); // API endpoint for class options
         if (response.ok) {
           const data = await response.json();
           const options = data.map((item) => ({
@@ -79,7 +83,7 @@ export default function StudentForm() {
     // Fetch subject data
     const fetchSubjects = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/subject"); // API endpoint for subjects
+        const response = await fetch(`${API_BASE_URL}/api/subject`); // API endpoint for subjects
         if (response.ok) {
           const data = await response.json();
           const options = data.map((subject) => ({
@@ -122,28 +126,71 @@ export default function StudentForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Form Validation
-    if (
-      !formData.school_name ||
-      !formData.student_name ||
-      !formData.class_name ||
-      !formData.student_section ||
-      !formData.mobile_number ||
-      !formData.whatsapp_number ||
-      !formData.student_subject
-    ) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "All fields are required!",
-        timer: 2000,
-      });
-      return;
+    // Define validation rules for each field dynamically
+    const validationRules = [
+      {
+        field: "school_name",
+        label: "School Name",
+        validate: (value) => !!value || "School Name is required.",
+      },
+      {
+        field: "student_name",
+        label: "Student Name",
+        validate: (value) => !!value || "Student Name is required.",
+      },
+      {
+        field: "class_name",
+        label: "Class Name",
+        validate: (value) => !!value || "Class Name is required.",
+      },
+      {
+        field: "mobile_number",
+        label: "Mobile Number",
+        validate: (value) =>
+          /^\d{10}$/.test(value) || "Mobile Number must be exactly 10 digits.",
+      },
+      {
+        field: "whatsapp_number",
+        label: "WhatsApp Number",
+        validate: (value) =>
+          /^\d{10}$/.test(value) ||
+          "WhatsApp Number must be exactly 10 digits.",
+      },
+      {
+        field: "student_subject",
+        label: "Student subject",
+        validate: (value) => !!value || "Student subject is required.",
+      },
+    ];
+
+    // Iterate through validation rules and check for errors
+    for (const { field, validate } of validationRules) {
+      const value = formData[field]; // Get field value
+      const validationResult = validate(value); // Run validation
+
+      if (validationResult !== true) {
+        // Show validation error dynamically
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: validationResult ,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "small-swal",
+          },
+          background: "#fff",
+        });
+        return; // Stop further execution on first validation error
+      }
     }
 
-    // Making API call to submit form data
+    // Proceed with API call after validation
     try {
-      const response = await fetch("http://localhost:5000/api/get/student", {
+      const response = await fetch(`${API_BASE_URL}/api/get/student`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -152,16 +199,25 @@ export default function StudentForm() {
       });
 
       if (response.ok) {
+        // Success - Show success message
         Swal.fire({
+          position: "top-end",
           icon: "success",
-          title: "Success",
-          text: "Student registered successfully!",
-          timer: 2000,
+          title: "Success!",
+          text: `student created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
+          navigate("/studentList");
         });
 
-        // Navigate to the student list page after successful registration
-        navigate("/studentList");
-
+        // Reset form data after successful submission
         setFormData({
           school_name: "",
           student_name: "",
@@ -175,17 +231,37 @@ export default function StudentForm() {
         throw new Error("Failed to submit form");
       }
     } catch (error) {
+      // Error - Show error message
+      console.error("Error details:", error.response?.data || error.message);
       Swal.fire({
+        position: "top-end",
         icon: "error",
-        title: "Error",
-        text: "An error occurred while submitting the form.",
-        timer: 2000,
+        title: "Error!",
+        text: error.response?.data?.error || "An unexpected error occurred.",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: "small-swal",
+        },
+        background: "#fff",
       });
     }
   };
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Student", link: "/studentList" },
+              { name: "Create Student" },
+            ]}
+          />
+        </div>
+      </div>
       <Box className={`${styles.formContainer} container-fluid pt-5`}>
         <div className={`${styles.formBox}`}>
           <div>
@@ -281,10 +357,9 @@ export default function StudentForm() {
               />
               <ButtonComp
                 text="Cancel"
-                className={styles.cancelbtn}
                 type="button"
-                disabled={false}
                 sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/studentList")}
               />
             </Box>
           </form>

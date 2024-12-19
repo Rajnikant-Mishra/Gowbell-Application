@@ -1,0 +1,7 @@
+.custom-swal-popup {
+    width: 300px !important; /* Set desired width */
+    height: 160px!important; /* Adjust height as needed */
+    width: 300px !important; 
+    font-size: 12px/* Optional: to ensure responsiveness */
+  } 
+  

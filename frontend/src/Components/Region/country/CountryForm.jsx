@@ -14,48 +14,86 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2"; // Import SweetAlert2
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import {API_BASE_URL } from "../../ApiConfig/APIConfig"
+import "../../Common-Css/Swallfire.css"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const CreateCountry = () => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const navigate = useNavigate();
 
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     // Sending the POST request to the server
-    axios         
-      .post("http://localhost:5000/api/countries/", { name, status })
+    axios
+      .post(`${API_BASE_URL}/api/countries/`, { name, status })
       .then((response) => {
-        // Success: Show success alert with a timer
+        // Success: Show SweetAlert2 success notification
         Swal.fire({
-          title: "Success!",
-          text: `Country "${name}" created successfully.`,
+          position: "top-end",
           icon: "success",
-          timer: 1000, // Auto close after 2 seconds
+          title: "Success!",
+          text: `Country "${name}" created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
           timerProgressBar: true,
-          showConfirmButton: false, // Remove the confirm button
-        }).then(() => {
-          navigate("/country"); // Redirect after the popup closes
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
-
-        // Optional: Trigger navigation after timer without waiting for user interaction
-        setTimeout(() => navigate("/country"), 2000);
+        
+  
+        setTimeout(() => navigate("/country"), 1000); // Redirect after success
       })
       .catch((error) => {
-        // Error: Show error alert
+        // Error: Show SweetAlert2 error notification
         Swal.fire({
-          title: "Error!",
-          text: "There was an issue creating the country. Please try again.",
+          position: "top-end",
           icon: "error",
-          confirmButtonText: "OK",
+          title: "Error",
+          text: "Oops! There was an issue. Please try again.",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
         console.error("Error creating country:", error);
       });
   };
-
+  
+  
   return (
     <Mainlayout>
+       <ToastContainer
+      position="top-right"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Country", link: "/country" }, { name: "Create Country" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

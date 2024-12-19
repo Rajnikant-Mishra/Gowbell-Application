@@ -16,6 +16,9 @@ import {
   Grid,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import {API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const UpdateCity = () => {
   const [name, setName] = useState("");
@@ -33,7 +36,7 @@ const UpdateCity = () => {
   // Fetch countries on component mount
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/countries/")
+      .get(`${API_BASE_URL }/api/countries/`)
       .then((response) => {
         setCountries(response.data);
         setLoading(false); // Stop loading after countries are fetched
@@ -48,7 +51,7 @@ const UpdateCity = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:5000/api/cities/${id}`)
+        .get(`${API_BASE_URL }/api/cities/${id}`)
         .then((response) => {
           const cityData = response.data;
           setName(cityData.name);
@@ -67,7 +70,7 @@ const UpdateCity = () => {
   useEffect(() => {
     if (selectedCountry) {
       axios
-        .get(`http://localhost:5000/api/states?countryId=${selectedCountry}`)
+        .get(`${API_BASE_URL }/api/states?countryId=${selectedCountry}`)
         .then((response) => {
           setStates(response.data);
         })
@@ -83,7 +86,7 @@ const UpdateCity = () => {
   useEffect(() => {
     if (selectedState) {
       axios
-        .get(`http://localhost:5000/api/districts?stateId=${selectedState}`)
+        .get(`${API_BASE_URL }/api/districts?stateId=${selectedState}`)
         .then((response) => {
           setDistricts(response.data);
         })
@@ -109,7 +112,7 @@ const UpdateCity = () => {
     }
 
     axios
-      .put(`http://localhost:5000/api/cities/${id}`, {
+      .put(`${API_BASE_URL }/api/cities/${id}`, {
         name,
         status,
         country_id: selectedCountry,
@@ -118,13 +121,19 @@ const UpdateCity = () => {
       })
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `City "${name}" updated successfully.`,
-          icon: "success",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then(() => {
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `City "${name}" updated successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => {
           navigate("/city");
         });
       })
@@ -159,6 +168,13 @@ const UpdateCity = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "City", link: "/city" }, { name: "Update City" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

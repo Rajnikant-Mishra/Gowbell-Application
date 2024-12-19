@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Mainlayout from "../../Layouts/Mainlayout";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import {
   TextField,
   Button,
@@ -15,6 +16,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const CreateDistrict = () => {
   const [name, setName] = useState("");
@@ -30,7 +33,7 @@ const CreateDistrict = () => {
   useEffect(() => {
     // Fetch countries
     axios
-      .get("http://localhost:5000/api/countries/")
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => {
         setCountries(response.data);
       })
@@ -40,7 +43,7 @@ const CreateDistrict = () => {
 
     // Fetch states
     axios
-      .get("http://localhost:5000/api/states/")
+      .get(`${API_BASE_URL}/api/states/`)
       .then((response) => {
         setStates(response.data);
       })
@@ -82,15 +85,21 @@ const CreateDistrict = () => {
     };
 
     axios
-      .post("http://localhost:5000/api/districts/", districtData)
+      .post(`${API_BASE_URL}/api/districts/`, districtData)
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `District "${name}" created successfully.`,
+          position: "top-end",
           icon: "success",
+          title: "Success!",
+          text: `District "${name}" created successfully!`,
+          showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
-          showConfirmButton: false,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/district");
         });
@@ -101,6 +110,9 @@ const CreateDistrict = () => {
           text: "There was an issue creating the District. Please try again.",
           icon: "error",
           confirmButtonText: "OK",
+          customClass: {
+            popup: "small-swal",
+          },
         });
         console.error("Error creating District:", error);
       });
@@ -108,10 +120,20 @@ const CreateDistrict = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "district", link: "/district" },
+              { name: "Create district" },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{
-            marginTop: 9,
+            marginTop: 3,
             padding: 3,
             borderRadius: 2,
             boxShadow: 3,

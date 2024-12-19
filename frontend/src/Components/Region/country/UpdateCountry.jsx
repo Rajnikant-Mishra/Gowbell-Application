@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import Mainlayout from "../../Layouts/Mainlayout";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import {
   Container,
   TextField,
@@ -17,6 +18,9 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css"
 
 const UpdateCountry = () => {
   const [name, setName] = useState("");
@@ -26,7 +30,7 @@ const UpdateCountry = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/countries/${id}`)
+      .get(`${API_BASE_URL}/api/countries/${id}`)
       .then((response) => {
         setName(response.data.name);
         setStatus(response.data.status);
@@ -40,26 +44,56 @@ const UpdateCountry = () => {
     e.preventDefault();
 
     axios
-      .put(`http://localhost:5000/api/countries/${id}`, { name, status })
+      .put(`${API_BASE_URL}/api/countries/${id}`, { name, status })
       .then((response) => {
         Swal.fire({
-          title: "Success!",
-          text: "Country updated successfully.",
+          position: "top-end",
           icon: "success",
+          title: "Success!",
+          text: `Country "${name}" updated successfully!`,
+          showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
-          showConfirmButton: false,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/country"); // Redirect after SweetAlert
         });
       })
       .catch((error) => {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error",
+          text: "Oops! There was an issue. Please try again.",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
         console.error("Error updating country:", error);
       });
   };
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Country", link: "/country" },
+              { name: "Update Country" },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Card sx={{ boxShadow: 3, padding: 3, marginTop: 5 }}>
           <CardContent>
@@ -81,6 +115,13 @@ const UpdateCountry = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    size="small"
+                    InputProps={{
+                      style: { fontSize: "14px" }, // Adjust input text size
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" }, // Adjust label size
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -90,6 +131,13 @@ const UpdateCountry = () => {
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
                       label="Status"
+                      size="small"
+                      InputProps={{
+                        style: { fontSize: "14px" }, // Adjust input text size
+                      }}
+                      InputLabelProps={{
+                        style: { fontSize: "14px" }, // Adjust label size
+                      }}
                     >
                       <MenuItem value="active">Active</MenuItem>
                       <MenuItem value="inactive">Inactive</MenuItem>

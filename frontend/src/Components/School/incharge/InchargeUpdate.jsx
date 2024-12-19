@@ -8,6 +8,9 @@ import Mainlayout from "../../Layouts/Mainlayout";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 export default function UpdateInChargeForm() {
   const { id } = useParams(); // Get incharge ID from URL params
@@ -28,8 +31,8 @@ export default function UpdateInChargeForm() {
     const fetchData = async () => {
       try {
         const [inchargeResponse, classResponse] = await Promise.all([
-          axios.get(`http://localhost:5000/api/get/incharges/${id}`),
-          axios.get(`http://localhost:5000/api/master`),
+          axios.get(`${ API_BASE_URL }/api/get/incharges/${id}`),
+          axios.get(`${ API_BASE_URL }/api/master`),
         ]);
 
         // Set form data with the fetched incharge data
@@ -60,6 +63,56 @@ export default function UpdateInChargeForm() {
   const handleUpdate = async (e) => {
     e.preventDefault();
   
+    // Define fields and labels for validation
+    const fields = [
+      { name: "school_name", label: "School Name" },
+      { name: "incharge_name", label: "Incharge Name" },
+      { name: "incharge_dob", label: "Incharge DOB" },
+      { name: "mobile_number", label: "Mobile Number", validation: validateMobileNumber },
+      { name: "class_from", label: "Class From" },
+      { name: "class_to", label: "Class To" }
+    ];
+  
+    // Loop through each field and check for missing values
+    for (let field of fields) {
+      if (!formData[field.name]) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: `${field.label} is required.`,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "small-swal",
+          },
+          background: "#fff",
+        });
+        return; // Stop further processing if a field is missing
+      }
+  
+      // Additional validation for phone number
+      if (field.name === "mobile_number" && field.validation && !field.validation(formData[field.name])) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: "Mobile Number must be 10 digits.",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "small-swal",
+          },
+          background: "#fff",
+        });
+        return;
+      }
+    }
+  
     // Format the date before sending it to the server
     const formattedData = {
       ...formData,
@@ -67,10 +120,23 @@ export default function UpdateInChargeForm() {
     };
   
     try {
-      const response = await axios.put(`http://localhost:5000/api/get/incharges/${id}`, formattedData);
+      const response = await axios.put(`${API_BASE_URL}/api/get/incharges/${id}`, formattedData);
   
       if (response.status === 200) {
-        Swal.fire("Success", "Incharge updated successfully!", "success");
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `Incharge updated successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
         navigate("/inchargeList");
       }
     } catch (error) {
@@ -78,15 +144,33 @@ export default function UpdateInChargeForm() {
   
       Swal.fire({
         icon: "error",
-        title: "Failed to update incharge",  
+        title: "Failed to update incharge",
         text: error.response?.data?.sqlMessage || "An unexpected error occurred.",
       });
     }
   };
   
+  // Validation function for mobile number
+  const validateMobileNumber = (number) => {
+    // Regex to check if the number is exactly 10 digits
+    const regex = /^[0-9]{10}$/;
+    return regex.test(number);
+  };
+  
+  
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Incharge", link: "/inchargeList" },
+              { name: "Update Incharge" },
+            ]}
+          />
+        </div>
+      </div>
       <Box className={`${styles.formContainer} container-fluid pt-5`}>
         <div className={`${styles.formBox}`}>
           <Typography className={`${styles.formTitle} mb-4`}>Update In Charge Form</Typography>

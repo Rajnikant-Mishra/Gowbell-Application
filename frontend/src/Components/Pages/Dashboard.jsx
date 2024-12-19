@@ -1,121 +1,335 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import Chart from "react-apexcharts";
 import Mainlayout from "../Layouts/Mainlayout";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contextsAuthsecurity/AuthContext";
-import {
-  UilUniversity,
-  UilUsersAlt,
-  UilBookAlt,
-} from "@iconscout/react-unicons";
 import styles from "./Dashboard.module.css";
-import ReactApexChart from "react-apexcharts";
-
-export default function Dashboard() {
-  const [chartData] = useState({
-    series: [
-      { name: "Students", data: [120, 150, 180, 220, 300] },
-      { name: "Schools", data: [15, 20, 25, 30, 40] },
+import cardimg1 from "../../../public/Path 195.svg";
+import cardimg2 from "../../../public/Path 196.svg";
+import cardimg3 from "../../../public/Path 197.svg";
+import cardimg4 from "../../../public/Path 198.svg";
+import { UilCalender, UilUser, UilAngleDown } from "@iconscout/react-unicons";
+const Dashboard = () => {
+  const [isHovering, setIsHovering] = useState(false);
+  const scrollWrapperRef = useRef(null);
+  const listRef = useRef(null);
+  const scrollIntervalRef = useRef(null);
+  const [activeFilter, setActiveFilter] = useState("year");
+  const chartData = {
+    all: [
+      {
+        name: "2020",
+        data: [100, 200, 150, 300, 400, 500, 600, 700, 800, 900, 1000, 1100],
+      },
+      {
+        name: "2021",
+        data: [200, 300, 250, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
+      },
+      {
+        name: "2022",
+        data: [300, 400, 350, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300],
+      },
+      {
+        name: "2023",
+        data: [400, 500, 450, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400],
+      },
     ],
-    options: {
-      chart: {
-        type: "bar",
-        // height: 150,
-        toolbar: { show: false },
+    year: [
+      {
+        name: "2024",
+        data: [250, 300, 200, 400, 300, 350, 480, 550, 450, 400, 300, 200],
       },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: "55%", endingShape: "rounded" },
+    ],
+    week: [{ name: "Week", data: [50, 70, 90, 110, 130, 150, 170] }],
+    today: [{ name: "Today", data: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] }],
+  };
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+  };
+  const chartOptions = {
+    chart: { id: "student-participation", toolbar: { show: false } },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 4,
+        borderRadiusApplication: "end",
+        columnWidth: "25%",
       },
-      xaxis: {
-        categories: ["Season1", "Season2", "Season3", "Season4", "Season5"],
+    },
+    stroke: { show: false },
+    dataLabels: { enabled: false },
+    xaxis: {
+      categories:
+        activeFilter === "today"
+          ? [
+              "6 AM",
+              "8 AM",
+              "10 AM",
+              "12 PM",
+              "2 PM",
+              "4 PM",
+              "6 PM",
+              "8 PM",
+              "10 PM",
+              "12 AM",
+            ]
+          : activeFilter === "week"
+          ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+          : [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ],
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        type: "vertical",
+        shadeIntensity: 1,
+        gradientToColors: ["#508FF4"],
+        stops: [0, 100],
+        colorStops: [
+          { offset: 0, color: "#83C9FC", opacity: 1 },
+          { offset: 70, color: "#508FF4", opacity: 1 },
+        ],
       },
-      colors: ["#1230AE", "#6E7DAB"],
-      fill: { opacity: 1, gradient: { shade: "dark", type: "vertical" } },
-      dataLabels: { enabled: false },
     },
-  });
-  const [donutData] = useState([
-    {
-      title: "Stock OMR",
-      series: [60, 40],
-      labels: ["Available", "Used"],
+    grid: { borderColor: "#F1F1F1" },
+    yaxis: {
+      labels: {
+        formatter: function (val) {
+          return "$ " + val;
+        },
+      },
     },
+    colors:
+      activeFilter === "all"
+        ? ["#FF5733", "#33B5E5", "#FFBD33", "#7D33FF"] // Respective year colors
+        : ["#508FF4"],
+  };
+  const chartSeries = [
     {
-      title: "Stock Book",
-      series: [70, 30],
-      labels: ["Available", "Used"],
-    },
-    {
-      title: "Stock Prizes",
-      series: [50, 50],
-      labels: ["Available", "Used"],
-    },
-  ]);
-  const metrics = [
-    {
-      title: "Total Schools Registered",
-      value: 500,
-      icon: <UilUniversity size="40" color="#1230AE" />,
-    },
-    {
-      title: "Total Students Registered",
-      value: 20000,
-      icon: <UilUsersAlt size="40" color="#6E7DAB" />,
-    },
-    {
-      title: "Active Students in Exams",
-      value: 15000,
-      icon: <UilBookAlt size="40" color="#1230AE" />,
-    },
-    {
-      title: "Inventories",
-      value: 450,
-      icon: <UilUniversity size="40" color="#6E7DAB" />,
+      name: "Participation",
+      data: [200, 450, 300, 500, 400, 250, 480, 550, 450, 400, 50, 230],
     },
   ];
-
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    const scrollWrapper = scrollWrapperRef.current;
+    const list = listRef.current;
+    if (scrollWrapper && list) {
+      const maxScroll = list.scrollHeight - scrollWrapper.clientHeight;
+      scrollIntervalRef.current = setInterval(() => {
+        scrollWrapper.scrollTop += 2;
+        if (scrollWrapper.scrollTop >= maxScroll) {
+          scrollWrapper.scrollTop = 0; // Reset to top when reaching the end
+        }
+      }, 50); // Adjust speed
+    }
+  };
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    clearInterval(scrollIntervalRef.current);
+    // Smoothly scroll back to the top
+    const scrollWrapper = scrollWrapperRef.current;
+    if (scrollWrapper) {
+      scrollWrapper.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
   return (
     <Mainlayout>
-      <div className="my-3">
-        <h3 className="m-0">Welcome To Gowbell</h3>
-        <p className="mb-4 p-0">
-          Empowering exam management with seamless solutions.
-        </p>
-      </div>
-      <div className="row">
-        {/* {/ Bar Chart /} */}
-        <div className="col-lg-7 col-sm-12 mb-4">
-          <div className={`${styles.chartdiv} p-3 `}>
-            <h5 className={`${styles.header}`}>
-              Registrations Per Exam Season
-            </h5>
-            <ReactApexChart
-              options={chartData.options}
-              series={chartData.series}
+      <div className={styles.dashboardContainer}>
+        <div className={styles.cardsContainer}>
+          <div className={`${styles.card} ${styles.totalExams}`}>
+            <h3>Total Exams</h3>
+            <hr />
+            <div className="d-flex gap-3">
+              <img src={cardimg1} alt="cardimg1" />
+              <h1 className="my-auto">403,813</h1>
+            </div>
+          </div>
+          <div className={`${styles.card} ${styles.totalStudents}`}>
+            <h3>Total Students</h3>
+            <hr />
+            <div className="d-flex gap-3">
+              <img src={cardimg2} alt="cardimg2" />
+              <h1 className="my-auto">4,846</h1>
+            </div>
+          </div>
+          <div className={`${styles.card} ${styles.averageScores}`}>
+            <h3>Average Scores</h3>
+            <hr />
+            <div className="d-flex gap-3">
+              <img src={cardimg3} alt="cardimg3" />
+              <h1 className="my-auto">84%</h1>
+            </div>
+          </div>
+          <div className={`${styles.card} ${styles.activeUsers}`}>
+            <h3>Active Users Today</h3>
+            <hr />
+            <div className="d-flex gap-3">
+              <img src={cardimg4} alt="cardimg4" />
+              <h1 className="my-auto">48.464131</h1>
+            </div>
+          </div>
+        </div>
+        <div className={styles.midSection}>
+          <div className={styles.chartContainer}>
+            <h3>Student Participation</h3>
+            <div className={styles.filterButtons}>
+              <button
+                className={activeFilter === "year" ? styles.active : ""}
+                onClick={() => handleFilterChange("year")}
+              >
+                This year
+              </button>
+              <button
+                className={activeFilter === "week" ? styles.active : ""}
+                onClick={() => handleFilterChange("week")}
+              >
+                This week
+              </button>
+              <button
+                className={activeFilter === "today" ? styles.active : ""}
+                onClick={() => handleFilterChange("today")}
+              >
+                Today
+              </button>
+              <button
+                className={activeFilter === "all" ? styles.active : ""}
+                onClick={() => handleFilterChange("all")}
+              >
+                All time
+              </button>
+            </div>
+            <Chart
+              options={chartOptions}
+              series={chartData[activeFilter]}
               type="bar"
-              height={300}
+              height="180"
             />
           </div>
-        </div>
-
-        <div className="col-lg-5 col-sm-12">
-          <div className="row">
-            {metrics.map((metric, index) => (
+          <div className={styles.midSectionSecondDiv}>
+            <div className={styles.prizeContainer}>
+              <h3>Prize Distribution</h3>
               <div
-                key={index}
-                className={`${styles.metricCard} col-md-6 mx-2 mb-2`}
+                className={`${styles.prizeItem} d-flex justify-content-between mb-0`}
               >
-                <div className="text-center p-3">
-                  <div className="mb-2">{metric.icon}</div>
-                  <h6>{metric.title}</h6>
-                  <p>{metric.value}</p>
+                <p className="my-auto">Gold</p>
+                <span>30%</span>
+              </div>
+              <div className={styles.prizeItem}>
+                <div className={styles.progress}>
+                  <div
+                    style={{ width: "30%", backgroundColor: "#F8C900" }}
+                  ></div>
                 </div>
               </div>
-            ))}
+              <div
+                className={`${styles.prizeItem} d-flex justify-content-between mb-0`}
+              >
+                <p className="my-auto">Silver</p>
+                <span>45%</span>
+              </div>
+              <div className={styles.prizeItem}>
+                <div className={styles.progress}>
+                  <div
+                    style={{ width: "45%", backgroundColor: "#C4C4C4" }}
+                  ></div>
+                </div>
+              </div>
+              <div
+                className={`${styles.prizeItem} d-flex justify-content-between mb-0`}
+              >
+                <p className="my-auto">Bronze</p>
+                <span>25%</span>
+              </div>
+              <div className={styles.prizeItem}>
+                <div className={styles.progress}>
+                  <div
+                    style={{ width: "25%", backgroundColor: "#8676DE" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className={styles.activityLog}>
+              <h3>Recent Activity Log</h3>
+              <div className={styles.scrollWrapper}>
+                <ul className={styles.customlist}>
+                  <li className="d-flex flex-column">
+                    <span>Result uploaded for Science Quiz</span>
+                    <div className="d-flex gap-3">
+                      <span className="d-flex">
+                        <UilCalender className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">10-09-2024</p>
+                      </span>
+                      <span className="d-flex">
+                        <UilUser className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">By Admin</p>
+                      </span>
+                    </div>
+                  </li>
+                  <li className="d-flex flex-column">
+                    <span>New school added: The Sunsign High</span>
+                    <div className="d-flex gap-3">
+                      <span className="d-flex">
+                        <UilCalender className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">10-09-2024</p>
+                      </span>
+                      <span className="d-flex">
+                        <UilUser className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">By Admin</p>
+                      </span>
+                    </div>
+                  </li>
+                  <li className="d-flex flex-column">
+                    <span>Exam Created: Math Olympiad</span>
+                    <div className="d-flex gap-3">
+                      <span className="d-flex">
+                        <UilCalender className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">10-09-2024</p>
+                      </span>
+                      <span className="d-flex">
+                        <UilUser className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">By Admin</p>
+                      </span>
+                    </div>
+                  </li>
+                  <li className="d-flex flex-column">
+                    <span>Certificates Generated for History</span>
+                    <div className="d-flex gap-3">
+                      <span className="d-flex">
+                        <UilCalender className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">10-09-2024</p>
+                      </span>
+                      <span className="d-flex">
+                        <UilUser className={`${styles.calender} my-auto`} />
+                        <p className="my-auto">By Admin</p>
+                      </span>
+                    </div>
+                  </li>
+                </ul>
+                <div className={styles.notificationButtonDiv}>
+                  <button className={styles.scrollButton}>
+                    <UilAngleDown />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-    
     </Mainlayout>
   );
-}
+};
+export default Dashboard;

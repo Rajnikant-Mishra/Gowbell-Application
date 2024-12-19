@@ -14,6 +14,9 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2"; // Import SweetAlert2
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const CreateCountry = () => {
   const [name, setName] = useState("");
@@ -25,15 +28,22 @@ const CreateCountry = () => {
 
     // Sending the POST request to the server
     axios
-      .post("http://localhost:5000/api/subject", { name, status })
+      .post(`${API_BASE_URL}/api/subject`, { name, status })
       .then((response) => {
         // Success: Show success alert and redirect
         Swal.fire({
-          title: "Success!",
-          text: `subject"${name}" created successfully.`,
+          position: "top-end",
           icon: "success",
-          timer: 2000,
+          title: "Success!",
+          text: `subject "${name}" created successfully!`,
           showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/subject"); // Redirect after the user clicks OK
         });
@@ -52,6 +62,16 @@ const CreateCountry = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Subject", link: "/subject" },
+              { name: "Create Subject" },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

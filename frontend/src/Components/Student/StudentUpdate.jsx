@@ -7,6 +7,8 @@ import SelectDrop from "../School/CommonComp/SelectDrop";
 import Mainlayout from "../Layouts/Mainlayout";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router-dom";
+import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../ApiConfig/APIConfig";
 
 export default function StudentUpdateForm() {
   const { id } = useParams();
@@ -31,7 +33,7 @@ export default function StudentUpdateForm() {
     const fetchData = async () => {
       try {
         // Fetch school options
-        const schoolResponse = await fetch("http://localhost:5000/api/get/schools");
+        const schoolResponse = await fetch(`${ API_BASE_URL }/api/get/schools`);
         const schoolData = await schoolResponse.json();
         setSchoolOptions(schoolData.map(school => ({
           value: school.school_name,
@@ -39,7 +41,7 @@ export default function StudentUpdateForm() {
         })));
 
         // Fetch class options
-        const classResponse = await fetch("http://localhost:5000/api/master");
+        const classResponse = await fetch(`${ API_BASE_URL }/api/master`);
         const classData = await classResponse.json();
         setClassOptions(classData.map(item => ({
           value: item.name,
@@ -47,7 +49,7 @@ export default function StudentUpdateForm() {
         })));
 
         // Fetch subject options
-        const subjectResponse = await fetch("http://localhost:5000/api/subject");
+        const subjectResponse = await fetch(`${ API_BASE_URL }/api/subject`);
         const subjectData = await subjectResponse.json();
         setSubjectOptions(subjectData.map(subject => ({
           value: subject.name,
@@ -55,7 +57,7 @@ export default function StudentUpdateForm() {
         })));
 
         // Fetch student data
-        const studentResponse = await fetch(`http://localhost:5000/api/get/student/${id}`);
+        const studentResponse = await fetch(`${ API_BASE_URL }/api/get/student/${id}`);
         if (!studentResponse.ok) throw new Error("Student data not found");
         const studentData = await studentResponse.json();
         setFormData({
@@ -95,52 +97,147 @@ export default function StudentUpdateForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (Object.values(formData).includes("") || !formData.school_name || !formData.student_name) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "All fields are required!",
-        timer: 2000,
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/get/student/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
+  
+   const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      // Define validation rules for each field dynamically
+      const validationRules = [
+        {
+          field: "school_name",
+          label: "School Name",
+          validate: (value) => !!value || "School Name is required.",
         },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Student details updated successfully!",
-          timer: 2000,
-        });
-        navigate("/studentList");
-      } else {
-        throw new Error("Failed to update student details");
+        {
+          field: "student_name",
+          label: "Student Name",
+          validate: (value) => !!value || "Student Name is required.",
+        },
+        {
+          field: "class_name",
+          label: "Class Name",
+          validate: (value) => !!value || "Class Name is required.",
+        },
+        {
+          field: "mobile_number",
+          label: "Mobile Number",
+          validate: (value) =>
+            /^\d{10}$/.test(value) || "Mobile Number must be exactly 10 digits.",
+        },
+        {
+          field: "whatsapp_number",
+          label: "WhatsApp Number",
+          validate: (value) =>
+            /^\d{10}$/.test(value) ||
+            "WhatsApp Number must be exactly 10 digits.",
+        },
+        {
+          field: "student_subject",
+          label: "Student subject",
+          validate: (value) => !!value || "Student subject is required.",
+        },
+      ];
+  
+      // Iterate through validation rules and check for errors
+      for (const { field, validate } of validationRules) {
+        const value = formData[field]; // Get field value
+        const validationResult = validate(value); // Run validation
+  
+        if (validationResult !== true) {
+          // Show validation error dynamically
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            text: validationResult, // Show the validation error message
+            showConfirmButton: true,
+            timer: 3000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+          return; // Stop further execution on first validation error
+        }
       }
-    } catch (error) {
-      console.error("Error updating student details", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "An error occurred while updating student details.",
-        timer: 2000,
-      });
-    }
-  };
+  
+      // Proceed with API call after validation
+      try {
+        const response = await fetch(`${ API_BASE_URL }/api/get/student/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+  
+        if (response.ok) {
+          // Success - Show success message
+           Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "Success!",
+                    text: `student  updated successfully!`,
+                    showConfirmButton: false,
+                    timer: 1000,
+                    timerProgressBar: true,
+                    toast: true,
+                    background: "#fff",
+                    customClass: {
+                      popup: "small-swal",
+                    },
+                  }).then(() => {
+            navigate("/studentList");
+          });
+  
+          // Reset form data after successful submission
+          setFormData({
+            school_name: "",
+            student_name: "",
+            class_name: "",
+            student_section: "",
+            mobile_number: "",
+            whatsapp_number: "",
+            student_subject: "",
+          });
+        } else {
+          throw new Error("Failed to submit form");
+        }
+      } catch (error) {
+        // Error - Show error message
+        console.error("Error details:", error.response?.data || error.message);
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: error.response?.data?.error || "An unexpected error occurred.",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "animate__animated animate__shakeX",
+            title: "text-danger fw-bold",
+            text: "text-dark",
+          },
+          background: "#fff",
+        });
+      }
+    };
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Student", link: "/studentList" },
+              { name: "Update Student" },
+            ]}
+          />
+        </div>
+      </div>
       <Box className={`${styles.formContainer} container-fluid pt-5`}>
         <div className={`${styles.formBox}`}>
           <Typography className={`${styles.formTitle} mb-4`}>
@@ -232,7 +329,7 @@ export default function StudentUpdateForm() {
               <ButtonComp
                 text="Cancel"
                 type="button"
-                sx={{ flexGrow: 1 }}
+                sx={{ flexGrow: 1,}}
                 onClick={() => navigate("/studentList")}
               />
             </Box>

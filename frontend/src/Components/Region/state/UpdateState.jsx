@@ -1,30 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 import Mainlayout from "../../Layouts/Mainlayout";
-import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Container, Typography, Box } from '@mui/material';
-import Swal from 'sweetalert2';
+import {
+  TextField,
+  Button,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Container,
+  Typography,
+  Box,
+} from "@mui/material";
+import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const UpdateState = () => {
-  const [name, setName] = useState('');
-  const [status, setStatus] = useState('active');
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState("active");
   const [countries, setCountries] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState("");
   const { id } = useParams(); // Retrieve state ID from route parameters
   const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch all countries for the dropdown
-    axios.get('http://localhost:5000/api/countries/')
+    axios
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => {
         setCountries(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching countries:', error);
+        console.error("Error fetching countries:", error);
       });
 
     // Fetch existing state data to pre-fill the form
-    axios.get(`http://localhost:5000/api/states/${id}`)
+    axios
+      .get(`${API_BASE_URL}/api/states/${id}`)
       .then((response) => {
         const { name, status, country_id } = response.data;
         setName(name);
@@ -32,7 +47,7 @@ const UpdateState = () => {
         setSelectedCountry(country_id);
       })
       .catch((error) => {
-        console.error('Error fetching state data:', error);
+        console.error("Error fetching state data:", error);
       });
   }, [id]);
 
@@ -45,34 +60,56 @@ const UpdateState = () => {
       country_id: selectedCountry,
     };
 
-    axios.put(`http://localhost:5000/api/states/${id}`, stateData)
+    axios
+      .put(`${API_BASE_URL}/api/states/${id}`, stateData)
       .then((response) => {
         Swal.fire({
-          title: 'Success!',
-          text: `State "${name}" updated successfully.`,
-          icon: 'success',
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `State "${name}" updated successfully!`,
+          showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
-          showConfirmButton: false,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
-          navigate('/state');
+          navigate("/state");
         });
       })
       .catch((error) => {
         Swal.fire({
-          title: 'Error!',
-          text: 'There was an issue updating the State. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'OK',
+          title: "Error!",
+          text: "There was an issue updating the State. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
         });
-        console.error('Error updating State:', error);
+        console.error("Error updating State:", error);
       });
   };
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "State", link: "/state" }, { name: "Update State" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
-        <Box sx={{ marginTop: 4, padding: 3, borderRadius: 2, boxShadow: 3, backgroundColor: '#fff' }}>
+        <Box
+          sx={{
+            marginTop: 4,
+            padding: 3,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#fff",
+          }}
+        >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
             Update State
           </Typography>
@@ -84,6 +121,13 @@ const UpdateState = () => {
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 label="Select Country"
                 variant="outlined"
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 {countries.map((country) => (
                   <MenuItem key={country.id} value={country.id}>
@@ -101,6 +145,13 @@ const UpdateState = () => {
               required
               variant="outlined"
               margin="normal"
+              size="small"
+              InputProps={{
+                style: { fontSize: "14px" }, // Adjust input text size
+              }}
+              InputLabelProps={{
+                style: { fontSize: "14px" }, // Adjust label size
+              }}
             />
             <FormControl fullWidth margin="normal" required>
               <InputLabel>Status</InputLabel>
@@ -109,6 +160,13 @@ const UpdateState = () => {
                 onChange={(e) => setStatus(e.target.value)}
                 label="Status"
                 variant="outlined"
+                size="small"
+                InputProps={{
+                  style: { fontSize: "14px" }, // Adjust input text size
+                }}
+                InputLabelProps={{
+                  style: { fontSize: "14px" }, // Adjust label size
+                }}
               >
                 <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>

@@ -8,6 +8,9 @@ import Mainlayout from "../../Layouts/Mainlayout";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 export default function AssignInChargeForm() {
   const [formData, setFormData] = useState({
@@ -25,7 +28,7 @@ export default function AssignInChargeForm() {
   useEffect(() => {
     const fetchClassData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/master`);
+        const response = await axios.get(`${API_BASE_URL}/api/master`);
         if (response.status === 200) {
           const options = response.data.map((item) => ({
             value: item.name, // Replace `id` with the correct identifier
@@ -45,48 +48,85 @@ export default function AssignInChargeForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-// validation of form=====================================================================//
-    // Initialize an array to keep track of missing fields
-    let missingFields = [];
-
-    // Check each field individually and add missing fields to the array
-    if (!formData.school_name) missingFields.push("School Name");
-    if (!formData.incharge_name) missingFields.push("Incharge Name");
-    if (!formData.incharge_dob) missingFields.push("Incharge DOB");
-    if (!formData.mobile_number) missingFields.push("Mobile Number");
-    if (!formData.class_from) missingFields.push("Class From");
-    if (!formData.class_to) missingFields.push("Class To");
-
-    // If there are any missing fields, display an error message
-    if (missingFields.length > 0) {
-      const missingFieldsList = missingFields.join(", ");
-      Swal.fire(
-        "Error",
-        `The fields are required: ${missingFieldsList}`,
-        "error"
-      );
-      return;
+  
+    // Define fields and labels for validation
+    const fields = [
+      { name: "school_name", label: "School Name" },
+      { name: "incharge_name", label: "Incharge Name" },
+      { name: "incharge_dob", label: "Incharge DOB" },
+      { name: "mobile_number", label: "Mobile Number", validation: validateMobileNumber },
+      { name: "class_from", label: "Class From" },
+      { name: "class_to", label: "Class To" }
+    ];
+  
+    // Loop through each field and check for missing values
+    for (let field of fields) {
+      if (!formData[field.name]) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: `${field.label} is required.`,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "small-swal",
+          },
+          background: "#fff",
+        });
+        return; // Stop further processing if a field is missing
+      }
+  
+      // Additional validation for phone number
+      if (field.name === "mobile_number" && field.validation && !field.validation(formData[field.name])) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: "Mobile Number must be 10 digits.",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "small-swal",
+          },
+          background: "#fff",
+        });
+        return;
+      }
     }
-
+  
     try {
-      // API request to submit data
+      // API request to submit form data ===============================================================//
       const response = await axios.post(
-        `http://localhost:5000/api/get/incharges`,
+        `${API_BASE_URL}/api/get/incharges`,
         formData
       );
-
+  
       // Check if the response indicates success
       if (response.status === 200 || response.status === 201) {
         // Show success message and reset form
         await Swal.fire({
+          position: "top-end",
           icon: "success",
-          title: "Incharge assigned successfully!",
-          text: "The incharge has been assigned to the school.",
-          confirmButtonText: "Go to Incharge List",
+          title: "Success!",
+          text: "Incharge created successfully!",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
-
+  
         // Clear the form and navigate after successful submission
         setFormData({
           school_name: "",
@@ -103,7 +143,7 @@ export default function AssignInChargeForm() {
       }
     } catch (error) {
       console.error("Error assigning incharge:", error);
-
+  
       // Show error message
       Swal.fire({
         icon: "error",
@@ -112,9 +152,29 @@ export default function AssignInChargeForm() {
       });
     }
   };
+  
+  // Validation function for mobile number
+  const validateMobileNumber = (number) => {
+    // Regex to check if the number is exactly 10 digits
+    const regex = /^[0-9]{10}$/;
+    return regex.test(number);
+  };
+  
+  
+  
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Incharge", link: "/inchargeList" },
+              { name: "Assign Incharge" },
+            ]}
+          />
+        </div>
+      </div>
       <Box className={`${styles.formContainer} container-fluid pt-5`}>
         <div className={`${styles.formBox}`}>
           <Typography className={`${styles.formTitle} mb-4`}>

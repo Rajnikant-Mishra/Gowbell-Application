@@ -15,6 +15,9 @@ import {
   Grid,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import {API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const CreateArea = () => {
   const [name, setName] = useState("");
@@ -32,7 +35,7 @@ const CreateArea = () => {
   // Fetch countries on component mount
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/countries/")
+      .get(`${API_BASE_URL }/api/countries/`)
       .then((response) => setCountries(response.data))
       .catch((error) => console.error("Error fetching countries:", error));
   }, []);
@@ -41,7 +44,7 @@ const CreateArea = () => {
   useEffect(() => {
     if (selectedCountry) {
       axios
-        .get(`http://localhost:5000/api/states?countryId=${selectedCountry}`)
+        .get(`${API_BASE_URL }/api/states?countryId=${selectedCountry}`)
         .then((response) => setStates(response.data))
         .catch((error) => console.error("Error fetching states:", error));
     }
@@ -51,7 +54,7 @@ const CreateArea = () => {
   useEffect(() => {
     if (selectedState) {
       axios
-        .get(`http://localhost:5000/api/districts?stateId=${selectedState}`)
+        .get(`${API_BASE_URL }/api/districts?stateId=${selectedState}`)
         .then((response) => setDistricts(response.data))
         .catch((error) => console.error("Error fetching districts:", error));
     }
@@ -61,7 +64,7 @@ const CreateArea = () => {
   useEffect(() => {
     if (selectedDistrict) {
       axios
-        .get(`http://localhost:5000/api/cities?districtId=${selectedDistrict}`)
+        .get(`${API_BASE_URL }/api/cities?districtId=${selectedDistrict}`)
         .then((response) => setCities(response.data))
         .catch((error) => console.error("Error fetching cities:", error));
     }
@@ -83,16 +86,22 @@ const CreateArea = () => {
 
     // Sending the POST request to the server
     axios
-      .post("http://localhost:5000/api/areas/", data)
+      .post(`${API_BASE_URL }/api/areas/`, data)
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `Area "${name}" created successfully.`,
-          icon: "success",
-          timer: 1000, // Auto close after 2 seconds
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then(() => navigate("/area"));
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `Area "${name}" created successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => navigate("/area"));
       })
       .catch((error) => {
         Swal.fire({
@@ -107,6 +116,13 @@ const CreateArea = () => {
 
   return (
     <Mainlayout>
+    <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "Area", link: "/area" }, { name: "Create Area" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm" sx={{ height: "auto" }}>
         <Box
           sx={{

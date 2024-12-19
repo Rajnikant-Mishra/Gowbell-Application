@@ -2,8 +2,8 @@
 
 .container {
   display: flex;
-  height: 100vh;
-  font-family: "Roboto", sans-serif;
+  height: 78vh;
+  font-family: "Poppins", sans-serif;
   background-color: #fff;
 }
 p {
@@ -11,7 +11,7 @@ p {
   font-weight: 300;
 }
 .bgImage {
-  flex: 1;
+  flex: 3;
   background-size: cover;
   background-position: center;
 }
@@ -53,16 +53,29 @@ h2 {
 }
 
 .formContainer {
-  flex: 1;
+  flex: 1.2;
   display: flex;
-  align-items: center;
+  /* / align-items: center; / */
   justify-content: center;
-  padding: 2rem;
+  padding: 0rem 0rem 2rem 2rem;
+  flex-direction: column;
 }
 
 .formWrapper {
-  max-width: 400px;
+  max-width: 400px !important;
   width: 100%;
+  background: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 10px 10px 20px #24408124;
+  box-shadow: 0px 6px 20px #00000029;
+}
+.navbardiv {
+  padding: 25px 10px !important;
+  height: 15vh !important;
+}
+.footer {
+  height: 5vh !important;
 }
 
 h3 {
@@ -80,21 +93,23 @@ h3 {
 }
 
 .formGroup {
-  border: 1px solid rgb(249 237 237);
+  border-bottom: 1px solid rgb(249 237 237);
   padding: 3%;
   border-radius: 5px;
 }
 
 .formGroup label {
-  font-size: 12px;
+  font-size: 18px;
   line-height: 18px;
   margin-bottom: 0.5rem;
-  color: #b3b3b3;
+  color: #525252;
+  font-weight: bold;
+  letter-spacing: 0;
+  font-family: "Poppins" !important;
 }
 .formGroup input {
   border: none;
   outline: none;
-  font-size: 20px !important;
   padding: 0 !important;
   color: #495057;
 }
@@ -104,8 +119,9 @@ h3 {
   box-shadow: none;
 }
 .formGroup input::placeholder {
-  font-size: 20px;
+  font-size: 15px;
   line-height: 30px;
+  color: rgb(187, 186, 186);
 }
 .formControl {
   width: 100%;
@@ -163,7 +179,9 @@ h3 {
 .control .caption {
   position: relative;
   top: 0.2rem;
-  color: #888;
+  font-size: 16px;
+  font-family: "Poppins";
+  color: #0660fd;
 }
 
 .control input {
@@ -207,9 +225,12 @@ h3 {
 }
 
 .forgotPass {
-  font-size: 14px;
-  color: #007bff;
+  font-size: 16px !important;
+  color: #0660fd;
   text-decoration: none;
+  font-family: "Poppins" !important;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .forgotPass:hover {
@@ -218,9 +239,62 @@ h3 {
 strong {
   font-weight: bolder;
 }
-.bgImage p {
-  margin-bottom: 0px;
-  margin-top: 94%;
-  margin-left: 10px;
+
+.about {
+  position: absolute;
+  display: center;
+}
+.bgImage {
+  flex: 3;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.about {
+  position: absolute;
+  top: 30%;
+
   color: white;
+  z-index: 1;
+  padding: 0 0 0 60px;
+}
+
+.about h3,
+.about p {
+  margin: 0;
+}
+
+.about h3 {
+  font-size: 45px;
+  font-weight: bold;
+}
+.about h3:first-child {
+  color: #525252 !important;
+}
+
+.about p {
+  font-size: 27px;
+  font-weight: lighter;
+  font-family: "Poppins" !important;
+  color: #bababa;
+  margin-right: 25%;
+  font-weight: regular !important;
+}
+.about h3:nth-child(2) {
+  color: #0660fd;
+}
+a {
+  text-decoration: none !important;
+  color: #0660fd;
+  font-family: "Poppins" !important;
+  font-weight: regular !important;
+}
+.footerp {
+  margin-bottom: 0rem !important;
+}
+.btnBlock {
+  width: 30%;
+  border-radius: 6px;
+  background-color: #0660fd;
 }

@@ -14,6 +14,9 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const CreateCountry = () => {
   const [name, setName] = useState("");
@@ -24,7 +27,7 @@ const CreateCountry = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/countries/")
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => {
         setCountries(response.data);
       })
@@ -43,15 +46,21 @@ const CreateCountry = () => {
     };
 
     axios
-      .post("http://localhost:5000/api/states/", stateData)
+      .post(`${API_BASE_URL}/api/states/`, stateData)
       .then((response) => {
         Swal.fire({
-          title: "Success!",
-          text: `State "${name}" created successfully.`,
+          position: "top-end",
           icon: "success",
-          timer: 1000, // Auto close after 2 seconds
-          timerProgressBar: true,
+          title: "Success!",
+          text: `State "${name}" created successfully!`,
           showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/state");
         });
@@ -69,6 +78,13 @@ const CreateCountry = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "state", link: "/state" }, { name: "Create State" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

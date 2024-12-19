@@ -25,8 +25,6 @@
   margin-left: 17%;
   margin-top: 4%;
   margin-left: 10% !important;
-
-  border-radius: 0px !important;
 }
 .searchForm {
   position: relative;
@@ -60,3 +58,16 @@
   pointer-events: none; 
   font-size: 1.3rem;
 }
+
+.dropdown{
+  box-shadow: rgba(36, 64, 129, 0.14) 10px 10px 20px !important;
+  border: 1px solid rgb(245, 245, 245) !important;
+  width: 200px !important;
+  border-radius: 0px 0px 12px 12px!important;
+  position: absolute !important;
+  inset: 1px auto auto 0px !important;
+  margin: 5px !important;
+  transform: translate(-21px, 49px) !important;
+
+}
+

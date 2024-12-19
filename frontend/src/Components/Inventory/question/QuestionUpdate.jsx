@@ -12,6 +12,9 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const UpdateQuestionForm = () => {
   const { id } = useParams(); // Get the ID from the route params
@@ -25,7 +28,7 @@ const UpdateQuestionForm = () => {
   // Fetch master data for the "Choose Class" dropdown
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/master")
+      .get(`${API_BASE_URL}/api/master`)
       .then((response) => setMasterData(response.data))
       .catch((error) => console.error("Error fetching master data:", error));
   }, []);
@@ -33,7 +36,7 @@ const UpdateQuestionForm = () => {
   // Fetch question data for the given ID
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/get/question/${id}`)
+      .get(`${API_BASE_URL}/api/get/question/${id}`)
       .then((response) => {
         const { paper_name, exam_level, quantity, class_name } = response.data;
         setName(paper_name);
@@ -59,7 +62,7 @@ const UpdateQuestionForm = () => {
 
     // Send a PUT request to update the question
     axios
-      .put(`http://localhost:5000/api/get/question/${id}`, {
+      .put(`${API_BASE_URL}/api/get/question/${id}`, {
         paper_name,
         exam_level,
         quantity,
@@ -67,12 +70,18 @@ const UpdateQuestionForm = () => {
       })
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `Question updated successfully.`,
+          position: "top-end",
           icon: "success",
+          title: "Success!",
+          text: `question updated successfully!`,
+          showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
-          showConfirmButton: false,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           navigate("/question");
         });
@@ -92,6 +101,16 @@ const UpdateQuestionForm = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Question", link: "/question" },
+              { name: "Update Question" },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{

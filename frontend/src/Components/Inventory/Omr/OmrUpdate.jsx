@@ -4,6 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Mainlayout from "../../Layouts/Mainlayout";
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import Swal from 'sweetalert2';
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 
 const UpdateOMRForm = () => {
   const [title, setTitle] = useState('');
@@ -13,7 +16,7 @@ const UpdateOMRForm = () => {
   
   useEffect(() => {
     // Fetch existing OMR entry data for editing
-    axios.get(`http://localhost:5000/api/get/omr/${id}`)
+    axios.get(`${ API_BASE_URL }/api/get/omr/${id}`)
       .then((response) => {
         const { title, quantity } = response.data;
         setTitle(title);
@@ -31,14 +34,22 @@ const UpdateOMRForm = () => {
     const omrData = { title, quantity };
 
     // Send PUT request to update the OMR entry
-    axios.put(`http://localhost:5000/api/get/omr/${id}`, omrData)
+    axios.put(`${ API_BASE_URL }/api/get/omr/${id}`, omrData)
       .then((response) => {
         Swal.fire({
-          title: 'Success!',
-          text: `OMR "${title}" updated successfully.`,
-          icon: 'success',
-          confirmButtonText: 'OK',
-        }).then(() => {
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `omr "${name}" updated successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => {
           navigate('/omr'); // Redirect after successful update
         });
       })
@@ -55,6 +66,13 @@ const UpdateOMRForm = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "OMR", link: "/omr" }, { name: "Update OMR" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box sx={{ marginTop: 4, padding: 3, borderRadius: 2, boxShadow: 3, backgroundColor: '#fff' }}>
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>

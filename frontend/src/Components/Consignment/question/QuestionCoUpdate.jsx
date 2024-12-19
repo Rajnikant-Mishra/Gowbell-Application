@@ -14,6 +14,9 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css"
 
 const UpdateBookForm = () => {
   const [questionName, setQuestionName] = useState("");
@@ -29,14 +32,14 @@ const UpdateBookForm = () => {
   // Fetch dynamic data for questions and schools
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/get/question")
+      .get(`${ API_BASE_URL }/api/get/question`)
       .then((response) => {
         setQuestions(response.data);
       })
       .catch((error) => console.error("Error fetching questions:", error));
 
     axios
-      .get("http://localhost:5000/api/get/schools")
+      .get(`${ API_BASE_URL }/api/get/schools`)
       .then((response) => {
         setSchools(response.data);
       })
@@ -47,7 +50,7 @@ const UpdateBookForm = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:5000/api/co/question/${id}`) // Fetch data for the given ID
+        .get(`${ API_BASE_URL }/api/co/question/${id}`) // Fetch data for the given ID
         .then((response) => {
           const data = response.data;
           setQuestionName(data.question_name);
@@ -65,7 +68,7 @@ const UpdateBookForm = () => {
 
     // Sending the PUT request to update the data
     axios
-      .put(`http://localhost:5000/api/co/question/${id}`, {
+      .put(`${ API_BASE_URL }/api/co/question/${id}`, {
         question_name: questionName,
         exam_date: examDate,
         school_name_co: schoolName,
@@ -73,14 +76,20 @@ const UpdateBookForm = () => {
         quantity_co: quantity,
       })
       .then((response) => {
-        Swal.fire({
-          title: "Success!",
-          text: `Question updated successfully.`,
-          icon: "success",
-          timer: 1000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then(() => {
+         Swal.fire({
+                  position: "top-end",
+                  icon: "success",
+                  title: "Success!",
+                  text: `C0-question updated successfully!`,
+                  showConfirmButton: false,
+                  timer: 1000,
+                  timerProgressBar: true,
+                  toast: true,
+                  background: "#fff",
+                  customClass: {
+                    popup: "small-swal",
+                  },
+                }).then(() => {
           navigate("/question-list"); // Redirect after update
         });
       })
@@ -97,10 +106,20 @@ const UpdateBookForm = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[
+              { name: "Question-Co.", link: "/question-list" },
+              { name: "UpdateQuestion-Co." },
+            ]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{
-            marginTop: 6,
+            marginTop: 2,
             padding: 3,
             borderRadius: 2,
             boxShadow: 3,

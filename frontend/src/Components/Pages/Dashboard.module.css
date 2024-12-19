@@ -1,142 +1,303 @@
-.dashboard-container {
-    background: linear-gradient(to bottom right, #f1f5ff, #eef2ff);
-    min-height: 100vh;
-    padding: 20px;
-    font-family: "Poppins", sans-serif;
-    color: #1230ae;
-  }
-  
-  .header {
-    font-family: "Poppins", sans-serif;
-    color: #6e7dab;
-    font-weight: 700;
-    font-size: 15px;
-    margin-top: 2%;
-    margin-left: 2%;
-  }
-  
-  .dashboard-header h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #1230ae;
-  }
-  
-  .dashboard-header p {
-    color: #6e7dab;
-    font-size: 1.2rem;
-  }
-  
-  .content-area {
-    display: flex;
-    gap: 20px;
-    justify-content: space-around;
-  }
-  
-  .card {
-    background: #f1f5ff;
-    box-shadow: 5px 5px 10px #0b1e72, -5px -5px 10px #d4deff;
-    border-radius: 15px;
-    padding: 20px;
-    width: 45%;
-  }
-  
-  .card h2 {
-    font-size: 1.5rem;
-    color: #1230ae;
-    margin-bottom: 15px;
-  }
-  
-  .info-card ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .info-card ul li {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    color: #6e7dab;
-  }
-  .chartdiv {
-    background-color: #ffffff;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    border: 1px solid #e0e0e0;
-    border-radius: 15px;
-  }
-  .dashboardContainer {
-    background: linear-gradient(to bottom right, #f1f5ff, #eef2ff);
-    min-height: 100vh;
-    padding: 20px;
-    font-family: "Poppins", sans-serif;
-  }
-  
-  .dashboardHeader h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #1230ae;
-  }
-  
-  .dashboardHeader p {
-    font-size: 1.2rem;
-    color: #6e7dab;
-  }
-  
-  .chartDiv {
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    border-radius: 15px;
-    background: #ffffff; 
-    border: 1px solid #e0e0e0;
-  }
-  
-  .header {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #6e7dab;
-    margin-bottom: 1rem;
-  }
-  
-  .metricCard {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    /* / box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); / */
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    text-align: center;
-    width: 46%;
-    height: 196px;
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 8px; 
-  }
-  
-  .metricCard h6 {
-    font-weight: 600;
-    font-size: 14px;
-    color: #6e7dab;
-    margin: 0;
-  }
-  
-  .metricCard p {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1230ae;
-    margin: 0;
-  }
-  
-  .donutSection {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-  }
-  
-  .donutCard {
-    text-align: center;
-    margin: 10px;
-    background: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-    padding: 20px;
-    flex: 1 1 calc(33.33% - 20px);
-  }
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: "Poppins" !important;
+}
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  height: 145px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.card h3 {
+  font-size: 1.1rem;
+  font-family: "Poppins", sans-serif;
+  letter-spacing: 0.75px;
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+.card p {
+  font-size: 2rem;
+  margin: 10px 0;
+}
+.card h1 {
+  font-size: 30px;
+  letter-spacing: 1.06px;
+  font-weight: 300;
+}
+.midSection {
+  display: flex;
+  gap: 15px;
+  height: 270px;
+}
+.midSectionSecondDiv {
+  display: flex;
+  gap: 15px;
+  width: 49.3% !important;
+  justify-content: space-between;
+}
+.chartContainer,
+.prizeContainer {
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  flex: 1;
+}
+.filterButtons button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: none;
+  font-size: 12px;
+  border-radius: 5px;
+  background-color: #F1F1F1;
+  cursor: pointer;
+}
+.filterButtons button.active {
+  background-color: #1E88E5;
+  color: white;
+}
+.prizeItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.progress {
+  flex: 1;
+  background-color: #eee;
+  height: 8px;
+  border-radius: 5px;
+}
+.activityLog {
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background: white;
+}
+.activityLog ul {
+  list-style: none;
+  padding: 0;
+}
+.activityLog li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+.card hr {
+  /* border: 0; */
+  border-radius: 16px;
+  opacity: 1.25;
+  margin: 0.1rem 0;
+}
+.card:first-child h3,
+.card:first-child h1 {
+  color: #ED9023;
+}
+.card:first-child hr {
+  border-top: 1px solid #ED9023;
+}
+.card:nth-child(2) hr {
+  border-top: 1px solid #2C9AD9;
+}
+.card:nth-child(3) hr {
+  border-top: 1px solid #6563FF;
+}
+.card:last-child hr {
+  border-top: 1px solid #8CC17C;
+}
+.card:nth-child(2) h3,
+.card:nth-child(2) h1 {
+  color: #2C9AD9;
+}
+.card:nth-child(3) h3,
+.card:nth-child(3) h1 {
+  color: #6563FF;
+}
+.card:last-child h3,
+.card:last-child h1 {
+  color: #8CC17C;
+}
+.card div img {
+  width: 40px;
+}
+.midSection {
+  font-family: "Poppins", sans-serif !important;
+}
+.midSection h3 {
+  font-size: 17px;
+  color: #525252;
+  font-weight: 800;
+}
+.midSection {
+  display: flex;
+  gap: 15px;
+}
+.chartContainer,
+.midSectionSecondDiv {
+  width: 50%;
+}
+.chartContainer {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 50%;
+}
+.midSectionSecondDiv {
+  width: 49%;
+}
+.prizeContainer,
+.activityLog {
+  width: 49%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.prizeContainer {
+  padding: 16px;
+}
+.prizeItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.prizeItem p,
+.prizeItem span {
+  color: #525252;
+  font-family: "Poppins";
+  font-weight: bold;
+}
+.progress {
+  flex-grow: 1;
+  height: 8px;
+  background-color: #E0E0E0;
+  /* margin: 0 12px; */
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.progress div {
+  height: 100%;
+  border-radius: 4px;
+}
+.activityLog li {
+  font-size: 10px;
+}
+.calender {
+  height: 9px;
+  width: 10px;
+}
+.customlist li::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  position: absolute;
+  margin-top: 5px;
+  margin-left: -10px;
+  border-radius: 50%;
+  background: black;
+}
+.customlist li {
+  position: relative;
+  padding-left: 10px;
+  color: #0660FD;
+}
+.customlist li p {
+  color: #525252;
+}
+.prizeItem {
+  margin-bottom: 15px;
+}
+.textRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.progress {
+  height: 10px;
+  background-color: #E0E0E0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress > div {
+  height: 100%;
+  border-radius: 5px;
+}
+.activityLog {
+  padding: 15px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+.activityLog h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.scrollWrapper {
+  overflow: hidden;
+  height: 88%; /* Adjust to show 3.5 notifications (depends on your item height) */
+  position: relative;
+}
+.customlist {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  transition: transform 0.5s ease; /* Smooth scroll */
+}
+.scrollButton {
+  background: white;
+  border: 1px solid #DCDCDC;
+  position: absolute;
+  bottom: 0px; /* Positioned below the visible list */
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.scrollButton:hover {
+  background-color: #F1F1F1;
+}
+.scrollWrapper:hover .customlist {
+  transform: translateY(
+    -80px
+  ); /* Adjust based on the height of one notification */
+}
+.scrollButton:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+.scrollButton svg {
+  font-size: 20px;
+  color: #666;
+}
+.notificationButtonDiv {
+  height: 22%;
+  margin-top: -15%;
+  background: linear-gradient(
+    to top,
+    white 80%,
+    white 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+
+
+
+
+

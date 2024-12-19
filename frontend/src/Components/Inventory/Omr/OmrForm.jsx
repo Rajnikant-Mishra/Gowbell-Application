@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Mainlayout from "../../Layouts/Mainlayout";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import Swal from "sweetalert2";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 
 const BookForm = () => {
   const [title, setTitle] = useState("");
@@ -44,16 +46,24 @@ const BookForm = () => {
     setIsSubmitting(true);
 
     axios
-      .post("http://localhost:5000/api/get/omr", {
+      .post(`${API_BASE_URL}/api/get/omr`, {
         title,
         quantity: parseInt(quantity),
       })
       .then(() => {
         Swal.fire({
-          title: "Success!",
-          text: `OMR "${title}" created successfully.`,
+          position: "top-end",
           icon: "success",
-          confirmButtonText: "OK",
+          title: "Success!",
+          text: `Omr updated successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         }).then(() => {
           setTitle("");
           setQuantity("");
@@ -76,6 +86,13 @@ const BookForm = () => {
 
   return (
     <Mainlayout>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div role="presentation">
+          <Breadcrumb
+            data={[{ name: "OMR", link: "/omr" }, { name: "Create OMR" }]}
+          />
+        </div>
+      </div>
       <Container maxWidth="sm">
         <Box
           sx={{
