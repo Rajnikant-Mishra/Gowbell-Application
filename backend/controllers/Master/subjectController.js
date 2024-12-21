@@ -7,10 +7,16 @@ import { Subject  } from '../../models/Master/subjectModel.js';
 export const createSubject = (req, res) => {
     const { name, status } = req.body;
     Subject.create(name, status, (err, result) => {
-        if (err) return res.status(500).json({ error: err });
+        if (err) {
+            if (err === 'Subject already exists') {
+                return res.status(400).json({ error: 'Subject with this name already exists' });
+            }
+            return res.status(500).json({ error: err });
+        }
         res.status(201).json({ id: result.insertId, name, status });
     });
 };
+
 
 // READ - Get all subjects
 export const getAllSubjects = (req, res) => {
@@ -35,11 +41,19 @@ export const updateSubject = (req, res) => {
     const { id } = req.params;
     const { name, status } = req.body;
     Subject.update(id, name, status, (err, result) => {
-        if (err) return res.status(500).json({ error: err });
-        if (result.affectedRows === 0) return res.status(404).json({ message: 'Subject not found' });
+        if (err) {
+            if (err === 'Subject with this name already exists') {
+                return res.status(400).json({ error: 'Subject with this name already exists' });
+            }
+            return res.status(500).json({ error: err });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Subject not found' });
+        }
         res.json({ message: 'Subject updated successfully' });
     });
 };
+
 
 // DELETE - Delete a subject by ID
 export const deleteSubject = (req, res) => {

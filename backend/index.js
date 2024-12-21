@@ -14,7 +14,7 @@ import cityRoutes from './routes/Region/cityRoutes.js';
 import areaRoutes from './routes/Region/areaRoutes.js';
 
 //master routes
-import masterRoutes from './routes/Master/masterRoutes.js';
+import masterRoutes from './routes/Master/classRoutes.js';
 import subjectRoutes from './routes/Master/subjectRoutes.js';
 import affiliatedRoutes from './routes/Master/affiliatedRoutes.js';
 

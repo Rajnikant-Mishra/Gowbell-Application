@@ -1,29 +1,31 @@
-
-import { Master  } from '../../models/Master/masterModel.js';
-
+import { Class } from '../../models/Master/classModel.js';
 
 // CREATE - Add a new record
-export const createMaster = (req, res) => {
+export const createClass = (req, res) => {
     const { name, status } = req.body;
-    Master.create(name, status, (err, result) => {
-        
-        if (err) return res.status(500).json({ error: err });
+    Class.create(name, status, (err, result) => {
+        if (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ error: 'Class name must be unique' });
+            }
+            return res.status(500).json({ error: err });
+        }
         res.status(201).json({ id: result.insertId, name, status });
     });
 };
 
 // READ - Get all records
-export const getAllMasters = (req, res) => {
-    Master.findAll((err, results) => {
+export const getAllClasses = (req, res) => {
+    Class.findAll((err, results) => {
         if (err) return res.status(500).json({ error: err });
         res.json(results);
     });
 };
 
 // READ - Get a single record by ID
-export const getMasterById = (req, res) => {
+export const getClassById = (req, res) => {
     const { id } = req.params;
-    Master.findById(id, (err, result) => {
+    Class.findById(id, (err, result) => {
         if (err) return res.status(500).json({ error: err });
         if (result.length === 0) return res.status(404).json({ message: 'Record not found' });
         res.json(result[0]);
@@ -31,20 +33,25 @@ export const getMasterById = (req, res) => {
 };
 
 // UPDATE - Update a record by ID
-export const updateMaster = (req, res) => {
+export const updateClass = (req, res) => {
     const { id } = req.params;
     const { name, status } = req.body;
-    Master.update(id, name, status, (err, result) => {
-        if (err) return res.status(500).json({ error: err });
+    Class.update(id, name, status, (err, result) => {
+        if (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ error: 'Class name must be unique' });
+            }
+            return res.status(500).json({ error: err });
+        }
         if (result.affectedRows === 0) return res.status(404).json({ message: 'Record not found' });
         res.json({ message: 'Record updated successfully' });
     });
 };
 
 // DELETE - Delete a record by ID
-export const deleteMaster = (req, res) => {
+export const deleteClass = (req, res) => {
     const { id } = req.params;
-    Master.delete(id, (err, result) => {
+    Class.delete(id, (err, result) => {
         if (err) return res.status(500).json({ error: err });
         if (result.affectedRows === 0) return res.status(404).json({ message: 'Record not found' });
         res.json({ message: 'Record deleted successfully' });

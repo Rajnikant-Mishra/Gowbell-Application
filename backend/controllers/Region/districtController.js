@@ -1,11 +1,19 @@
-// controllers/districtController.js
 import { District } from '../../models/Region/District.js';
-
 
 export const createDistrict = (req, res) => {
   const { name, country_id, state_id, status } = req.body;
+
+  // Call the model's create method
   District.create(name, country_id, state_id, status, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      // Handle the duplicate district error
+      if (err.message === 'District already exists') {
+        return res.status(400).json({ error: 'District already exists' });
+      }
+      return res.status(500).json({ error: 'Error creating district', details: err.message });
+    }
+    
+    // Return success if no error
     res.status(201).json({ message: 'District created', districtId: result.insertId });
   });
 };
@@ -25,15 +33,6 @@ export const getDistrictById = (req, res) => {
     res.status(200).json(result[0]);
   });
 };
-
-// export const updateDistrict = (req, res) => {
-//   const { id } = req.params;
-//   const { name, country_id, state_id, status } = req.body;
-//   District.update(id, name, country_id, state_id, status, (err, result) => {
-//     if (err) return res.status(500).json({ error: err.message });
-//     res.status(200).json({ message: 'District updated' });
-//   });
-// };
 
 export const updateDistrict = (req, res) => {
   const { id } = req.params;

@@ -9,12 +9,15 @@ export const State = {
       callback
     );
   },
+
   getAll: (callback) => {
     db.query('SELECT * FROM states', callback);
   },
+
   getById: (id, callback) => {
     db.query('SELECT * FROM states WHERE id = ?', [id], callback);
   },
+
   update: (id, name, status, country_id, callback) => {
     db.query(
       'UPDATE states SET name = ?, status = ?, country_id = ? WHERE id = ?',
@@ -22,6 +25,7 @@ export const State = {
       callback
     );
   },
+  
   delete: (id, callback) => {
     db.query('DELETE FROM states WHERE id = ?', [id], callback);
   },

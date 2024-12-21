@@ -1,16 +1,21 @@
-// controllers/cityController.js
 import { City } from '../../models/Region/City.js';
-
 
 export const createCity = (req, res) => {
   const { name, country_id, state_id, district_id, status } = req.body;
+  
+  // Check for duplicate city before creating
   City.create(name, country_id, state_id, district_id, status, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      if (err.message === 'City already exists') {
+        return res.status(400).json({ error: 'City already exists in this district.' });
+      }
+      return res.status(500).json({ error: err.message });
+    }
     res.status(201).json({ message: 'City created', cityId: result.insertId });
   });
 };
 
-export const  getAllCities = (req, res) => {
+export const getAllCities = (req, res) => {
   City.getAll((err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(200).json(results);
@@ -35,8 +40,14 @@ export const updateCity = (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  // Check for duplicate city before updating
   City.update(id, name, country_id, state_id, district_id, status, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      if (err.message === 'City already exists') {
+        return res.status(400).json({ error: 'City already exists in this district.' });
+      }
+      return res.status(500).json({ error: err.message });
+    }
     res.status(200).json({ message: 'City updated' });
   });
 };

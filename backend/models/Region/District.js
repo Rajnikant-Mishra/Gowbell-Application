@@ -1,21 +1,40 @@
-// models/District.js
 import { db } from '../../config/db.js';
 
 export const District = {
   create: (name, country_id, state_id, status, callback) => {
+    // First, check if the district already exists in the database
     db.query(
-      'INSERT INTO districts (name, country_id, state_id, status) VALUES (?, ?, ?, ?)',
-      [name, country_id, state_id, status],
-      callback
+      'SELECT * FROM districts WHERE name = ? AND country_id = ? AND state_id = ?',
+      [name, country_id, state_id],
+      (err, result) => {
+        if (err) {
+          console.error('Error checking for duplicate district:', err);
+          return callback(err, null);
+        }
+        
+        // If a district already exists with the same name, country_id, and state_id
+        if (result.length > 0) {
+          return callback(new Error('District already exists'), null);
+        }
+
+        // If no duplicate, proceed with the insert
+        db.query(
+          'INSERT INTO districts (name, country_id, state_id, status) VALUES (?, ?, ?, ?)',
+          [name, country_id, state_id, status],
+          callback
+        );
+      }
     );
   },
+
   getAll: (callback) => {
     db.query('SELECT * FROM districts', callback);
   },
+
   getById: (id, callback) => {
     db.query('SELECT * FROM districts WHERE id = ?', [id], callback);
   },
-  
+
   update: (id, name, country_id, state_id, status, callback) => {
     const query = 'UPDATE districts SET name = ?, country_id = ?, state_id = ?, status = ? WHERE id = ?';
     db.query(query, [name, country_id, state_id, status, id], (err, result) => {
@@ -34,5 +53,3 @@ export const District = {
     db.query('DELETE FROM districts WHERE id = ?', [id], callback);
   },
 };
-
-
