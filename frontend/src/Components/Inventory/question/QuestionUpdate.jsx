@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const UpdateQuestionForm = () => {
   const { id } = useParams(); // Get the ID from the route params
@@ -28,7 +29,7 @@ const UpdateQuestionForm = () => {
   // Fetch master data for the "Choose Class" dropdown
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/api/master`)
+      .get(`${API_BASE_URL}/api/class`)
       .then((response) => setMasterData(response.data))
       .catch((error) => console.error("Error fetching master data:", error));
   }, []);
@@ -158,7 +159,7 @@ const UpdateQuestionForm = () => {
                 }}
               >
                 {masterData.map((item) => (
-                  <MenuItem key={item.id} value={item.name}>
+                  <MenuItem key={item.id} value={item.id}>
                     {item.name}
                   </MenuItem>
                 ))}
@@ -211,15 +212,20 @@ const UpdateQuestionForm = () => {
               inputProps={{ min: 0 }}
             />
 
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
-            >
-              Update
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/question")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

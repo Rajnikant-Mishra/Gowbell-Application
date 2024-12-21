@@ -16,7 +16,8 @@ import {
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const BookForm = () => {
   const [name, setName] = useState("");
@@ -29,7 +30,7 @@ const BookForm = () => {
   useEffect(() => {
     // Fetching master data for the "Choose Class" select input
     axios
-      .get(`${ API_BASE_URL }/api/master`)
+      .get(`${ API_BASE_URL }/api/class`)
       .then((response) => {
         setMasterData(response.data); // Set the master data from the API response
       })
@@ -152,7 +153,7 @@ const BookForm = () => {
                 }}
               >
                 {masterData.map((item) => (
-                  <MenuItem key={item.id} value={item.name}>
+                  <MenuItem key={item.id} value={item.id}>
                     {item.name}
                   </MenuItem>
                 ))}
@@ -174,15 +175,20 @@ const BookForm = () => {
                 style: { fontSize: "14px" }, // Adjust label size
               }}
             />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/book")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

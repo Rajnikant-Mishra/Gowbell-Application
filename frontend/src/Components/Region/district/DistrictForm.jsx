@@ -18,6 +18,7 @@ import {
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const CreateDistrict = () => {
   const [name, setName] = useState("");
@@ -67,21 +68,32 @@ const CreateDistrict = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Check if a state is selected
     if (!selectedState) {
       Swal.fire({
+       
+        position: "top-end",
+        icon: "error",
         title: "Warning!",
-        text: "Please select a state.",
-        icon: "warning",
-        confirmButtonText: "OK",
+        text: `Please select a state`,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       });
       return;
     }
 
+    // Proceed with district creation (let backend handle duplicate check)
     const districtData = {
       name,
       status,
-      country_id: selectedCountry, // Store selected country ID as country_id
-      state_id: selectedState, // Store selected state ID as state_id
+      country_id: selectedCountry,
+      state_id: selectedState,
     };
 
     axios
@@ -105,15 +117,36 @@ const CreateDistrict = () => {
         });
       })
       .catch((error) => {
-        Swal.fire({
-          title: "Error!",
-          text: "There was an issue creating the District. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-          customClass: {
-            popup: "small-swal",
-          },
-        });
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error === "District already exists"
+        ) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Duplicate District!",
+            text: `A district  "${name}" already exists in this state.`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "There was an issue creating the District. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+        }
         console.error("Error creating District:", error);
       });
   };
@@ -244,23 +277,20 @@ const CreateDistrict = () => {
             </FormControl>
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-                height: "36px", // Set the height of the button
-                minWidth: "120px", // Ensure the button width doesn't collapse
-                padding: "4px 16px", // Adjust padding to make the button smaller
-                fontSize: "14px", // Adjust font size for better appearance
-                textTransform: "none", // Optional: Prevents the button text from being uppercase
-              }}
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/district")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

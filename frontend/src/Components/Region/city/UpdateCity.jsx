@@ -17,8 +17,9 @@ import {
 } from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
-import {API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const UpdateCity = () => {
   const [name, setName] = useState("");
@@ -36,7 +37,7 @@ const UpdateCity = () => {
   // Fetch countries on component mount
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL }/api/countries/`)
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => {
         setCountries(response.data);
         setLoading(false); // Stop loading after countries are fetched
@@ -51,7 +52,7 @@ const UpdateCity = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`${API_BASE_URL }/api/cities/${id}`)
+        .get(`${API_BASE_URL}/api/cities/${id}`)
         .then((response) => {
           const cityData = response.data;
           setName(cityData.name);
@@ -70,7 +71,7 @@ const UpdateCity = () => {
   useEffect(() => {
     if (selectedCountry) {
       axios
-        .get(`${API_BASE_URL }/api/states?countryId=${selectedCountry}`)
+        .get(`${API_BASE_URL}/api/states?countryId=${selectedCountry}`)
         .then((response) => {
           setStates(response.data);
         })
@@ -86,7 +87,7 @@ const UpdateCity = () => {
   useEffect(() => {
     if (selectedState) {
       axios
-        .get(`${API_BASE_URL }/api/districts?stateId=${selectedState}`)
+        .get(`${API_BASE_URL}/api/districts?stateId=${selectedState}`)
         .then((response) => {
           setDistricts(response.data);
         })
@@ -101,49 +102,100 @@ const UpdateCity = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Input validation
     if (!name || !selectedCountry || !selectedState || !selectedDistrict) {
       Swal.fire({
-        title: "Error!",
-        text: "Please fill all required fields.",
+        // title: "Error!",
+        // text: "Please fill all required fields.",
+        // icon: "error",
+        // confirmButtonText: "OK",
+        position: "top-end",
         icon: "error",
-        confirmButtonText: "OK",
+        title: "Error!",
+        text: `Please fill all required fields`,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       });
       return;
     }
 
+    // Send the PUT request to update the city
     axios
-      .put(`${API_BASE_URL }/api/cities/${id}`, {
+      .put(`${API_BASE_URL}/api/cities/${id}`, {
         name,
         status,
         country_id: selectedCountry,
         state_id: selectedState,
         district_id: selectedDistrict,
       })
-      .then(() => {
+      .then((response) => {
         Swal.fire({
-                  position: "top-end",
-                  icon: "success",
-                  title: "Success!",
-                  text: `City "${name}" updated successfully!`,
-                  showConfirmButton: false,
-                  timer: 1000,
-                  timerProgressBar: true,
-                  toast: true,
-                  background: "#fff",
-                  customClass: {
-                    popup: "small-swal",
-                  },
-                }).then(() => {
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `City "${name}" updated successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
           navigate("/city");
         });
       })
       .catch((error) => {
-        Swal.fire({
-          title: "Error!",
-          text: "There was an issue updating the city. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          const errorMessage = error.response.data.error;
+
+          // Check if the error is related to a duplicate city
+          if (errorMessage.includes("City already exists")) {
+            Swal.fire({
+              // title: "Error!",
+              // text: `A city with the same name already exists in this district.`,
+              // icon: "error",
+              // confirmButtonText: "OK",
+              position: "top-end",
+              icon: "error",
+              title: "Error!",
+              text: `A city with the same name already exists in this district.`,
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: "There was an issue updating the city. Please try again.",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          }
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "Something went wrong. Please try again later.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
         console.error("Error updating city:", error);
       });
   };
@@ -196,10 +248,11 @@ const UpdateCity = () => {
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 label="Select Country"
+                size="small"
               >
                 {countries.map((country) => (
                   <MenuItem key={country.id} value={country.id}>
-                    {country.name} ({country.stateCount || 0} States)
+                    {country.name}
                   </MenuItem>
                 ))}
               </Select>
@@ -220,10 +273,11 @@ const UpdateCity = () => {
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)}
                     label="Select State"
+                    size="small"
                   >
                     {states.map((state) => (
                       <MenuItem key={state.id} value={state.id}>
-                        {state.name} ({state.districtCount || 0} Districts)
+                        {state.name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -243,6 +297,7 @@ const UpdateCity = () => {
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)}
                     label="Select District"
+                    size="small"
                   >
                     {districts.map((district) => (
                       <MenuItem key={district.id} value={district.id}>
@@ -263,8 +318,16 @@ const UpdateCity = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  size="small"
                   variant="outlined"
                   margin="normal"
+                  inputProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                  style={{ fontSize: "14px" }}
                 />
               </Grid>
 
@@ -276,6 +339,7 @@ const UpdateCity = () => {
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     label="Status"
+                    size="small"
                   >
                     <MenuItem value="active">Active</MenuItem>
                     <MenuItem value="inactive">Inactive</MenuItem>
@@ -284,19 +348,20 @@ const UpdateCity = () => {
               </Grid>
             </Grid>
 
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-              }}
-              disabled={!selectedDistrict}
-            >
-              Update
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                sx={{ flexGrow: 1 }}
+                disabled={!selectedDistrict}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/city")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

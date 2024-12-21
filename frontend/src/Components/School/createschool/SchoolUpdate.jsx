@@ -367,10 +367,17 @@ export default function SchoolForm() {
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
+                {/* <SelectDrop
                   label="Pincode"
                   name="pincode"
                   options={pincodeOptions}
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  fullWidth
+                /> */}
+                <TextInput
+                  label="Pincode"
+                  name="pincode"
                   value={formData.pincode}
                   onChange={handleChange}
                   fullWidth

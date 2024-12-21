@@ -18,6 +18,7 @@ import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const UpdateDistrict = () => {
   const { id } = useParams(); // Get districtId from URL params
@@ -106,10 +107,18 @@ const UpdateDistrict = () => {
 
     if (!selectedState || !selectedCountry) {
       Swal.fire({
+        position: "top-end",
+        icon: "error",
         title: "Warning!",
-        text: "Please select both country and state.",
-        icon: "warning",
-        confirmButtonText: "OK",
+        text: `Please select a state`,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       });
       return;
     }
@@ -146,10 +155,18 @@ const UpdateDistrict = () => {
       })
       .catch((error) => {
         Swal.fire({
+          position: "top-end",
+          icon: "warning",
           title: "Error!",
-          text: "There was an issue updating the District. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
+          text: `District  already exists in the selected state.`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
         console.error("Error updating District:", error);
       });
@@ -290,15 +307,20 @@ const UpdateDistrict = () => {
               </FormControl>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
-              >
-                Update
-              </Button>
+              <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+                <ButtonComp
+                  text="Submit"
+                  type="submit"
+                  disabled={false}
+                  sx={{ flexGrow: 1 }}
+                />
+                <ButtonComp
+                  text="Cancel"
+                  type="button"
+                  sx={{ flexGrow: 1 }}
+                  onClick={() => navigate("/district")}
+                />
+              </Box>
             </form>
           )}
         </Box>

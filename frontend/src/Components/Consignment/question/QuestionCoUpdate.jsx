@@ -16,7 +16,8 @@ import {
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const UpdateBookForm = () => {
   const [questionName, setQuestionName] = useState("");
@@ -32,14 +33,14 @@ const UpdateBookForm = () => {
   // Fetch dynamic data for questions and schools
   useEffect(() => {
     axios
-      .get(`${ API_BASE_URL }/api/get/question`)
+      .get(`${API_BASE_URL}/api/get/question`)
       .then((response) => {
         setQuestions(response.data);
       })
       .catch((error) => console.error("Error fetching questions:", error));
 
     axios
-      .get(`${ API_BASE_URL }/api/get/schools`)
+      .get(`${API_BASE_URL}/api/get/schools`)
       .then((response) => {
         setSchools(response.data);
       })
@@ -50,7 +51,7 @@ const UpdateBookForm = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`${ API_BASE_URL }/api/co/question/${id}`) // Fetch data for the given ID
+        .get(`${API_BASE_URL}/api/co/question/${id}`) // Fetch data for the given ID
         .then((response) => {
           const data = response.data;
           setQuestionName(data.question_name);
@@ -59,7 +60,9 @@ const UpdateBookForm = () => {
           setTrackingNo(data.tracking_no);
           setQuantity(data.quantity_co);
         })
-        .catch((error) => console.error("Error fetching question details:", error));
+        .catch((error) =>
+          console.error("Error fetching question details:", error)
+        );
     }
   }, [id]);
 
@@ -68,7 +71,7 @@ const UpdateBookForm = () => {
 
     // Sending the PUT request to update the data
     axios
-      .put(`${ API_BASE_URL }/api/co/question/${id}`, {
+      .put(`${API_BASE_URL}/api/co/question/${id}`, {
         question_name: questionName,
         exam_date: examDate,
         school_name_co: schoolName,
@@ -76,20 +79,20 @@ const UpdateBookForm = () => {
         quantity_co: quantity,
       })
       .then((response) => {
-         Swal.fire({
-                  position: "top-end",
-                  icon: "success",
-                  title: "Success!",
-                  text: `C0-question updated successfully!`,
-                  showConfirmButton: false,
-                  timer: 1000,
-                  timerProgressBar: true,
-                  toast: true,
-                  background: "#fff",
-                  customClass: {
-                    popup: "small-swal",
-                  },
-                }).then(() => {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `C0-question updated successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
           navigate("/question-list"); // Redirect after update
         });
       })
@@ -183,7 +186,6 @@ const UpdateBookForm = () => {
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
                 required
-                
                 InputProps={{
                   style: { fontSize: "14px" },
                 }}
@@ -229,22 +231,20 @@ const UpdateBookForm = () => {
                 style: { fontSize: "14px" },
               }}
             />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 2,
-                height: "36px",
-                minWidth: "120px",
-                fontSize: "14px",
-                textTransform: "none",
-              }}
-            >
-              Update
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/question-list")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

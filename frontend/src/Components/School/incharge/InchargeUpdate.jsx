@@ -31,8 +31,8 @@ export default function UpdateInChargeForm() {
     const fetchData = async () => {
       try {
         const [inchargeResponse, classResponse] = await Promise.all([
-          axios.get(`${ API_BASE_URL }/api/get/incharges/${id}`),
-          axios.get(`${ API_BASE_URL }/api/master`),
+          axios.get(`${API_BASE_URL}/api/get/incharges/${id}`),
+          axios.get(`${API_BASE_URL}/api/class`),
         ]);
 
         // Set form data with the fetched incharge data
@@ -62,17 +62,21 @@ export default function UpdateInChargeForm() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-  
+
     // Define fields and labels for validation
     const fields = [
       { name: "school_name", label: "School Name" },
       { name: "incharge_name", label: "Incharge Name" },
       { name: "incharge_dob", label: "Incharge DOB" },
-      { name: "mobile_number", label: "Mobile Number", validation: validateMobileNumber },
+      {
+        name: "mobile_number",
+        label: "Mobile Number",
+        validation: validateMobileNumber,
+      },
       { name: "class_from", label: "Class From" },
-      { name: "class_to", label: "Class To" }
+      { name: "class_to", label: "Class To" },
     ];
-  
+
     // Loop through each field and check for missing values
     for (let field of fields) {
       if (!formData[field.name]) {
@@ -92,9 +96,13 @@ export default function UpdateInChargeForm() {
         });
         return; // Stop further processing if a field is missing
       }
-  
+
       // Additional validation for phone number
-      if (field.name === "mobile_number" && field.validation && !field.validation(formData[field.name])) {
+      if (
+        field.name === "mobile_number" &&
+        field.validation &&
+        !field.validation(formData[field.name])
+      ) {
         Swal.fire({
           position: "top-end",
           icon: "error",
@@ -112,16 +120,19 @@ export default function UpdateInChargeForm() {
         return;
       }
     }
-  
+
     // Format the date before sending it to the server
     const formattedData = {
       ...formData,
       incharge_dob: formData.incharge_dob.split("T")[0], // Converts '2024-11-22T18:30:00.000Z' to '2024-11-22'
     };
-  
+
     try {
-      const response = await axios.put(`${API_BASE_URL}/api/get/incharges/${id}`, formattedData);
-  
+      const response = await axios.put(
+        `${API_BASE_URL}/api/get/incharges/${id}`,
+        formattedData
+      );
+
       if (response.status === 200) {
         Swal.fire({
           position: "top-end",
@@ -141,23 +152,22 @@ export default function UpdateInChargeForm() {
       }
     } catch (error) {
       console.error("Error updating incharge:", error);
-  
+
       Swal.fire({
         icon: "error",
         title: "Failed to update incharge",
-        text: error.response?.data?.sqlMessage || "An unexpected error occurred.",
+        text:
+          error.response?.data?.sqlMessage || "An unexpected error occurred.",
       });
     }
   };
-  
+
   // Validation function for mobile number
   const validateMobileNumber = (number) => {
     // Regex to check if the number is exactly 10 digits
     const regex = /^[0-9]{10}$/;
     return regex.test(number);
   };
-  
-  
 
   return (
     <Mainlayout>
@@ -173,7 +183,9 @@ export default function UpdateInChargeForm() {
       </div>
       <Box className={`${styles.formContainer} container-fluid pt-5`}>
         <div className={`${styles.formBox}`}>
-          <Typography className={`${styles.formTitle} mb-4`}>Update In Charge Form</Typography>
+          <Typography className={`${styles.formTitle} mb-4`}>
+            Update In Charge Form
+          </Typography>
           <form className={styles.formContent} onSubmit={handleUpdate}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={6}>
@@ -223,7 +235,9 @@ export default function UpdateInChargeForm() {
                   options={classOptions}
                   value={formData.class_from}
                   onChange={(e) =>
-                    handleChange({ target: { name: "class_from", value: e.target.value } })
+                    handleChange({
+                      target: { name: "class_from", value: e.target.value },
+                    })
                   }
                   fullWidth
                 />
@@ -235,19 +249,29 @@ export default function UpdateInChargeForm() {
                   options={classOptions}
                   value={formData.class_to}
                   onChange={(e) =>
-                    handleChange({ target: { name: "class_to", value: e.target.value } })
+                    handleChange({
+                      target: { name: "class_to", value: e.target.value },
+                    })
                   }
                   fullWidth
                 />
               </Grid>
             </Grid>
-            <Box className={`${styles.buttonContainer} gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
-              <ButtonComp text="Update" type="submit" sx={{ flexGrow: 1 }} />
+            <Box
+              className={`${styles.buttonContainer} gap-2 mt-4`}
+              sx={{ display: "flex", gap: 2 }}
+            >
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
               <ButtonComp
                 text="Cancel"
                 type="button"
-                onClick={() => navigate("/inchargeList")}
                 sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/inchargeList")}
               />
             </Box>
           </form>

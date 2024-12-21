@@ -27,7 +27,8 @@ import { Link } from "react-router-dom";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/DeleteSwal.css";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -230,12 +231,7 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: "OMR" }]} />
         </div>
         <div>
-          <ButtonComp
-            link="/omr/create"
-            text={<FaPlus />}
-            type={"button"}
-            disabled={false}
-          />
+        <CreateButton link={"/omr/create"} />
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>

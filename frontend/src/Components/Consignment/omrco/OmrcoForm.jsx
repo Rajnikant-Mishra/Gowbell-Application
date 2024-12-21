@@ -23,7 +23,8 @@ import OMRSheet from "./OMRSheet";
 import { MdPadding } from "react-icons/md";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const OmrcoForm = ({ refreshData }) => {
   const navigate = useNavigate();
@@ -251,10 +252,7 @@ const OmrcoForm = ({ refreshData }) => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb
-            data={[
-              { name: "OMR-Co.", link: "/omr-list" },
-              { name: "CreateOMR-Co." },
-            ]}
+            data={[{ name: "OMR", link: "/omr-list" }, { name: "CreateOMR" }]}
           />
         </div>
       </div>
@@ -439,27 +437,20 @@ const OmrcoForm = ({ refreshData }) => {
                   </Typography>
                 )}
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  // sx={{
-                  //   fontSize: "1rem",
-                  //   backgroundColor: "#8fd14f",
-                  //   "&:hover": { backgroundColor: "#7ec13f" },
-                  // }}
-                  sx={{
-                    backgroundColor: "#8FD14F",
-                    marginTop: 3,
-                    height: "36px", // Set the height of the button
-                    minWidth: "120px", // Ensure the button width doesn't collapse
-                    padding: "4px 16px", // Adjust padding to make the button smaller
-                    fontSize: "14px", // Adjust font size for better appearance
-                    textTransform: "none", // Optional: Prevents the button text from being uppercase
-                  }}
-                >
-                  Generate
-                </Button>
+                <Box className={` gap-2 mt-2`} sx={{ display: "flex", gap: 2 }}>
+                  <ButtonComp
+                    text="Submit"
+                    type="submit"
+                    disabled={false}
+                    sx={{ flexGrow: 1 }}
+                  />
+                  <ButtonComp
+                    text="Cancel"
+                    type="button"
+                    sx={{ flexGrow: 1 }}
+                    onClick={() => navigate("/omr-list")}
+                  />
+                </Box>
               </Box>
             </form>
           </CardContent>

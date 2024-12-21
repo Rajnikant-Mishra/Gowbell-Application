@@ -16,7 +16,10 @@ import {
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
+
+
 
 
 const BookForm = () => {
@@ -216,22 +219,20 @@ const BookForm = () => {
                 style: { fontSize: "14px" }, // Adjust label size
               }}
             />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 2,
-                height: "36px",
-                minWidth: "120px",
-                fontSize: "14px",
-                textTransform: "none",
-              }}
-            >
-              Submit
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/question-list")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

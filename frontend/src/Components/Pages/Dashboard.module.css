@@ -4,11 +4,13 @@
   gap: 20px;
   font-family: "Poppins" !important;
 }
+
 .cardsContainer {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
 }
+
 .card {
   display: flex;
   flex-direction: column;
@@ -19,6 +21,7 @@
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 .card h3 {
   font-size: 1.1rem;
   font-family: "Poppins", sans-serif;
@@ -35,6 +38,7 @@
   letter-spacing: 1.06px;
   font-weight: 300;
 }
+
 .midSection {
   display: flex;
   gap: 15px;
@@ -46,6 +50,7 @@
   width: 49.3% !important;
   justify-content: space-between;
 }
+
 .chartContainer,
 .prizeContainer {
   padding: 20px;
@@ -54,41 +59,48 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   flex: 1;
 }
+
 .filterButtons button {
   margin-right: 10px;
   padding: 5px 10px;
   border: none;
   font-size: 12px;
   border-radius: 5px;
-  background-color: #F1F1F1;
+  background-color: #f1f1f1;
   cursor: pointer;
 }
+
 .filterButtons button.active {
-  background-color: #1E88E5;
+  background-color: #1e88e5;
   color: white;
 }
+
 .prizeItem {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
 }
+
 .progress {
   flex: 1;
   background-color: #eee;
   height: 8px;
   border-radius: 5px;
 }
+
 .activityLog {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   background: white;
 }
+
 .activityLog ul {
   list-style: none;
   padding: 0;
 }
+
 .activityLog li {
   display: flex;
   justify-content: space-between;
@@ -96,38 +108,39 @@
   border-bottom: 1px solid #eee;
 }
 .card hr {
-  /* border: 0; */
   border-radius: 16px;
   opacity: 1.25;
   margin: 0.1rem 0;
 }
+
 .card:first-child h3,
 .card:first-child h1 {
-  color: #ED9023;
+  color: #ed9023;
 }
 .card:first-child hr {
-  border-top: 1px solid #ED9023;
+  border-top: 1px solid #ed9023;
 }
 .card:nth-child(2) hr {
-  border-top: 1px solid #2C9AD9;
+  border-top: 1px solid #2c9ad9;
 }
 .card:nth-child(3) hr {
-  border-top: 1px solid #6563FF;
+  border-top: 1px solid #6563ff;
 }
 .card:last-child hr {
-  border-top: 1px solid #8CC17C;
+  border-top: 1px solid #8cc17c;
 }
+
 .card:nth-child(2) h3,
 .card:nth-child(2) h1 {
-  color: #2C9AD9;
+  color: #2c9ad9;
 }
 .card:nth-child(3) h3,
 .card:nth-child(3) h1 {
-  color: #6563FF;
+  color: #6563ff;
 }
 .card:last-child h3,
 .card:last-child h1 {
-  color: #8CC17C;
+  color: #8cc17c;
 }
 .card div img {
   width: 40px;
@@ -163,6 +176,7 @@
 .prizeContainer {
   padding: 16px;
 }
+
 .prizeItem {
   display: flex;
   align-items: center;
@@ -177,12 +191,13 @@
 .progress {
   flex-grow: 1;
   height: 8px;
-  background-color: #E0E0E0;
-  /* margin: 0 12px; */
+  background-color: #e0e0e0;
+
   position: relative;
   overflow: hidden;
   border-radius: 4px;
 }
+
 .progress div {
   height: 100%;
   border-radius: 4px;
@@ -204,61 +219,69 @@
   border-radius: 50%;
   background: black;
 }
+
 .customlist li {
   position: relative;
   padding-left: 10px;
-  color: #0660FD;
+  color: #0660fd;
 }
 .customlist li p {
   color: #525252;
 }
+
 .prizeItem {
   margin-bottom: 15px;
 }
+
 .textRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
+
 .progress {
   height: 10px;
-  background-color: #E0E0E0;
+  background-color: #e0e0e0;
   border-radius: 5px;
   overflow: hidden;
 }
+
 .progress > div {
   height: 100%;
   border-radius: 5px;
 }
 .activityLog {
   padding: 15px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
 }
+
 .activityLog h3 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 10px;
 }
+
 .scrollWrapper {
   overflow: hidden;
-  height: 88%; /* Adjust to show 3.5 notifications (depends on your item height) */
+  height: 88%;
   position: relative;
 }
+
 .customlist {
   margin: 0;
   padding: 0;
   list-style-type: none;
-  transition: transform 0.5s ease; /* Smooth scroll */
+  transition: transform 0.5s ease;
 }
+
 .scrollButton {
-  background: white;
-  border: 1px solid #DCDCDC;
+  border: 1px solid #dcdcdc;
   position: absolute;
-  bottom: 0px; /* Positioned below the visible list */
+  bottom: 0px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 50%;
@@ -270,17 +293,11 @@
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 .scrollButton:hover {
-  background-color: #F1F1F1;
+  background-color: #f1f1f1;
 }
-.scrollWrapper:hover .customlist {
-  transform: translateY(
-    -80px
-  ); /* Adjust based on the height of one notification */
-}
-.scrollButton:hover {
-  transform: translateX(-50%) scale(1.1);
-}
+
 .scrollButton svg {
   font-size: 20px;
   color: #666;
@@ -288,16 +305,113 @@
 .notificationButtonDiv {
   height: 22%;
   margin-top: -15%;
-  background: linear-gradient(
-    to top,
-    white 80%,
-    white 80%,
-    rgba(255, 255, 255, 0) 100%
-  );
+}
+.scrollButton {
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.card > div {
+  gap: 1rem;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  .cardsContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .cardsContainer .card h1 {
+    font-size: 20px;
+  }
+  .cardsContainer .card > div > img {
+    width: 25px;
+    height: 35px;
+  }
+  .cardsContainer .card:last-child > div > img {
+    width: 20px;
+    height: 30px;
+  }
+  .card > h3 {
+    font-size: 0.7rem;
+  }
+  .card h1 {
+    font-size: 17px;
+  }
+  .cardsContainer .card > div {
+    gap: 0.25rem !important;
+  }
+  .midSection {
+    flex-direction: column;
+  }
+  .chartContainer,
+  .midSectionSecondDiv {
+    width: 100% !important;
+  }
+  .midSectionSecondDiv {
+    height: 250px;
+  }
+  .card {
+    height: 110px;
+  }
+  .card div img {
+    width: 40px;
+  }
+}
 
+@media (max-width: 768px) {
+  .cardsContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .midSection {
+    flex-direction: column;
+  }
+  .chartContainer,
+  .midSectionSecondDiv {
+    width: 100% !important;
+  }
+  .midSectionSecondDiv {
+    height: 250px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    height: 145px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
 
+  .card h3 {
+    font-size: 1.1rem;
+    font-family: "Poppins", sans-serif;
+    letter-spacing: 0.75px;
+    font-weight: bold;
+    margin-bottom: 0px;
+  }
+  .card p {
+    font-size: 2rem;
+    margin: 10px 0;
+  }
+  .card h1 {
+    font-size: 30px;
+    letter-spacing: 1.06px;
+    font-weight: 300;
+  }
+}
 
-
-
+@media (max-width: 480px) {
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+  .midSectionSecondDiv {
+    display: flex;
+    flex-direction: column;
+  }
+  .prizeContainer {
+    width: 100%;
+  }
+  .activityLog {
+    width: 100%;
+    height: 200px;
+  }
+}

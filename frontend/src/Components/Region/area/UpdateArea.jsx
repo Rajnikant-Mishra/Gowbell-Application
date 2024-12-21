@@ -7,8 +7,6 @@ import {
   Button,
   MenuItem,
   FormControl,
-  InputLabel,
-  Select,
   Container,
   Typography,
   Box,
@@ -18,94 +16,185 @@ import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
-const UpdateArea = () => {
+const EditArea = () => {
+  const { id } = useParams(); // Get the area ID from URL params
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  const { id } = useParams(); // Get the area ID from the URL
   const navigate = useNavigate();
 
-  // Fetch countries on component mount
+  // Fetch country, state, district, and city data as before
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/countries/`)
-      .then((response) => setCountries(response.data))
-      .catch((error) => console.error("Error fetching countries:", error));
+      .then((response) => setCountries(response.data));
+    axios
+      .get(`${API_BASE_URL}/api/states/`)
+      .then((response) => setStates(response.data));
+    axios
+      .get(`${API_BASE_URL}/api/districts/`)
+      .then((response) => setDistricts(response.data));
+    axios
+      .get(`${API_BASE_URL}/api/cities/`)
+      .then((response) => setCities(response.data));
   }, []);
 
-  // Fetch the area data based on the ID when the component mounts
-  useEffect(() => {
-    if (id) {
-      axios
-        .get(`${API_BASE_URL}/api/areas/${id}`)
-        .then((response) => {
-          const area = response.data;
-          setName(area.name);
-          setStatus(area.status);
-          setSelectedCountry(area.countryId);
-          setSelectedState(area.stateId);
-          setSelectedDistrict(area.districtId);
-          setSelectedCity(area.cityId);
-        })
-        .catch((error) => console.error("Error fetching area data:", error));
-    }
-  }, [id]);
-
-  // Fetch states based on selected country
+  // Filter states based on selected country
   useEffect(() => {
     if (selectedCountry) {
-      axios
-        .get(`${API_BASE_URL}/api/states?countryId=${selectedCountry}`)
-        .then((response) => setStates(response.data))
-        .catch((error) => console.error("Error fetching states:", error));
+      setFilteredStates(
+        states.filter((state) => state.country_id === selectedCountry)
+      );
+    } else {
+      setFilteredStates([]);
     }
-  }, [selectedCountry]);
+    setSelectedState("");
+    setFilteredDistricts([]);
+    setSelectedDistrict("");
+    setFilteredCities([]);
+    setSelectedCity("");
+  }, [selectedCountry, states]);
 
-  // Fetch districts based on selected state
+  // Filter districts based on selected state
   useEffect(() => {
     if (selectedState) {
-      axios
-        .get(`${API_BASE_URL}/api/districts?stateId=${selectedState}`)
-        .then((response) => setDistricts(response.data))
-        .catch((error) => console.error("Error fetching districts:", error));
+      setFilteredDistricts(
+        districts.filter((district) => district.state_id === selectedState)
+      );
+    } else {
+      setFilteredDistricts([]);
     }
-  }, [selectedState]);
+    setSelectedDistrict("");
+    setFilteredCities([]);
+    setSelectedCity("");
+  }, [selectedState, districts]);
 
-  // Fetch cities based on selected district
+  // Filter cities based on selected district
   useEffect(() => {
     if (selectedDistrict) {
-      axios
-        .get(`${API_BASE_URL}/api/cities?districtId=${selectedDistrict}`)
-        .then((response) => setCities(response.data))
-        .catch((error) => console.error("Error fetching cities:", error));
+      setFilteredCities(
+        cities.filter((city) => city.district_id === selectedDistrict)
+      );
+    } else {
+      setFilteredCities([]);
     }
-  }, [selectedDistrict]);
+    setSelectedCity("");
+  }, [selectedDistrict, cities]);
 
-  // Handle form submission for update
+  // Fetch the area data by ID for editing
+  // useEffect(() => {
+  //   if (id) {
+  //     axios
+  //       .get(`${API_BASE_URL}/api/areas/${id}`)
+  //       .then((response) => {
+  //         const area = response.data;
+  //         setName(area.name);
+  //         setStatus(area.status);
+  //         setSelectedCountry(area.country_id);
+  //         setSelectedState(area.state_id);
+  //         setSelectedDistrict(area.district_id);
+  //         setSelectedCity(area.city_id);
+  //       })
+  //       .catch((error) => console.error("Error fetching area data:", error));
+  //   }
+  // }, [id]);
+  // Fetch the area data by ID for editing
+useEffect(() => {
+  if (id) {
+    axios
+      .get(`${API_BASE_URL}/api/areas/${id}`)
+      .then((response) => {
+        const area = response.data;
+
+        setName(area.name);
+        setStatus(area.status);
+
+        // Set all selections
+        setSelectedCountry(area.country_id);
+        setSelectedState(area.state_id);
+        setSelectedDistrict(area.district_id);
+        setSelectedCity(area.city_id);
+
+        // Filter dependent dropdowns sequentially
+        const filteredStates = states.filter(
+          (state) => state.country_id === area.country_id
+        );
+        setFilteredStates(filteredStates);
+
+        const filteredDistricts = districts.filter(
+          (district) => district.state_id === area.state_id
+        );
+        setFilteredDistricts(filteredDistricts);
+
+        const filteredCities = cities.filter(
+          (city) => city.district_id === area.district_id
+        );
+        setFilteredCities(filteredCities);
+      })
+      .catch((error) => console.error("Error fetching area data:", error));
+  }
+}, [id, states, districts, cities]); // Ensure states, districts, and cities are available
+
+
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Prepare data for update
     const data = {
       name,
       status,
-      countryId: selectedCountry,
-      stateId: selectedState,
-      districtId: selectedDistrict,
-      cityId: selectedCity,
+      country_id: selectedCountry,
+      state_id: selectedState,
+      district_id: selectedDistrict,
+      city_id: selectedCity,
     };
 
-    // Sending the PUT request to update the area
+    // Check if all required fields are filled
+    if (
+      name === "" ||
+      selectedCountry === "" ||
+      selectedState === "" ||
+      selectedDistrict === "" ||
+      selectedCity === ""
+    ) {
+      Swal.fire({
+        // title: "Error!",
+        // text: "All fields must be filled out to update the area.",
+        // icon: "error",
+        // confirmButtonText: "OK",
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text: `All fields must be filled out to update the area.`,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      });
+      return;
+    }
+
+    // Make the PUT request to update the area
     axios
-      .put(`${API_BASE_URL}/api/areas/${id}`, data)
-      .then(() => {
+      .put(`${API_BASE_URL}/api/areas/${id}`, data) // Use PUT to update the data
+      .then((response) => {
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -122,186 +211,178 @@ const UpdateArea = () => {
         }).then(() => navigate("/area"));
       })
       .catch((error) => {
-        Swal.fire({
-          title: "Error!",
-          text: "There was an issue updating the area. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+        // Handle errors during update, such as duplicate area names or validation issues
+        if (error.response && error.response.status === 400) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Error!",
+            text:
+            error.response.data.error ||
+              "There was an issue updating the area. Please try again.",
+            showConfirmButton: false,
+            timer: 1000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "There was an issue updating the area. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
         console.error("Error updating area:", error);
       });
   };
 
   return (
     <Mainlayout>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div role="presentation">
-          <Breadcrumb
-            data={[{ name: "Area", link: "/area" }, { name: "Update Area" }]}
-          />
-        </div>
-      </div>
-
-      <Container maxWidth="sm" sx={{ height: "800px" }}>
+      <Breadcrumb
+        data={[{ name: "Area", link: "/area" }, { name: "Edit Area" }]}
+      />
+      <Container maxWidth="sm" sx={{ mt: 3 }}>
         <Box
           sx={{
-            marginTop: 7,
-            padding: 5,
-            borderRadius: 3,
-            boxShadow: 4,
-            backgroundColor: "#f9f9f9",
+            mt: 4,
+            p: 4,
+            borderRadius: 2,
+            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+            backgroundColor: "#fff",
           }}
         >
-          <Typography variant="h4" align="center" sx={{ marginBottom: 1 }}>
-            Update Area
+          <Typography
+            variant="h5"
+            align="center"
+            sx={{ fontWeight: "bold", mb: 2 }}
+          >
+            Edit Area
           </Typography>
           <form onSubmit={handleSubmit}>
-            {/* Country selection */}
-            <FormControl
-              fullWidth
-              size="small"
-              margin="normal"
-              sx={{ marginBottom: 0 }}
-            >
-              <InputLabel>Select Country</InputLabel>
-              <Select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                label="Select Country"
-              >
-                {countries.map((country) => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* State selection */}
             <Grid container spacing={2}>
-              {/* State selection */}
-              <Grid item xs={12} sm={6}>
-                <FormControl
-                  fullWidth
-                  size="small"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
-                  disabled={!selectedCountry}
-                >
-                  <InputLabel>Select State</InputLabel>
-                  <Select
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}
-                    label="Select State"
-                  >
-                    {states.map((state) => (
-                      <MenuItem key={state.id} value={state.id}>
-                        {state.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              {/* District selection */}
-              <Grid item xs={12} sm={6}>
-                <FormControl
-                  fullWidth
-                  size="small"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
-                  disabled={!selectedState}
-                >
-                  <InputLabel>Select District</InputLabel>
-                  <Select
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                    label="Select District"
-                  >
-                    {districts.map((district) => (
-                      <MenuItem key={district.id} value={district.id}>
-                        {district.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-
-            {/* City selection */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <FormControl
-                  fullWidth
-                  size="small"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
-                  disabled={!selectedDistrict}
-                >
-                  <InputLabel>Select City</InputLabel>
-                  <Select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    label="Select City"
-                  >
-                    {cities.map((city) => (
-                      <MenuItem key={city.id} value={city.id}>
-                        {city.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <TextField
+                  select
+                  fullWidth
+                  label="Select Country"
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
                   size="small"
+                >
+                  {countries.map((country) => (
+                    <MenuItem key={country.id} value={country.id}>
+                      {country.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Select State"
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  disabled={!selectedCountry}
+                  size="small"
+                >
+                  {filteredStates.map((state) => (
+                    <MenuItem key={state.id} value={state.id}>
+                      {state.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Select District"
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  disabled={!selectedState}
+                  size="small"
+                >
+                  {filteredDistricts.map((district) => (
+                    <MenuItem key={district.id} value={district.id}>
+                      {district.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Select City"
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  disabled={!selectedDistrict}
+                  size="small"
+                >
+                  {filteredCities.map((city) => (
+                    <MenuItem key={city.id} value={city.id}>
+                      {city.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
                   fullWidth
                   label="Area Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  variant="outlined"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
+                  size="small"
+                  inputProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                  style={{ fontSize: "14px" }}
                 />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  size="small"
+                >
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </TextField>
               </Grid>
             </Grid>
 
-            {/* Status selection */}
-            <FormControl
-              fullWidth
-              size="small"
-              margin="normal"
-              sx={{ marginBottom: 0 }}
-            >
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                label="Status"
-              >
-                <MenuItem value="active">Active</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
-              </Select>
-            </FormControl>
-
-            {/* Submit button */}
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                marginTop: 3,
-                padding: "8px 18px",
-                fontSize: "1rem",
-                backgroundColor: "#8fd14f",
-                "&:hover": { backgroundColor: "#7ec13f" },
-              }}
-            >
-              Update
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/area")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>
@@ -309,4 +390,4 @@ const UpdateArea = () => {
   );
 };
 
-export default UpdateArea;
+export default EditArea;

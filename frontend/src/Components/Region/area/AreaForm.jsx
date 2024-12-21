@@ -6,9 +6,6 @@ import {
   TextField,
   Button,
   MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
   Container,
   Typography,
   Box,
@@ -16,8 +13,10 @@ import {
 } from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
-import {API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
+
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const CreateArea = () => {
   const [name, setName] = useState("");
@@ -26,311 +25,291 @@ const CreateArea = () => {
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const navigate = useNavigate();
 
-  // Fetch countries on component mount
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL }/api/countries/`)
+      .get(`${API_BASE_URL}/api/countries/`)
       .then((response) => setCountries(response.data))
       .catch((error) => console.error("Error fetching countries:", error));
+
+    axios
+      .get(`${API_BASE_URL}/api/states/`)
+      .then((response) => setStates(response.data))
+      .catch((error) => console.error("Error fetching states:", error));
+
+    axios
+      .get(`${API_BASE_URL}/api/districts/`)
+      .then((response) => setDistricts(response.data))
+      .catch((error) => console.error("Error fetching districts:", error));
+
+    axios
+      .get(`${API_BASE_URL}/api/cities/`)
+      .then((response) => setCities(response.data))
+      .catch((error) => console.error("Error fetching cities:", error));
   }, []);
 
-  // Fetch states based on selected country
   useEffect(() => {
     if (selectedCountry) {
-      axios
-        .get(`${API_BASE_URL }/api/states?countryId=${selectedCountry}`)
-        .then((response) => setStates(response.data))
-        .catch((error) => console.error("Error fetching states:", error));
+      const filtered = states.filter(
+        (state) => state.country_id === selectedCountry
+      );
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]);
     }
-  }, [selectedCountry]);
+    setSelectedState("");
+    setFilteredDistricts([]);
+    setSelectedDistrict("");
+    setFilteredCities([]);
+    setSelectedCity("");
+  }, [selectedCountry, states]);
 
-  // Fetch districts based on selected state
   useEffect(() => {
     if (selectedState) {
-      axios
-        .get(`${API_BASE_URL }/api/districts?stateId=${selectedState}`)
-        .then((response) => setDistricts(response.data))
-        .catch((error) => console.error("Error fetching districts:", error));
+      const filtered = districts.filter(
+        (district) => district.state_id === selectedState
+      );
+      setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]);
     }
-  }, [selectedState]);
+    setSelectedDistrict("");
+    setFilteredCities([]);
+    setSelectedCity("");
+  }, [selectedState, districts]);
 
-  // Fetch cities based on selected district
   useEffect(() => {
     if (selectedDistrict) {
-      axios
-        .get(`${API_BASE_URL }/api/cities?districtId=${selectedDistrict}`)
-        .then((response) => setCities(response.data))
-        .catch((error) => console.error("Error fetching cities:", error));
+      const filtered = cities.filter(
+        (city) => city.district_id === selectedDistrict
+      );
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
     }
-  }, [selectedDistrict]);
+    setSelectedCity("");
+  }, [selectedDistrict, cities]);
 
-  // Handle form submission
+
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Ensure the data to be sent is correct
+    // Prepare data to be sent to the backend
     const data = {
       name,
       status,
-      countryId: selectedCountry,
-      stateId: selectedState,
-      districtId: selectedDistrict,
-      cityId: selectedCity,
+      country_id: selectedCountry,
+      state_id: selectedState,
+      district_id: selectedDistrict,
+      city_id: selectedCity,
     };
 
-    // Sending the POST request to the server
+    // Make the POST request to create a new area
     axios
-      .post(`${API_BASE_URL }/api/areas/`, data)
-      .then(() => {
+      .post(`${API_BASE_URL}/api/areas/`, data)
+      .then((response) => {
+        // Success notification
         Swal.fire({
-                  position: "top-end",
-                  icon: "success",
-                  title: "Success!",
-                  text: `Area "${name}" created successfully!`,
-                  showConfirmButton: false,
-                  timer: 1000,
-                  timerProgressBar: true,
-                  toast: true,
-                  background: "#fff",
-                  customClass: {
-                    popup: "small-swal",
-                  },
-                }).then(() => navigate("/area"));
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `Area "${name}" created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => navigate("/area"));
       })
       .catch((error) => {
-        Swal.fire({
-          title: "Error!",
-          text: "There was an issue creating the area. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+        // Handle errors (including duplicate area)
+        if (error.response && error.response.status === 400) {
+          // Specific error message when the area already exists
+          Swal.fire({
+            position: "top-end",
+            title: "Error!",
+            text:
+              error.response.data.error ||
+              "There was an issue creating the area. Please try again.",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+        } else {
+          // General error handling
+          Swal.fire({
+            position: "top-end",
+            title: "Error!",
+            text:
+              "server errors",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+        }
         console.error("Error creating area:", error);
       });
   };
 
   return (
     <Mainlayout>
-    <div className="d-flex justify-content-between align-items-center mb-3">
-        <div role="presentation">
-          <Breadcrumb
-            data={[{ name: "Area", link: "/area" }, { name: "Create Area" }]}
-          />
-        </div>
-      </div>
-      <Container maxWidth="sm" sx={{ height: "auto" }}>
+      <Breadcrumb
+        data={[{ name: "Area", link: "/area" }, { name: "Create Area" }]}
+      />
+      <Container maxWidth="sm" sx={{ mt: 3 }}>
         <Box
           sx={{
-            marginTop: 9,
-            padding: 5,
+            mt: 4,
+            p: 4,
             borderRadius: 2,
-            boxShadow: 4,
-            backgroundColor: "#f9f9f9",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+            backgroundColor: "#fff",
           }}
         >
-          <Typography variant="h4" align="center" sx={{ marginBottom: 1 }}>
+          <Typography
+            variant="h5"
+            align="center"
+            sx={{ fontWeight: "bold", mb: 2 }}
+          >
             Create New Area
           </Typography>
           <form onSubmit={handleSubmit}>
-            {/* Country selection */}
-            <FormControl
-              fullWidth
-              size="small"
-              margin="normal"
-              sx={{ marginBottom: 0 }}
-            >
-              {/* <InputLabel>Select Country</InputLabel> */}
-              <TextField
-                select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                label="Select Country"
-                size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
-              >
-                {countries.map((country) => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </FormControl>
-
             <Grid container spacing={2}>
-              {/* State selection */}
-              <Grid item xs={12} sm={6}>
-                <FormControl
+              <Grid item xs={12}>
+                <TextField
+                  select
                   fullWidth
+                  label="Select Country"
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
                   size="small"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
+                >
+                  {countries.map((country) => (
+                    <MenuItem key={country.id} value={country.id}>
+                      {country.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Select State"
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
                   disabled={!selectedCountry}
+                  size="small"
                 >
-                  {/* <InputLabel>Select State</InputLabel> */}
-                  <TextField
-                    select
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}
-                    label="Select State"
-                    size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
-                  >
-                    {states.map((state) => (
-                      <MenuItem key={state.id} value={state.id}>
-                        {state.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </FormControl>
+                  {filteredStates.map((state) => (
+                    <MenuItem key={state.id} value={state.id}>
+                      {state.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Grid>
 
-              {/* District selection */}
-              <Grid item xs={12} sm={6}>
-                <FormControl
+              <Grid item xs={6}>
+                <TextField
+                  select
                   fullWidth
-                  size="small"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
+                  label="Select District"
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
                   disabled={!selectedState}
-                >
-                  {/* <InputLabel>Select District</InputLabel> */}
-                  <TextField
-                    select
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                    label="Select District"
-                    size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
-                  >
-                    {districts.map((district) => (
-                      <MenuItem key={district.id} value={district.id}>
-                        {district.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </FormControl>
-              </Grid>
-            </Grid>
-
-            {/* City selection */}
-            <Grid container spacing={2}>
-              {/* City selection */}
-              <Grid item xs={12} sm={6}>
-                <FormControl
-                  fullWidth
                   size="small"
-                  margin="normal"
-                  sx={{ marginBottom: 0 }}
-                  disabled={!selectedDistrict}
                 >
-                  {/* <InputLabel>Select City</InputLabel> */}
-                  <TextField
-                    select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    label="Select City"
-                    size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
-                  >
-                    {cities.map((city) => (
-                      <MenuItem key={city.id} value={city.id}>
-                        {city.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </FormControl>
+                  {filteredDistricts.map((district) => (
+                    <MenuItem key={district.id} value={district.id}>
+                      {district.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Grid>
 
-              {/* Area Name input */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Select City"
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  disabled={!selectedDistrict}
+                  size="small"
+                >
+                  {filteredCities.map((city) => (
+                    <MenuItem key={city.id} value={city.id}>
+                      {city.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="Area Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  variant="outlined"
-                  margin="normal"
                   size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
-                  }}
                 />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  size="small"
+                >
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </TextField>
               </Grid>
             </Grid>
 
-            {/* Status selection */}
-            <FormControl
-              fullWidth
-              size="small"
-              margin="normal"
-              sx={{ marginBottom: 0 }}
-            >
-              {/* <InputLabel>Status</InputLabel> */}
-              <TextField
-                select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                label="Status"
-                size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
-              >
-                <MenuItem value="active">Active</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
-              </TextField>
-            </FormControl>
-
-            {/* Submit button */}
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-                height: "36px", // Set the height of the button
-                minWidth: "120px", // Ensure the button width doesn't collapse
-                padding: "4px 16px", // Adjust padding to make the button smaller
-                fontSize: "14px", // Adjust font size for better appearance
-                textTransform: "none", // Optional: Prevents the button text from being uppercase
-              }}
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/area")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

@@ -27,7 +27,8 @@ import { Link } from "react-router-dom";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/DeleteSwal.css";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -44,7 +45,7 @@ export default function DataTable() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get(`${ API_BASE_URL }/api/master`) // Your API URL here
+      .get(`${ API_BASE_URL }/api/class`) // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -71,7 +72,7 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${ API_BASE_URL }/api/master/${id}`)
+          .delete(`${ API_BASE_URL }/api/class/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -227,12 +228,7 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: "Class" }]} />
         </div>
         <div>
-          <ButtonComp
-            link="/class/create"
-            text={<FaPlus />}
-            type={"button"}
-            disabled={false}
-          />
+        <CreateButton link={"/class/create"} />
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>

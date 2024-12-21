@@ -8,7 +8,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import styles from "./School.module.css";
-import ButtonComp from "../CommonComp/ButtonComp";
+// import ButtonComp from "../CommonComp/ButtonComp";
 import Swal from "sweetalert2";
 import TextInput from "../CommonComp/TextInput";
 import SelectDrop from "../CommonComp/SelectDrop";
@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
-
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 export default function SchoolForm() {
   const [formData, setFormData] = useState({
@@ -73,11 +73,14 @@ export default function SchoolForm() {
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
 
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+
   // Fetch states dynamically
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const response = await axios.get(`${ API_BASE_URL }/api/states/`);
+        const response = await axios.get(`${API_BASE_URL}/api/states/`);
         setStates(response.data);
       } catch (error) {
         console.error("Error fetching states:", error);
@@ -93,7 +96,7 @@ export default function SchoolForm() {
       const fetchDistricts = async () => {
         try {
           const response = await axios.get(
-            `${ API_BASE_URL }/api/districts/?state_id=${formData.state}`
+            `${API_BASE_URL}/api/districts/?state_id=${formData.state}`
           );
           setDistricts(response.data);
         } catch (error) {
@@ -113,7 +116,7 @@ export default function SchoolForm() {
       const fetchCities = async () => {
         try {
           const response = await axios.get(
-            `${ API_BASE_URL }/api/cities/?district_id=${formData.district}`
+            `${API_BASE_URL}/api/cities/?district_id=${formData.district}`
           );
           setCities(response.data);
         } catch (error) {
@@ -126,6 +129,39 @@ export default function SchoolForm() {
       setCities([]);
     }
   }, [formData.district]);
+
+  // Filtering districts when a state is selected
+  useEffect(() => {
+    if (formData.state) {
+      const filtered = districts.filter(
+        (district) => district.state_id === formData.state
+      );
+      setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]);
+    }
+    setFormData((prev) => ({
+      ...prev,
+      district: "",
+      city: "",
+    }));
+  }, [formData.state, districts]);
+
+  // Filtering cities when a district is selected
+  useEffect(() => {
+    if (formData.district) {
+      const filtered = cities.filter(
+        (city) => city.district_id === formData.district
+      );
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
+    }
+    setFormData((prev) => ({
+      ...prev,
+      city: "",
+    }));
+  }, [formData.district, cities]);
 
   //-------------------------end code of api-------------------------------------------//
 
@@ -173,7 +209,7 @@ export default function SchoolForm() {
 
     try {
       const response = await axios.post(
-        `${ API_BASE_URL }/api/get/schools`,
+        `${API_BASE_URL}/api/get/schools`,
         formData,
         {
           headers: { "Content-Type": "application/json" },
@@ -182,20 +218,20 @@ export default function SchoolForm() {
 
       setTimeout(() => {
         loadingSwal.close();
-          Swal.fire({
-                  position: "top-end",
-                  icon: "success",
-                  title: "Success!",
-                  text: `school created successfully!`,
-                  showConfirmButton: false,
-                  timer: 1000,
-                  timerProgressBar: true,
-                  toast: true,
-                  background: "#fff",
-                  customClass: {
-                    popup: "small-swal",
-                  },
-                }).then(() => {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `school created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
           navigate("/schoolList");
         });
       }, 1000);
@@ -274,7 +310,7 @@ export default function SchoolForm() {
                   fullWidth
                 />
               </Grid>
-              {/* School Contact Number, State, District */}
+              {/* School Contact Number, */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextInput
                   label="School Contact Number"
@@ -285,34 +321,33 @@ export default function SchoolForm() {
                   fullWidth
                 />
               </Grid>
+
               <Grid item xs={12} sm={6} md={2}>
-                
                 <SelectDrop
                   label="State"
                   name="state"
-                  options={states.map((state) => ({
-                    value: String(state.name), 
-                    label: state.name,
-                  }))}
                   value={formData.state}
-                  onChange={
-                    (e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        state: e.target.value,
-                      })) 
+                  options={states.map((state) => ({
+                    value: state.id, // Use ID for unique identification
+                    label: state.name, // Name for display
+                  }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      state: e.target.value,
+                    }))
                   }
                   fullWidth
                 />
               </Grid>
+
               <Grid item xs={12} sm={6} md={2}>
-                
                 <SelectDrop
                   label="District"
                   name="district"
                   options={districts.map((district) => ({
-                    value: String(district.name),
-                    label: district.name,
+                    value: district.id, // Use ID for unique identification
+                    label: district.name, // Name for display
                   }))}
                   value={formData.district}
                   onChange={(e) =>
@@ -324,28 +359,39 @@ export default function SchoolForm() {
                   fullWidth
                 />
               </Grid>
-              {/* City, Pincode */}
+
               <Grid item xs={12} sm={6} md={2}>
-               
-                 <SelectDrop
+                <SelectDrop
                   label="City"
                   name="city"
                   options={cities.map((city) => ({
-                    value: String(city.name),
-                    label: city.name,
+                    value: city.id, // Use ID for unique identification
+                    label: city.name, // Name for display
                   }))}
                   value={formData.city}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, city: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      city: e.target.value,
+                    }))
                   }
                   fullWidth
                 />
               </Grid>
+
+              {/* //pincode */}
               <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
+                {/* <SelectDrop
                   label="Pincode"
                   name="pincode"
                   options={pincodeOptions}
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  fullWidth
+                /> */}
+                <TextInput
+                  label="Pincode"
+                  name="pincode"
                   value={formData.pincode}
                   onChange={handleChange}
                   fullWidth
@@ -527,13 +573,12 @@ export default function SchoolForm() {
             </Grid>
             {/* Submit and Cancel Buttons */}
             <Box
-              className={`${styles.buttonContainer} gap-2 mt-3`}
+              className={`${styles.buttonContainer} gap-2 mt-4`}
               sx={{ display: "flex", gap: 2 }}
             >
               <ButtonComp
                 text="Submit"
                 type="submit"
-                onClick={handleSubmit}
                 disabled={false}
                 sx={{ flexGrow: 1 }}
               />
@@ -541,7 +586,7 @@ export default function SchoolForm() {
                 text="Cancel"
                 type="button"
                 sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/school-create")}
+                onClick={() => navigate("/schoolList")}
               />
             </Box>
           </form>

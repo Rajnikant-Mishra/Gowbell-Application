@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import Mainlayout from "../../Layouts/Mainlayout";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 import {
   Container,
   TextField,
@@ -14,35 +15,51 @@ import {
   Typography,
   FormControl,
   InputLabel,
-  FormHelperText,
-  Card,
+  Autocomplete,
   CardContent,
+  Box,
 } from "@mui/material";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
-import "../../Common-Css/Swallfire.css"
-
+import "../../Common-Css/Swallfire.css";
 const UpdateCountry = () => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
+  const [selectedCountry, setSelectedCountry] = useState(null); // Add selectedCountry state
+  const [countries, setCountries] = useState([]); // Store country list
   const { id } = useParams();
   const navigate = useNavigate();
-
   useEffect(() => {
+    // Fetch country details
     axios
       .get(`${API_BASE_URL}/api/countries/${id}`)
       .then((response) => {
         setName(response.data.name);
         setStatus(response.data.status);
+        setSelectedCountry(response.data.name); // Set initial selected country
       })
       .catch((error) => {
         console.error("Error fetching country:", error);
       });
+    // Fetch all countries
+    axios
+      .get(`${API_BASE_URL}/api/countries`)
+      .then((response) => {
+        const countryOptions = response.data.map((country) => ({
+          label: country.name,
+          value: country.name,
+        }));
+        setCountries(countryOptions);
+      })
+      .catch((error) => {
+        console.error("Error fetching countries:", error);
+      });
   }, [id]);
-
+  const handleCountryChange = (event, newValue) => {
+    setSelectedCountry(newValue); // Update selected country
+    setName(newValue); // Sync name with selected country
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
-
     axios
       .put(`${API_BASE_URL}/api/countries/${id}`, { name, status })
       .then((response) => {
@@ -53,14 +70,12 @@ const UpdateCountry = () => {
           text: `Country "${name}" updated successfully!`,
           showConfirmButton: false,
           timer: 1000,
-          timerProgressBar: true,
           toast: true,
-          background: "#fff",
           customClass: {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate("/country"); // Redirect after SweetAlert
+          navigate("/country");
         });
       })
       .catch((error) => {
@@ -68,12 +83,10 @@ const UpdateCountry = () => {
           position: "top-end",
           icon: "error",
           title: "Error",
-          text: "Oops! There was an issue. Please try again.",
+          text: "Country name already exists!",
           showConfirmButton: false,
           timer: 3000,
-          timerProgressBar: true,
           toast: true,
-          background: "#fff",
           customClass: {
             popup: "small-swal",
           },
@@ -81,7 +94,6 @@ const UpdateCountry = () => {
         console.error("Error updating country:", error);
       });
   };
-
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -95,7 +107,15 @@ const UpdateCountry = () => {
         </div>
       </div>
       <Container maxWidth="sm">
-        <Card sx={{ boxShadow: 3, padding: 3, marginTop: 5 }}>
+        <Box
+          sx={{
+            marginTop: 3,
+            padding: 3,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#fff",
+          }}
+        >
           <CardContent>
             <Typography
               variant="h4"
@@ -108,20 +128,21 @@ const UpdateCountry = () => {
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <TextField
-                    label="Country Name"
-                    variant="outlined"
-                    fullWidth
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
+                  <Autocomplete
+                    value={selectedCountry}
+                    onChange={handleCountryChange}
+                    options={countries.map((country) => country.value)}
+                    freeSolo // Allows typing custom values
                     size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Country"
+                        variant="outlined"
+                        fullWidth
+                        required
+                      />
+                    )}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -132,41 +153,35 @@ const UpdateCountry = () => {
                       onChange={(e) => setStatus(e.target.value)}
                       label="Status"
                       size="small"
-                      InputProps={{
-                        style: { fontSize: "14px" }, // Adjust input text size
-                      }}
-                      InputLabelProps={{
-                        style: { fontSize: "14px" }, // Adjust label size
-                      }}
                     >
                       <MenuItem value="active">Active</MenuItem>
                       <MenuItem value="inactive">Inactive</MenuItem>
                     </Select>
-                    <FormHelperText>Select the country status</FormHelperText>
                   </FormControl>
                 </Grid>
                 <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    size="large"
-                    sx={{
-                      backgroundColor: "#8fd14f",
-                      "&:hover": { backgroundColor: "#7ec13f" },
-                    }}
-                  >
-                    Update Country
-                  </Button>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <ButtonComp
+                      text="Submit"
+                      type="submit"
+                      onClick={handleSubmit}
+                      disabled={false}
+                      sx={{ flexGrow: 1 }}
+                    />
+                    <ButtonComp
+                      text="Cancel"
+                      type="button"
+                      sx={{ flexGrow: 1 }}
+                      onClick={() => navigate("/country")}
+                    />
+                  </Box>
                 </Grid>
               </Grid>
             </form>
           </CardContent>
-        </Card>
+        </Box>
       </Container>
     </Mainlayout>
   );
 };
-
 export default UpdateCountry;

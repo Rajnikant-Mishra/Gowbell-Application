@@ -26,6 +26,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -226,12 +227,7 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: "Country" }]} />
         </div>
         <div>
-          <ButtonComp
-            link="/create"
-            text={<FaPlus />}
-            type={"button"}
-            disabled={false}
-          />
+          <CreateButton link={"/create"} />
         </div>
       </div>
 

@@ -16,7 +16,8 @@ import {
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const CreateCountry = () => {
   const [name, setName] = useState("");
@@ -39,40 +40,81 @@ const CreateCountry = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const stateData = {
-      name,
-      status,
-      country_id: selectedCountry, // Set country_id with the selected country
-    };
-
+    // Check for duplicate state in the selected country
     axios
-      .post(`${API_BASE_URL}/api/states/`, stateData)
+      .get(`${API_BASE_URL}/api/states?country_id=${selectedCountry}`)
       .then((response) => {
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Success!",
-          text: `State "${name}" created successfully!`,
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
-        }).then(() => {
-          navigate("/state");
-        });
+        const existingState = response.data.find(
+          (state) => state.name.toLowerCase() === name.toLowerCase()
+        );
+
+        if (existingState) {
+          Swal.fire({
+            // title: "Duplicate State",
+            // text: `State "${name}" already exists in this country.`,
+            // icon: "error",
+            // confirmButtonText: "OK",
+            position: "top-end",
+            icon: "error",
+            title: "Duplicate State Name",
+            text: `State "${name}" already exists in this country.`,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+          return;
+        }
+
+        // Proceed with state creation
+        const stateData = {
+          name,
+          status,
+          country_id: selectedCountry,
+        };
+
+        axios
+          .post(`${API_BASE_URL}/api/states/`, stateData)
+          .then((response) => {
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `State "${name}" created successfully!`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            }).then(() => {
+              navigate("/state");
+            });
+          })
+          .catch((error) => {
+            Swal.fire({
+              title: "Error!",
+              text: "There was an issue creating the State. Please try again.",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+            console.error("Error creating State:", error);
+          });
       })
       .catch((error) => {
         Swal.fire({
           title: "Error!",
-          text: "There was an issue creating the State. Please try again.",
+          text: "There was an issue checking for duplicate states. Please try again.",
           icon: "error",
           confirmButtonText: "OK",
         });
-        console.error("Error creating State:", error);
+        console.error("Error checking for duplicate states:", error);
       });
   };
 
@@ -88,7 +130,7 @@ const CreateCountry = () => {
       <Container maxWidth="sm">
         <Box
           sx={{
-            marginTop: 11,
+            marginTop: 6,
             padding: 3,
             borderRadius: 2,
             boxShadow: 3,
@@ -159,23 +201,20 @@ const CreateCountry = () => {
                 <MenuItem value="inactive">Inactive</MenuItem>
               </TextField>
             </FormControl>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-                height: "36px", // Set the height of the button
-                minWidth: "120px", // Ensure the button width doesn't collapse
-                padding: "4px 16px", // Adjust padding to make the button smaller
-                fontSize: "14px", // Adjust font size for better appearance
-                textTransform: "none", // Optional: Prevents the button text from being uppercase
-              }}
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/state")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

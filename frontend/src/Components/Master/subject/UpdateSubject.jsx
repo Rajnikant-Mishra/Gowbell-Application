@@ -16,9 +16,11 @@ import {
   FormHelperText,
   Card,
   CardContent,
+  Box,
 } from "@mui/material";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const UpdateCountry = () => {
   const [name, setName] = useState("");
@@ -44,11 +46,12 @@ const UpdateCountry = () => {
     axios
       .put(`${API_BASE_URL}/api/subject/${id}`, { name, status })
       .then((response) => {
+        // Success: Show success alert and redirect
         Swal.fire({
           position: "top-end",
           icon: "success",
           title: "Success!",
-          text: `subject "${name}" updated successfully!`,
+          text: `Subject "${name}" updated successfully!`,
           showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
@@ -62,7 +65,35 @@ const UpdateCountry = () => {
         });
       })
       .catch((error) => {
-        console.error("Error updating  class:", error);
+        // Error handling for duplicate subject name
+        if (
+          error.response &&
+          error.response.data.error === "Subject with this name already exists"
+        ) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Error!",
+            text: `Subject name "${name}" already exists.`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+        } else {
+          // General error handling
+          Swal.fire({
+            title: "Error!",
+            text: "There was an issue updating the subject. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
+        console.error("Error updating subject:", error);
       });
   };
 
@@ -79,11 +110,10 @@ const UpdateCountry = () => {
         </div>
       </div>
       <Container maxWidth="sm">
-        <Typography variant="h4" gutterBottom align="center">
-          Update Subject
-        </Typography>
-
         <Card sx={{ boxShadow: 3, padding: 3 }}>
+          <Typography variant="h4" gutterBottom align="center">
+            Update Subject
+          </Typography>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
@@ -112,19 +142,23 @@ const UpdateCountry = () => {
                   </FormControl>
                 </Grid>
                 <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    size="large"
-                    sx={{
-                      backgroundColor: "#8fd14f",
-                      "&:hover": { backgroundColor: "#7ec13f" },
-                    }}
+                  <Box
+                    className={` gap-2 mt-4`}
+                    sx={{ display: "flex", gap: 2 }}
                   >
-                    Update Class
-                  </Button>
+                    <ButtonComp
+                      text="Submit"
+                      type="submit"
+                      disabled={false}
+                      sx={{ flexGrow: 1 }}
+                    />
+                    <ButtonComp
+                      text="Cancel"
+                      type="button"
+                      sx={{ flexGrow: 1 }}
+                      onClick={() => navigate("/subject")}
+                    />
+                  </Box>
                 </Grid>
               </Grid>
             </form>

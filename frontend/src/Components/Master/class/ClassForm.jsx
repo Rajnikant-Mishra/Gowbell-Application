@@ -14,50 +14,70 @@ import {
   Box,
 } from "@mui/material";
 import Swal from "sweetalert2";
-import Breadcrumb from "../../CommonButton/Breadcrumb"; // Import SweetAlert2
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
-const CreateCountry = () => {
+const CreateClass = () => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Sending the POST request to the server
-    axios
-      .post(`${ API_BASE_URL }/api/master`, { name, status })
-      .then((response) => {
-        // Success: Show success alert and redirect
-       Swal.fire({
-                         position: "top-end",
-                         icon: "success",
-                         title: "Success!",
-                         text: `class "${name}" created successfully!`,
-                         showConfirmButton: false,
-                         timer: 1000,
-                         timerProgressBar: true,
-                         toast: true,
-                         background: "#fff",
-                         customClass: {
-                           popup: "small-swal",
-                         },
-                       }).then(() => {
-          navigate("/class"); // Redirect after the user clicks OK
-        });
-      })
-      .catch((error) => {
-        // Error: Show error alert
+    try {
+      // Check for unique class name
+      const { data: existingClasses } = await axios.get(`${API_BASE_URL}/api/class`);
+      const isNameTaken = existingClasses.some((cls) => cls.name === name);
+
+      if (isNameTaken) {
         Swal.fire({
-          title: "Error!",
-          text: "There was an issue creating the Class. Please try again.",
+          position: "top-end",
           icon: "error",
-          confirmButtonText: "OK",
+          title: "Error!",
+          text: `Class name "${name}" already exists.`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
-        console.error("Error creating Class:", error);
+        return;
+      }
+
+      // Create new class
+      const response = await axios.post(`${API_BASE_URL}/api/class`, { name, status });
+
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Success!",
+        text: `Class "${name}" created successfully!`,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      }).then(() => {
+        navigate("/class");
       });
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "There was an issue creating the Class. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      console.error("Error creating Class:", error);
+    }
   };
 
   return (
@@ -72,7 +92,7 @@ const CreateCountry = () => {
       <Container maxWidth="sm">
         <Box
           sx={{
-            marginTop: 13,
+            marginTop: 8,
             padding: 3,
             borderRadius: 2,
             boxShadow: 3,
@@ -93,14 +113,13 @@ const CreateCountry = () => {
               margin="normal"
               size="small"
               InputProps={{
-                style: { fontSize: "14px" }, // Adjust input text size
+                style: { fontSize: "14px" },
               }}
               InputLabelProps={{
-                style: { fontSize: "14px" }, // Adjust label size
+                style: { fontSize: "14px" },
               }}
             />
             <FormControl fullWidth margin="normal" required>
-              {/* <InputLabel>Status</InputLabel> */}
               <TextField
                 select
                 value={status}
@@ -119,23 +138,20 @@ const CreateCountry = () => {
                 <MenuItem value="inactive">Inactive</MenuItem>
               </TextField>
             </FormControl>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-                height: "36px", // Set the height of the button
-                minWidth: "120px", // Ensure the button width doesn't collapse
-                padding: "4px 16px", // Adjust padding to make the button smaller
-                fontSize: "14px", // Adjust font size for better appearance
-                textTransform: "none", // Optional: Prevents the button text from being uppercase
-              }}
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/class")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>
@@ -143,4 +159,4 @@ const CreateCountry = () => {
   );
 };
 
-export default CreateCountry;
+export default CreateClass;

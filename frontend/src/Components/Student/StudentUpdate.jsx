@@ -41,7 +41,7 @@ export default function StudentUpdateForm() {
         })));
 
         // Fetch class options
-        const classResponse = await fetch(`${ API_BASE_URL }/api/master`);
+        const classResponse = await fetch(`${ API_BASE_URL }/api/class`);
         const classData = await classResponse.json();
         setClassOptions(classData.map(item => ({
           value: item.name,
@@ -318,18 +318,19 @@ export default function StudentUpdateForm() {
             </Grid>
 
             <Box
-              className={`${styles.buttonContainer} gap-2 mt-3`}
+              className={`${styles.buttonContainer} gap-2 mt-4`}
               sx={{ display: "flex", gap: 2 }}
             >
               <ButtonComp
-                text="Update"
+                text="Submit"
                 type="submit"
+                disabled={false}
                 sx={{ flexGrow: 1 }}
               />
               <ButtonComp
                 text="Cancel"
                 type="button"
-                sx={{ flexGrow: 1,}}
+                sx={{ flexGrow: 1 }}
                 onClick={() => navigate("/studentList")}
               />
             </Box>

@@ -12,6 +12,7 @@ import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
 
+
 export default function StudentForm() {
   const [formData, setFormData] = useState({
     school_name: "",
@@ -58,7 +59,7 @@ export default function StudentForm() {
     // Fetch class data
     const fetchClasses = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/master`); // API endpoint for class options
+        const response = await fetch(`${API_BASE_URL}/api/class`); // API endpoint for class options
         if (response.ok) {
           const data = await response.json();
           const options = data.map((item) => ({
@@ -346,7 +347,7 @@ export default function StudentForm() {
             </Grid>
 
             <Box
-              className={`${styles.buttonContainer} gap-2 mt-3`}
+              className={`${styles.buttonContainer} gap-2 mt-4`}
               sx={{ display: "flex", gap: 2 }}
             >
               <ButtonComp

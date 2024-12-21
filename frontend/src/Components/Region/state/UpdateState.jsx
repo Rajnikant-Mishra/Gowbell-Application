@@ -17,6 +17,7 @@ import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const UpdateState = () => {
   const [name, setName] = useState("");
@@ -51,6 +52,7 @@ const UpdateState = () => {
       });
   }, [id]);
 
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -82,12 +84,20 @@ const UpdateState = () => {
       })
       .catch((error) => {
         Swal.fire({
-          title: "Error!",
-          text: "There was an issue updating the State. Please try again.",
+          position: "top-end",
           icon: "error",
-          confirmButtonText: "OK",
+          title: "Error",
+          text: "state name already exists!",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
-        console.error("Error updating State:", error);
+        console.error("Error updating country:", error);
       });
   };
 
@@ -172,18 +182,20 @@ const UpdateState = () => {
                 <MenuItem value="inactive">Inactive</MenuItem>
               </Select>
             </FormControl>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-              }}
-            >
-              Update
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/state")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

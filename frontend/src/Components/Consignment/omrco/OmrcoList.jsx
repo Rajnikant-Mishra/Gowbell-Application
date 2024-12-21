@@ -26,6 +26,8 @@ import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/DeleteSwal.css";
 import "../../Common-Css/Swallfire.css";
+import CreateButton from "../../CommonButton/CreateButton";
+
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -220,14 +222,9 @@ export default function DataTable() {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "OMR-Co." }]} />
+          <Breadcrumb data={[{ name: "OMR" }]} />
         </div>
-        <ButtonComp
-          link="/omr-generate"
-          text={<FaPlus />}
-          type={"button"}
-          disabled={false}
-        />
+        <CreateButton link={"/omr-generate"} />
       </div>
       <div className={`${styles.tablecont} mt-0`}>
         <table

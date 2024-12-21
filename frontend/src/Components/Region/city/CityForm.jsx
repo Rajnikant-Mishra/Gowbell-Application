@@ -17,14 +17,17 @@ import {
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/Swallfire.css"
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const CreateCity = () => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const [countries, setCountries] = useState([]); // List of countries
-  const [states, setStates] = useState([]); // Filtered states based on country
-  const [districts, setDistricts] = useState([]); // Filtered districts based on state
+  const [states, setStates] = useState([]); // All states
+  const [districts, setDistricts] = useState([]); // All districts
+  const [filteredStates, setFilteredStates] = useState([]); // Filtered states based on country
+  const [filteredDistricts, setFilteredDistricts] = useState([]); // Filtered districts based on state
   const [selectedCountry, setSelectedCountry] = useState(""); // Selected country ID
   const [selectedState, setSelectedState] = useState(""); // Selected state ID
   const [selectedDistrict, setSelectedDistrict] = useState(""); // Selected district ID
@@ -42,63 +45,67 @@ const CreateCity = () => {
       });
   }, []);
 
-  // Fetch states for the selected country
+  // Fetch states when country is selected and filter them
   useEffect(() => {
     if (selectedCountry) {
       axios
         .get(`${API_BASE_URL}/api/states?countryId=${selectedCountry}`)
         .then((response) => {
-          const stateData = response.data.map((state) => ({
-            ...state,
-            districtCount: 0, // Default district count
-          }));
+          const stateData = response.data;
           setStates(stateData);
-          setDistricts([]); // Reset districts when country changes
-          setSelectedState(""); // Reset selected state
-          setSelectedDistrict(""); // Reset selected district
-
-          // Fetch district counts for each state
-          stateData.forEach((state) => {
-            axios
-              .get(`${API_BASE_URL}/api/districts?stateId=${state.id}`)
-              .then((districtResponse) => {
-                const districtCount = districtResponse.data.length;
-                setStates((prevStates) =>
-                  prevStates.map((s) =>
-                    s.id === state.id ? { ...s, districtCount } : s
-                  )
-                );
-              })
-              .catch((err) =>
-                console.error("Error fetching district count:", err)
-              );
-          });
+          setFilteredStates(stateData); // Initially set the filtered states to all states for the selected country
         })
         .catch((error) => {
           console.error("Error fetching states:", error);
         });
     } else {
       setStates([]);
-      setDistricts([]);
+      setFilteredStates([]); // Clear filtered states when no country is selected
     }
   }, [selectedCountry]);
 
-  // Fetch districts for the selected state
+  // Filter states based on selected country
+  useEffect(() => {
+    if (selectedCountry) {
+      const filtered = states.filter(
+        (state) => state.country_id === selectedCountry
+      );
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]); // Clear filtered states if no country is selected
+    }
+  }, [selectedCountry, states]);
+
+  // Fetch districts when state is selected and filter them
   useEffect(() => {
     if (selectedState) {
       axios
         .get(`${API_BASE_URL}/api/districts?stateId=${selectedState}`)
         .then((response) => {
-          setDistricts(response.data);
-          setSelectedDistrict(""); // Reset selected district
+          const districtData = response.data;
+          setDistricts(districtData);
+          setFilteredDistricts(districtData); // Set the filtered districts to all districts for the selected state
         })
         .catch((error) => {
           console.error("Error fetching districts:", error);
         });
     } else {
       setDistricts([]);
+      setFilteredDistricts([]); // Clear filtered districts when no state is selected
     }
   }, [selectedState]);
+
+  // Filter districts based on selected state
+  useEffect(() => {
+    if (selectedState) {
+      const filtered = districts.filter(
+        (district) => district.state_id === selectedState
+      );
+      setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]); // Clear filtered districts if no state is selected
+    }
+  }, [selectedState, districts]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -130,12 +137,49 @@ const CreateCity = () => {
         });
       })
       .catch((error) => {
-        Swal.fire({
-          title: "Error!",
-          text: "There was an issue creating the city. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          const errorMessage = error.response.data.error;
+
+          // Check if the error is related to a duplicate city
+          if (errorMessage.includes("City already exists")) {
+            Swal.fire({
+              // title: "Error!",
+              // text: `A city with the same name already exists in this district.`,
+              // icon: "error",
+              // confirmButtonText: "OK",
+              position: "top-end",
+              icon: "error",
+              title: "Error!",
+              text: `A city with the same name already exists in this district`,
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: "There was an issue creating the city. Please try again.",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          }
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "Something went wrong. Please try again later.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
         console.error("Error creating city:", error);
       });
   };
@@ -145,14 +189,14 @@ const CreateCity = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb
-            data={[{ name: "City", link: "/city" }, { name: "Update City" }]}
+            data={[{ name: "City", link: "/city" }, { name: "Create City" }]}
           />
         </div>
       </div>
       <Container maxWidth="sm">
         <Box
           sx={{
-            marginTop: 9,
+            marginTop: 5,
             padding: 3,
             borderRadius: 2,
             boxShadow: 3,
@@ -165,59 +209,40 @@ const CreateCity = () => {
           <form onSubmit={handleSubmit}>
             {/* Country selection input */}
             <FormControl fullWidth margin="normal" required>
-              {/* <InputLabel>Select Country</InputLabel> */}
               <TextField
                 select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)} // Update selected country ID
                 label="Select Country"
                 size="small"
-                InputProps={{
-                  style: { fontSize: "14px" }, // Adjust input text size
-                }}
-                InputLabelProps={{
-                  style: { fontSize: "14px" }, // Adjust label size
-                }}
               >
                 {countries.map((country) => (
                   <MenuItem key={country.id} value={country.id}>
-                    {country.name} ({country.stateCount || 0} States)
+                    {country.name}
                   </MenuItem>
                 ))}
               </TextField>
             </FormControl>
 
             {/* State selection input */}
-            <Grid
-              container
-              spacing={2}
-              style={{ display: "flex", flexWrap: "nowrap" }}
-            >
-              {/* State selection input */}
-              <Grid item xs={6} md={6}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
                 <FormControl
                   fullWidth
                   margin="normal"
                   required
                   disabled={!selectedCountry}
                 >
-                  {/* <InputLabel>Select State</InputLabel> */}
                   <TextField
                     select
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)} // Update selected state ID
                     label="Select State"
                     size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
                   >
-                    {states.map((state) => (
+                    {filteredStates.map((state) => (
                       <MenuItem key={state.id} value={state.id}>
-                        {state.name} ({state.districtCount || 0} Districts)
+                        {state.name}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -225,28 +250,21 @@ const CreateCity = () => {
               </Grid>
 
               {/* District selection input */}
-              <Grid item xs={6} md={6} style={{ flex: 1 }}>
+              <Grid item xs={12} sm={6}>
                 <FormControl
                   fullWidth
                   margin="normal"
                   required
                   disabled={!selectedState}
                 >
-                  {/* <InputLabel>Select District</InputLabel> */}
                   <TextField
                     select
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)} // Update selected district ID
                     label="Select District"
                     size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
                   >
-                    {districts.map((district) => (
+                    {filteredDistricts.map((district) => (
                       <MenuItem key={district.id} value={district.id}>
                         {district.name}
                       </MenuItem>
@@ -256,9 +274,10 @@ const CreateCity = () => {
               </Grid>
             </Grid>
 
-            <Grid container spacing={2}>
+            {/* City Name Field */}
+            <Grid container spacing={2} alignItems="center">
               {/* City Name Field */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="City Name"
@@ -268,31 +287,25 @@ const CreateCity = () => {
                   variant="outlined"
                   margin="normal"
                   size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
+                  inputProps={{
+                    style: { fontSize: "14px" },
                   }}
                   InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
+                    style: { fontSize: "14px" },
                   }}
+                  style={{ fontSize: "14px" }}
                 />
               </Grid>
 
               {/* Status Field */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
                 <FormControl fullWidth margin="normal" required>
-                  {/* <InputLabel>Status</InputLabel> */}
                   <TextField
                     select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     label="Status"
                     size="small"
-                    InputProps={{
-                      style: { fontSize: "14px" }, // Adjust input text size
-                    }}
-                    InputLabelProps={{
-                      style: { fontSize: "14px" }, // Adjust label size
-                    }}
                   >
                     <MenuItem value="active">Active</MenuItem>
                     <MenuItem value="inactive">Inactive</MenuItem>
@@ -301,24 +314,20 @@ const CreateCity = () => {
               </Grid>
             </Grid>
 
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                backgroundColor: "#8fd14f",
-                marginTop: 3,
-                height: "36px", // Set the height of the button
-                minWidth: "120px", // Ensure the button width doesn't collapse
-                padding: "4px 16px", // Adjust padding to make the button smaller
-                fontSize: "14px", // Adjust font size for better appearance
-                textTransform: "none", // Optional: Prevents the button text from being uppercase
-              }}
-              // disabled={!selectedDistrict} // Disable submit until district is selected
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/city")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

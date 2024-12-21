@@ -16,6 +16,7 @@ import {
 import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
 
 const BookForm = () => {
   const [paper_name, setName] = useState("");
@@ -28,7 +29,7 @@ const BookForm = () => {
   useEffect(() => {
     // Fetching master data for the "Choose Class" select input
     axios
-      .get(`${ API_BASE_URL }/api/master`)
+      .get(`${API_BASE_URL}/api/class`)
       .then((response) => {
         setMasterData(response.data); // Set the master data from the API response
       })
@@ -36,6 +37,7 @@ const BookForm = () => {
         console.error("Error fetching master data:", error);
       });
   }, []);
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -53,7 +55,7 @@ const BookForm = () => {
 
     // Sending the POST request to the server
     axios
-      .post(`${ API_BASE_URL }/api/get/question`, {
+      .post(`${API_BASE_URL}/api/get/question`, {
         paper_name,
         exam_level,
         quantity,
@@ -61,20 +63,20 @@ const BookForm = () => {
       })
       .then((response) => {
         // Success: Show success alert and redirect
-       Swal.fire({
-                 position: "top-end",
-                 icon: "success",
-                 title: "Success!",
-                 text: `Question "${name}" created successfully!`,
-                 showConfirmButton: false,
-                 timer: 1000,
-                 timerProgressBar: true,
-                 toast: true,
-                 background: "#fff",
-                 customClass: {
-                   popup: "small-swal",
-                 },
-               }).then(() => {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `Question "${name}" created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
           navigate("/question"); // Redirect after the user clicks OK
         });
       })
@@ -139,8 +141,8 @@ const BookForm = () => {
               {/* <InputLabel>Choose Class</InputLabel> */}
               <TextField
                 select
-                value={class_name}
-                onChange={(e) => setClassName(e.target.value)}
+                value={class_name} // This will store the selected class ID
+                onChange={(e) => setClassName(e.target.value)} // Update class_id when selected
                 label="Select Class"
                 required
                 size="small"
@@ -152,8 +154,8 @@ const BookForm = () => {
                 }}
               >
                 {masterData.map((item) => (
-                  <MenuItem key={item.id} value={item.name}>
-                    {item.name}
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name} {/* Display class name in the select options */}
                   </MenuItem>
                 ))}
               </TextField>
@@ -207,15 +209,20 @@ const BookForm = () => {
               inputProps={{ min: 0 }} // Prevent negative values
             />
 
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ backgroundColor: "#8fd14f", marginTop: 3 }}
-            >
-              Create
-            </Button>
+            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+              <ButtonComp
+                text="Submit"
+                type="submit"
+                disabled={false}
+                sx={{ flexGrow: 1 }}
+              />
+              <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/question")}
+              />
+            </Box>
           </form>
         </Box>
       </Container>

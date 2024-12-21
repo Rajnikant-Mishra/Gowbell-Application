@@ -7,11 +7,14 @@ import cardimg2 from "../../../public/Path 196.svg";
 import cardimg3 from "../../../public/Path 197.svg";
 import cardimg4 from "../../../public/Path 198.svg";
 import { UilCalender, UilUser, UilAngleDown } from "@iconscout/react-unicons";
+
 const Dashboard = () => {
-  const [isHovering, setIsHovering] = useState(false);
   const scrollWrapperRef = useRef(null);
   const listRef = useRef(null);
   const scrollIntervalRef = useRef(null);
+
+  const notificationRefs = useRef([]);
+
   const [activeFilter, setActiveFilter] = useState("year");
   const chartData = {
     all: [
@@ -41,9 +44,11 @@ const Dashboard = () => {
     week: [{ name: "Week", data: [50, 70, 90, 110, 130, 150, 170] }],
     today: [{ name: "Today", data: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] }],
   };
+
   const handleFilterChange = (filter) => {
     setActiveFilter(filter);
   };
+
   const chartOptions = {
     chart: { id: "student-participation", toolbar: { show: false } },
     plotOptions: {
@@ -114,38 +119,92 @@ const Dashboard = () => {
         ? ["#FF5733", "#33B5E5", "#FFBD33", "#7D33FF"] // Respective year colors
         : ["#508FF4"],
   };
+
   const chartSeries = [
     {
       name: "Participation",
       data: [200, 450, 300, 500, 400, 250, 480, 550, 450, 400, 50, 230],
     },
   ];
-  const handleMouseEnter = () => {
-    setIsHovering(true);
-    const scrollWrapper = scrollWrapperRef.current;
-    const list = listRef.current;
-    if (scrollWrapper && list) {
-      const maxScroll = list.scrollHeight - scrollWrapper.clientHeight;
-      scrollIntervalRef.current = setInterval(() => {
-        scrollWrapper.scrollTop += 2;
-        if (scrollWrapper.scrollTop >= maxScroll) {
-          scrollWrapper.scrollTop = 0; // Reset to top when reaching the end
-        }
-      }, 50); // Adjust speed
-    }
-  };
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    clearInterval(scrollIntervalRef.current);
-    // Smoothly scroll back to the top
-    const scrollWrapper = scrollWrapperRef.current;
-    if (scrollWrapper) {
-      scrollWrapper.scrollTo({
-        top: 0,
+
+  const notifications = [
+    {
+      title: "Result uploaded for Science Quiz",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "New school added: The Sunsign High",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Exam Created: Math Olympiad",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Certificates Generated for History",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Certificates Generated for History",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Certificates Generated for History",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Result uploaded for Science Quiz",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "New school added: The Sunsign High",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Exam Created: Math Olympiad",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Certificates Generated for History",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Certificates Generated for History",
+      date: "10-09-2024",
+      author: "By Admin",
+    },
+    {
+      title: "Certificates Generated for History",
+      date: "10-09-2024",
+      author: "By Asarita",
+    },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleNextNotification = () => {
+    const nextIndex = (currentIndex + 1) % notifications.length;
+    setCurrentIndex(nextIndex); // Update the current index to the next notification
+
+    // Scroll to the next notification
+    if (notificationRefs.current[nextIndex]) {
+      notificationRefs.current[nextIndex].scrollIntoView({
         behavior: "smooth",
+        block: "nearest", // Align the notification to the nearest position
       });
     }
   };
+
   return (
     <Mainlayout>
       <div className={styles.dashboardContainer}>
@@ -161,7 +220,7 @@ const Dashboard = () => {
           <div className={`${styles.card} ${styles.totalStudents}`}>
             <h3>Total Students</h3>
             <hr />
-            <div className="d-flex gap-3">
+            <div className="d-flex ">
               <img src={cardimg2} alt="cardimg2" />
               <h1 className="my-auto">4,846</h1>
             </div>
@@ -183,6 +242,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
         <div className={styles.midSection}>
           <div className={styles.chartContainer}>
             <h3>Student Participation</h3>
@@ -219,6 +279,7 @@ const Dashboard = () => {
               height="180"
             />
           </div>
+
           <div className={styles.midSectionSecondDiv}>
             <div className={styles.prizeContainer}>
               <h3>Prize Distribution</h3>
@@ -235,6 +296,7 @@ const Dashboard = () => {
                   ></div>
                 </div>
               </div>
+
               <div
                 className={`${styles.prizeItem} d-flex justify-content-between mb-0`}
               >
@@ -264,66 +326,38 @@ const Dashboard = () => {
             </div>
             <div className={styles.activityLog}>
               <h3>Recent Activity Log</h3>
-              <div className={styles.scrollWrapper}>
+              <div className={styles.scrollWrapper} ref={scrollWrapperRef}>
                 <ul className={styles.customlist}>
-                  <li className="d-flex flex-column">
-                    <span>Result uploaded for Science Quiz</span>
-                    <div className="d-flex gap-3">
-                      <span className="d-flex">
-                        <UilCalender className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">10-09-2024</p>
-                      </span>
-                      <span className="d-flex">
-                        <UilUser className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">By Admin</p>
-                      </span>
-                    </div>
-                  </li>
-                  <li className="d-flex flex-column">
-                    <span>New school added: The Sunsign High</span>
-                    <div className="d-flex gap-3">
-                      <span className="d-flex">
-                        <UilCalender className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">10-09-2024</p>
-                      </span>
-                      <span className="d-flex">
-                        <UilUser className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">By Admin</p>
-                      </span>
-                    </div>
-                  </li>
-                  <li className="d-flex flex-column">
-                    <span>Exam Created: Math Olympiad</span>
-                    <div className="d-flex gap-3">
-                      <span className="d-flex">
-                        <UilCalender className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">10-09-2024</p>
-                      </span>
-                      <span className="d-flex">
-                        <UilUser className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">By Admin</p>
-                      </span>
-                    </div>
-                  </li>
-                  <li className="d-flex flex-column">
-                    <span>Certificates Generated for History</span>
-                    <div className="d-flex gap-3">
-                      <span className="d-flex">
-                        <UilCalender className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">10-09-2024</p>
-                      </span>
-                      <span className="d-flex">
-                        <UilUser className={`${styles.calender} my-auto`} />
-                        <p className="my-auto">By Admin</p>
-                      </span>
-                    </div>
-                  </li>
+                  {notifications.map((item, index) => (
+                    <li
+                      className="d-flex flex-column"
+                      key={index}
+                      ref={(el) => (notificationRefs.current[index] = el)}
+                    >
+                      <span>{item.title}</span>
+                      <div className="d-flex gap-3">
+                        <span className="d-flex">
+                          <UilCalender
+                            className={`${styles.calender} my-auto`}
+                          />
+                          <p className="my-auto">{item.date}</p>
+                        </span>
+                        <span className="d-flex">
+                          <UilUser className={`${styles.calender} my-auto`} />
+                          <p className="my-auto">{item.author}</p>
+                        </span>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
-                <div className={styles.notificationButtonDiv}>
-                  <button className={styles.scrollButton}>
-                    <UilAngleDown />
-                  </button>
-                </div>
+              </div>
+              <div className={styles.notificationButtonDiv}>
+                <button
+                  onClick={handleNextNotification}
+                  className={styles.scrollButton}
+                >
+                  <UilAngleDown />
+                </button>
               </div>
             </div>
           </div>
@@ -332,4 +366,5 @@ const Dashboard = () => {
     </Mainlayout>
   );
 };
+
 export default Dashboard;

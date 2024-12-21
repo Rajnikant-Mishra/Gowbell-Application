@@ -26,6 +26,7 @@ import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/DeleteSwal.css";
 import "../../Common-Css/Swallfire.css";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -225,12 +226,8 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: " States" }]} />
         </div>
         <div>
-          <ButtonComp
-            link="/state/create"
-            text={<FaPlus />}
-            type={"button"}
-            disabled={false}
-          />
+          
+          <CreateButton link={"/state/create"} />
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>
