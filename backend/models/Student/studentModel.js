@@ -7,14 +7,64 @@ export const Student = {
     //   const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
     //   db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by], callback);
     // },
-    create: (studentData, callback) => {
-      const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
+
+    // create: (studentData, callback) => {
+    //   const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
       
-      const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+    //   const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
       
-      db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code], callback);
-    },
-    
+    //   db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code], callback);
+    // },
+   
+  create: (studentData, callback) => {
+    const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
+
+    const query = `
+      INSERT INTO student 
+      (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    `;
+
+    db.query(
+      query,
+      [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code],
+      callback
+    );
+  },
+
+
+  //BULK UPLOAD
+  bulkCreate: (students, callback) => {
+    // Ensure bulk insertion query is properly constructed
+    const query = `
+      INSERT INTO student 
+      (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
+      VALUES ?
+    `;
+  
+    // Convert student objects to an array of arrays for bulk insertion
+    const values = students.map(student => [
+      student.school_name,
+      student.student_name,
+      student.class_name,
+      student.student_section,
+      student.mobile_number,
+      student.whatsapp_number,
+      student.student_subject,
+      student.approved,
+      student.approved_by,
+      student.student_code,
+      new Date(), // This will insert the current date and time for created_at
+      new Date()  // This will insert the current date and time for updated_at
+    ]);
+  
+    // Execute the query with the array of values
+    db.query(query, [values], callback);
+  },
+  
+  
+
+
   
     getAll: (callback) => {
       const query = 'SELECT * FROM student';

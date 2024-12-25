@@ -1,10 +1,13 @@
 import express from 'express';
-import { createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent, getStudentsByClassController } from '../../controllers/Student/studentController.js';
+import { createStudent, bulkUploadStudents, getAllStudents, getStudentById, updateStudent, deleteStudent, getStudentsByClassController } from '../../controllers/Student/studentController.js';
 
 const router = express.Router();
 
 // Create a new student
 router.post('/student', createStudent);
+
+//BULK ROUTE
+router.post('/student/bulk-upload', bulkUploadStudents); // Bulk student upload
 
 // Get all students
 router.get('/student', getAllStudents);
