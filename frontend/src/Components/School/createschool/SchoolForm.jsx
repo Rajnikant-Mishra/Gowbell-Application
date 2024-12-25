@@ -165,8 +165,54 @@ export default function SchoolForm() {
 
   //-------------------------end code of api-------------------------------------------//
 
+  // const handleChange = (e, newValue) => {
+  //   const { name } = e.target;
+
+  //   if (name === "classes" && newValue !== undefined) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       classes: newValue.map((item) => item.value),
+  //     }));
+  //   } else if (name.includes("schoolAddress")) {
+  //     const addressField = name.split(".")[1];
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       schoolAddress: {
+  //         ...prev.schoolAddress,
+  //         [addressField]: e.target.value,
+  //       },
+  //     }));
+  //   } else {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: e.target.value,
+  //     }));
+  //   }
+  // };
   const handleChange = (e, newValue) => {
-    const { name } = e.target;
+    const { name, value } = e.target;
+
+    // Regular expression to check for special characters (excluding alphanumeric and spaces)
+    const specialCharRegex = /[^a-zA-Z0-9\s]/;
+
+    // Validate school_name field
+    if (name === "school_name" && specialCharRegex.test(value)) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Invalid Input",
+        text: "School Name cannot contain special characters.",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: "small-swal",
+        },
+        background: "#fff",
+      });
+      return; // Prevent update if special characters are found
+    }
 
     if (name === "classes" && newValue !== undefined) {
       setFormData((prev) => ({

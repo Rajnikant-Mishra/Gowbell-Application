@@ -19,9 +19,6 @@ import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 
-
-
-
 const BookForm = () => {
   const [questionName, setQuestionName] = useState("");
   const [examDate, setExamDate] = useState("");
@@ -35,14 +32,14 @@ const BookForm = () => {
   // Fetch dynamic data for questions and schools
   useEffect(() => {
     axios
-      .get(`${ API_BASE_URL }/api/get/question`) // Replace with your API endpoint
+      .get(`${API_BASE_URL}/api/get/question`) // Replace with your API endpoint
       .then((response) => {
         setQuestions(response.data);
       })
       .catch((error) => console.error("Error fetching questions:", error));
 
     axios
-      .get(`${ API_BASE_URL }/api/get/schools`) // Replace with your API endpoint
+      .get(`${API_BASE_URL}/api/get/schools`) // Replace with your API endpoint
       .then((response) => {
         setSchools(response.data);
       })
@@ -54,7 +51,7 @@ const BookForm = () => {
 
     // Sending the POST request to the server
     axios
-      .post(`${ API_BASE_URL }/api/co/question`, {
+      .post(`${API_BASE_URL}/api/co/question`, {
         question_name: questionName,
         exam_date: examDate,
         school_name_co: schoolName,
@@ -64,19 +61,19 @@ const BookForm = () => {
       .then((response) => {
         // Success: Show success alert and redirect
         Swal.fire({
-                  position: "top-end",
-                  icon: "success",
-                  title: "Success!",
-                  text: `co-question created successfully!`,
-                  showConfirmButton: false,
-                  timer: 1000,
-                  timerProgressBar: true,
-                  toast: true,
-                  background: "#fff",
-                  customClass: {
-                    popup: "small-swal",
-                  },
-                }).then(() => {
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `co-question created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
           navigate("/question-list"); // Redirect after the user clicks OK
         });
       })
@@ -160,7 +157,8 @@ const BookForm = () => {
               InputProps={{
                 style: { fontSize: "14px" }, // Adjust input text size
               }}
-              InputLabelProps={{shrink: true,
+              InputLabelProps={{
+                shrink: true,
                 style: { fontSize: "14px" }, // Adjust label size
               }}
             />
@@ -173,7 +171,6 @@ const BookForm = () => {
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
                 required
-                
                 InputProps={{
                   style: { fontSize: "14px" }, // Adjust input text size
                 }}
@@ -194,7 +191,12 @@ const BookForm = () => {
               margin="normal"
               size="small"
               value={trackingNo}
-              onChange={(e) => setTrackingNo(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Allow only alphanumeric characters
+                const sanitizedValue = value.replace(/[^a-zA-Z0-9]/g, "");
+                setTrackingNo(sanitizedValue);
+              }}
               required
               InputProps={{
                 style: { fontSize: "14px" }, // Adjust input text size
@@ -203,6 +205,7 @@ const BookForm = () => {
                 style: { fontSize: "14px" }, // Adjust label size
               }}
             />
+
             <TextField
               label="Quantity"
               type="number"

@@ -118,16 +118,16 @@
   color: #ed9023;
 }
 .card:first-child hr {
-  border-top: 1px solid #ed9023;
+  border-top: 2px solid #ed9023;
 }
 .card:nth-child(2) hr {
-  border-top: 1px solid #2c9ad9;
+  border-top: 2px solid #2c9ad9;
 }
 .card:nth-child(3) hr {
-  border-top: 1px solid #6563ff;
+  border-top: 2px solid #6563ff;
 }
 .card:last-child hr {
-  border-top: 1px solid #8cc17c;
+  border-top: 2px solid #8cc17c;
 }
 
 .card:nth-child(2) h3,
@@ -395,7 +395,7 @@
   .card h1 {
     font-size: 30px;
     letter-spacing: 1.06px;
-    font-weight: 300;
+    font-weight: 500;
   }
 }
 

@@ -14,13 +14,13 @@ import {
   UilAngleRightB,
   UilAngleLeftB,
 } from "@iconscout/react-unicons";
+import Button from "@mui/material/Button";
 
 import Mainlayout from "../Layouts/Mainlayout";
 import styles from "../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../CommonButton/ButtonComp";
-import { Breadcrumbs } from "@mui/material";
-import { styled, emphasize } from "@mui/material/styles";
+
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
@@ -29,12 +29,8 @@ import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/DeleteSwal.css";
 import "../Common-Css/Swallfire.css";
 import CreateButton from "../../Components/CommonButton/CreateButton";
-
-
-
-
-
-
+import { useDropzone } from "react-dropzone";
+import * as XLSX from "xlsx";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -225,14 +221,123 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
+  //bulk upload for student data---------------------------------//
+  const [loading, setLoading] = useState(false);
+
+  // Handle file drop and parsing
+  const onDrop = (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const ab = reader.result;
+      const wb = XLSX.read(ab, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const students = XLSX.utils.sheet_to_json(ws); // Extract data from sheet
+
+      // Call the backend to upload the students data
+      uploadStudentsData(students);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  // Function to upload students data to backend
+  const uploadStudentsData = async (students) => {
+    if (students.length === 0) {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        title: "No Data Found",
+        text: "The uploaded file contains no data.",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/get/student/bulk-upload",
+        students
+      );
+      setLoading(false);
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "Upload Successful",
+      //   text: `Successfully uploaded ${response.data.insertedCount} students.`,
+      // });
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Success!",
+        text: `Successfully uploaded ${response.data.insertedCount} students.`,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      });
+    } catch (error) {
+      setLoading(false);
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text:
+          error.response?.data?.message || "An error occurred during upload.",
+      });
+    }
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: ".xlsx,.xls",
+    onDrop,
+  });
+
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb data={[{ name: "Student" }]} />
         </div>
+
+        {/* //bulk upload */}
         <div>
-        <CreateButton link={"/student-create"} />
+          <div
+            {...getRootProps()}
+            style={{
+              border: "2px dashed rgb(143 143 143)",
+              padding: "5px",
+              textAlign: "center",
+              height: "34px",
+              marginLeft: "434px",
+            }}
+          >
+            <input {...getInputProps()} />
+            <p>Drag & drop an Excel file here</p>
+          </div>
+
+          {/* <button onClick={() => uploadStudentsData()} disabled={loading}>
+            {loading ? "Uploading..." : "Upload Students"}
+          </button> */}
+
+          {/* //{message && <p>{message}</p>} */}
+        </div>
+        {/* //create button */}
+        <div>
+          <CreateButton link={"/student-create"} />
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>

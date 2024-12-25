@@ -36,9 +36,15 @@ export default function UpdateInChargeForm() {
         ]);
 
         // Set form data with the fetched incharge data
+        // if (inchargeResponse.status === 200) {
+        //   setFormData(inchargeResponse.data);
+        // }
         if (inchargeResponse.status === 200) {
-          setFormData(inchargeResponse.data);
+          const data = inchargeResponse.data;
+          data.incharge_dob = data.incharge_dob.split("T")[0]; // Convert '2024-11-22T18:30:00.000Z' to '2024-11-22'
+          setFormData(data);
         }
+        
 
         // Set class options for the dropdown
         if (classResponse.status === 200) {
@@ -56,9 +62,35 @@ export default function UpdateInChargeForm() {
     fetchData();
   }, [id]);
 
+
+  // const handleChange = ({ target: { name, value } }) => {
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  // };
   const handleChange = ({ target: { name, value } }) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+      if (name === "incharge_name") {
+        // Disallow special characters
+        const noSpecialCharRegex = /^[a-zA-Z0-9 ]*$/;
+        if (!noSpecialCharRegex.test(value)) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Invalid Input",
+            text: "Incharge Name cannot contain special characters.",
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+            toast: true,
+            customClass: {
+              popup: "small-swal",
+            },
+            background: "#fff",
+          });
+          return;
+        }
+      }
+    
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -168,6 +200,8 @@ export default function UpdateInChargeForm() {
     const regex = /^[0-9]{10}$/;
     return regex.test(number);
   };
+
+
 
   return (
     <Mainlayout>

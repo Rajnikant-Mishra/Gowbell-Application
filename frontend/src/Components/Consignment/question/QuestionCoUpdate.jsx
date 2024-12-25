@@ -206,13 +206,18 @@ const UpdateBookForm = () => {
               margin="normal"
               size="small"
               value={trackingNo}
-              onChange={(e) => setTrackingNo(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Allow only alphanumeric characters
+                const sanitizedValue = value.replace(/[^a-zA-Z0-9]/g, "");
+                setTrackingNo(sanitizedValue);
+              }}
               required
               InputProps={{
-                style: { fontSize: "14px" },
+                style: { fontSize: "14px" }, // Adjust input text size
               }}
               InputLabelProps={{
-                style: { fontSize: "14px" },
+                style: { fontSize: "14px" }, // Adjust label size
               }}
             />
             <TextField

@@ -100,8 +100,15 @@ const UpdateOMRForm = () => {
               fullWidth
               label="Quantity"
               value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              // onChange={(e) => setQuantity(e.target.value)}
               required
+              onChange={(e) => {
+                // Only update state if the value is numeric or empty
+                const value = e.target.value;
+                if (!value || /^[0-9]*$/.test(value)) {
+                  setQuantity(value);
+                }
+              }}
               variant="outlined"
               margin="normal"
               size="small"

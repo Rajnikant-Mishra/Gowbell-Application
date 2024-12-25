@@ -217,6 +217,8 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
+  
   return (
     <Mainlayout>
      <div className="d-flex justify-content-between align-items-center mb-3">

@@ -45,9 +45,36 @@ export default function AssignInChargeForm() {
     fetchClassData();
   }, []);
 
+  // const handleChange = ({ target: { name, value } }) => {
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  // };
   const handleChange = ({ target: { name, value } }) => {
+    if (name === "incharge_name") {
+      // Disallow special characters
+      const noSpecialCharRegex = /^[a-zA-Z0-9 ]*$/;
+      if (!noSpecialCharRegex.test(value)) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Invalid Input",
+          text: "Incharge Name cannot contain special characters.",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          toast: true,
+          customClass: {
+            popup: "small-swal",
+          },
+          background: "#fff",
+        });
+        return;
+      }
+    }
+  
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();

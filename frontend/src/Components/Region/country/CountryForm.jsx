@@ -33,6 +33,7 @@ const CreateCountry = () => {
   const [status, setStatus] = useState("active");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -49,6 +50,8 @@ const CreateCountry = () => {
     };
     fetchCountries();
   }, []);
+
+
   const handleCountryChange = (e, value) => {
     setSelectedCountry(value);
     const isValidCountry = countries.some((country) => country.value === value);
@@ -58,6 +61,8 @@ const CreateCountry = () => {
       setError("");
     }
   };
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedCountry) {
@@ -72,6 +77,9 @@ const CreateCountry = () => {
         timerProgressBar: true,
         toast: true,
         background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       });
       return;
     }

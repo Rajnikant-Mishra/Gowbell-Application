@@ -99,16 +99,15 @@ const UpdateCity = () => {
     }
   }, [selectedState]);
 
+
+  //backend fetch---------------------------------//
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Input validation
     if (!name || !selectedCountry || !selectedState || !selectedDistrict) {
       Swal.fire({
-        // title: "Error!",
-        // text: "Please fill all required fields.",
-        // icon: "error",
-        // confirmButtonText: "OK",
+        
         position: "top-end",
         icon: "error",
         title: "Error!",
