@@ -154,7 +154,7 @@ const BookForm = () => {
                 }}
               >
                 {masterData.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
+                  <MenuItem key={item.id} value={item.name}>
                     {item.name} {/* Display class name in the select options */}
                   </MenuItem>
                 ))}

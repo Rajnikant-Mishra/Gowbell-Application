@@ -239,6 +239,12 @@ const CreateCountry = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <Box className={` gap-2 `} sx={{ display: "flex", gap: 2 }}>
+                  <ButtonComp
+                      text="Cancel"
+                      type="button"
+                      sx={{ flexGrow: 1 }}
+                      onClick={() => navigate("/country")}
+                    />
                     <ButtonComp
                       text="Submit"
                       type="submit"
@@ -246,12 +252,7 @@ const CreateCountry = () => {
                       disabled={false}
                       sx={{ flexGrow: 1 }}
                     />
-                    <ButtonComp
-                      text="Cancel"
-                      type="button"
-                      sx={{ flexGrow: 1 }}
-                      onClick={() => navigate("/country")}
-                    />
+                  
                   </Box>
                 </Grid>
               </Grid>

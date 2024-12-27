@@ -202,18 +202,19 @@ const CreateCountry = () => {
               </TextField>
             </FormControl>
             <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+            <ButtonComp
+                text="Cancel"
+                type="button"
+                sx={{ flexGrow: 1 }}
+                onClick={() => navigate("/state")}
+              />
               <ButtonComp
                 text="Submit"
                 type="submit"
                 disabled={false}
                 sx={{ flexGrow: 1 }}
               />
-              <ButtonComp
-                text="Cancel"
-                type="button"
-                sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/state")}
-              />
+              
             </Box>
           </form>
         </Box>

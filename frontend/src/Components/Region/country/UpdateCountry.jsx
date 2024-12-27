@@ -454,17 +454,18 @@ const EditCountry = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <Box className={` gap-2 `} sx={{ display: "flex", gap: 2 }}>
-                    <ButtonComp
-                      text="Update"
-                      type="submit"
-                      sx={{ flexGrow: 1 }}
-                    />
-                    <ButtonComp
+                  <ButtonComp
                       text="Cancel"
                       type="button"
                       sx={{ flexGrow: 1 }}
                       onClick={() => navigate("/country")}
                     />
+                    <ButtonComp
+                      text="Update"
+                      type="submit"
+                      sx={{ flexGrow: 1 }}
+                    />
+                    
                   </Box>
                 </Grid>
               </Grid>

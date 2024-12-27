@@ -13,6 +13,8 @@ import {
   UilEditAlt,
   UilAngleRightB,
   UilAngleLeftB,
+  UilDownloadAlt,
+  UilInfoCircle,
 } from "@iconscout/react-unicons";
 import Button from "@mui/material/Button";
 
@@ -29,8 +31,12 @@ import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/DeleteSwal.css";
 import "../Common-Css/Swallfire.css";
 import CreateButton from "../../Components/CommonButton/CreateButton";
-import { useDropzone } from "react-dropzone";
-import * as XLSX from "xlsx";
+
+import { Menu, MenuItem } from "@mui/material";
+import UploadIcon from "@mui/icons-material/CloudUpload";
+import DownloadIcon from "@mui/icons-material/CloudDownload";
+import excelImg from "../../../public/excell-img.png";
+import Papa from "papaparse"; // Import Papaparse for CSV parsing
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -223,88 +229,182 @@ export default function DataTable() {
   }, [checkedRows, filteredRecords]);
 
   //bulk upload for student data---------------------------------//
+  const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Handle file drop and parsing
-  const onDrop = (acceptedFiles) => {
-    const file = acceptedFiles[0];
-    const reader = new FileReader();
+  const open = Boolean(anchorEl);
 
-    reader.onload = () => {
-      const ab = reader.result;
-      const wb = XLSX.read(ab, { type: "array" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const students = XLSX.utils.sheet_to_json(ws); // Extract data from sheet
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-      // Call the backend to upload the students data
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Handle file selection and upload
+  const handleUploadClick = () => {
+    document.getElementById("fileInput").click();
+    handleClose();
+  };
+
+  // Handle file change (when a file is selected)
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.type !== "text/csv") {
+        Swal.fire({
+          position: "top-end",
+          icon: "warning",
+          title: "Invalid File",
+          text: "Please upload a valid CSV file.",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const csvData = reader.result;
+        parseCSVData(csvData);
+      };
+      reader.readAsText(file);
+    }
+  };
+  
+
+  // Parse CSV and upload data
+// Parse CSV and upload data
+const parseCSVData = (csvData) => {
+  Papa.parse(csvData, {
+    complete: (result) => {
+      console.log("Parsed CSV Data:", result.data); // Log parsed data
+      const students = result.data.map((row) => ({
+        school_name: row.school_name,
+        student_name: row.student_name,
+        class_name: row.class_name,
+        student_section: row.student_section,
+        mobile_number: row.mobile_number,
+        whatsapp_number: row.whatsapp_number,
+        student_subject: row.student_subject,
+      }));
       uploadStudentsData(students);
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
-  // Function to upload students data to backend
-  const uploadStudentsData = async (students) => {
-    if (students.length === 0) {
-      Swal.fire({
-        position: "top-end",
-        icon: "warning",
-        title: "No Data Found",
-        text: "The uploaded file contains no data.",
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/get/student/bulk-upload",
-        students
-      );
-      setLoading(false);
-      // Swal.fire({
-      //   icon: "success",
-      //   title: "Upload Successful",
-      //   text: `Successfully uploaded ${response.data.insertedCount} students.`,
-      // });
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Success!",
-        text: `Successfully uploaded ${response.data.insertedCount} students.`,
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
-      });
-    } catch (error) {
-      setLoading(false);
-      Swal.fire({
-        icon: "error",
-        title: "Upload Failed",
-        text:
-          error.response?.data?.message || "An error occurred during upload.",
-      });
-    }
-  };
-
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: ".xlsx,.xls",
-    onDrop,
+    },
+    header: true,
+    skipEmptyLines: true,
   });
+};
+
+// Function to upload students data to backend
+const uploadStudentsData = async (students) => {
+  if (!Array.isArray(students) || students.length === 0) {
+    Swal.fire({
+      position: "top-end",
+      icon: "warning",
+      title: "No Data",
+      text: "Please upload a valid CSV file with data.",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      toast: true,
+      background: "#fff",
+      customClass: {
+        popup: "small-swal",
+      },
+    });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/get/student/bulk-upload`,
+      students
+    );
+    setLoading(false);
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Success!",
+      text: `Successfully uploaded ${response.data.insertedCount} students.`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      toast: true,
+      background: "#fff",
+      customClass: {
+        popup: "small-swal",
+      },
+    });
+  } catch (error) {
+    setLoading(false);
+    Swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Error!",
+      text: error.response?.data?.message || "An error occurred during upload.",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      toast: true,
+      background: "#fff",
+      customClass: {
+        popup: "small-swal",
+      },
+    });
+  }
+};
+
+
+  // Handle download button click (Download CSV file)
+  const handleDownloadClick = () => {
+    // Define CSV headers and data (Replace with actual data if needed)
+    const headers = [
+      "school_name",
+      "student_name",
+      "class_name",
+      "student_section",
+      "mobile_number",
+      "whatsapp_number",
+      "student_subject",
+    ];
+    const rows = [
+      [
+        "DM school",
+        "Alice Johnson",
+        "class-1",
+        "A",
+        "1234567890",
+        "1234567890",
+        "python",
+      ],
+      // Add more rows as needed
+    ];
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","), // Header row
+      ...rows.map((row) => row.join(",")), // Data rows
+    ].join("\n");
+
+    // Create a Blob from the CSV content
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    // Create a download link and trigger the download
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "data.csv"; // Set the file name
+    link.click();
+
+    handleClose();
+  };
 
   return (
     <Mainlayout>
@@ -314,31 +414,215 @@ export default function DataTable() {
         </div>
 
         {/* //bulk upload */}
-        <div>
+
+        {/* <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "10px",
+          }}
+        >
+         
           <div
-            {...getRootProps()}
+          onClick={handleClick}
+          style={{
+            cursor: "pointer",
+            padding: "5px 10px",
+            display: "flex",
+            alignItems: "center",
+            marginLeft: "584px",
+            height: "27px",
+            fontSize: "14px",
+            color: "#1230AE", // Updated text color
+            textDecoration: "none", // Removed underline
+            fontFamily: "Poppins, sans-serif", // Added Poppins font
+          }}
+        >
+          <img
+            src={excelImg}
+            alt="Upload"
             style={{
-              border: "2px dashed rgb(143 143 143)",
-              padding: "5px",
-              textAlign: "center",
-              height: "34px",
-              marginLeft: "434px",
+              width: "20px",
+              height: "20px",
+              marginRight: "8px",
+            }}
+          />
+          Bulk Action
+        </div>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+          >
+            <MenuItem
+              onClick={handleUploadClick}
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
+              <UploadIcon style={{ marginRight: "8px", color: "#1230AE" }} />
+              Upload
+            </MenuItem>
+            <MenuItem
+              onClick={handleDownloadClick}
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
+              <DownloadIcon style={{ marginRight: "8px", color: "#1230AE" }} />
+              Download
+            </MenuItem>
+          </Menu>
+          <input
+            id="fileInput"
+            type="file"
+            accept=".csv" // Ensure only CSV files are selected
+            style={{ display: "none" }}
+            onChange={handleFileChange} // Handle the file change event
+          />
+        </div> */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            width: "auto",
+            gap:"10px",
+          }}
+        >
+          {/* //bulk upload */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "10px",
+              flexDirection: "column",
+              borderRadius: "15px",
             }}
           >
-            <input {...getInputProps()} />
-            <p>Drag & drop an Excel file here</p>
+            <div
+              onClick={handleClick}
+              style={{
+                cursor: "pointer",
+                padding: " 14px 12px",
+                display: "flex",
+                alignItems: "center",
+                // marginLeft: "584px",
+                height: "27px",
+                fontSize: "14px",
+                // border: "0.2px solid white",
+                // backgroundColor: "white",
+                // boxShadow: "rgba(0, 0, 0, 0.05) 1.95px 1.95px 2.6px",
+                borderRadius: "5px",
+                color: "#1230AE",
+                textDecoration: "none",
+                fontFamily: '"Poppins", sans-serif',
+              }}
+            >
+              <img
+                src={excelImg}
+                alt="Upload"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  marginRight: "8px",
+                }}
+              />
+              Bulk Action
+            </div>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+      
+             style={{padding:"0px", margin:"0px"}}
+            >
+              <div
+                style={{    
+                  fontFamily: "Poppins, sans-serif",
+                  gap: "15px",
+                  borderRadius: "10px",
+                  padding: "0px 10px",
+                }}
+              >
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={handleUploadClick}
+                    style={{
+                      fontSize: "13px",
+                      backgroundColor: "#4A4545",
+                      color: "white",
+                    }}
+                  >
+                    <img
+                      src={excelImg}
+                      alt="Upload"
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        marginRight: "8px",
+                      }}
+                    />{" "}
+                    Upload Excel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={handleDownloadClick}
+                    style={{ fontSize: "13px" }}
+                  >
+                    <UilDownloadAlt /> Download Sample File
+                  </button>
+                </div>
+                <div className="mt-2">
+                  <p style={{ color: "#4A4545" }} className="fw-bold mb-0">
+                    Note:
+                    <UilInfoCircle
+                      style={{ height: "20px", width: "20px", color: "blue" }}
+                    />
+                  </p>
+                  <ol
+                    style={{
+                      fontSize: "10px",
+                      paddingLeft: "10px",
+                      color: "gray",
+                    }}
+                  >
+                    <li>Click Download Sample File to get the template.</li>
+                    <li>Fill in the data as per the given columns.</li>
+                    <li>Save the file in Excel format (XLSX or CSV).</li>
+                    <li>Use Upload Excel to bulk upload your data.</li>
+                    <li>
+                      Ensure all required fields are filled correctly to avoid
+                      errors.
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </Menu>
+            <input
+              id="fileInput"
+              type="file"
+              accept=".csv"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
           </div>
-
-          {/* <button onClick={() => uploadStudentsData()} disabled={loading}>
-            {loading ? "Uploading..." : "Upload Students"}
-          </button> */}
-
-          {/* //{message && <p>{message}</p>} */}
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "45px" }}
+          >
+            <CreateButton link="/student-create" className="MY-AUTO" />
+          </div>
         </div>
+
         {/* //create button */}
-        <div>
+        {/* <div>
           <CreateButton link={"/student-create"} />
-        </div>
+        </div> */}
       </div>
       <div className={`${styles.tablecont} mt-0`}>
         <table
