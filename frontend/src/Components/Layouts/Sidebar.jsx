@@ -114,13 +114,21 @@ const Sidebar = ({ isCollapsed }) => {
     {
       id: "Exam",
       icon: UilTruck,
+      label: "Exam",
+      link: "/exam",
+      subMenu: [],
+      title: "Exam",
+    },
+    {
+      id: "Consignment",
+      icon: UilTruck,
       label: "Consignment",
       subMenu: [
         { label: "Omr", link: "/omr-list" },
         { label: "Question", link: "/question-list" },
         { label: "Books", link: "#" },
       ],
-      title: "Exam",
+      title: "Consignment",
     },
     {
       id: "Reports",
@@ -137,8 +145,8 @@ const Sidebar = ({ isCollapsed }) => {
       icon: UilUsersAlt,
       label: "User & Roles",
       subMenu: [
-        // { label: "Omr", link: "/omr-list" },
-        // { label: "Processed", link: "/exam/processed" },
+        { label: "Role", link: "/role" },
+        { label: "User", link: "/user" },
       ],
       title: "User&Roles",
     },

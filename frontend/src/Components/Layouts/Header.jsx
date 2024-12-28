@@ -1,7 +1,8 @@
 import React from "react";
+
 import { RxHamburgerMenu } from "react-icons/rx";
 import styles from "./Header.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contextsAuthsecurity/AuthContext";
 import { UilSearch } from "@iconscout/react-unicons";
 import Swal from "sweetalert2";
@@ -13,7 +14,7 @@ const Header = ({ toggleSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${ API_BASE_URL }/api/auth/logout`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,9 +96,13 @@ const Header = ({ toggleSidebar }) => {
 
             <ul className={`${styles.dropdown} dropdown-menu text-small`}>
               <li>
-                <a className="dropdown-item" href="#">
+                {/* <a className="dropdown-item" href="/profile">
                   Profile
-                </a>
+                </a> */}
+               
+                <Link className="dropdown-item" to="/profile">
+                  Profile
+                </Link>
               </li>
 
               <li>

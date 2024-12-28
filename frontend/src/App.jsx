@@ -76,6 +76,14 @@ import QuestionCoUpdate from "./Components/Consignment/question/QuestionCoUpdate
 import StudentReport from "./Components/Reports/StudentReport";
 import SchoolReport from "./Components/Reports/SchoolReport";
 
+import AdminProfile from "./Components/Pages/AdminProfile";
+
+import User from "./Components/User/User";
+import Role from "./Components/Role/Role";
+
+import Exam from "./Components/Exam/Exam";
+import ExamList from "./Components/Exam/ExamList";
+
 function App() {
   return (
     <AuthProvider>
@@ -88,6 +96,11 @@ function App() {
           <Route
             path="/dashboard"
             element={<ProtectedRoute element={<Dashboard />} />}
+          />
+           
+           <Route
+            path="/profile"
+            element={<ProtectedRoute element={<AdminProfile/>} />}
           />
           <Route
             path="/country"
@@ -310,6 +323,26 @@ function App() {
           <Route
             path="/schools-report"
             element={<ProtectedRoute element={<SchoolReport/>} />}
+          />
+
+          {/* //user & role */}
+          <Route
+            path="/user"
+            element={<ProtectedRoute element={<User/>} />} 
+          />
+          <Route
+            path="/role"
+            element={<ProtectedRoute element={<Role/>} />}
+          />
+
+          {/* //Exam */}
+          <Route
+            path="/exam"
+            element={<ProtectedRoute element={<Exam/>} />}
+          />
+          <Route
+            path="/examList"
+            element={<ProtectedRoute element={<ExamList/>} />}
           />
         </Routes>
       </Router>

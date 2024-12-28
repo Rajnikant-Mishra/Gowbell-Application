@@ -25,16 +25,13 @@ import ButtonComp from "../CommonButton/ButtonComp";
 
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/DeleteSwal.css";
 import "../Common-Css/Swallfire.css";
 import CreateButton from "../../Components/CommonButton/CreateButton";
-
 import { Menu, MenuItem } from "@mui/material";
-import UploadIcon from "@mui/icons-material/CloudUpload";
-import DownloadIcon from "@mui/icons-material/CloudDownload";
 import excelImg from "../../../public/excell-img.png";
 import Papa from "papaparse"; // Import Papaparse for CSV parsing
 
@@ -231,7 +228,7 @@ export default function DataTable() {
   //bulk upload for student data---------------------------------//
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -335,14 +332,19 @@ const uploadStudentsData = async (students) => {
       title: "Success!",
       text: `Successfully uploaded ${response.data.insertedCount} students.`,
       showConfirmButton: false,
-      timer: 3000,
+      timer: 1000,
       timerProgressBar: true,
       toast: true,
       background: "#fff",
       customClass: {
         popup: "small-swal",
       },
+    }).then(() => {
+      // navigate("/studentList");
+      // window.location.reload();  // Force a page reload
+      navigate(0); 
     });
+
   } catch (error) {
     setLoading(false);
     Swal.fire({
