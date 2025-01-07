@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Mainlayout from "../Layouts/Mainlayout";
 import {
   TextField,
@@ -8,7 +8,7 @@ import {
   Container,
   Typography,
   Grid,
-  MenuItem, // Add this import
+  MenuItem,
 } from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../CommonButton/Breadcrumb";
@@ -16,7 +16,7 @@ import ButtonComp from "../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import axios from "axios";
 
-const CreateUserForm = () => {
+const UserUpdateForm = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -25,32 +25,40 @@ const CreateUserForm = () => {
     password: "",
     confirm_password: "",
   });
-  const [roles, setRoles] = useState([]); // State to store roles
+  const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams(); // To get user ID from the URL
 
-  // Fetch roles from API
   useEffect(() => {
+    // Fetching master data for the "Role" select input
     axios
       .get(`${API_BASE_URL}/api/r1/role`)
       .then((response) => {
-        setRoles(response.data); // Assume API returns roles as [{ id: 1, role_name: "Admin" }, ...]
+        setRoles(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching roles:", error);
+        console.error("Error fetching master data:", error);
       });
-  }, [API_BASE_URL]);
 
-  // Handle change in dropdown
+    // Fetch user data for the given ID
+    if (id) {
+      axios
+        .get(`${API_BASE_URL}/api/u1/users/${id}`)
+        .then((response) => {
+          setFormData(response.data); // Set user data to formData
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value, // Store the selected role_id
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -74,8 +82,8 @@ const CreateUserForm = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/u1/users`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/api/u1/users/${id}`, {
+        method: "PUT", // Change method to PUT for updating
         headers: {
           "Content-Type": "application/json",
         },
@@ -88,8 +96,7 @@ const CreateUserForm = () => {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "User created successfully!",
-
+          title: "User updated successfully!",
           showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
@@ -124,7 +131,7 @@ const CreateUserForm = () => {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Breadcrumb
-          data={[{ name: "User", link: "/user-list" }, { name: "Create User" }]}
+          data={[{ name: "User", link: "/user-list" }, { name: "Update User" }]}
         />
       </div>
       <Container maxWidth="sm">
@@ -138,7 +145,7 @@ const CreateUserForm = () => {
           }}
         >
           <Typography variant="h4" align="center" gutterBottom>
-            Create User
+            Update User
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
@@ -199,17 +206,27 @@ const CreateUserForm = () => {
                   select
                   label="Role"
                   name="role"
-                  value={formData.role} // This binds the role_id to the dropdown
+                  value={formData.role}
                   onChange={handleChange}
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" },
+                  }}
                 >
-                  {roles.map((role) => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.role_name} {/* Display the role_name */}
-                    </MenuItem>
-                  ))}
+                  {roles && roles.length > 0 ? (
+                    roles.map((role) => (
+                      <MenuItem key={role.id} value={role.role_name}>
+                        {role.role_name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>No roles available</MenuItem>
+                  )}
                 </TextField>
               </Grid>
               <Grid item xs={6}>
@@ -251,7 +268,7 @@ const CreateUserForm = () => {
             </Grid>
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
               <ButtonComp
-                text="Submit"
+                text="Update"
                 type="submit"
                 disabled={isLoading}
                 sx={{ flexGrow: 1 }}
@@ -270,4 +287,4 @@ const CreateUserForm = () => {
   );
 };
 
-export default CreateUserForm;
+export default UserUpdateForm;

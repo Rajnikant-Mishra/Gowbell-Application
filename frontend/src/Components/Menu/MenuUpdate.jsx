@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Mainlayout from "../Layouts/Mainlayout";
 import {
   TextField,
@@ -8,7 +8,7 @@ import {
   Container,
   Typography,
   Grid,
-  MenuItem, // Add this import
+  MenuItem,
 } from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../CommonButton/Breadcrumb";
@@ -16,70 +16,64 @@ import ButtonComp from "../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import axios from "axios";
 
-const CreateUserForm = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    role: "",
-    phone: "",
-    password: "",
-    confirm_password: "",
+const UpdateMenuForm = () => {
+  const { id } = useParams(); // Get the menu item ID from URL
+  const [menu, setMenu] = useState({
+    title: "",
+    link: "",
+    enable: true,
+    visible: true,
+    image: "",
+    sequence: 0,
+    updated_by: null,
   });
-  const [roles, setRoles] = useState([]); // State to store roles
+
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch roles from API
+  // Fetch the existing menu data when the component mounts
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/r1/role`)
-      .then((response) => {
-        setRoles(response.data); // Assume API returns roles as [{ id: 1, role_name: "Admin" }, ...]
-      })
-      .catch((error) => {
-        console.error("Error fetching roles:", error);
-      });
-  }, [API_BASE_URL]);
+    const fetchMenuData = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/m1/menu/${id}`);
+        if (response.data) {
+          setMenu(response.data); // Set the fetched menu data to state
+        }
+      } catch (error) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Failed to fetch menu data",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    };
 
-  // Handle change in dropdown
+    fetchMenuData();
+  }, [id]); // Only fetch data when the ID changes
+
+  // Handle change in input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value, // Store the selected role_id
+    setMenu({
+      ...menu,
+      [name]: value,
     });
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirm_password) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Passwords do not match",
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/u1/users`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/api/m1/menu/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(menu), // Sending the updated menu data as JSON
       });
 
       const data = await response.json();
@@ -88,10 +82,9 @@ const CreateUserForm = () => {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "User created successfully!",
-
+          title: "Menu updated successfully!",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 2000,
           timerProgressBar: true,
           toast: true,
           background: "#fff",
@@ -99,21 +92,29 @@ const CreateUserForm = () => {
             popup: "small-swal",
           },
         });
-        navigate("/user-list");
+        navigate("/menu-list"); // Navigate to the menu list after successful update
       } else {
         Swal.fire({
+          position: "top-end",
           icon: "error",
           title: data.message || "Something went wrong!",
           showConfirmButton: false,
           timer: 1500,
+          customClass: {
+            popup: "small-swal",
+          },
         });
       }
     } catch (error) {
       Swal.fire({
+        position: "top-end",
         icon: "error",
         title: "An error occurred!",
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+            popup: "small-swal",
+          },
       });
     } finally {
       setIsLoading(false);
@@ -124,7 +125,7 @@ const CreateUserForm = () => {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Breadcrumb
-          data={[{ name: "User", link: "/user-list" }, { name: "Create User" }]}
+          data={[{ name: "Menu", link: "/menu-list" }, { name: "Update Menu" }]}
         />
       </div>
       <Container maxWidth="sm">
@@ -138,120 +139,89 @@ const CreateUserForm = () => {
           }}
         >
           <Typography variant="h4" align="center" gutterBottom>
-            Create User
+            Update Menu
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="First Name"
-                  name="username"
-                  value={formData.username}
+                  label="Title"
+                  name="title"
+                  value={menu.title}
                   onChange={handleChange}
                   fullWidth
                   size="small"
                   required
-                  InputProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" },
-                  }}
                 />
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Email"
-                  name="email"
-                  value={formData.email}
+                  label="Link"
+                  name="link"
+                  value={menu.link}
                   onChange={handleChange}
                   fullWidth
-                  type="email"
                   size="small"
                   required
-                  InputProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" },
-                  }}
                 />
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Phone Number"
-                  name="phone"
-                  value={formData.phone}
+                  label="Sequence"
+                  name="sequence"
+                  value={menu.sequence}
                   onChange={handleChange}
                   fullWidth
                   size="small"
                   required
-                  InputProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" },
-                  }}
+                  type="number"
                 />
               </Grid>
               <Grid item xs={6}>
                 <TextField
                   select
-                  label="Role"
-                  name="role"
-                  value={formData.role} // This binds the role_id to the dropdown
+                  label="Enable"
+                  name="enable"
+                  value={menu.enable}
                   onChange={handleChange}
                   fullWidth
                   size="small"
                   required
                 >
-                  {roles.map((role) => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.role_name} {/* Display the role_name */}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value={true}>Enabled</MenuItem>
+                  <MenuItem value={false}>Disabled</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Password"
-                  name="password"
-                  value={formData.password}
+                  select
+                  label="Visible"
+                  name="visible"
+                  value={menu.visible}
                   onChange={handleChange}
                   fullWidth
-                  type="password"
                   size="small"
                   required
-                  InputProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                />
+                >
+                  <MenuItem value={true}>Visible</MenuItem>
+                  <MenuItem value={false}>Hidden</MenuItem>
+                </TextField>
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Confirm Password"
-                  name="confirm_password"
-                  value={formData.confirm_password}
+                  label="Image"
+                  name="image"
+                  value={menu.image}
                   onChange={handleChange}
                   fullWidth
-                  type="password"
                   size="small"
                   required
-                  InputProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" },
-                  }}
                 />
               </Grid>
             </Grid>
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
               <ButtonComp
-                text="Submit"
+                text="Update"
                 type="submit"
                 disabled={isLoading}
                 sx={{ flexGrow: 1 }}
@@ -260,7 +230,7 @@ const CreateUserForm = () => {
                 text="Cancel"
                 type="button"
                 sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/user-list")}
+                onClick={() => navigate("/menu-list")}
               />
             </Box>
           </form>
@@ -270,4 +240,4 @@ const CreateUserForm = () => {
   );
 };
 
-export default CreateUserForm;
+export default UpdateMenuForm;

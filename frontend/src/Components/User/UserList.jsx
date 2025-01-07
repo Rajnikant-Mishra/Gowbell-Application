@@ -43,7 +43,7 @@ export default function DataTable() {
   useEffect(() => {
     // Fetch data from the new API when the component mounts
     axios
-      .get(`${API_BASE_URL}/api/e1/exams`) // Updated API URL
+      .get(`${API_BASE_URL}/api/u1/users`) // Updated API URL
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -170,10 +170,10 @@ export default function DataTable() {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name:"Exam" }]} />
+          <Breadcrumb data={[{ name:"User" }]} />
         </div>
         <div>
-          <CreateButton link={"/exam"} />
+          <CreateButton link={"/user"} />
         </div>
       </div>
 
@@ -187,7 +187,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["id","school", "class", "level", "date_from",  "date_to"].map((col) => (
+              {["id", "role", "name", "email", "phone", "status", "created_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -208,7 +208,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["id","school", "class", "level", "date_from",  "date_to"].map((col) => (
+            {["id","role","name", "email", "phone","status", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -237,20 +237,20 @@ export default function DataTable() {
                   />
                 </td>
                 <td>{row.id}</td>
-                <td>{row.school}</td>
-                <td>{row.class}</td>
-                <td>{row.level}</td>
-                <td>{row.date_from}</td>
-               
-                <td>{row.date_to}</td>
+                <td>{row.role}</td>
+                <td>{row.username}</td>
+                <td>{row.email}</td>
+                <td>{row.phone}</td>
+                <td>{row.status}</td>
+                <td>{row.created_at}</td>
                
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <Link to={`/update/${row.id}`}>
+                    <Link to={`/users/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
                     </Link>
-                    <UilTrashAlt
+                    {/* <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
                     /> */}

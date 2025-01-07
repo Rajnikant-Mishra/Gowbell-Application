@@ -79,10 +79,19 @@ import SchoolReport from "./Components/Reports/SchoolReport";
 import AdminProfile from "./Components/Pages/AdminProfile";
 
 import User from "./Components/User/User";
+import UserList from "./Components/User/UserList";
+import UserUpdate from "./Components/User/UserUpdate";
+
+
 import Role from "./Components/Role/Role";
+import Rolelist from "./Components/Role/RoleList";
 
 import Exam from "./Components/Exam/Exam";
 import ExamList from "./Components/Exam/ExamList";
+
+import Menu from "./Components/Menu/Menu";
+import MenuList from "./Components/Menu/MenuList";
+import MenuUpdate from "./Components/Menu/MenuUpdate";
 
 function App() {
   return (
@@ -97,10 +106,10 @@ function App() {
             path="/dashboard"
             element={<ProtectedRoute element={<Dashboard />} />}
           />
-           
-           <Route
+
+          <Route
             path="/profile"
-            element={<ProtectedRoute element={<AdminProfile/>} />}
+            element={<ProtectedRoute element={<AdminProfile />} />}
           />
           <Route
             path="/country"
@@ -303,47 +312,67 @@ function App() {
           {/* qustions*/}
           <Route
             path="/question-list"
-            element={<ProtectedRoute element={<QuestionCoList/>} />}
+            element={<ProtectedRoute element={<QuestionCoList />} />}
           />
           <Route
             path="/co-question"
-            element={<ProtectedRoute element={<QuestionCoCreate/>} />}
+            element={<ProtectedRoute element={<QuestionCoCreate />} />}
           />
           <Route
             path="/co-question/update/:id"
-            element={<ProtectedRoute element={<QuestionCoUpdate/>} />}
+            element={<ProtectedRoute element={<QuestionCoUpdate />} />}
           />
-         
 
           {/* report*/}
           <Route
             path="/students-report"
-            element={<ProtectedRoute element={<StudentReport/>} />} 
+            element={<ProtectedRoute element={<StudentReport />} />}
           />
           <Route
             path="/schools-report"
-            element={<ProtectedRoute element={<SchoolReport/>} />}
+            element={<ProtectedRoute element={<SchoolReport />} />}
           />
 
           {/* //user & role */}
+          <Route path="/user" element={<ProtectedRoute element={<User />} />} />
           <Route
-            path="/user"
-            element={<ProtectedRoute element={<User/>} />} 
+            path="/user-list"
+            element={<ProtectedRoute element={<UserList />} />}
           />
           <Route
-            path="/role"
-            element={<ProtectedRoute element={<Role/>} />}
+            path="/users/:id"
+            element={<ProtectedRoute element={< UserUpdate/>} />}
+          />
+
+          {/* //role */}
+          <Route path="/role" element={<ProtectedRoute element={<Role />} />} />
+          <Route
+            path="/role-list"
+            element={<ProtectedRoute element={<Rolelist />} />}
           />
 
           {/* //Exam */}
-          <Route
-            path="/exam"
-            element={<ProtectedRoute element={<Exam/>} />}
-          />
+          <Route path="/exam" element={<ProtectedRoute element={<Exam />} />} />
           <Route
             path="/examList"
-            element={<ProtectedRoute element={<ExamList/>} />}
+            element={<ProtectedRoute element={<ExamList />} />}
           />
+
+          {/* //menu */}
+          <Route
+            path="/menu"
+            element={<ProtectedRoute element={<Menu/>} />}
+          />
+          <Route
+            path="/menu-list"
+            element={<ProtectedRoute element={<MenuList/>} />}
+          />
+          <Route
+            path="/menu/update/:id"
+            element={<ProtectedRoute element={<MenuUpdate/>} />}
+          />
+
+
         </Routes>
       </Router>
     </AuthProvider>

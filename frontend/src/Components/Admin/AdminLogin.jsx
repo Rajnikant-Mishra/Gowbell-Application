@@ -183,7 +183,7 @@ const AdminLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${ API_BASE_URL }/api/auth/login`,
+        `${ API_BASE_URL }/api/u1/users/login`,
         { email, password }
       );
       login(response.data.token);

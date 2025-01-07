@@ -14,7 +14,7 @@ const Header = ({ toggleSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      const response = await fetch(`${API_BASE_URL}/api/u1/users/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -12,6 +12,7 @@ import {
   UilSignalAlt3,
   UilUsersAlt,
   UilTrophy,
+  UilChartPieAlt,
 } from "@iconscout/react-unicons";
 import { Link, useNavigate } from "react-router-dom";
 import MainLogo from "../../assets/logo GOWBELL.png";
@@ -115,7 +116,7 @@ const Sidebar = ({ isCollapsed }) => {
       id: "Exam",
       icon: UilTruck,
       label: "Exam",
-      link: "/exam",
+      link: "/examList",
       subMenu: [],
       title: "Exam",
     },
@@ -145,8 +146,18 @@ const Sidebar = ({ isCollapsed }) => {
       icon: UilUsersAlt,
       label: "User & Roles",
       subMenu: [
-        { label: "Role", link: "/role" },
-        { label: "User", link: "/user" },
+        { label: "Role", link: "/role-list" },
+        { label: "User", link: "/user-list" },
+      ],
+      title: "User&Roles",
+    },
+    {
+      id: "Configuration",
+      icon: UilChartPieAlt,
+      label: "Configuration",
+      subMenu: [
+        { label: "Menu", link: "/menu-list" },
+        // { label: "User", link: "/user-list" },
       ],
       title: "User&Roles",
     },

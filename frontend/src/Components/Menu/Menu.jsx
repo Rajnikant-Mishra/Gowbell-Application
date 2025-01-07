@@ -16,70 +16,41 @@ import ButtonComp from "../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import axios from "axios";
 
-const CreateUserForm = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    role: "",
-    phone: "",
-    password: "",
-    confirm_password: "",
+const Menu = () => {
+  const [menu, setMenu] = useState({
+    title: "",
+    link: "",
+    enable: true,
+    visible: true,
+    image: "",
+    sequence: 0,
+    updated_by: null,
   });
-  const [roles, setRoles] = useState([]); // State to store roles
+
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch roles from API
-  useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/r1/role`)
-      .then((response) => {
-        setRoles(response.data); // Assume API returns roles as [{ id: 1, role_name: "Admin" }, ...]
-      })
-      .catch((error) => {
-        console.error("Error fetching roles:", error);
-      });
-  }, [API_BASE_URL]);
-
-  // Handle change in dropdown
+  // Handle change in input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value, // Store the selected role_id
+    setMenu({
+      ...menu,
+      [name]: value, // Store the selected value for each input field
     });
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirm_password) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Passwords do not match",
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/u1/users`, {
+      const response = await fetch(`${API_BASE_URL}/api/m1/menu`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(menu), // Sending the menu data as JSON
       });
 
       const data = await response.json();
@@ -88,10 +59,9 @@ const CreateUserForm = () => {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "User created successfully!",
-
+          title: "Menu created successfully!",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 2000,
           timerProgressBar: true,
           toast: true,
           background: "#fff",
@@ -99,21 +69,29 @@ const CreateUserForm = () => {
             popup: "small-swal",
           },
         });
-        navigate("/user-list");
+        navigate("/menu-list");
       } else {
         Swal.fire({
+          position: "top-end",
           icon: "error",
           title: data.message || "Something went wrong!",
           showConfirmButton: false,
           timer: 1500,
+          customClass: {
+            popup: "small-swal",
+          },
         });
       }
     } catch (error) {
       Swal.fire({
+        position: "top-end",
         icon: "error",
         title: "An error occurred!",
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          popup: "small-swal",
+        },
       });
     } finally {
       setIsLoading(false);
@@ -124,7 +102,7 @@ const CreateUserForm = () => {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Breadcrumb
-          data={[{ name: "User", link: "/user-list" }, { name: "Create User" }]}
+          data={[{ name: "Menu", link: "/menu-list" }, { name: "Create Menu" }]}
         />
       </div>
       <Container maxWidth="sm">
@@ -138,15 +116,15 @@ const CreateUserForm = () => {
           }}
         >
           <Typography variant="h4" align="center" gutterBottom>
-            Create User
+            Create Menu
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="First Name"
-                  name="username"
-                  value={formData.username}
+                  label="Title"
+                  name="title"
+                  value={menu.title}
                   onChange={handleChange}
                   fullWidth
                   size="small"
@@ -161,12 +139,11 @@ const CreateUserForm = () => {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Email"
-                  name="email"
-                  value={formData.email}
+                  label="Link"
+                  name="link"
+                  value={menu.link}
                   onChange={handleChange}
                   fullWidth
-                  type="email"
                   size="small"
                   required
                   InputProps={{
@@ -179,13 +156,14 @@ const CreateUserForm = () => {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Phone Number"
-                  name="phone"
-                  value={formData.phone}
+                  label="Sequence"
+                  name="sequence"
+                  value={menu.sequence}
                   onChange={handleChange}
                   fullWidth
                   size="small"
                   required
+                  type="number"
                   InputProps={{
                     style: { fontSize: "14px" },
                   }}
@@ -197,47 +175,40 @@ const CreateUserForm = () => {
               <Grid item xs={6}>
                 <TextField
                   select
-                  label="Role"
-                  name="role"
-                  value={formData.role} // This binds the role_id to the dropdown
+                  label="Enable"
+                  name="enable"
+                  value={menu.enable}
                   onChange={handleChange}
                   fullWidth
                   size="small"
                   required
                 >
-                  {roles.map((role) => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.role_name} {/* Display the role_name */}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value={true}>Enabled</MenuItem>
+                  <MenuItem value={false}>Disabled</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Password"
-                  name="password"
-                  value={formData.password}
+                  select
+                  label="Visible"
+                  name="visible"
+                  value={menu.visible}
                   onChange={handleChange}
                   fullWidth
-                  type="password"
                   size="small"
                   required
-                  InputProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" },
-                  }}
-                />
+                >
+                  <MenuItem value={true}>Visible</MenuItem>
+                  <MenuItem value={false}>Hidden</MenuItem>
+                </TextField>
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Confirm Password"
-                  name="confirm_password"
-                  value={formData.confirm_password}
+                  label="Image"
+                  name="image"
+                  value={menu.image}
                   onChange={handleChange}
                   fullWidth
-                  type="password"
                   size="small"
                   required
                   InputProps={{
@@ -260,7 +231,7 @@ const CreateUserForm = () => {
                 text="Cancel"
                 type="button"
                 sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/user-list")}
+                onClick={() => navigate("/menu-list")}
               />
             </Box>
           </form>
@@ -270,4 +241,4 @@ const CreateUserForm = () => {
   );
 };
 
-export default CreateUserForm;
+export default Menu;

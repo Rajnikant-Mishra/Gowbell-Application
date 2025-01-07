@@ -43,7 +43,7 @@ export default function DataTable() {
   useEffect(() => {
     // Fetch data from the new API when the component mounts
     axios
-      .get(`${API_BASE_URL}/api/e1/exams`) // Updated API URL
+      .get(`${API_BASE_URL}/api/r1/role`) // Updated API URL
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -158,22 +158,35 @@ export default function DataTable() {
     }
     setIsAllChecked(!isAllChecked);
   };
+
+
+  // useEffect(() => {
+  //   if (filteredRecords.every((row) => checkedRows[row.id])) {
+  //     setIsAllChecked(true);
+  //   } else {
+  //     setIsAllChecked(false);
+  //   }
+  // }, [checkedRows, filteredRecords]);
+  
   useEffect(() => {
-    if (filteredRecords.every((row) => checkedRows[row.id])) {
+    if (Array.isArray(filteredRecords) && filteredRecords.every((row) => checkedRows[row.id])) {
       setIsAllChecked(true);
     } else {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+  
+  
+  
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name:"Exam" }]} />
+          <Breadcrumb data={[{ name:"Role" }]} />
         </div>
         <div>
-          <CreateButton link={"/exam"} />
+          <CreateButton link={"/role"} />
         </div>
       </div>
 
@@ -187,7 +200,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["id","school", "class", "level", "date_from",  "date_to"].map((col) => (
+              {["id","name", "created_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -208,7 +221,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["id","school", "class", "level", "date_from",  "date_to"].map((col) => (
+            {["id","name", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -237,12 +250,9 @@ export default function DataTable() {
                   />
                 </td>
                 <td>{row.id}</td>
-                <td>{row.school}</td>
-                <td>{row.class}</td>
-                <td>{row.level}</td>
-                <td>{row.date_from}</td>
+                <td>{row.role_name}</td>
                
-                <td>{row.date_to}</td>
+                <td>{row.created_at}</td>
                
 
                 <td>
