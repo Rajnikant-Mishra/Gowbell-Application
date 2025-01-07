@@ -6,7 +6,11 @@ import cors from "cors";
 
 
 //routes import
-import  authRoutes from "./routes/Admin/authRoutes.js";
+// import  authRoutes from "./routes/Admin/authRoutes.js";
+import userRoutes from "./routes/User/userRoutes.js";
+//role
+import roleRoutes from './routes/Role/roleRoutes.js';
+
 import countryRoutes from './routes/Region/countryRoutes.js';
 import stateRoutes from './routes/Region/stateRoutes.js';
 import districtRoutes from './routes/Region/districtRoutes.js';
@@ -34,6 +38,12 @@ import studentRoutes from './routes/Student/studentRoutes.js';
 import coomrRoutes from './routes/Consignment/co-omrRoutes.js';
 import questionCoRoutes from './routes/Consignment/questionCoRoutes.js';
 
+//exam
+import examRoutes from './routes/Exam/examRoutes.js';
+
+//menu
+import menuRoutes from "./routes/Menu/menuRoutes.js";
+
 
 const app = express();
 
@@ -56,8 +66,9 @@ app.use(cors({
 
 
 
+
 //routes api's fro region
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/states', stateRoutes);
 app.use('/api/districts', districtRoutes);
@@ -84,6 +95,18 @@ app.use('/api/get', studentRoutes );
 //consignment
 app.use('/api/co',coomrRoutes);
 app.use('/api/co',questionCoRoutes);
+
+//role
+app.use('/api/r1',roleRoutes);
+
+//user
+app.use('/api/u1', userRoutes);
+
+//exam
+app.use('/api/e1',examRoutes)
+
+//menu
+app.use('/api/m1',menuRoutes);
 
 
 

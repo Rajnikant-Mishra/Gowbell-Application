@@ -83,9 +83,7 @@ export const bulkUploadStudents = (req, res) => {
     }
     res.status(201).send({ message: 'Students uploaded successfully', insertedCount: result.affectedRows });
   });
-};
-
-
+};       
 
   
   // Get all students
