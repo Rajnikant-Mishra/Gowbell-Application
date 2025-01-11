@@ -15,18 +15,18 @@ import {
   UilAngleLeftB,
 } from "@iconscout/react-unicons";
 
-import Mainlayout from "../Layouts/Mainlayout";
-import styles from "./../CommonTable/DataTable.module.css";
+import Mainlayout from "../../Layouts/Mainlayout";
+import styles from "../../CommonTable/DataTable.module.css";
 // import "../../Common-Css/DeleteSwal.css";
-import "../Common-Css/Swallfire.css";
+import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../CommonButton/ButtonComp";
-import Breadcrumb from "../CommonButton/Breadcrumb";
+import ButtonComp from "../../CommonButton/ButtonComp";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
-import { API_BASE_URL } from "../ApiConfig/APIConfig";
-import CreateButton from "../CommonButton/CreateButton";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -238,7 +238,7 @@ export default function DataTable() {
                 </td>
                 <td>{row.id}</td>
                 <td>{row.school}</td>
-                <td>{row.class}</td>
+                <td>{row.class_name}</td>
                 <td>{row.level}</td>
                 <td>{row.date_from}</td>
                

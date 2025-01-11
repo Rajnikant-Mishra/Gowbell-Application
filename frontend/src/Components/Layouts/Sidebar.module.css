@@ -51,10 +51,18 @@
   display: none;
 }
 .sidebarHeader {
+  /* display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px; */
+
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 15px;
+  border-bottom: 0.2px solid #ffffff1f;
+  height: 85px; 
+
 }
 .sidebarLogo {
   display: flex;

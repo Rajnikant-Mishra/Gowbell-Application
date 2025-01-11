@@ -37,7 +37,15 @@ const UpdateMenuForm = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/m1/menu/${id}`);
         if (response.data) {
-          setMenu(response.data); // Set the fetched menu data to state
+          // Ensure boolean values for enable and visible
+          setMenu({
+            ...response.data,
+            enable:
+              response.data.enable === true || response.data.enable === "true",
+            visible:
+              response.data.visible === true ||
+              response.data.visible === "true",
+          });
         }
       } catch (error) {
         Swal.fire({
@@ -51,14 +59,16 @@ const UpdateMenuForm = () => {
     };
 
     fetchMenuData();
-  }, [id]); // Only fetch data when the ID changes
+  }, [id]);
 
   // Handle change in input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setMenu({
       ...menu,
-      [name]: value,
+      [name]:
+        name === "enable" || name === "visible" ? value === "true" : value,
     });
   };
 
@@ -113,8 +123,8 @@ const UpdateMenuForm = () => {
         showConfirmButton: false,
         timer: 1500,
         customClass: {
-            popup: "small-swal",
-          },
+          popup: "small-swal",
+        },
       });
     } finally {
       setIsLoading(false);
@@ -152,6 +162,12 @@ const UpdateMenuForm = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -163,6 +179,12 @@ const UpdateMenuForm = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -175,6 +197,12 @@ const UpdateMenuForm = () => {
                   size="small"
                   required
                   type="number"
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -187,6 +215,12 @@ const UpdateMenuForm = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   <MenuItem value={true}>Enabled</MenuItem>
                   <MenuItem value={false}>Disabled</MenuItem>
@@ -202,6 +236,12 @@ const UpdateMenuForm = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   <MenuItem value={true}>Visible</MenuItem>
                   <MenuItem value={false}>Hidden</MenuItem>
@@ -216,6 +256,12 @@ const UpdateMenuForm = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
             </Grid>

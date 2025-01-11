@@ -13,6 +13,7 @@ import {
   UilUsersAlt,
   UilTrophy,
   UilChartPieAlt,
+  UilBook,
 } from "@iconscout/react-unicons";
 import { Link, useNavigate } from "react-router-dom";
 import MainLogo from "../../assets/logo GOWBELL.png";
@@ -114,10 +115,13 @@ const Sidebar = ({ isCollapsed }) => {
     },
     {
       id: "Exam",
-      icon: UilTruck,
+      icon: UilBook,
       label: "Exam",
-      link: "/examList",
-      subMenu: [],
+      subMenu: [
+        { label: "CreateExam", link: "/examList" },
+        { label: "Omr", link: "/omr-list" },
+        { label: "Question", link: "/question-list" },
+      ],
       title: "Exam",
     },
     {
@@ -125,9 +129,9 @@ const Sidebar = ({ isCollapsed }) => {
       icon: UilTruck,
       label: "Consignment",
       subMenu: [
-        { label: "Omr", link: "/omr-list" },
-        { label: "Question", link: "/question-list" },
-        { label: "Books", link: "#" },
+        { label: "create", link: "/consignment-list" },
+       
+        // { label: "Books", link: "#" },
       ],
       title: "Consignment",
     },

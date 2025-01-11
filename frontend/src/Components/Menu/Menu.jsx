@@ -8,7 +8,7 @@ import {
   Container,
   Typography,
   Grid,
-  MenuItem, // Add this import
+  MenuItem,
 } from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../CommonButton/Breadcrumb";
@@ -24,18 +24,34 @@ const Menu = () => {
     visible: true,
     image: "",
     sequence: 0,
+    parent_id: "", // Add parent_id to track selected parent menu
     updated_by: null,
   });
 
+  const [parentMenus, setParentMenus] = useState([]); // State to store parent menu options
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch parent menu options
+  useEffect(() => {
+    const fetchParentMenus = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/m1/menu`);
+        setParentMenus(response.data); // Assuming API returns an array of menus
+      } catch (error) {
+        console.error("Error fetching parent menus:", error);
+      }
+    };
+
+    fetchParentMenus();
+  }, []);
 
   // Handle change in input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setMenu({
       ...menu,
-      [name]: value, // Store the selected value for each input field
+      [name]: value,
     });
   };
 
@@ -50,7 +66,7 @@ const Menu = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(menu), // Sending the menu data as JSON
+        body: JSON.stringify(menu),
       });
 
       const data = await response.json();
@@ -130,10 +146,10 @@ const Menu = () => {
                   size="small"
                   required
                   InputProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust input text size
                   }}
                   InputLabelProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust label size
                   }}
                 />
               </Grid>
@@ -147,10 +163,10 @@ const Menu = () => {
                   size="small"
                   required
                   InputProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust input text size
                   }}
                   InputLabelProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust label size
                   }}
                 />
               </Grid>
@@ -165,10 +181,10 @@ const Menu = () => {
                   required
                   type="number"
                   InputProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust input text size
                   }}
                   InputLabelProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust label size
                   }}
                 />
               </Grid>
@@ -182,6 +198,12 @@ const Menu = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   <MenuItem value={true}>Enabled</MenuItem>
                   <MenuItem value={false}>Disabled</MenuItem>
@@ -197,6 +219,12 @@ const Menu = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   <MenuItem value={true}>Visible</MenuItem>
                   <MenuItem value={false}>Hidden</MenuItem>
@@ -210,14 +238,37 @@ const Menu = () => {
                   onChange={handleChange}
                   fullWidth
                   size="small"
-                  required
                   InputProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust input text size
                   }}
                   InputLabelProps={{
-                    style: { fontSize: "14px" },
+                    style: { fontSize: "14px" }, // Adjust label size
                   }}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  label="Parent Menu"
+                  name="parent_id"
+                  value={menu.parent_id}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
+                >
+                  <MenuItem value="">None</MenuItem>
+                  {parentMenus.map((parent) => (
+                    <MenuItem key={parent.id} value={parent.id}>
+                      {parent.title}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Grid>
             </Grid>
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>

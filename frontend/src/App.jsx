@@ -65,13 +65,19 @@ import StudentForm from "./Components/Student/StudentForm";
 import StudentList from "./Components/Student/StudentList";
 import StudentUpdate from "./Components/Student/StudentUpdate";
 
-import OmrcoList from "./Components/Consignment/omrco/OmrcoList";
-import OmrcoFrom from "./Components/Consignment/omrco/OmrcoForm";
-import OmrcoUpdate from "./Components/Consignment/omrco/OmrcoUpdate";
+import OmrcoList from "./Components/Exam/omrco/OmrcoList";
+import OmrcoFrom from "./Components/Exam/omrco/OmrcoForm";
+import OmrcoUpdate from "./Components/Exam/omrco/OmrcoUpdate";
 
-import QuestionCoCreate from "./Components/Consignment/question/QuestionCoCreate";
-import QuestionCoList from "./Components/Consignment/question/QuestionCoList";
-import QuestionCoUpdate from "./Components/Consignment/question/QuestionCoUpdate";
+//conginment
+import Create from "./Components/Consignment/create/Create";
+import List from "./Components/Consignment/create/List";
+import Update from "./Components/Consignment/create/Update";
+
+
+import QuestionCoCreate from "./Components/Exam/question/QuestionCoCreate";
+import QuestionCoList from "./Components/Exam/question/QuestionCoList";
+import QuestionCoUpdate from "./Components/Exam/question/QuestionCoUpdate";
 
 import StudentReport from "./Components/Reports/StudentReport";
 import SchoolReport from "./Components/Reports/SchoolReport";
@@ -86,8 +92,8 @@ import UserUpdate from "./Components/User/UserUpdate";
 import Role from "./Components/Role/Role";
 import Rolelist from "./Components/Role/RoleList";
 
-import Exam from "./Components/Exam/Exam";
-import ExamList from "./Components/Exam/ExamList";
+import Exam from "./Components/Exam/CreateExam/Exam";
+import ExamList from "./Components/Exam/CreateExam/ExamList";
 
 import Menu from "./Components/Menu/Menu";
 import MenuList from "./Components/Menu/MenuList";
@@ -321,6 +327,21 @@ function App() {
           <Route
             path="/co-question/update/:id"
             element={<ProtectedRoute element={<QuestionCoUpdate />} />}
+          />
+
+          {/* //conginments */}
+          
+          <Route
+            path="/consignment-list"
+            element={<ProtectedRoute element={<List/>} />}
+          />
+          <Route
+            path="/consignment-create"
+            element={<ProtectedRoute element={<Create/>} />}
+          />
+          <Route
+            path="/update/:id"
+            element={<ProtectedRoute element={<Update/>} />}
           />
 
           {/* report*/}

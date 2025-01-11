@@ -15,18 +15,18 @@ import {
   UilAngleLeftB,
 } from "@iconscout/react-unicons";
 
-import Mainlayout from "../Layouts/Mainlayout";
-import styles from "./../CommonTable/DataTable.module.css";
-// import "../../Common-Css/DeleteSwal.css";
-import "../Common-Css/Swallfire.css";
+import Mainlayout from "../../Layouts/Mainlayout";
+import styles from "./../../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../CommonButton/ButtonComp";
-import Breadcrumb from "../CommonButton/Breadcrumb";
+import ButtonComp from "../../CommonButton/ButtonComp";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
-import { API_BASE_URL } from "../ApiConfig/APIConfig";
-import CreateButton from "../CommonButton/CreateButton";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/DeleteSwal.css";
+import "../../Common-Css/Swallfire.css";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -41,9 +41,9 @@ export default function DataTable() {
   const pageSizes = [10, 20, 50, 100];
 
   useEffect(() => {
-    // Fetch data from the new API when the component mounts
+    // Fetch data from the API when the component mounts
     axios
-      .get(`${API_BASE_URL}/api/m1/menu`) // Updated API URL
+      .get(`${API_BASE_URL}/api/c1/consignments`) // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -70,14 +70,14 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${API_BASE_URL}/api/m1/menu/${id}`)
+          .delete(`${API_BASE_URL}/api/c1/consignments/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
-              prevCountries.filter((menu) => menu.id !== id)
+              prevCountries.filter((country) => country.id !== id)
             );
             setFilteredRecords((prevFiltered) =>
-              prevFiltered.filter((menu) => menu.id !== id)
+              prevFiltered.filter((country) => country.id !== id)
             );
 
             // delete Show a success alert
@@ -85,7 +85,7 @@ export default function DataTable() {
               position: "top-end",
               icon: "success",
               title: "Success!",
-              text: `The menu has been deleted.`,
+              text: `The co-omr has been deleted.`,
               showConfirmButton: false,
               timer: 1000,
               timerProgressBar: true,
@@ -177,13 +177,10 @@ export default function DataTable() {
     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
   };
 
-  // const currentRecords = filteredRecords.slice(
-  //   (page - 1) * pageSize,
-  //   page * pageSize
-  // );
-  const currentRecords = Array.isArray(filteredRecords)
-    ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
-    : [];
+  const currentRecords = filteredRecords.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   const [isAllChecked, setIsAllChecked] = useState(false);
 
@@ -200,8 +197,6 @@ export default function DataTable() {
       return newCheckedRows;
     });
   };
-
-  //breadcrumb codes
 
   const handleSelectAll = () => {
     if (isAllChecked) {
@@ -222,18 +217,14 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
-
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "Menu" }]} />
+          <Breadcrumb data={[{ name: "Consignment" }]} />
         </div>
-        <div>
-          <CreateButton link={"/menu"} />
-        </div>
+        <CreateButton link={"/consignment-create"} />
       </div>
-
       <div className={`${styles.tablecont} mt-0`}>
         <table
           className={`${styles.table} `}
@@ -244,21 +235,26 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["title", "link", "enable", "visible", "created_at"].map(
-                (col) => (
-                  <th
-                    key={col}
-                    className={styles.sortableHeader}
-                    onClick={() => handleSort(col)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-                      {getSortIcon(col)}
-                    </div>
-                  </th>
-                )
-              )}
+              {[
+                "Consignment_Id",
+                "Date",
+                "Created_By",
+                "School",
+                "Via",
+                "Remarks",
+              ].map((col) => (
+                <th
+                  key={col}
+                  className={styles.sortableHeader}
+                  onClick={() => handleSort(col)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    {getSortIcon(col)}
+                  </div>
+                </th>
+              ))}
               <th>Action</th>
             </tr>
           </thead>
@@ -267,7 +263,14 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["title", "link", "enable", "visible", "created_at"].map((col) => (
+            {[
+              "Consignment_Id",
+              "Date",
+              "Created_By",
+              "School",
+              "Via",
+              "Remarks",
+            ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -296,30 +299,22 @@ export default function DataTable() {
                   />
                 </td>
 
-                <td>{row.title}</td>
-                {/* <td>{row.link}</td> */}
-                <td>
-                  {row.link ? (
-                    <a
-                      href={row.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {row.link}
-                    </a>
-                  ) : (
-                    "No link available"
-                  )}
-                </td>
-                <td>{row.enable}</td>
-                <td>{row.visible}</td>
-                <td>{row.created_at}</td>
+                <td>{row.consignment_id}</td>
+                <td>{row.date}</td>
+                <td>{row.created_by}</td>
+                <td>{row.school_name}</td>
+                <td>{row.via}</td>
+                <td>{row.remarks}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    <Link to={`/menu/update/${row.id}`}>
-                      <UilEditAlt className={styles.FaEdit} />
-                    </Link>
+                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
+                    {/* <Link to={`/omrco/update/${row.id}`}>
+                      <FaEdit className={styles.FaEdit} />
+                    </Link> */}
+                    {/* <Link to="#">
+                      <FaEdit className={styles.FaEdit} />
+                    </Link> */}
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
