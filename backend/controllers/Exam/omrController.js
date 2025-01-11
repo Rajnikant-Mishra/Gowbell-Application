@@ -1,4 +1,4 @@
-import Omr from '../../models/Consignment/omrModel.js';
+import Omr from '../../models/Exam/omrModel.js';
 
 // Create a new student
 export const createStudent = (req, res) => {

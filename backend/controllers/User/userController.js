@@ -26,6 +26,8 @@ const usersController = {
       });
     });
   },
+ 
+  
 
   // User login
   loginUser: (req, res) => {

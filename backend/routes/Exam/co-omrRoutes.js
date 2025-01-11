@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent } from '../../controllers/Consignment/omrController.js';
+import { createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent } from '../../controllers/Exam/omrController.js';
 
 const router = express.Router();
 

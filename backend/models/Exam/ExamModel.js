@@ -5,7 +5,7 @@ const examModel = {
 // Create a new exam
  createExam : (examData, callback) => {
   const { school, class_name, level, date_from, date_to } = examData;
-  const query = 'INSERT INTO exam (school, class, level, date_from, date_to) VALUES (?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO exam (school, class_name, level, date_from, date_to) VALUES (?, ?, ?, ?, ?)';
   db.query(query, [school, class_name, level, date_from, date_to], (error, results) => {
     if (error) {
       callback(error, null);
@@ -42,7 +42,7 @@ const examModel = {
 // Update an exam by ID
 updateExam: (id, examData, callback) => {
   const { school, class_name, level, date_from, date_to } = examData;
-  const query = 'UPDATE exam SET school = ?, class = ?, level = ?, date_from = ?, date_to = ? WHERE id = ?';
+  const query = 'UPDATE exam SET school = ?, class_name = ?, level = ?, date_from = ?, date_to = ? WHERE id = ?';
   db.query(query, [school, class_name, level, date_from, date_to, id], (error, results) => {
     if (error) {
       callback(error, null);

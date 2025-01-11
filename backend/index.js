@@ -6,10 +6,6 @@ import cors from "cors";
 
 
 //routes import
-// import  authRoutes from "./routes/Admin/authRoutes.js";
-import userRoutes from "./routes/User/userRoutes.js";
-//role
-import roleRoutes from './routes/Role/roleRoutes.js';
 
 import countryRoutes from './routes/Region/countryRoutes.js';
 import stateRoutes from './routes/Region/stateRoutes.js';
@@ -34,12 +30,21 @@ import inchargeRoutes from './routes/Incharge/inchargeRoutes.js';
 //student\
 import studentRoutes from './routes/Student/studentRoutes.js';
 
-//consignment
-import coomrRoutes from './routes/Consignment/co-omrRoutes.js';
-import questionCoRoutes from './routes/Consignment/questionCoRoutes.js';
 
 //exam
+import coomrRoutes from './routes/Exam/co-omrRoutes.js';
+import questionCoRoutes from './routes/Exam/questionCoRoutes.js';
 import examRoutes from './routes/Exam/examRoutes.js';
+
+//users
+import userRoutes from "./routes/User/userRoutes.js";
+
+//consignment
+import consignmentRoutes  from './routes/Consignment/consignmentRoutes.js';
+
+//role
+import roleRoutes from './routes/Role/roleRoutes.js';
+
 
 //menu
 import menuRoutes from "./routes/Menu/menuRoutes.js";
@@ -68,7 +73,6 @@ app.use(cors({
 
 
 //routes api's fro region
-// app.use("/api/auth", authRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/states', stateRoutes);
 app.use('/api/districts', districtRoutes);
@@ -93,8 +97,8 @@ app.use('/api/get',inchargeRoutes );
 app.use('/api/get', studentRoutes );
 
 //consignment
-app.use('/api/co',coomrRoutes);
-app.use('/api/co',questionCoRoutes);
+app.use('/api/c1',consignmentRoutes);
+
 
 //role
 app.use('/api/r1',roleRoutes);
@@ -103,6 +107,8 @@ app.use('/api/r1',roleRoutes);
 app.use('/api/u1', userRoutes);
 
 //exam
+app.use('/api/co',coomrRoutes);
+app.use('/api/co',questionCoRoutes);
 app.use('/api/e1',examRoutes)
 
 //menu

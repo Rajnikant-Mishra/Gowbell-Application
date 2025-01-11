@@ -1,5 +1,5 @@
 
-import QuestionCo  from '../../models/Consignment/questionCoModel.js';
+import QuestionCo  from '../../models/Exam/questionCoModel.js';
 
 export  const getAllQuestions = (req, res) => {
   QuestionCo.getAll((err, results) => {

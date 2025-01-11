@@ -1,6 +1,6 @@
 import express from 'express';
  
-import { getAllQuestions, getQuestionById, createQuestion, updateQuestion, deleteQuestion } from '../../controllers/Consignment/questionCoController.js';
+import { getAllQuestions, getQuestionById, createQuestion, updateQuestion, deleteQuestion } from '../../controllers/Exam/questionCoController.js';
 
 
 const router = express.Router();
