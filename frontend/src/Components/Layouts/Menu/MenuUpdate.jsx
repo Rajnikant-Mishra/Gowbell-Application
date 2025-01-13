@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // Import useParams
+import { useNavigate, useParams } from "react-router-dom";
 import Mainlayout from "../Layouts/Mainlayout";
 import {
   TextField,
@@ -9,32 +9,15 @@ import {
   Typography,
   Grid,
   MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
 } from "@mui/material";
-import {
-  UilCreateDashboard,
-  UilCompass,
-  UilFileInfoAlt,
-  UilArchiveAlt,
-  UilUniversity,
-  UilBookReader,
-  UilTruck,
-  UilSignalAlt3,
-  UilUsersAlt,
-  UilTrophy,
-  UilBookOpen,
-  UilBars,
-} from "@iconscout/react-unicons";
 import Swal from "sweetalert2";
 import Breadcrumb from "../CommonButton/Breadcrumb";
 import ButtonComp from "../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import axios from "axios";
 
-const Menu = () => {
-  const { id } = useParams(); // Get the menu ID from the URL
+const UpdateMenuForm = () => {
+  const { id } = useParams(); // Get the menu item ID from URL
   const [menu, setMenu] = useState({
     title: "",
     link: "",
@@ -42,39 +25,44 @@ const Menu = () => {
     visible: true,
     image: "",
     sequence: 0,
-    parent_id: "",
     updated_by: null,
   });
 
-  const [parentMenus, setParentMenus] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch parent menu options and current menu data
+  // Fetch the existing menu data when the component mounts
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchMenuData = async () => {
       try {
-        // Fetch parent menus
-        const parentResponse = await axios.get(`${API_BASE_URL}/api/m1/menu`);
-        setParentMenus(parentResponse.data);
-
-        // Fetch current menu details
-        if (id) {
-          const menuResponse = await axios.get(
-            `${API_BASE_URL}/api/m1/menu/${id}`
-          );
-          setMenu(menuResponse.data);
+        const response = await axios.get(`${API_BASE_URL}/api/m1/menu/${id}`);
+        if (response.data) {
+          // Ensure boolean values for enable and visible
+          setMenu({
+            ...response.data,
+            enable:
+              response.data.enable === true || response.data.enable === "true",
+            visible:
+              response.data.visible === true ||
+              response.data.visible === "true",
+          });
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Failed to fetch menu data",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     };
 
-    fetchData();
+    fetchMenuData();
   }, [id]);
 
-   // Handle change in input fields
-   const handleChange = (e) => {
+  // Handle change in input fields
+  const handleChange = (e) => {
     const { name, value } = e.target;
 
     setMenu({
@@ -84,41 +72,59 @@ const Menu = () => {
     });
   };
 
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await axios({
-        method: id ? "PUT" : "POST", // Use PUT for update and POST for create
-        url: `${API_BASE_URL}/api/m1/menu${id ? `/${id}` : ""}`,
-        data: menu,
+      const response = await fetch(`${API_BASE_URL}/api/m1/menu/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(menu), // Sending the updated menu data as JSON
       });
 
-      if (response.status === 200 || response.status === 201) {
+      const data = await response.json();
+
+      if (response.ok) {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: id
-            ? "Menu updated successfully!"
-            : "Menu created successfully!",
+          title: "Menu updated successfully!",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 2000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
-        navigate("/menu-list");
+        navigate("/menu-list"); // Navigate to the menu list after successful update
+      } else {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: data.message || "Something went wrong!",
+          showConfirmButton: false,
+          timer: 1500,
+          customClass: {
+            popup: "small-swal",
+          },
+        });
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
       Swal.fire({
         position: "top-end",
         icon: "error",
         title: "An error occurred!",
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          popup: "small-swal",
+        },
       });
     } finally {
       setIsLoading(false);
@@ -129,10 +135,7 @@ const Menu = () => {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Breadcrumb
-          data={[
-            { name: "Menu", link: "/menu-list" },
-            { name: id ? "Edit Menu" : "Create Menu" },
-          ]}
+          data={[{ name: "Menu", link: "/menu-list" }, { name: "Update Menu" }]}
         />
       </div>
       <Container maxWidth="sm">
@@ -146,7 +149,7 @@ const Menu = () => {
           }}
         >
           <Typography variant="h4" align="center" gutterBottom>
-            {id ? "Edit Menu" : "Create Menu"}
+            Update Menu
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
@@ -159,6 +162,12 @@ const Menu = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -169,6 +178,13 @@ const Menu = () => {
                   onChange={handleChange}
                   fullWidth
                   size="small"
+                  required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -181,6 +197,12 @@ const Menu = () => {
                   size="small"
                   required
                   type="number"
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -193,6 +215,12 @@ const Menu = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   <MenuItem value={true}>Enabled</MenuItem>
                   <MenuItem value={false}>Disabled</MenuItem>
@@ -208,76 +236,46 @@ const Menu = () => {
                   fullWidth
                   size="small"
                   required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
                 >
                   <MenuItem value={true}>Visible</MenuItem>
                   <MenuItem value={false}>Hidden</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={6}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Image</InputLabel>
-                  <Select
-                    name="image"
-                    value={menu.image}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="UilFileInfoAlt">
-                      <UilFileInfoAlt />
-                    </MenuItem>
-                    <MenuItem value="UilArchiveAlt">
-                      <UilArchiveAlt />
-                    </MenuItem>
-                    <MenuItem value="UilUniversity">
-                      <UilUniversity />
-                    </MenuItem>
-                    <MenuItem value="UilBookReader">
-                      <UilBookReader />
-                    </MenuItem>
-                    <MenuItem value="UilTruck">
-                      <UilTruck />
-                    </MenuItem>
-                    <MenuItem value="UilSignalAlt3">
-                      <UilSignalAlt3 />
-                    </MenuItem>
-                    <MenuItem value="UilUsersAlt">
-                      <UilUsersAlt />
-                    </MenuItem>
-                    <MenuItem value="UilTrophy">
-                      <UilTrophy />
-                    </MenuItem>
-                    <MenuItem value="UilBookOpen">
-                      <UilBookOpen />
-                    </MenuItem>
-                    <MenuItem value="UilBars">
-                      <UilBars />
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
                 <TextField
-                  select
-                  label="Parent Menu"
-                  name="parent_id"
-                  value={menu.parent_id}
+                  label="Image"
+                  name="image"
+                  value={menu.image}
                   onChange={handleChange}
                   fullWidth
                   size="small"
-                >
-                  <MenuItem value="">None</MenuItem>
-                  {parentMenus.map((parent) => (
-                    <MenuItem key={parent.id} value={parent.id}>
-                      {parent.title}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  required
+                  InputProps={{
+                    style: { fontSize: "14px" }, // Adjust input text size
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" }, // Adjust label size
+                  }}
+                />
               </Grid>
             </Grid>
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-              <ButtonComp text="Submit" type="submit" disabled={isLoading} />
+              <ButtonComp
+                text="Update"
+                type="submit"
+                disabled={isLoading}
+                sx={{ flexGrow: 1 }}
+              />
               <ButtonComp
                 text="Cancel"
                 type="button"
+                sx={{ flexGrow: 1 }}
                 onClick={() => navigate("/menu-list")}
               />
             </Box>
@@ -288,4 +286,4 @@ const Menu = () => {
   );
 };
 
-export default Menu;
+export default UpdateMenuForm;

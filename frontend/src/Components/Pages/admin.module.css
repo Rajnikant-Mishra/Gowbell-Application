@@ -1,0 +1,119 @@
+.container {
+    width: 100%;
+    margin: 0;
+  }
+  .profile-image-container {
+    position: relative;
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: rgba(194, 193, 193, 0.05) 0px 0px 0px 1px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    box-shadow: none;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .profile-image-hovered {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .lables {
+    font-family: "Poppins";
+    text-decoration: none;
+    font-size: 0.8rem;
+    line-height: 22.5px;
+    color: black;
+    font-weight: 600;
+    width: 150px;
+  }
+  
+  .control {
+    height: 40px !important;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: "Arial", sans-serif;
+    color: gray;
+    background-color: #fff;
+    border: 0.2px solid #ced4da91;
+    border-radius: 6px;
+    box-shadow: none;
+    margin-left: 0px;
+    width: 50%;
+  }
+  
+  .control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    outline: none;
+  }
+  
+ 
+  .hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; 
+  }
+  
+  .icon-container {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .icon {
+    color: white;
+    transition: transform 0.3s ease;
+  }
+  
+  .icon:hover {
+    transform: scale(1.2);
+  }
+  
+  .hidden {
+    display: none;
+  }
+  .formcont {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background-color: white;
+  }
+  
+  .title {
+    color: blue;
+  }
+  .name,
+  .title,
+  .email {
+    font-family: "Poppins";
+  }
+  .div1 {
+    gap: 15%;
+  }
+  .inputdiv {
+    gap: 13%;
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 27%;
+    top: 79.5%;
+  
+    cursor: pointer;
+  }

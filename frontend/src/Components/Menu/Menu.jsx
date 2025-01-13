@@ -9,12 +9,29 @@ import {
   Typography,
   Grid,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../CommonButton/Breadcrumb";
 import ButtonComp from "../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import axios from "axios";
+import {
+  UilCreateDashboard,
+  UilCompass,
+  UilFileInfoAlt,
+  UilArchiveAlt,
+  UilUniversity,
+  UilBookReader,
+  UilTruck,
+  UilSignalAlt3,
+  UilUsersAlt,
+  UilTrophy,
+  UilBookOpen,
+  UilBars,
+} from "@iconscout/react-unicons";
 
 const Menu = () => {
   const [menu, setMenu] = useState({
@@ -77,7 +94,7 @@ const Menu = () => {
           icon: "success",
           title: "Menu created successfully!",
           showConfirmButton: false,
-          timer: 2000,
+          timer: 1000,
           timerProgressBar: true,
           toast: true,
           background: "#fff",
@@ -161,7 +178,6 @@ const Menu = () => {
                   onChange={handleChange}
                   fullWidth
                   size="small"
-                  required
                   InputProps={{
                     style: { fontSize: "14px" }, // Adjust input text size
                   }}
@@ -231,21 +247,37 @@ const Menu = () => {
                 </TextField>
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  label="Image"
-                  name="image"
-                  value={menu.image}
-                  onChange={handleChange}
-                  fullWidth
-                  size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
-                  }}
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel style={{ fontSize: "14px" }}>Image</InputLabel>
+                  <Select
+                    name="image"
+                    value={menu.image}
+                    onChange={handleChange}
+                    style={{ fontSize: "14px" }} // Adjust dropdown text size
+                    label="Image"
+                  >
+                    {/* Replace these with your actual options */}
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="UilCompass">
+                      <UilCompass />
+                    </MenuItem>
+                  
+                    <MenuItem value="UilFileInfoAlt"><UilFileInfoAlt/></MenuItem>
+                    <MenuItem value="UilArchiveAlt"><UilArchiveAlt/></MenuItem>
+                    <MenuItem value="UilUniversity"><UilUniversity/></MenuItem>
+                    <MenuItem value="UilBookReader"><UilBookReader/></MenuItem>
+                    <MenuItem value="UilTruck"><UilTruck/></MenuItem>
+                    <MenuItem value="UilSignalAlt3"><UilSignalAlt3/></MenuItem>
+                    <MenuItem value="UilUsersAlt"><UilUsersAlt/></MenuItem>
+                    <MenuItem value="UilTrophy"><UilTrophy/></MenuItem>
+                    <MenuItem value="UilBookOpen"><UilBookOpen/></MenuItem>
+                    <MenuItem value="UilBars"><UilBars/></MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   select
