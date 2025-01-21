@@ -12,6 +12,7 @@ export const createMenu = (req, res) => {
   });
 };
 
+
 // Get all menus
 export const getAllMenus = (req, res) => {
   Menu.getAllMenus((err, results) => {

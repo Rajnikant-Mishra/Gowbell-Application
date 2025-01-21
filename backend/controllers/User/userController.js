@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import RoleMenu from '../../models/configuration/role_menuModel.js';
 import User from '../../models/User/userModel.js';
 
 const usersController = {
@@ -30,47 +31,79 @@ const usersController = {
   
 
   // User login
+  // loginUser: (req, res) => {
+  //   const { email, password } = req.body;
+
+  //   if (!email || !password) {
+  //     return res.status(400).json({ error: "Email and password are required" });
+  //   }
+
+  //   User.getUserByEmail(email, (err, users) => {
+  //     if (err) {
+  //       return res.status(500).json({ error: err.message });
+  //     }
+
+  //     if (users.length === 0) {
+  //       return res.status(404).json({ error: "User not found" });
+  //     }
+
+  //     const user = users[0];
+  //     bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
+  //       if (bcryptErr || !isMatch) {
+  //         return res.status(401).json({ error: "Invalid email or password" });
+  //       }
+
+  //       const token = jwt.sign(
+  //         { id: user.id, role: user.role },
+  //         process.env.JWT_SECRET,
+  //         { expiresIn: '1h' }
+  //       );
+
+  //       res.status(200).json({
+  //         message: "Login successful",
+  //         token,
+  //         user: {
+  //           id: user.id,
+  //           email: user.email,
+  //           role: user.role
+  //         }
+  //       });
+  //     });
+  //   });
+  // },
+
+  
   loginUser: (req, res) => {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
-
+  
     User.getUserByEmail(email, (err, users) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
+      if (err || users.length === 0) {
+        return res.status(401).json({ error: 'Invalid credential' });
       }
-
-      if (users.length === 0) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
+  
       const user = users[0];
       bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
         if (bcryptErr || !isMatch) {
-          return res.status(401).json({ error: "Invalid email or password" });
+          return res.status(401).json({ error: 'Invalid credentials' });
         }
-
-        const token = jwt.sign(
-          { id: user.id, role: user.role },
-          process.env.JWT_SECRET,
-          { expiresIn: '1h' }
-        );
-
-        res.status(200).json({
-          message: "Login successful",
-          token,
-          user: {
-            id: user.id,
-            email: user.email,
-            role: user.role
+  
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  
+        RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {
+          if (menuErr) {
+            return res.status(500).json({ error: 'Failed to fetch menus' });
           }
+  
+          res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: { id: user.id, email: user.email, role: user.role },
+            menus,
+          });
         });
       });
     });
   },
-
 
    // Logout user
    logoutUser: (req, res) => {
@@ -80,7 +113,6 @@ const usersController = {
   
 
   // Other CRUD operations...
-
   getAllUsers: (req, res) => {
     User.getAllUsers((err, results) => {
       if (err) {

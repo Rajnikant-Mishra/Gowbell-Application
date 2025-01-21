@@ -11,7 +11,7 @@ const Menu = {
       query,
       [
         menu.title,
-        menu.link,
+        menu.link,  
         menu.enable,
         menu.visible,
         menu.image,
@@ -22,6 +22,7 @@ const Menu = {
       callback
     );
   },
+
 
   // Get all menus
   getAllMenus: (callback) => {

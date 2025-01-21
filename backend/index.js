@@ -19,9 +19,7 @@ import subjectRoutes from './routes/Master/subjectRoutes.js';
 import affiliatedRoutes from './routes/Master/affiliatedRoutes.js';
 
 //inventory
-import bookRoutes from './routes/Inventory/bookRoutes.js';
-import questionRoutes from './routes/Inventory/questionRoutes.js';
-import omrRoutes from './routes/Inventory/omrRoutes.js';
+import inventoryRoutes from './routes/inventory/inventoryRoutes.js';
 
 //school
 import SchoolFormRoutes from './routes/School/SchoolFormRoutes.js';
@@ -48,7 +46,7 @@ import roleRoutes from './routes/Role/roleRoutes.js';
 
 //menu
 import menuRoutes from "./routes/Menu/menuRoutes.js";
-
+import role_menuRoutes from "./routes/configuration/role_menuRoutes.js";
 
 const app = express();
 
@@ -70,8 +68,6 @@ app.use(cors({
   
 
 
-
-
 //routes api's fro region
 app.use('/api/countries', countryRoutes);
 app.use('/api/states', stateRoutes);
@@ -85,9 +81,8 @@ app.use('/api', subjectRoutes);
 app.use('/api', affiliatedRoutes);
 
 //use the inventory routes
-app.use('/api',bookRoutes );
-app.use('/api/get', questionRoutes);
-app.use('/api/get',omrRoutes);
+app.use('/api/v1', inventoryRoutes);
+
 
 //use the school routes
 app.use('/api/get',SchoolFormRoutes);
@@ -113,6 +108,7 @@ app.use('/api/e1',examRoutes)
 
 //menu
 app.use('/api/m1',menuRoutes);
+app.use('/api/permission',role_menuRoutes)
 
 
 

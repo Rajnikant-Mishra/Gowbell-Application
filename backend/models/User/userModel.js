@@ -2,8 +2,7 @@ import { db } from '../../config/db.js';
 
 const User = {
   createUser: (user, callback) => {
-    // const query = `INSERT INTO users (role, username, email, phone, status, password) VALUES (?, ?, ?, ?, ?, ?)`;
-    // db.query(query, [user.role, user.username, user.email, user.phone, user.status, user.password], callback);
+    
     const query = `INSERT INTO users (role, username, email, phone, status, password, confirm_password) VALUES (?, ?, ?, ?, ?, ?, ?)`;
 db.query(query, [user.role, user.username, user.email, user.phone, user.status, user.password, user.confirm_password], callback);
 
@@ -13,6 +12,11 @@ db.query(query, [user.role, user.username, user.email, user.phone, user.status, 
   getUserByEmail: (email, callback) => {
     const query = 'SELECT * FROM users WHERE email = ?';
     db.query(query, [email], callback);
+  },
+
+  getMenusByRole: (role, callback) => {
+    const query = `SELECT * FROM menus WHERE role = ?`;
+    db.query(query, [role], callback);
   },
 
   getAllUsers: (callback) => {
