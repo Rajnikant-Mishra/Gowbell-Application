@@ -257,7 +257,7 @@ img .sqichedicon {
 .collapsed .submenu {
   position: fixed;
   width: 12%;
-  left: 0;
+  left: 60px;
   margin-left: 0px;
   background-color: #082375;
   padding-left: 0px;

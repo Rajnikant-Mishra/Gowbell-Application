@@ -205,8 +205,7 @@ export default function SchoolReport() {
         <div role="presentation">
           <Breadcrumb data={[{ name: "School Report" }]} />
         </div>
-      </div>
-      <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end">
         <div
           role="presentation"
           onClick={handleClick}
@@ -229,6 +228,8 @@ export default function SchoolReport() {
 
         </div>
       </div>
+      </div>
+     
       <div className={`${styles.tablecont} mt-3`}>
         <table
           className={`${styles.table} `}

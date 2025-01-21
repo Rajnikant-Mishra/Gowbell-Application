@@ -1,57 +1,80 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 import Mainlayout from "../../Layouts/Mainlayout";
 import {
-  Container,
   TextField,
   Button,
-  Select,
   MenuItem,
-  Grid,
-  Typography,
   FormControl,
-  InputLabel,
-  FormHelperText,
-  Card,
-  CardContent,
+  Container,
+  Typography,
   Box,
 } from "@mui/material";
+import Swal from "sweetalert2";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
-const UpdateCountry = () => {
-  const [name, setName] = useState("");
-  const [status, setStatus] = useState("active");
-  const { id } = useParams();
+const validationSchema = Yup.object({
+  name: Yup.string()
+    .min(3, "Subject name must be at least 3 characters")
+    .max(255, "Subject name must be less than or equal to 255 characters")
+    .required("Subject name is required")
+    .matches(/^[a-zA-Z0-9 ]*$/, "Subject name can only contain letters and numbers")
+    .test("unique-name", "Subject name already exists.", async (value) => {
+      if (!value) return true;
+      try {
+        const { data: existingSubjects } = await axios.get(
+          `${API_BASE_URL}/api/subject`
+        );
+        return !existingSubjects.some(
+          (subject) => subject.name.toLowerCase() === value.toLowerCase()
+        );
+      } catch (error) {
+        console.error("Error checking duplicate subject name:", error);
+        return false;
+      }
+    }),
+  status: Yup.string()
+    .oneOf(["active", "inactive"], "Status must be either 'active' or 'inactive'")
+    .required("Status is required"),
+});
+
+const Updatesubject = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); // Extract the subject ID from the URL
+  const [subjectData, setSubjectData] = useState(null);
 
+  // Fetch subject details on component mount
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/subject/${id}`)
       .then((response) => {
-        setName(response.data.name);
-        setStatus(response.data.status);
+        setSubjectData(response.data); // Set subject data to state
       })
       .catch((error) => {
-        console.error("Error fetching class:", error);
+        console.error("Error fetching subject details:", error);
       });
   }, [id]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
+  const handleSubmit = (values) => {
+    // Sending the PUT request to the server to update the subject
     axios
-      .put(`${API_BASE_URL}/api/subject/${id}`, { name, status })
+      .put(`${API_BASE_URL}/api/subject/${id}`, {
+        name: values.name,
+        status: values.status,
+      })
       .then((response) => {
         // Success: Show success alert and redirect
         Swal.fire({
           position: "top-end",
           icon: "success",
           title: "Success!",
-          text: `Subject "${name}" updated successfully!`,
+          text: `Subject ${values.name} updated successfully!`,
           showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
@@ -61,112 +84,112 @@ const UpdateCountry = () => {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate("/subject"); // Redirect after SweetAlert
+          navigate("/subject"); // Redirect after success
         });
       })
       .catch((error) => {
-        // Error handling for duplicate subject name
-        if (
-          error.response &&
-          error.response.data.error === "Subject with this name already exists"
-        ) {
-          Swal.fire({
-            position: "top-end",
-            icon: "error",
-            title: "Error!",
-            text: `Subject name "${name}" already exists.`,
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            toast: true,
-            background: "#fff",
-            customClass: {
-              popup: "small-swal",
-            },
-          });
-        } else {
-          // General error handling
-          Swal.fire({
-            title: "Error!",
-            text: "There was an issue updating the subject. Please try again.",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
+        // Error: Show error alert
         console.error("Error updating subject:", error);
       });
   };
+
+  // Show a loading state while fetching subject data
+  if (!subjectData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb
-            data={[
-              { name: "Subject", link: "/subject" },
-              { name: "Update Subject" },
-            ]}
+            data={[{ name: "Subject", link: "/subject" }, { name: "Update Subject" }]}
           />
         </div>
       </div>
       <Container maxWidth="sm">
-        <Card sx={{ boxShadow: 3, padding: 3 }}>
-          <Typography variant="h4" gutterBottom align="center">
+        <Box
+          sx={{
+            marginTop: 13,
+            padding: 3,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#fff",
+          }}
+        >
+          <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
             Update Subject
           </Typography>
-          <CardContent>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
+          <Formik
+            initialValues={{ name: subjectData.name, status: subjectData.status }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, handleChange, handleBlur, handleSubmit, touched, errors }) => (
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  fullWidth
+                  label="Subject Name"
+                  name="name"
+                  value={values.name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  variant="outlined"
+                  margin="normal"
+                  size="small"
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
+                  InputProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                  InputLabelProps={{
+                    style: { fontSize: "14px" },
+                  }}
+                />
+                <FormControl fullWidth margin="normal" required>
                   <TextField
-                    label=" subject Name"
+                    select
+                    name="status"
+                    value={values.status}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    label="Status"
                     variant="outlined"
-                    fullWidth
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      label="Status"
-                    >
-                      <MenuItem value="active">Active</MenuItem>
-                      <MenuItem value="inactive">Inactive</MenuItem>
-                    </Select>
-                    <FormHelperText>Select the country status</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  <Box
-                    className={` gap-2 mt-4`}
-                    sx={{ display: "flex", gap: 2 }}
+                    size="small"
+                    error={touched.status && Boolean(errors.status)}
+                    helperText={touched.status && errors.status}
+                    InputProps={{
+                      style: { fontSize: "14px" },
+                    }}
+                    InputLabelProps={{
+                      style: { fontSize: "14px" },
+                    }}
                   >
-                    <ButtonComp
-                      text="Submit"
-                      type="submit"
-                      disabled={false}
-                      sx={{ flexGrow: 1 }}
-                    />
-                    <ButtonComp
-                      text="Cancel"
-                      type="button"
-                      sx={{ flexGrow: 1 }}
-                      onClick={() => navigate("/subject")}
-                    />
-                  </Box>
-                </Grid>
-              </Grid>
-            </form>
-          </CardContent>
-        </Card>
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="inactive">Inactive</MenuItem>
+                  </TextField>
+                </FormControl>
+                <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+                  <ButtonComp
+                    text="Submit"
+                    type="submit"
+                    disabled={false}
+                    sx={{ flexGrow: 1 }}
+                  />
+                  <ButtonComp
+                    text="Cancel"
+                    type="button"
+                    sx={{ flexGrow: 1 }}
+                    onClick={() => navigate("/subject")}
+                  />
+                </Box>
+              </form>
+            )}
+          </Formik>
+        </Box>
       </Container>
     </Mainlayout>
   );
 };
 
-export default UpdateCountry;
+export default Updatesubject;

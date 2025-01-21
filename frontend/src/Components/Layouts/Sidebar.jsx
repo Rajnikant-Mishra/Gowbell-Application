@@ -1,12 +1,13 @@
-
 // import React, { useEffect, useState } from "react";
 // import { FaChevronRight } from "react-icons/fa";
 // import styles from "./Sidebar.module.css";
 // import { Link, useNavigate } from "react-router-dom";
-// import { UilCreateDashboard } from "@iconscout/react-unicons";
+// import { UilCreateDashboard  } from "@iconscout/react-unicons";
+// import * as Unicons from "@iconscout/react-unicons";
 // import MainLogo from "../../assets/logo GOWBELL.png";
 // import pathlogo from "../../assets/sidelogo.png";
 // import { API_BASE_URL } from "../ApiConfig/APIConfig";
+
 
 // const Sidebar = ({ isCollapsed }) => {
 //   const [expandedMenus, setExpandedMenus] = useState({});
@@ -32,7 +33,7 @@
 //   const organizeMenuItems = () => {
 //     const mainMenus = [];
 //     const subMenus = {};
-  
+
 //     menuItems.forEach((item) => {
 //       if (item.sequence === 0) {
 //         mainMenus.push(item); // Parent menu
@@ -44,17 +45,16 @@
 //         subMenus[item.parent_id].push(item); // Add submenu item
 //       }
 //     });
-  
+
 //     // Attach submenus to their respective parent menus
 //     mainMenus.forEach((menu) => {
 //       if (subMenus[menu.id]) {
 //         menu.subMenu = subMenus[menu.id]; // Assign submenus to the parent menu
 //       }
 //     });
-  
+
 //     return mainMenus;
 //   };
-  
 
 //   // Handle submenu toggle
 //   const toggleSubMenu = (menuId) => {
@@ -73,6 +73,24 @@
 //     }
 //   };
 
+  
+//   const renderIcon = (iconData) => {
+//     if (!iconData) return null; // No icon data
+  
+//     // Check if the icon is a valid Unicons component
+//     const IconComponent = Unicons[iconData];
+//     if (IconComponent) {
+//       return <IconComponent className={styles.icon} />;
+//     }
+  
+//     // Check if the icon is an image URL
+//     if (iconData.startsWith("http") || /\.(png|jpg|jpeg|svg|gif)$/i.test(iconData)) {
+//       return <img src={iconData} alt="icon" className={styles.icon} />;
+//     }
+  
+//     // Fallback for invalid icon data
+//     return <UilCreateDashboard className={styles.icon} />; // Default icon
+//   };
 //   const organizedMenuItems = organizeMenuItems();
 
 //   return (
@@ -101,7 +119,7 @@
 //                 className={styles.navLink}
 //                 onClick={() => navigateTo(menuItem)}
 //               >
-//                 {menuItem.icon && React.createElement(menuItem.icon, { className: styles.icon })}
+//                 {renderIcon(menuItem.image)}
 //                 {!isCollapsed && <span>{menuItem.title}</span>}
 //                 {!isCollapsed && menuItem.subMenu && menuItem.subMenu.length > 0 && (
 //                   <FaChevronRight
@@ -131,35 +149,61 @@
 // export default Sidebar;
 
 
+
+// import React, { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+
+// const Sidebar = () => {
+//   const [menus, setMenus] = useState([]);
+
+//   useEffect(() => {
+//     // Get menus from localStorage after login
+//     const storedMenus = JSON.parse(localStorage.getItem("menus"));
+//     if (storedMenus) {
+//       setMenus(storedMenus);
+//     }
+//   }, []);
+
+//   return (
+//     <div className="sidebar">
+//       <ul>
+//         {menus && menus.length > 0 ? (
+//           menus.map((menu, index) => (
+//             <li key={index}>
+//               <Link to={menu.link}>{menu.title}</Link>
+//             </li>
+//           ))
+//         ) : (
+//           <li>No menus available</li>
+//         )}
+//       </ul>
+//     </div>
+//   );
+// };
+
+// export default Sidebar;
+
+
 import React, { useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { Link, useNavigate } from "react-router-dom";
-import { UilCreateDashboard  } from "@iconscout/react-unicons";
+import { UilCreateDashboard } from "@iconscout/react-unicons";
 import * as Unicons from "@iconscout/react-unicons";
-
 import MainLogo from "../../assets/logo GOWBELL.png";
 import pathlogo from "../../assets/sidelogo.png";
-import { API_BASE_URL } from "../ApiConfig/APIConfig";
 
 const Sidebar = ({ isCollapsed }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
-  const [menuItems, setMenuItems] = useState([]);
+  const [menus, setMenus] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch menu items from API
-    const fetchMenuItems = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/m1/menu`);
-        const data = await response.json();
-        setMenuItems(data); // Store the fetched menu items in state
-      } catch (error) {
-        console.error("Error fetching menu items:", error);
-      }
-    };
-
-    fetchMenuItems();
+    // Get menus from localStorage after login
+    const storedMenus = JSON.parse(localStorage.getItem("menus"));
+    if (storedMenus) {
+      setMenus(storedMenus);
+    }
   }, []);
 
   // Organize menu items by sequence and parent-child relationship
@@ -167,7 +211,7 @@ const Sidebar = ({ isCollapsed }) => {
     const mainMenus = [];
     const subMenus = {};
 
-    menuItems.forEach((item) => {
+    menus.forEach((item) => {
       if (item.sequence === 0) {
         mainMenus.push(item); // Parent menu
       } else if (item.sequence > 0 && item.parent_id) {
@@ -206,24 +250,24 @@ const Sidebar = ({ isCollapsed }) => {
     }
   };
 
-  
   const renderIcon = (iconData) => {
     if (!iconData) return null; // No icon data
-  
+
     // Check if the icon is a valid Unicons component
     const IconComponent = Unicons[iconData];
     if (IconComponent) {
       return <IconComponent className={styles.icon} />;
     }
-  
+
     // Check if the icon is an image URL
     if (iconData.startsWith("http") || /\.(png|jpg|jpeg|svg|gif)$/i.test(iconData)) {
       return <img src={iconData} alt="icon" className={styles.icon} />;
     }
-  
+
     // Fallback for invalid icon data
     return <UilCreateDashboard className={styles.icon} />; // Default icon
   };
+
   const organizedMenuItems = organizeMenuItems();
 
   return (
@@ -280,6 +324,11 @@ const Sidebar = ({ isCollapsed }) => {
 };
 
 export default Sidebar;
+
+
+
+
+
 
 
 

@@ -165,30 +165,6 @@ export default function SchoolForm() {
 
   //-------------------------end code of api-------------------------------------------//
 
-  // const handleChange = (e, newValue) => {
-  //   const { name } = e.target;
-
-  //   if (name === "classes" && newValue !== undefined) {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       classes: newValue.map((item) => item.value),
-  //     }));
-  //   } else if (name.includes("schoolAddress")) {
-  //     const addressField = name.split(".")[1];
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       schoolAddress: {
-  //         ...prev.schoolAddress,
-  //         [addressField]: e.target.value,
-  //       },
-  //     }));
-  //   } else {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: e.target.value,
-  //     }));
-  //   }
-  // };
   const handleChange = (e, newValue) => {
     const { name, value } = e.target;
 
@@ -374,7 +350,7 @@ export default function SchoolForm() {
                   name="state"
                   value={formData.state}
                   options={states.map((state) => ({
-                    value: state.id, // Use ID for unique identification
+                    value: state.name, // Use ID for unique identification
                     label: state.name, // Name for display
                   }))}
                   onChange={(e) =>
@@ -392,7 +368,7 @@ export default function SchoolForm() {
                   label="District"
                   name="district"
                   options={districts.map((district) => ({
-                    value: district.id, // Use ID for unique identification
+                    value: district.name, // Use ID for unique identification
                     label: district.name, // Name for display
                   }))}
                   value={formData.district}
@@ -411,7 +387,7 @@ export default function SchoolForm() {
                   label="City"
                   name="city"
                   options={cities.map((city) => ({
-                    value: city.id, // Use ID for unique identification
+                    value: city.name, // Use ID for unique identification
                     label: city.name, // Name for display
                   }))}
                   value={formData.city}

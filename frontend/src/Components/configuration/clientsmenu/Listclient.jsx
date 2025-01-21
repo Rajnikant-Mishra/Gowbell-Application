@@ -16,18 +16,16 @@ import {
 } from "@iconscout/react-unicons";
 
 import Mainlayout from "../../Layouts/Mainlayout";
-import styles from "./../../CommonTable/DataTable.module.css";
+import styles from "../../CommonTable/DataTable.module.css";
+// import "../../Common-Css/DeleteSwal.css";
+import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../../CommonButton/ButtonComp";
-import { Breadcrumbs } from "@mui/material";
-import { styled, emphasize } from "@mui/material/styles";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";  
-import Breadcrumb from "../../CommonButton/Breadcrumb";
+import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/DeleteSwal.css";
-import "../../Common-Css/Swallfire.css";
 import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
@@ -41,13 +39,11 @@ export default function DataTable() {
   const [pageSize, setPageSize] = useState(10);
 
   const pageSizes = [10, 20, 50, 100];
-  
-
 
   useEffect(() => {
-    // Fetch data from the API when the component mounts
+    // Fetch data from the new API when the component mounts
     axios
-      .get(`${ API_BASE_URL }/api/get/omr`) // Your API URL here
+      .get(`${API_BASE_URL}/api/cm/cleintsmenu`) // Updated API URL
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);
@@ -56,7 +52,6 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
-
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -75,7 +70,7 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${ API_BASE_URL }/api/get/omr/${id}`)
+          .delete(`${ API_BASE_URL }/api/cm/cleintsmenu/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -85,34 +80,36 @@ export default function DataTable() {
               prevFiltered.filter((country) => country.id !== id)
             );
 
-            // delete Show a success alert
-                        Swal.fire({
-                          position: "top-end",
-                          icon: "success",
-                          title: "Success!",
-                          text: `The omr has been deleted.`,
-                          showConfirmButton: false,
-                          timer: 1000,
-                          timerProgressBar: true,
-                          toast: true,
-                          background: "#fff",
-                          customClass: {
-                            popup: "small-swal",
-                          },
-                        });
+           // delete Show a success alert
+                       Swal.fire({
+                         position: "top-end",
+                         icon: "success",
+                         title: "Success!",
+                         text: `The menu-permission has been deleted.`,
+                         showConfirmButton: false,
+                         timer: 1000,
+                         timerProgressBar: true,
+                         toast: true,
+                         background: "#fff",
+                         customClass: {
+                           popup: "small-swal",
+                         },
+                       });
           })
           .catch((error) => {
-            console.error("Error deleting country:", error);
+            console.error("Error deleting:", error);
             // Show an error alert if deletion fails
             Swal.fire(
               "Error!",
-              "There was an issue deleting the country.",
+              "There was an issue deleting.",
               "error"
             );
           });
       }
     });
   };
+  
+  
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
@@ -182,10 +179,13 @@ export default function DataTable() {
     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
   };
 
-  const currentRecords = filteredRecords.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  // const currentRecords = filteredRecords.slice(
+  //   (page - 1) * pageSize,
+  //   page * pageSize
+  // );
+  const currentRecords = Array.isArray(filteredRecords)
+    ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
+    : [];
 
   const [isAllChecked, setIsAllChecked] = useState(false);
 
@@ -203,6 +203,7 @@ export default function DataTable() {
     });
   };
 
+  //breadcrumb codes
 
   const handleSelectAll = () => {
     if (isAllChecked) {
@@ -228,12 +229,13 @@ export default function DataTable() {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "OMR" }]} />
+          <Breadcrumb data={[{ name: "manage-menu-permission" }]} />
         </div>
         <div>
-        <CreateButton link={"/omr/create"} />
+          <CreateButton link={"/client-menu"} />
         </div>
       </div>
+
       <div className={`${styles.tablecont} mt-0`}>
         <table
           className={`${styles.table} `}
@@ -244,19 +246,21 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["title", "quantity", "created_at"].map((col) => (
-                <th
-                  key={col}
-                  className={styles.sortableHeader}
-                  onClick={() => handleSort(col)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-                    {getSortIcon(col)}
-                  </div>
-                </th>
-              ))}
+              {["menu_id", "role", "created_at"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className={styles.sortableHeader}
+                    onClick={() => handleSort(col)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                      {getSortIcon(col)}
+                    </div>
+                  </th>
+                )
+              )}
               <th>Action</th>
             </tr>
           </thead>
@@ -265,7 +269,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["title", "quantity", "created_at"].map((col) => (
+            {["menu_id", "role", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -293,15 +297,17 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.title}</td>
-                <td>{row.quantity}</td>
+
+                <td>{row.menu_id}</td>
+                {/* <td>{row.link}</td> */}
+                <td>{row.role}</td>
+                
                 <td>{row.created_at}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/omr/update/${row.id}`}>
-                      <UilEditAlt  className={styles.FaEdit} />
+                    <Link to={`/menu/update/${row.id}`}>
+                      <UilEditAlt className={styles.FaEdit} />
                     </Link>
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}

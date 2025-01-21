@@ -1,5 +1,5 @@
-import React from "react";
 
+import React, { useEffect, useState } from 'react';
 import { RxHamburgerMenu } from "react-icons/rx";
 import styles from "./Header.module.css";
 import { useNavigate, Link } from "react-router-dom";
@@ -29,7 +29,7 @@ const Header = ({ toggleSidebar }) => {
           title: "Success!",
           text: "You have logged out successfully!",
           showConfirmButton: false,
-          timer: 3000,
+          timer: 1000,
           timerProgressBar: true,
           toast: true,
           customClass: {
@@ -61,6 +61,22 @@ const Header = ({ toggleSidebar }) => {
       });
     }
   };
+
+  const [user, setUser] = useState(null);
+  const [menus, setMenus] = useState([]);
+
+  useEffect(() => {
+    // Get user and menu data from localStorage
+    const userData = JSON.parse(localStorage.getItem('user'));
+    const menuData = JSON.parse(localStorage.getItem('menus'));
+
+    setUser(userData);
+    setMenus(menuData || []);
+  }, []);
+
+
+
+
   return (
     <header className="py-3 px-3 border-bottom bg-light">
       <div className="container-fluid px-0">
@@ -91,6 +107,7 @@ const Header = ({ toggleSidebar }) => {
                 height="32"
                 className="rounded-2"
               />
+              
               <p className={`${styles.para} my-auto`}>Welcome Admin</p>
             </a>
 

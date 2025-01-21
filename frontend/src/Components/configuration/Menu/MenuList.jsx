@@ -15,18 +15,18 @@ import {
   UilAngleLeftB,
 } from "@iconscout/react-unicons";
 
-import Mainlayout from "../Layouts/Mainlayout";
-import styles from "./../CommonTable/DataTable.module.css";
+import Mainlayout from "../../Layouts/Mainlayout";
+import styles from "../../CommonTable/DataTable.module.css";
 // import "../../Common-Css/DeleteSwal.css";
-import "../Common-Css/Swallfire.css";
+import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../CommonButton/ButtonComp";
-import Breadcrumb from "../CommonButton/Breadcrumb";
+import ButtonComp from "../../CommonButton/ButtonComp";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
-import { API_BASE_URL } from "../ApiConfig/APIConfig";
-import CreateButton from "../CommonButton/CreateButton";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -58,7 +58,6 @@ export default function DataTable() {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -71,16 +70,8 @@ export default function DataTable() {
         // Proceed with the delete request
         axios
           .delete(`${API_BASE_URL}/api/m1/menu/${id}`)
-          .then((response) => {
-            // Update the state after successful deletion
-            setRecords((prevCountries) =>
-              prevCountries.filter((menu) => menu.id !== id)
-            );
-            setFilteredRecords((prevFiltered) =>
-              prevFiltered.filter((menu) => menu.id !== id)
-            );
-
-            // delete Show a success alert
+          .then(() => {
+            // Show a success alert
             Swal.fire({
               position: "top-end",
               icon: "success",
@@ -94,20 +85,25 @@ export default function DataTable() {
               customClass: {
                 popup: "small-swal",
               },
+            }).then(() => {
+              // Refresh the page
+              window.location.reload();
             });
           })
           .catch((error) => {
-            console.error("Error deleting country:", error);
+            console.error("Error deleting menu:", error);
             // Show an error alert if deletion fails
             Swal.fire(
               "Error!",
-              "There was an issue deleting the country.",
+              "There was an issue deleting the menu.",
               "error"
             );
           });
       }
     });
   };
+  
+  
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();

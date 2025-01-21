@@ -13,22 +13,27 @@ import {
   UilEditAlt,
   UilAngleRightB,
   UilAngleLeftB,
+  UilDownloadAlt,
+  UilInfoCircle,
 } from "@iconscout/react-unicons";
+import Button from "@mui/material/Button";
 
-import Mainlayout from "../../Layouts/Mainlayout";
-import styles from "./../../CommonTable/DataTable.module.css";
+import Mainlayout from "../Layouts/Mainlayout";
+import styles from "../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../../CommonButton/ButtonComp";
-import { Breadcrumbs } from "@mui/material";
-import { styled, emphasize } from "@mui/material/styles";
+import ButtonComp from "../CommonButton/ButtonComp";
+
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
-import Breadcrumb from "../../CommonButton/Breadcrumb";
-import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/DeleteSwal.css";
-import "../../Common-Css/Swallfire.css";
-import CreateButton from "../../CommonButton/CreateButton";
+import { Link, useNavigate } from "react-router-dom";
+import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+import { API_BASE_URL } from "../ApiConfig/APIConfig";
+import "../Common-Css/DeleteSwal.css";
+import "../Common-Css/Swallfire.css";
+import CreateButton from "../../Components/CommonButton/CreateButton";
+import { Menu, MenuItem } from "@mui/material";
+import excelImg from "../../../public/excell-img.png";
+import Papa from "papaparse"; // Import Papaparse for CSV parsing
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -41,38 +46,43 @@ export default function DataTable() {
   const [pageSize, setPageSize] = useState(10);
 
   const pageSizes = [10, 20, 50, 100];
-
+  
   useEffect(() => {
-    // Fetch data from the API when the component mounts
     axios
-      .get(`${ API_BASE_URL }/api/get/question`) // Your API URL here
+      .get(`${API_BASE_URL}/api/v1/inventory`) 
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        // Format the date before setting records
+        const formattedData = response.data.map((record) => ({
+          ...record,
+          date: record.date.split("T")[0], // Convert "2025-01-17T18:30:00.000Z" to "2025-01-17"
+        }));
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
       })
       .catch((error) => {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
     Swal.fire({
-          title: "Are you sure?",
-          text: "You won't be able to revert this!",
-          // icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, delete it!",
-          customClass: {
-            popup: "custom-swal-popup", // Add custom class to the popup
-          },
-        }).then((result) => {
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      // icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
+    }).then((result) => {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${ API_BASE_URL }/api/get/question/${id}`)
+          .delete(`${API_BASE_URL}/api/v1/inventory/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -82,28 +92,28 @@ export default function DataTable() {
               prevFiltered.filter((country) => country.id !== id)
             );
 
-          // delete Show a success alert
-                      Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: "Success!",
-                        text: `The question has been deleted.`,
-                        showConfirmButton: false,
-                        timer: 1000,
-                        timerProgressBar: true,
-                        toast: true,
-                        background: "#fff",
-                        customClass: {
-                          popup: "small-swal",
-                        },
-                      });
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The inventory has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
           })
           .catch((error) => {
-            console.error("Error deleting country:", error);
+            console.error("Error deleting inventory:", error);
             // Show an error alert if deletion fails
             Swal.fire(
               "Error!",
-              "There was an issue deleting the country.",
+              "There was an issue deleting the inventory.",
               "error"
             );
           });
@@ -179,10 +189,13 @@ export default function DataTable() {
     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
   };
 
-  const currentRecords = filteredRecords.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  // const currentRecords = filteredRecords.slice(
+  //   (page - 1) * pageSize,
+  //   page * pageSize
+  // );
+  const currentRecords = Array.isArray(filteredRecords)
+    ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
+    : [];
 
   const [isAllChecked, setIsAllChecked] = useState(false);
 
@@ -200,7 +213,8 @@ export default function DataTable() {
     });
   };
 
-  
+  //breadcrumb codes
+
   const handleSelectAll = () => {
     if (isAllChecked) {
       setCheckedRows({}); // Uncheck all rows
@@ -220,27 +234,36 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
   return (
     <Mainlayout>
-     <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "Question" }]} />
+          <Breadcrumb data={[{ name: "Inventory" }]} />
         </div>
         <div>
-        <CreateButton link={"/question/create"} />
+          <CreateButton link={"/create-inventory"} />
         </div>
       </div>
+
       <div className={`${styles.tablecont} mt-0`}>
         <table
           className={`${styles.table} `}
           style={{ fontFamily: "Nunito, sans-serif" }}
         >
-        <thead>
+          <thead>
             <tr className={`${styles.headerRow} pt-0 pb-0`}>
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["paper name", "class name", "exam level", "quantity" ,"created_at",].map((col) => (
+              {[
+                "date",
+                "created_by",
+                "item",
+                "quantity",
+                "unit",
+                "remarks",
+              ].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -261,19 +284,21 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["paper name", "class name", "exam level", "quantity" ,"created_at", ].map((col) => (
-              <th key={col}>
-                <div className={styles.inputContainer}>
-                  <FaSearch className={styles.searchIcon} />
-                  <input
-                    type="text"
-                    placeholder={`Search ${col}`}
-                    onChange={(e) => handleFilter(e, col)}
-                    className={styles.filterInput}
-                  />
-                </div>
-              </th>
-            ))}
+            {["date", "created_by", "item", "quantity", "unit", "remarks"].map(
+              (col) => (
+                <th key={col}>
+                  <div className={styles.inputContainer}>
+                    <FaSearch className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      placeholder={`Search ${col}`}
+                      onChange={(e) => handleFilter(e, col)}
+                      className={styles.filterInput}
+                    />
+                  </div>
+                </th>
+              )
+            )}
             <th></th>
           </tr>
           <tbody>
@@ -289,19 +314,17 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.paper_name}</td>
-                <td>{row.class_name}</td>
-                <td>{row.exam_level}</td>
+                <td>{row.date}</td>
+                <td>{row.created_by}</td>
+                <td>{row.item}</td>
                 <td>{row.quantity}</td>
-              
-                <td>{row.created_at}</td>
-                
+                <td>{row.unit}</td>
+                <td>{row.remarks}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/question/update/${row.id}`}>
-                      <UilEditAlt  className={styles.FaEdit} />
+                    <Link to={`/inventory/${row.id}`}>
+                      <UilEditAlt className={styles.FaEdit} />
                     </Link>
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}

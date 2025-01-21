@@ -206,7 +206,7 @@ const CreateUserForm = () => {
                   required
                 >
                   {roles.map((role) => (
-                    <MenuItem key={role.id} value={role.role_name}>
+                    <MenuItem key={role.id} value={role.id}>
                       {role.role_name} {/* Display the role_name */}
                     </MenuItem>
                   ))}

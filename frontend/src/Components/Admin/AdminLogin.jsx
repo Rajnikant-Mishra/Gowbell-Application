@@ -174,19 +174,78 @@ import styles from "./AdminLogin.module.css";
 import image from "../../../public/Group 3196.svg";
 import logo from "../../../public/logo GOWBELL.png";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
+
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+
+
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await axios.post(
+  //       `${ API_BASE_URL }/api/u1/users/login`,
+  //       { email, password }
+  //     );
+  //     login(response.data.token);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "success",
+  //       title: "Success!",
+  //       text: "You have logged in successfully!",
+  //       showConfirmButton: false,
+  //       timer: 2000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       customClass: {
+  //         popup: "animate__animated animate__fadeInDown",
+  //         title: "text-success fw-bold",
+  //         text: "text-dark",
+  //       },
+  //       background: "#fff",
+  //     }).then(() => {
+  //       navigate("/dashboard");
+  //     });
+  //   } catch (err) {
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "error",
+  //       title: "Error!",
+  //       text: err.response?.data?.message || "Invalid email or password",
+  //       showConfirmButton: false,
+  //       timer: 2000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       customClass: {
+  //         popup: "animate__animated animate__shakeX",
+  //         title: "text-danger fw-bold",
+  //         text: "text-dark",
+  //       },
+  //       background: "#fff",
+  //     });
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${ API_BASE_URL }/api/u1/users/login`,
+        `${API_BASE_URL}/api/u1/users/login`,
         { email, password }
       );
       login(response.data.token);
+      
+      // Storing user details and menus
+      const { user, menus } = response.data;
+  
+      // Save to context or local storage (depending on your app structure)
+      // You can store menus in your context or in a state management solution
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("menus", JSON.stringify(menus));
+  
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -224,6 +283,9 @@ const AdminLogin = () => {
       });
     }
   };
+  
+
+
   return (
     <div>
       <nav class={`${styles.navbardiv}navbar  ps-4 py-4`}>

@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import {
-  UilEdit,
-  UilTrashAlt,
-  UilEye,
-  UilEyeSlash,
-} from "@iconscout/react-unicons";
-import admin from "../../assets/administrator.png";
+import { UilEdit, UilTrashAlt, UilEye } from "@iconscout/react-unicons";
+import admin from "../../assets/administrator.jpg";
 import Mainlayout from "../Layouts/Mainlayout";
 import styles from "./admin.module.css";
 import ButtonComp from "../CommonButton/ButtonComp";
@@ -18,10 +13,11 @@ const User = () => {
     name: "John Doe",
     email: "johndoe@example.com",
     username: "johndoe",
-    title: "Developer",   
+    title: "Developer",
     password: "",
   });
   const [isHovered, setIsHovered] = useState(false);
+  const [status, setStatus] = useState("online");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -48,20 +44,18 @@ const User = () => {
     setProfileData({ ...profileData, image: "" });
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setProfileData({
-        ...profileData,
-        image: URL.createObjectURL(file),
-      });
-    } else {
-      alert("Please upload a valid image file.");
+  const getStatusClass = () => {
+    switch (status) {
+      case "online":
+        return "";
+      case "offline":
+        return "offline";
+      case "idle":
+        return "idle";
+      default:
+        return "";
     }
   };
-
-  const preventDefault = (e) => e.preventDefault();
 
   return (
     <Mainlayout>
@@ -70,22 +64,23 @@ const User = () => {
       </div>
       <div className={`${styles.container} container mt-4 py-3`}>
         <div className={`${styles.formcont} row  rounded`}>
-          <div className={`${styles.div1} col-12 text-center pt-3 px-4 d-flex`}>
-            <div
-              className={styles["profile-image-container"]}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              onDrop={handleDrop}
-              onDragOver={preventDefault}
-              onDragEnter={preventDefault}
-            >
+          <div
+            className={`${styles.div1} col-12 text-center pt-3 px-4 d-flex`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className={`${styles["c-avatar"]}`}>
               <img
+                className={styles["c-avatar__image"]}
                 src={profileData.image || admin}
                 alt="Profile"
-                className={`${styles["profile-image"]} ${
-                  isHovered ? styles["profile-image-hovered"] : ""
-                }`}
               />
+              <span
+                className={`${styles["c-avatar__status"]} ${
+                  styles[getStatusClass()]
+                }`}
+              ></span>
+
               {isHovered && (
                 <div className={styles["hover-overlay"]}>
                   <label className={styles["icon-container"]}>
@@ -105,17 +100,19 @@ const User = () => {
                 </div>
               )}
             </div>
+
             <div className="text-start my-auto">
               <h3>{profileData.name}</h3>
-              <p>
-                {profileData.email} -{" "}
-                <span className={`${styles.title}`}>{profileData.title}</span>
+              <p className={`${styles.title}`}>
+                {profileData.email} -
+                <span className={`${styles.title1}`}>{profileData.title}</span>
               </p>
             </div>
           </div>
 
           <div className={`${styles.div2} col-12 pb-3 px-4`}>
-            <h2 className="py-3">Accounts</h2>
+            <h2 className="pt-3 mb-0 pb-0">Accounts</h2>
+            <hr className={`${styles.hr} mb-4`} />
             <form>
               {[
                 { label: "Name", name: "name", type: "text" },

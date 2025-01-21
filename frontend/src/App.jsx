@@ -41,17 +41,10 @@ import AffiliatedList from "./Components/Master/affiliated/AffiliatedList";
 import AffiliatedForm from "./Components/Master/affiliated/AffiliatedForm";
 import UpdateAffiliated from "./Components/Master/affiliated/UpdateAffiliated";
 
-import BookList from "./Components/Inventory/Book/BookList";
-import BookForm from "./Components/Inventory/Book/BookForm";
-import BookUpdate from "./Components/Inventory/Book/BookUpdate";
-
-import QuestionList from "./Components/Inventory/question/QuestionList";
-import QuestionForm from "./Components/Inventory/question/QuestionForm";
-import QuestionUpdate from "./Components/Inventory/question/QuestionUpdate";
-
-import OmrList from "./Components/Inventory/Omr/OmrList";
-import OmrForm from "./Components/Inventory/Omr/OmrForm";
-import OmrUpdate from "./Components/Inventory/Omr/OmrUpdate";
+//inventory
+import Createinventory from "./Components/Inventory/Createinventory";
+import Listinventory from "./Components/Inventory/listinventory";
+import Updateinventory from "./Components/Inventory/Updateinventory";
 
 import SchoolForm from "./Components/School/createschool/SchoolForm";
 import SchoolList from "./Components/School/createschool/SchoolList";
@@ -74,7 +67,6 @@ import Create from "./Components/Consignment/create/Create";
 import List from "./Components/Consignment/create/List";
 import Update from "./Components/Consignment/create/Update";
 
-
 import QuestionCoCreate from "./Components/Exam/question/QuestionCoCreate";
 import QuestionCoList from "./Components/Exam/question/QuestionCoList";
 import QuestionCoUpdate from "./Components/Exam/question/QuestionCoUpdate";
@@ -88,16 +80,22 @@ import User from "./Components/User/User";
 import UserList from "./Components/User/UserList";
 import UserUpdate from "./Components/User/UserUpdate";
 
-
 import Role from "./Components/Role/Role";
 import Rolelist from "./Components/Role/RoleList";
 
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
 
-import Menu from "./Components/Menu/Menu";
-import MenuList from "./Components/Menu/MenuList";
-import MenuUpdate from "./Components/Menu/MenuUpdate";
+//configuration
+
+//menu
+import Menu from "./Components/configuration/Menu/Menu";
+import MenuList from "./Components/configuration/Menu/MenuList";
+import MenuUpdate from "./Components/configuration/Menu/MenuUpdate";
+
+//cleintmenu
+import Createclient from "./Components/configuration/clientsmenu/Createclient";
+import Listclient from "./Components/configuration/clientsmenu/Listclient";
 
 function App() {
   return (
@@ -112,7 +110,6 @@ function App() {
             path="/dashboard"
             element={<ProtectedRoute element={<Dashboard />} />}
           />
-
           <Route
             path="/profile"
             element={<ProtectedRoute element={<AdminProfile />} />}
@@ -220,44 +217,19 @@ function App() {
             path="/affiliated/update/:id"
             element={<ProtectedRoute element={<UpdateAffiliated />} />}
           />
-          {/* Books route */}
+          {/* //inventory */}
           <Route
-            path="/book"
-            element={<ProtectedRoute element={<BookList />} />}
+            path="/create-inventory"
+            element={<ProtectedRoute element={<Createinventory />} />}
           />
           <Route
-            path="/book/create"
-            element={<ProtectedRoute element={<BookForm />} />}
+            path="list-inventory"
+            element={<ProtectedRoute element={<Listinventory />} />}
           />
+          
           <Route
-            path="/book/update/:id"
-            element={<ProtectedRoute element={<BookUpdate />} />}
-          />
-          {/* Questions route */}
-          <Route
-            path="/question"
-            element={<ProtectedRoute element={<QuestionList />} />}
-          />
-          <Route
-            path="/question/create"
-            element={<ProtectedRoute element={<QuestionForm />} />}
-          />
-          <Route
-            path="/question/update/:id"
-            element={<ProtectedRoute element={<QuestionUpdate />} />}
-          />
-          {/* OMR route */}
-          <Route
-            path="/omr"
-            element={<ProtectedRoute element={<OmrList />} />}
-          />
-          <Route
-            path="/omr/create"
-            element={<ProtectedRoute element={<OmrForm />} />}
-          />
-          <Route
-            path="/omr/update/:id"
-            element={<ProtectedRoute element={<OmrUpdate />} />}
+            path="/inventory/:id"
+            element={<ProtectedRoute element={<Updateinventory/>} />}
           />
 
           {/* School route */}
@@ -273,7 +245,6 @@ function App() {
             path="/school/update/:id"
             element={<ProtectedRoute element={<SchoolUpdate />} />}
           />
-
           {/* incharge route */}
           <Route
             path="/incharge-create"
@@ -287,7 +258,6 @@ function App() {
             path="/incharge/update/:id"
             element={<ProtectedRoute element={<InchargeUpdate />} />}
           />
-
           <Route
             path="/student-create"
             element={<ProtectedRoute element={<StudentForm />} />}
@@ -300,7 +270,6 @@ function App() {
             path="/student/update/:id"
             element={<ProtectedRoute element={<StudentUpdate />} />}
           />
-
           {/* omr route */}
           <Route
             path="/omr-list"
@@ -314,7 +283,6 @@ function App() {
             path="/omrco/update/:id"
             element={<ProtectedRoute element={<OmrcoUpdate />} />}
           />
-
           {/* qustions*/}
           <Route
             path="/question-list"
@@ -328,22 +296,19 @@ function App() {
             path="/co-question/update/:id"
             element={<ProtectedRoute element={<QuestionCoUpdate />} />}
           />
-
           {/* //conginments */}
-          
           <Route
             path="/consignment-list"
-            element={<ProtectedRoute element={<List/>} />}
+            element={<ProtectedRoute element={<List />} />}
           />
           <Route
             path="/consignment-create"
-            element={<ProtectedRoute element={<Create/>} />}
+            element={<ProtectedRoute element={<Create />} />}
           />
           <Route
             path="/update/:id"
-            element={<ProtectedRoute element={<Update/>} />}
+            element={<ProtectedRoute element={<Update />} />}
           />
-
           {/* report*/}
           <Route
             path="/students-report"
@@ -353,7 +318,6 @@ function App() {
             path="/schools-report"
             element={<ProtectedRoute element={<SchoolReport />} />}
           />
-
           {/* //user & role */}
           <Route path="/user" element={<ProtectedRoute element={<User />} />} />
           <Route
@@ -362,38 +326,43 @@ function App() {
           />
           <Route
             path="/users/:id"
-            element={<ProtectedRoute element={< UserUpdate/>} />}
+            element={<ProtectedRoute element={<UserUpdate />} />}
           />
-
           {/* //role */}
           <Route path="/role" element={<ProtectedRoute element={<Role />} />} />
           <Route
             path="/role-list"
             element={<ProtectedRoute element={<Rolelist />} />}
           />
-
           {/* //Exam */}
           <Route path="/exam" element={<ProtectedRoute element={<Exam />} />} />
           <Route
             path="/examList"
             element={<ProtectedRoute element={<ExamList />} />}
           />
-
           {/* //menu */}
-          <Route
-            path="/menu"
-            element={<ProtectedRoute element={<Menu/>} />}
-          />
+          <Route path="/menu" element={<ProtectedRoute element={<Menu />} />} />
           <Route
             path="/menu-list"
-            element={<ProtectedRoute element={<MenuList/>} />}
+            element={<ProtectedRoute element={<MenuList />} />}
           />
           <Route
             path="/menu/update/:id"
-            element={<ProtectedRoute element={<MenuUpdate/>} />}
+            element={<ProtectedRoute element={<MenuUpdate />} />}
           />
-
-
+          {/* //clientsmenu */}
+          <Route
+            path="/client-menu"
+            element={<ProtectedRoute element={<Createclient />} />}
+          />
+          <Route
+            path="/client-list"
+            element={<ProtectedRoute element={<Listclient />} />}
+          />
+          {/* <Route
+            path="/menu/update/:id"
+            element={<ProtectedRoute element={<MenuUpdate />} />}
+          /> */}
         </Routes>
       </Router>
     </AuthProvider>
