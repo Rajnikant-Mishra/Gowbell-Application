@@ -1,16 +1,23 @@
+
+
 import RoleMenu from "../../models/configuration/role_menuModel.js";
 
-// Assign a menu to a role
+// Assign a menu to multiple roles
 export const assignMenu = (req, res) => {
-  const roleMenuData = req.body;
+  const { menu_id, role_ids } = req.body;
 
-  RoleMenu.assignMenuToRole(roleMenuData, (err, result) => {
+  if (!menu_id || !Array.isArray(role_ids) || role_ids.length === 0) {
+      return res.status(400).json({ error: 'Invalid input. menu_id and role_ids are required.' });
+  }
+
+  RoleMenu.assignMenuToRole({ menu_id, role_ids }, (err, result) => {
       if (err) {
-          return res.status(500).json({ error: 'Failed to assign menu to role' });
+          return res.status(500).json({ error: 'Failed to assign menu to roles', details: err.message });
       }
-      res.status(201).json({ message: 'Menu assigned to role successfully', result });
+      res.status(201).json({ message: 'Menu assigned to roles successfully', result });
   });
 };
+
 
 // Get menus for a specific role
 export const getMenusByRole = (req, res) => {
@@ -24,24 +31,23 @@ export const getMenusByRole = (req, res) => {
   });
 };
 
-// Remove a menu from a role
-export const removeMenu = (req, res) => {
-  const { role_id, menu_id } = req.body;
 
-  RoleMenu.removeMenuFromRole(role_id, menu_id, (err, result) => {
-      if (err) {
-          return res.status(500).json({ error: 'Failed to remove menu from role' });
-      }
-      res.json({ message: 'Menu removed from role successfully', result });
-  });
+//getall rolesmenus
+export const getAllRoleMenu = (req, res) => {
+    RoleMenu.getAllRoleMenuWithNames((err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch role-menu data with names', details: err.message });
+        }
+        res.status(200).json({ message: 'Data fetched successfully', data: results });
+    });
 };
 
-// Get all role-menu mappings
-export const getAllRoleMenus = (req, res) => {
-  RoleMenu.getAllRoleMenus((err, results) => {
-      if (err) {
-          return res.status(500).json({ error: 'Failed to fetch role-menu mappings' });
-      }
-      res.json(results);
-  });
+
+export const deleteRoleMenu = (req, res) => {
+    const { id } = req.params;
+    RoleMenu.delete(id, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(200).json({ message: 'RoleMenu deleted successfully' });
+    });
+
 };

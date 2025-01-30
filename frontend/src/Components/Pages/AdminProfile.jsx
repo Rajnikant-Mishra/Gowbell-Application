@@ -1,31 +1,42 @@
-import React, { useState } from "react";
-import { UilEdit, UilTrashAlt, UilEye } from "@iconscout/react-unicons";
+import React, { useState, useEffect } from "react";
+import {
+  UilEdit,
+  UilTrashAlt,
+  UilEye,
+  UilEyeSlash,
+} from "@iconscout/react-unicons";
 import admin from "../../assets/administrator.jpg";
 import Mainlayout from "../Layouts/Mainlayout";
 import styles from "./admin.module.css";
 import ButtonComp from "../CommonButton/ButtonComp";
 import Breadcrumb from "../CommonButton/Breadcrumb";
-
+import { useNavigate } from "react-router-dom";
 const User = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [profileData, setProfileData] = useState({
-    image: admin,
-    name: "John Doe",
-    email: "johndoe@example.com",
-    username: "johndoe",
-    title: "Developer",
-    password: "",
-  });
+  const [profileData, setProfileData] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setProfileData(JSON.parse(storedUser));
+    } else {
+      // Redirect to login if no user data is found
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  if (!profileData) {
+    return <p>Loading...</p>;
+  }
+
   const [isHovered, setIsHovered] = useState(false);
   const [status, setStatus] = useState("online");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProfileData({ ...profileData, [name]: value });
-  };
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
   };
 
   const handleImageUpload = (e) => {
@@ -62,8 +73,8 @@ const User = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Breadcrumb data={[{ name: "Profile" }]} />
       </div>
-      <div className={`${styles.container} container mt-4 py-3`}>
-        <div className={`${styles.formcont} row  rounded`}>
+      <div className={`${styles.container} container`}>
+        <div className={`${styles.formcont} row rounded`}>
           <div
             className={`${styles.div1} col-12 text-center pt-3 px-4 d-flex`}
             onMouseEnter={() => setIsHovered(true)}
@@ -102,10 +113,10 @@ const User = () => {
             </div>
 
             <div className="text-start my-auto">
-              <h3>{profileData.name}</h3>
+              <h3>{profileData.username}</h3>
               <p className={`${styles.title}`}>
-                {profileData.email} -
-                <span className={`${styles.title1}`}>{profileData.title}</span>
+                {profileData.email} -{" "}
+                <span className={`${styles.title1}`}>{profileData.username}</span>
               </p>
             </div>
           </div>
@@ -114,34 +125,53 @@ const User = () => {
             <h2 className="pt-3 mb-0 pb-0">Accounts</h2>
             <hr className={`${styles.hr} mb-4`} />
             <form>
-              {[
-                { label: "Name", name: "name", type: "text" },
-                { label: "Email", name: "email", type: "email" },
-                { label: "Username", name: "username", type: "text" },
-                { label: "Title", name: "title", type: "text" },
-              ].map((field, index) => (
-                <div className={`${styles.inputdiv} mb-3 d-flex`} key={index}>
-                  <label className={`${styles.lables} form-label my-auto`}>
-                    {field.label}{" "}
-                    {field.name === "email" || field.name === "username" ? (
-                      <span style={{ color: "red" }}>*</span>
-                    ) : null}
-                  </label>
-                  <input
-                    type={field.type}
-                    className={`${styles.control} form-control`}
-                    name={field.name}
-                    value={profileData[field.name]}
-                    onChange={handleInputChange}
-                    placeholder={`Enter your ${field.label.toLowerCase()}`}
-                  />
-                </div>
-              ))}
+            
+
+              <div className={`${styles.inputdiv} mb-3 d-flex`}>
+                <label className={`${styles.lables} form-label my-auto`}>
+                  Username <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  className={`${styles.control} form-control`}
+                  name="username"
+                  value={profileData.username}
+                  onChange={handleInputChange}
+                  placeholder="Enter your Username"
+                />
+              </div>
+              <div className={`${styles.inputdiv} mb-3 d-flex`}>
+                <label className={`${styles.lables} form-label my-auto`}>
+                  Email <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="email"
+                  className={`${styles.control} form-control`}
+                  name="email"
+                  value={profileData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter your Email"
+                />
+              </div>
+              
+              <div className={`${styles.inputdiv} mb-3 d-flex`}>
+                <label className={`${styles.lables} form-label my-auto`}>
+                  Phone <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="phone"
+                  className={`${styles.control} form-control`}
+                  name="phone"
+                  value={profileData.phone}
+                  onChange={handleInputChange}
+                  placeholder="phone"
+                />
+              </div>
+
               <div className={`${styles.inputdiv} mb-3 d-flex`}>
                 <label className={`${styles.lables} form-label my-auto`}>
                   Password
                 </label>
-
                 <input
                   type={passwordVisible ? "text" : "password"}
                   className={`${styles.control} form-control`}
@@ -151,18 +181,14 @@ const User = () => {
                   placeholder="Enter your password"
                   style={{ position: "relative", width: "50%" }}
                 />
-                <div
-                  className={styles["toggle-password"]}
-                  onClick={togglePasswordVisibility}
-                >
-                  {passwordVisible ? <UilEyeSlash /> : <UilEye />}
-                </div>
+                
               </div>
               <div className="text-end">
                 <ButtonComp
                   type="submit"
+                  onClick={()=>{alert("Please enter your")}}
                   className="btn btn-primary"
-                  text={"Change Password"}
+                  text="Change Password"
                 />
               </div>
             </form>

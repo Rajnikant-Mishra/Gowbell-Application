@@ -4,7 +4,7 @@ const User = {
   createUser: (user, callback) => {
     
     const query = `INSERT INTO users (role, username, email, phone, status, password, confirm_password) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-db.query(query, [user.role, user.username, user.email, user.phone, user.status, user.password, user.confirm_password], callback);
+    db.query(query, [user.role, user.username, user.email, user.phone, user.status, user.password, user.confirm_password], callback);
 
   },
 
@@ -19,10 +19,19 @@ db.query(query, [user.role, user.username, user.email, user.phone, user.status, 
     db.query(query, [role], callback);
   },
 
+  // getAllUsers: (callback) => {
+  //   const query = 'SELECT * FROM users';
+  //   db.query(query, callback);
+  // },
   getAllUsers: (callback) => {
-    const query = 'SELECT * FROM users';
+    const query = `
+        SELECT users.*, roles.role_name 
+        FROM users 
+        INNER JOIN roles ON users.role = roles.id
+    `;
     db.query(query, callback);
-  },
+},
+
 
   getUserById: (id, callback) => {
     const query = 'SELECT * FROM users WHERE id = ?';

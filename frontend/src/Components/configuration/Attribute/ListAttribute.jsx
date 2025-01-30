@@ -16,17 +16,16 @@ import {
 } from "@iconscout/react-unicons";
 
 import Mainlayout from "../../Layouts/Mainlayout";
-import styles from "./../../CommonTable/DataTable.module.css";
+import styles from "../../CommonTable/DataTable.module.css";
+// import "../../Common-Css/DeleteSwal.css";
+import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../../CommonButton/ButtonComp";
-
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
-import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-import "../../Common-Css/DeleteSwal.css";
-import "../../Common-Css/Swallfire.css";
 import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
@@ -41,25 +40,24 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  useEffect(() => {
-    // Fetch data from the API when the component mounts
-    axios
-      .get(`${API_BASE_URL}/api/co/question`) // Your API URL here
-      .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the records!", error);
-      });
-  }, []);
+//   useEffect(() => {
+//     // Fetch data from the new API when the component mounts
+//     axios
+//       .get(`${API_BASE_URL}/api/m1/menu`) // Updated API URL
+//       .then((response) => {
+//         setRecords(response.data);
+//         setFilteredRecords(response.data);
+//       })
+//       .catch((error) => {
+//         console.error("There was an error fetching the records!", error);
+//       });
+//   }, []);
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -71,22 +69,14 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${API_BASE_URL}/api/co/question/${id}`)
-          .then((response) => {
-            // Update the state after successful deletion
-            setRecords((prevCountries) =>
-              prevCountries.filter((country) => country.id !== id)
-            );
-            setFilteredRecords((prevFiltered) =>
-              prevFiltered.filter((country) => country.id !== id)
-            );
-
-            // delete Show a success alert
+          .delete(`${API_BASE_URL}/api/m1/menu/${id}`)
+          .then(() => {
+            // Show a success alert
             Swal.fire({
               position: "top-end",
               icon: "success",
               title: "Success!",
-              text: `The co-question has been deleted.`,
+              text: `The menu has been deleted.`,
               showConfirmButton: false,
               timer: 1000,
               timerProgressBar: true,
@@ -95,20 +85,25 @@ export default function DataTable() {
               customClass: {
                 popup: "small-swal",
               },
+            }).then(() => {
+              // Refresh the page
+              window.location.reload();
             });
           })
           .catch((error) => {
-            console.error("Error deleting country:", error);
+            console.error("Error deleting menu:", error);
             // Show an error alert if deletion fails
             Swal.fire(
               "Error!",
-              "There was an issue deleting the country.",
+              "There was an issue deleting the menu.",
               "error"
             );
           });
       }
     });
   };
+  
+  
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
@@ -178,10 +173,13 @@ export default function DataTable() {
     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
   };
 
-  const currentRecords = filteredRecords.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  // const currentRecords = filteredRecords.slice(
+  //   (page - 1) * pageSize,
+  //   page * pageSize
+  // );
+  const currentRecords = Array.isArray(filteredRecords)
+    ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
+    : [];
 
   const [isAllChecked, setIsAllChecked] = useState(false);
 
@@ -198,6 +196,8 @@ export default function DataTable() {
       return newCheckedRows;
     });
   };
+
+  //breadcrumb codes
 
   const handleSelectAll = () => {
     if (isAllChecked) {
@@ -218,14 +218,18 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "Question" }]} />
+          <Breadcrumb data={[{ name: "Attribute" }]} />
         </div>
-        <CreateButton link={"/co-question"} />
+        <div>
+          <CreateButton link={"/create-attribute"} />
+        </div>
       </div>
+
       <div className={`${styles.tablecont} mt-0`}>
         <table
           className={`${styles.table} `}
@@ -236,25 +240,21 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {[
-                "question name",
-                "exam_date",
-                "school",
-                "tracking_number",
-                "quantity",
-              ].map((col) => (
-                <th
-                  key={col}
-                  className={styles.sortableHeader}
-                  onClick={() => handleSort(col)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-                    {getSortIcon(col)}
-                  </div>
-                </th>
-              ))}
+              {["title", "link", "enable", "visible", "created_at"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className={styles.sortableHeader}
+                    onClick={() => handleSort(col)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                      {getSortIcon(col)}
+                    </div>
+                  </th>
+                )
+              )}
               <th>Action</th>
             </tr>
           </thead>
@@ -263,13 +263,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {[
-              "question name",
-              "exam_date",
-              "school",
-              "tracking_number",
-              "quantity",
-            ].map((col) => (
+            {["title", "link", "enable", "visible", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -298,19 +292,30 @@ export default function DataTable() {
                   />
                 </td>
 
-                <td>{row.question_name}</td>
-                <td>{row.exam_date}</td>
-                <td>{row.school_name_co}</td>
-                <td>{row.tracking_no}</td>
-                <td>{row.quantity_co}</td>
+                <td>{row.title}</td>
+                {/* <td>{row.link}</td> */}
+                <td>
+                  {row.link ? (
+                    <a
+                      href={row.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {row.link}
+                    </a>
+                  ) : (
+                    "No link available"
+                  )}
+                </td>
+                <td>{row.enable}</td>
+                <td>{row.visible}</td>
+                <td>{row.created_at}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/co-question/update/${row.id}`}>
+                    <Link to={`/menu/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
                     </Link>
-
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}

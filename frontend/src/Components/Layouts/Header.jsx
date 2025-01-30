@@ -7,10 +7,28 @@ import { useAuth } from "../contextsAuthsecurity/AuthContext";
 import { UilSearch } from "@iconscout/react-unicons";
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
+import "../Common-Css/Swallfire.css";
 
 const Header = ({ toggleSidebar }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState({});
+
+  useEffect(() => {
+      // Fetch user data from localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setProfileData(JSON.parse(storedUser));
+      } else {
+        // Redirect to login if no user data is found
+        navigate("/login");
+      }
+    }, [navigate]);
+  
+    if (!profileData) {
+      return <p>Loading...</p>;
+    }
+  
 
   const handleLogout = async () => {
     try {
@@ -29,15 +47,13 @@ const Header = ({ toggleSidebar }) => {
           title: "Success!",
           text: "You have logged out successfully!",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 2000,
           timerProgressBar: true,
           toast: true,
-          customClass: {
-            popup: "animate__animated animate__fadeInDown",
-            title: "text-success fw-bold",
-            text: "text-dark",
-          },
           background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
           willClose: () => {
             // Navigate to admin page after SweetAlert closes
             navigate("/");
@@ -61,20 +77,6 @@ const Header = ({ toggleSidebar }) => {
       });
     }
   };
-
-  const [user, setUser] = useState(null);
-  const [menus, setMenus] = useState([]);
-
-  useEffect(() => {
-    // Get user and menu data from localStorage
-    const userData = JSON.parse(localStorage.getItem('user'));
-    const menuData = JSON.parse(localStorage.getItem('menus'));
-
-    setUser(userData);
-    setMenus(menuData || []);
-  }, []);
-
-
 
 
   return (
@@ -108,7 +110,7 @@ const Header = ({ toggleSidebar }) => {
                 className="rounded-2"
               />
               
-              <p className={`${styles.para} my-auto`}>Welcome Admin</p>
+              <p className={`${styles.para} my-auto`}>Welcome {profileData.username}</p>
             </a>
 
             <ul className={`${styles.dropdown} dropdown-menu text-small`}>

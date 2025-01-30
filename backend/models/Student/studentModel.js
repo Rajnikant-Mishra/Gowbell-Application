@@ -2,32 +2,19 @@ import { db } from '../../config/db.js';
 
 export const Student = {
     
-    // create: (studentData, callback) => {
-    //   const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = studentData;
-    //   const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
-    //   db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by], callback);
-    // },
-
-    // create: (studentData, callback) => {
-    //   const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
-      
-    //   const query = 'INSERT INTO student (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
-      
-    //   db.query(query, [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code], callback);
-    // },
    
   create: (studentData, callback) => {
-    const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
+    const { school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code } = studentData;
 
     const query = `
       INSERT INTO student 
-      (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     db.query(
       query,
-      [school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code],
+      [school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code],
       callback
     );
   },
@@ -38,7 +25,7 @@ export const Student = {
     // Ensure bulk insertion query is properly constructed
     const query = `
       INSERT INTO student 
-      (school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
+      (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
       VALUES ?
     `;
   
@@ -46,6 +33,7 @@ export const Student = {
     const values = students.map(student => [
       student.school_name,
       student.student_name,
+      student.roll_no,
       student.class_name,
       student.student_section,
       student.mobile_number,

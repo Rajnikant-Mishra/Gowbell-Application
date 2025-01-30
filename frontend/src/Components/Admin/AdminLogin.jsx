@@ -174,6 +174,7 @@ import styles from "./AdminLogin.module.css";
 import image from "../../../public/Group 3196.svg";
 import logo from "../../../public/logo GOWBELL.png";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
+import "../Common-Css/Swallfire.css";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -239,10 +240,12 @@ const AdminLogin = () => {
       login(response.data.token);
       
       // Storing user details and menus
-      const { user, menus } = response.data;
-  
+      // const { user, menus } = response.data;
+   // Extract user and token data
+   const { token, user, menus } = response.data;
       // Save to context or local storage (depending on your app structure)
       // You can store menus in your context or in a state management solution
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("menus", JSON.stringify(menus));
   
@@ -252,15 +255,14 @@ const AdminLogin = () => {
         title: "Success!",
         text: "You have logged in successfully!",
         showConfirmButton: false,
-        timer: 2000,
+        timer: 1000,
         timerProgressBar: true,
         toast: true,
-        customClass: {
-          popup: "animate__animated animate__fadeInDown",
-          title: "text-success fw-bold",
-          text: "text-dark",
-        },
         background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+        
       }).then(() => {
         navigate("/dashboard");
       });

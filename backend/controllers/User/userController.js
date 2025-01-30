@@ -33,52 +33,46 @@ const usersController = {
   // User login
   // loginUser: (req, res) => {
   //   const { email, password } = req.body;
-
-  //   if (!email || !password) {
-  //     return res.status(400).json({ error: "Email and password are required" });
-  //   }
-
+  
   //   User.getUserByEmail(email, (err, users) => {
-  //     if (err) {
-  //       return res.status(500).json({ error: err.message });
+  //     if (err || users.length === 0) {
+  //       return res.status(401).json({ error: 'Invalid credential' });
   //     }
-
-  //     if (users.length === 0) {
-  //       return res.status(404).json({ error: "User not found" });
-  //     }
-
+  
   //     const user = users[0];
   //     bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
   //       if (bcryptErr || !isMatch) {
-  //         return res.status(401).json({ error: "Invalid email or password" });
+  //         return res.status(401).json({ error: 'Invalid credentials' });
   //       }
-
-  //       const token = jwt.sign(
-  //         { id: user.id, role: user.role },
-  //         process.env.JWT_SECRET,
-  //         { expiresIn: '1h' }
-  //       );
-
-  //       res.status(200).json({
-  //         message: "Login successful",
-  //         token,
-  //         user: {
-  //           id: user.id,
-  //           email: user.email,
-  //           role: user.role
+  
+  //       const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  
+  //       RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {
+  //         if (menuErr) {
+  //           return res.status(500).json({ error: 'Failed to fetch menus' });
   //         }
+  
+  //         res.status(200).json({
+  //           message: 'Login successful',
+  //           token,
+  //           user: { id: user.id, email: user.email, role: user.role },
+  //           menus,
+  //         });
   //       });
   //     });
   //   });
   // },
 
   
+
+
+
   loginUser: (req, res) => {
     const { email, password } = req.body;
   
     User.getUserByEmail(email, (err, users) => {
       if (err || users.length === 0) {
-        return res.status(401).json({ error: 'Invalid credential' });
+        return res.status(401).json({ error: 'Invalid credentials' });
       }
   
       const user = users[0];
@@ -97,13 +91,22 @@ const usersController = {
           res.status(200).json({
             message: 'Login successful',
             token,
-            user: { id: user.id, email: user.email, role: user.role },
+            user: {
+              id: user.id,
+              username: user.username,
+              email: user.email,
+              password:user.password,
+              phone: user.phone,
+              status: user.status,
+              role: user.role,
+            },
             menus,
           });
         });
       });
     });
   },
+
 
    // Logout user
    logoutUser: (req, res) => {
@@ -177,5 +180,21 @@ const usersController = {
     });
   }
 };
+
+//for user data 
+getUserProfile: (req, res) => {
+  const userId = req.user.id; // Extracted from the JWT by `verifyToken`
+
+  User.getUserById(userId, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(results[0]);
+  });
+};
+
 
 export default usersController;

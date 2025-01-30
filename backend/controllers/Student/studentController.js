@@ -37,7 +37,7 @@ import  Student from '../../models/Student/studentModel.js';
 // };
 // Create a single student
 export const createStudent = (req, res) => {
-  const { school_name, student_name, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = req.body;
+  const { school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by } = req.body;
 
   // Generate a student code
   const student_code = `${school_name.slice(0, 3).toUpperCase()}-${Date.now()}`;
@@ -45,6 +45,7 @@ export const createStudent = (req, res) => {
   const newStudent = {
     school_name,
     student_name,
+    roll_no,
     class_name,
     student_section,
     mobile_number,

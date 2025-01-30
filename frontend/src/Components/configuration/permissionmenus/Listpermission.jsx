@@ -40,18 +40,31 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the new API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/permission/`) // Updated API URL
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    // Fetch data from the new API when the component mounts
     axios
-      .get(`${API_BASE_URL}/api/cm/cleintsmenu`) // Updated API URL
-      .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the records!", error);
-      });
-  }, []);
+        .get(`${API_BASE_URL}/api/permission/`)
+        .then((response) => {
+            setRecords(response.data.data); // Update state with the new data format
+            setFilteredRecords(response.data.data); // Update filtered records if needed
+        })
+        .catch((error) => {
+            console.error('Error fetching role-menu data with names!', error);
+        });
+}, []);
+
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -70,7 +83,7 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${ API_BASE_URL }/api/cm/cleintsmenu/${id}`)
+          .delete(`${ API_BASE_URL }/api/permission/assign/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -232,7 +245,7 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: "manage-menu-permission" }]} />
         </div>
         <div>
-          <CreateButton link={"/client-menu"} />
+          <CreateButton link={"/menu-permissions"} />
         </div>
       </div>
 
@@ -246,7 +259,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["menu_id", "role", "created_at"].map(
+              {["menu", "role", "created_at"].map(
                 (col) => (
                   <th
                     key={col}
@@ -269,7 +282,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["menu_id", "role", "created_at"].map((col) => (
+            {["menu_id", "role_ids", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -298,17 +311,17 @@ export default function DataTable() {
                   />
                 </td>
 
-                <td>{row.menu_id}</td>
+                <td>{row.menu_title}</td>
                 {/* <td>{row.link}</td> */}
-                <td>{row.role}</td>
+                <td>{row.role_names}</td>
                 
                 <td>{row.created_at}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    <Link to={`/menu/update/${row.id}`}>
+                    {/* <Link to={`/menu/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
-                    </Link>
+                    </Link> */}
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}

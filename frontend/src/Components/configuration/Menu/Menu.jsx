@@ -170,6 +170,7 @@ const Menu = () => {
                   }}
                 />
               </Grid>
+
               <Grid item xs={6}>
                 <TextField
                   label="Link"
@@ -186,6 +187,7 @@ const Menu = () => {
                   }}
                 />
               </Grid>
+
               <Grid item xs={6}>
                 <TextField
                   label="Sequence"
@@ -204,6 +206,7 @@ const Menu = () => {
                   }}
                 />
               </Grid>
+
               <Grid item xs={6}>
                 <TextField
                   select
@@ -225,6 +228,7 @@ const Menu = () => {
                   <MenuItem value={false}>Disabled</MenuItem>
                 </TextField>
               </Grid>
+
               <Grid item xs={6}>
                 <TextField
                   select
@@ -246,6 +250,7 @@ const Menu = () => {
                   <MenuItem value={false}>Hidden</MenuItem>
                 </TextField>
               </Grid>
+
               <Grid item xs={6}>
                 <FormControl fullWidth size="small">
                   <InputLabel style={{ fontSize: "14px" }}>Image</InputLabel>
@@ -263,17 +268,37 @@ const Menu = () => {
                     <MenuItem value="UilCompass">
                       <UilCompass />
                     </MenuItem>
-                  
-                    <MenuItem value="UilFileInfoAlt"><UilFileInfoAlt/></MenuItem>
-                    <MenuItem value="UilArchiveAlt"><UilArchiveAlt/></MenuItem>
-                    <MenuItem value="UilUniversity"><UilUniversity/></MenuItem>
-                    <MenuItem value="UilBookReader"><UilBookReader/></MenuItem>
-                    <MenuItem value="UilTruck"><UilTruck/></MenuItem>
-                    <MenuItem value="UilSignalAlt3"><UilSignalAlt3/></MenuItem>
-                    <MenuItem value="UilUsersAlt"><UilUsersAlt/></MenuItem>
-                    <MenuItem value="UilTrophy"><UilTrophy/></MenuItem>
-                    <MenuItem value="UilBookOpen"><UilBookOpen/></MenuItem>
-                    <MenuItem value="UilBars"><UilBars/></MenuItem>
+
+                    <MenuItem value="UilFileInfoAlt">
+                      <UilFileInfoAlt />
+                    </MenuItem>
+                    <MenuItem value="UilArchiveAlt">
+                      <UilArchiveAlt />
+                    </MenuItem>
+                    <MenuItem value="UilUniversity">
+                      <UilUniversity />
+                    </MenuItem>
+                    <MenuItem value="UilBookReader">
+                      <UilBookReader />
+                    </MenuItem>
+                    <MenuItem value="UilTruck">
+                      <UilTruck />
+                    </MenuItem>
+                    <MenuItem value="UilSignalAlt3">
+                      <UilSignalAlt3 />
+                    </MenuItem>
+                    <MenuItem value="UilUsersAlt">
+                      <UilUsersAlt />
+                    </MenuItem>
+                    <MenuItem value="UilTrophy">
+                      <UilTrophy />
+                    </MenuItem>
+                    <MenuItem value="UilBookOpen">
+                      <UilBookOpen />
+                    </MenuItem>
+                    <MenuItem value="UilBars">
+                      <UilBars />
+                    </MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -288,24 +313,36 @@ const Menu = () => {
                   fullWidth
                   size="small"
                   InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
+                    style: { fontSize: "14px" },
                   }}
                   InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
+                    style: { fontSize: "14px" },
                   }}
                 >
                   <MenuItem value="">None</MenuItem>
                   {parentMenus.map((parent) => (
                     <MenuItem key={parent.id} value={parent.id}>
-                      <ul>
-                      <li key={parent.id}>{parent.title}</li>
-                      </ul>
-                       
+                      {parent.parent_id === null ? (
+                      <span
+                      style={{
+                        // backgroundColor: "lightblue",
+                        fontWeight: "bold",          
+                        display: "block",  
+                        width: "100%",          
+                      }}
+                    >
+                      {parent.title}
+                    </span>
+                    
+                      ) : (
+                        <ul >
+                          <li>{parent.title}</li>
+                        </ul>
+                      )}
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
-                  
             </Grid>
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
               <ButtonComp

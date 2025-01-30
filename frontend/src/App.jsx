@@ -94,8 +94,12 @@ import MenuList from "./Components/configuration/Menu/MenuList";
 import MenuUpdate from "./Components/configuration/Menu/MenuUpdate";
 
 //cleintmenu
-import Createclient from "./Components/configuration/clientsmenu/Createclient";
-import Listclient from "./Components/configuration/clientsmenu/Listclient";
+import Assignpermission from "./Components/configuration/permissionmenus/Assignpermission";
+import Listpermission from "./Components/configuration/permissionmenus/Listpermission";
+
+//attributes
+import CreateAttribute from "./Components/configuration/Attribute/CreateAttribute";
+import ListAttribute from "./Components/configuration/Attribute/ListAttribute";
 
 function App() {
   return (
@@ -352,17 +356,27 @@ function App() {
           />
           {/* //clientsmenu */}
           <Route
-            path="/client-menu"
-            element={<ProtectedRoute element={<Createclient />} />}
+            path="/menu-permissions"
+            element={<ProtectedRoute element={<Assignpermission/>} />}
           />
           <Route
-            path="/client-list"
-            element={<ProtectedRoute element={<Listclient />} />}
+            path="/permissions-list"
+            element={<ProtectedRoute element={<Listpermission/>} />}
           />
           {/* <Route
             path="/menu/update/:id"
             element={<ProtectedRoute element={<MenuUpdate />} />}
           /> */}
+
+          {/* //attributes */}
+          <Route
+            path="/create-attribute"
+            element={<ProtectedRoute element={<CreateAttribute/>} />}
+          />
+          <Route
+            path="/list-attribute"
+            element={<ProtectedRoute element={<ListAttribute/>} />}
+          />
         </Routes>
       </Router>
     </AuthProvider>

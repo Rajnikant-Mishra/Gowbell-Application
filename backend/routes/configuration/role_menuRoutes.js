@@ -2,15 +2,16 @@ import express from 'express';
 import {
     assignMenu,
     getMenusByRole,
-    removeMenu,
-    getAllRoleMenus
+   
+    getAllRoleMenu,
+    deleteRoleMenu
 } from '../../controllers/configuration/role_menuController.js';
 
 const router = express.Router();
 
 router.post('/assign', assignMenu);
 router.get('/:role_id', getMenusByRole);
-router.delete('/remove', removeMenu);
-router.get('/', getAllRoleMenus);
-
+router.get('/', getAllRoleMenu); 
+// Delete a consignment by ID
+router.delete('/assign/:id', deleteRoleMenu);
 export default router;

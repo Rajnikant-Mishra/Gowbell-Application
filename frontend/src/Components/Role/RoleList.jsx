@@ -52,7 +52,58 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
-  
+
+  const handleDelete = (id) => {
+    // Show SweetAlert confirmation dialog
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      // icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with the delete request
+        axios
+          .delete(`${API_BASE_URL}/api/r1/role/${id}`)
+          .then((response) => {
+            // Update the state after successful deletion
+            setRecords((prevCountries) =>
+              prevCountries.filter((country) => country.id !== id)
+            );
+            setFilteredRecords((prevFiltered) =>
+              prevFiltered.filter((country) => country.id !== id)
+            );
+
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The role has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
+          })
+          .catch((error) => {
+            console.error("Error deleting:", error);
+            // Show an error alert if deletion fails
+            Swal.fire("Error!", "There was an issue deleting.", "error");
+          });
+      }
+    });
+  };
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
@@ -126,7 +177,9 @@ export default function DataTable() {
   //   (page - 1) * pageSize,
   //   page * pageSize
   // );
-  const currentRecords = Array.isArray(filteredRecords) ? filteredRecords.slice((page - 1) * pageSize, page * pageSize) : [];
+  const currentRecords = Array.isArray(filteredRecords)
+    ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
+    : [];
 
   const [isAllChecked, setIsAllChecked] = useState(false);
 
@@ -159,7 +212,6 @@ export default function DataTable() {
     setIsAllChecked(!isAllChecked);
   };
 
-
   // useEffect(() => {
   //   if (filteredRecords.every((row) => checkedRows[row.id])) {
   //     setIsAllChecked(true);
@@ -167,23 +219,23 @@ export default function DataTable() {
   //     setIsAllChecked(false);
   //   }
   // }, [checkedRows, filteredRecords]);
-  
+
   useEffect(() => {
-    if (Array.isArray(filteredRecords) && filteredRecords.every((row) => checkedRows[row.id])) {
+    if (
+      Array.isArray(filteredRecords) &&
+      filteredRecords.every((row) => checkedRows[row.id])
+    ) {
       setIsAllChecked(true);
     } else {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
-  
-  
-  
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name:"Role" }]} />
+          <Breadcrumb data={[{ name: "Role" }]} />
         </div>
         <div>
           <CreateButton link={"/role"} />
@@ -200,7 +252,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["id","name", "created_at"].map((col) => (
+              {["id", "name", "created_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -221,7 +273,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["id","name", "created_at"].map((col) => (
+            {["id", "name", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -251,19 +303,18 @@ export default function DataTable() {
                 </td>
                 <td>{row.id}</td>
                 <td>{row.role_name}</td>
-               
+
                 <td>{row.created_at}</td>
-               
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <Link to={`/update/${row.id}`}>
+                    {/* <Link to={`/role/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
-                    </Link>
+                    </Link> */}
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
-                    /> */}
+                    />
                   </div>
                 </td>
               </tr>

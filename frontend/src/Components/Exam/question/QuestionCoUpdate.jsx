@@ -113,8 +113,8 @@ const UpdateBookForm = () => {
         <div role="presentation">
           <Breadcrumb
             data={[
-              { name: "Question-Co.", link: "/question-list" },
-              { name: "UpdateQuestion-Co." },
+              { name: "Question", link: "/question-list" },
+              { name: "UpdateQuestion" },
             ]}
           />
         </div>

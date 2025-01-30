@@ -54,6 +54,58 @@ export default function DataTable() {
   }, []);
   
 
+  const handleDelete = (id) => {
+    // Show SweetAlert confirmation dialog
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      // icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with the delete request
+        axios
+          .delete(`${API_BASE_URL}/api/u1/users/${id}`)
+          .then((response) => {
+            // Update the state after successful deletion
+            setRecords((prevCountries) =>
+              prevCountries.filter((country) => country.id !== id)
+            );
+            setFilteredRecords((prevFiltered) =>
+              prevFiltered.filter((country) => country.id !== id)
+            );
+
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The user has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
+          })
+          .catch((error) => {
+            console.error("Error deleting:", error);
+            // Show an error alert if deletion fails
+            Swal.fire("Error!", "There was an issue deleting.", "error");
+          });
+      }
+    });
+  };
+
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
     const filtered = records.filter((row) =>
@@ -237,7 +289,7 @@ export default function DataTable() {
                   />
                 </td>
                 <td>{row.id}</td>
-                <td>{row.role}</td>
+                <td>{row.role_name}</td>
                 <td>{row.username}</td>
                 <td>{row.email}</td>
                 <td>{row.phone}</td>
@@ -250,10 +302,10 @@ export default function DataTable() {
                     <Link to={`/users/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
                     </Link>
-                    {/* <UilTrashAlt
+                    <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
-                    /> */}
+                    />
                   </div>
                 </td>
               </tr>

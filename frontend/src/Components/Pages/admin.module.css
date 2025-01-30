@@ -1,13 +1,13 @@
 .container {
-  width: 78.5vw;
+  width: 76.6vw;
   margin: 0;
   font-family: "Poppins";
 }
 .profile-image-container {
   position: relative;
   display: inline-block;
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background-color: rgb(206, 207, 207);
   border: 1px solid rgb(228, 247, 247);
@@ -40,7 +40,7 @@
 }
 
 .control {
-  height: 40px !important;
+  height: 35px !important;
   padding: 10px 12px;
   font-size: 16px;
   font-family: "Arial", sans-serif;
@@ -100,9 +100,10 @@
 
 .toggle-password {
   position: absolute;
-  right: 27%;
+  right: 25%;
   top: 78%;
   cursor: pointer;
+  color: rgb(179, 179, 179);
 }
 
 .c-avatar {
@@ -110,8 +111,8 @@
   display: inline-block;
 }
 .c-avatar__image {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 100%;
 }
