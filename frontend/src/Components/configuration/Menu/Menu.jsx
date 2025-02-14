@@ -18,6 +18,7 @@ import Breadcrumb from "../../CommonButton/Breadcrumb";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import axios from "axios";
+import "../../Common-Css/Swallfire.css";
 import {
   UilCreateDashboard,
   UilCompass,

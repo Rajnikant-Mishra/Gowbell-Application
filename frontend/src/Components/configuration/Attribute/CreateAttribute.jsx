@@ -4,24 +4,29 @@ import { UilPlus, UilMinus } from "@iconscout/react-unicons";
 import ButtonComp from "../../CommonButton/ButtonComp";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import Swal from "sweetalert2";
+import axios from "axios";
+import "../../Common-Css/Swallfire.css";
+
 const Extra = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    rows: [{ key: "", value: "", seq: "" }],
+    attribute_name: "",
+    rows: [{ ckey: "", cvalue: "", display_sequence: "" }],
   });
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Function to update `name` in `formData`
   const handleNameChange = (e) => {
-    setFormData({ ...formData, name: e.target.value });
+    setFormData({ ...formData, attribute_name: e.target.value });
   };
 
   // Function to add a new row to `rows`
   const addRow = () => {
     setFormData({
       ...formData,
-      rows: [...formData.rows, { key: "", value: "", seq: "" }],
+      rows: [...formData.rows, { ckey: "", cvalue: "", display_sequence: "" }],
     });
   };
 
@@ -42,17 +47,69 @@ const navigate = useNavigate();
   };
 
   // Function to handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    // Add logic to save `formData` to a database or API
+  
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/attributes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          text: "Attribute added successfully!",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
+  
+          navigate("/list-attribute");
+       
+      } else {
+        const errorData = await response.json(); // Assuming the server returns JSON with error details
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: errorData.message || "Failed to submit attribute. Please try again!",
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "An error occurred while submitting the form.",
+      });
+    }
   };
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Breadcrumb
-          data={[{ name: "Attribute", link: "/list-attribute" }, { name: "Create Attribute" }]}
+          data={[
+            { name: "Attribute", link: "/list-attribute" },
+            { name: "Create Attribute" },
+          ]}
         />
       </div>
       <div className="w-75 bg-white p-4 mx-auto rounded">
@@ -67,9 +124,9 @@ const navigate = useNavigate();
               <input
                 type="text"
                 id="name"
-                name="name"
+                name="attribute_name"
                 className="rounded m-0 w-100"
-                value={formData.name}
+                value={formData.attribute_name}
                 onChange={handleNameChange}
                 required
               />
@@ -101,9 +158,9 @@ const navigate = useNavigate();
                     <input
                       type="text"
                       className="rounded m-0 my-1 w-100"
-                      value={row.key}
+                      value={row.ckey}
                       onChange={(e) =>
-                        handleRowChange(index, "key", e.target.value)
+                        handleRowChange(index, "ckey", e.target.value)
                       }
                       required
                     />
@@ -112,9 +169,9 @@ const navigate = useNavigate();
                     <input
                       type="text"
                       className="rounded m-0 my-1 w-100"
-                      value={row.value}
+                      value={row.cvalue}
                       onChange={(e) =>
-                        handleRowChange(index, "value", e.target.value)
+                        handleRowChange(index, "cvalue", e.target.value)
                       }
                       required
                     />
@@ -123,9 +180,9 @@ const navigate = useNavigate();
                     <input
                       type="text"
                       className="rounded m-0 my-1 w-100"
-                      value={row.seq}
+                      value={row.display_sequence}
                       onChange={(e) =>
-                        handleRowChange(index, "seq", e.target.value)
+                        handleRowChange(index, "display_sequence", e.target.value)
                       }
                       required
                     />

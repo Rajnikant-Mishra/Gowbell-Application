@@ -250,27 +250,27 @@ const UpdateClass = () => {
       .matches(
         /^[a-zA-Z0-9 _-]+$/,
         "Class name can only contain letters, numbers, spaces, underscores, and hyphens."
-      )
-      .test(
-        "unique-name",
-        "Class name already exists.",
-        async (value) => {
-          if (!value) return true; // Skip validation if field is empty
-          try {
-            const { data: existingClasses } = await axios.get(
-              `${API_BASE_URL}/api/class`
-            );
-            return !existingClasses.some(
-              (cls) =>
-                cls.name.toLowerCase() === value.toLowerCase() &&
-                cls.id !== id
-            );
-          } catch (error) {
-            console.error("Error checking duplicate class name:", error);
-            return false; // Assume duplicate if there's an error
-          }
-        }
       ),
+    // .test(
+    //   "unique-name",
+    //   "Class name already exists.",
+    //   async (value) => {
+    //     if (!value) return true; // Skip validation if field is empty
+    //     try {
+    //       const { data: existingClasses } = await axios.get(
+    //         `${API_BASE_URL}/api/class`
+    //       );
+    //       return !existingClasses.some(
+    //         (cls) =>
+    //           cls.name.toLowerCase() === value.toLowerCase() &&
+    //           cls.id !== id
+    //       );
+    //     } catch (error) {
+    //       console.error("Error checking duplicate class name:", error);
+    //       return false; // Assume duplicate if there's an error
+    //     }
+    //   }
+    // ),
     status: Yup.string().required("Status is required"),
   });
 
@@ -280,34 +280,36 @@ const UpdateClass = () => {
       await axios.put(`${API_BASE_URL}/api/class/${id}`, values);
       Swal.fire({
         position: "top-end",
-          icon: "success",
-          title: "Success!",
-          text: `Class ${values.name} updated successfully!`,
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
+        icon: "success",
+        title: "Success!",
+        text: `Class ${values.name} updated successfully!`,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       }).then(() => {
         navigate("/class");
       });
     } catch (error) {
       console.error("Error updating class:", error);
       Swal.fire({
+        position: "top-end",
+        icon: "Errors",
         title: "Error",
-        text: "There was an issue updating the class. Please try again.",
+        text: "Class name already exists.",
         icon: "error",
         showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       });
     }
   };

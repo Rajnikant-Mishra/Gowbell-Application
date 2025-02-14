@@ -302,7 +302,7 @@
 // }
 
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, TextField } from "@mui/material";
+import { Box, Typography, Grid, TextField, MenuItem } from "@mui/material";
 import styles from "../incharge/AssignIncharge.module.css";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -341,11 +341,20 @@ export default function AssignInChargeForm() {
     fetchClassData();
   }, []);
 
-      //message css
-const helperTextStyle = {
-  fontSize: "0.7rem", // Custom font size
-  color: "red", // Custom color for error messages
-};
+  const [schools, setSchools] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/api/get/schools`)
+      .then((res) => setSchools(res.data))
+      .catch((err) => console.error("Error fetching schools:", err));
+  }, []);
+
+  //message css
+  const helperTextStyle = {
+    fontSize: "0.7rem", // Custom font size
+    color: "red", // Custom color for error messages
+  };
   // Formik initial values and validation schema
   const formik = useFormik({
     initialValues: {
@@ -371,8 +380,6 @@ const helperTextStyle = {
       class_from: Yup.string().required("Class From is required"),
       class_to: Yup.string().required("Class To is required"),
     }),
-
-
 
     onSubmit: async (values) => {
       try {
@@ -430,7 +437,8 @@ const helperTextStyle = {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={6}>
                 <TextField
-                  className={styles.textInput}
+                  select
+                  fullWidth
                   label="School Name"
                   name="school_name"
                   value={formik.values.school_name}
@@ -452,9 +460,6 @@ const helperTextStyle = {
                       fontWeight: "bolder",
                     },
                   }}
-                  FormHelperTextProps={{
-                    style: helperTextStyle, // Apply centralized style
-                  }}
                   error={
                     formik.touched.school_name &&
                     Boolean(formik.errors.school_name)
@@ -462,8 +467,13 @@ const helperTextStyle = {
                   helperText={
                     formik.touched.school_name && formik.errors.school_name
                   }
-                  fullWidth
-                />
+                >
+                  {schools.map((school) => (
+                    <MenuItem key={school.id} value={school.school_name}>
+                      {school.school_name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
                 <TextField
@@ -528,7 +538,6 @@ const helperTextStyle = {
                   FormHelperTextProps={{
                     style: helperTextStyle, // Apply centralized style
                   }}
-                 
                   error={
                     formik.touched.incharge_dob &&
                     Boolean(formik.errors.incharge_dob)
@@ -600,7 +609,7 @@ const helperTextStyle = {
                 <SelectDrop
                   label="Class To"
                   name="class_to"
-                  options={classOptions}                       
+                  options={classOptions}
                   value={formik.values.class_to}
                   onChange={formik.handleChange}
                   FormHelperTextProps={{

@@ -89,3 +89,8 @@
 
 @media (max-width: 480px) {
 }
+.notificationIcon{
+  font-size: 20px;
+    /* gap: 7px; */
+    margin-right: 8px;
+}

@@ -276,7 +276,7 @@ export default function DataTable() {
   };
   
 
-  // Parse CSV and upload data
+  
 // Parse CSV and upload data
 const parseCSVData = (csvData) => {
   Papa.parse(csvData, {
@@ -285,6 +285,7 @@ const parseCSVData = (csvData) => {
       const students = result.data.map((row) => ({
         school_name: row.school_name,
         student_name: row.student_name,
+        roll_no: row.roll_no,
         class_name: row.class_name,
         student_section: row.student_section,
         mobile_number: row.mobile_number,
@@ -371,6 +372,7 @@ const uploadStudentsData = async (students) => {
     const headers = [
       "school_name",
       "student_name",
+      "roll_no",
       "class_name",
       "student_section",
       "mobile_number",
@@ -381,6 +383,7 @@ const uploadStudentsData = async (students) => {
       [
         "DM school",
         "Alice Johnson",
+        "010001",
         "class-1",
         "A",
         "1234567890",
@@ -417,71 +420,7 @@ const uploadStudentsData = async (students) => {
 
         {/* //bulk upload */}
 
-        {/* <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "10px",
-          }}
-        >
-         
-          <div
-          onClick={handleClick}
-          style={{
-            cursor: "pointer",
-            padding: "5px 10px",
-            display: "flex",
-            alignItems: "center",
-            marginLeft: "584px",
-            height: "27px",
-            fontSize: "14px",
-            color: "#1230AE", // Updated text color
-            textDecoration: "none", // Removed underline
-            fontFamily: "Poppins, sans-serif", // Added Poppins font
-          }}
-        >
-          <img
-            src={excelImg}
-            alt="Upload"
-            style={{
-              width: "20px",
-              height: "20px",
-              marginRight: "8px",
-            }}
-          />
-          Bulk Action
-        </div>
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            transformOrigin={{ vertical: "top", horizontal: "left" }}
-          >
-            <MenuItem
-              onClick={handleUploadClick}
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              <UploadIcon style={{ marginRight: "8px", color: "#1230AE" }} />
-              Upload
-            </MenuItem>
-            <MenuItem
-              onClick={handleDownloadClick}
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              <DownloadIcon style={{ marginRight: "8px", color: "#1230AE" }} />
-              Download
-            </MenuItem>
-          </Menu>
-          <input
-            id="fileInput"
-            type="file"
-            accept=".csv" // Ensure only CSV files are selected
-            style={{ display: "none" }}
-            onChange={handleFileChange} // Handle the file change event
-          />
-        </div> */}
+       
         <div
           style={{
             display: "flex",
@@ -639,6 +578,7 @@ const uploadStudentsData = async (students) => {
               {[
                 "school name",
                 "student_name",
+                "roll_number",
                 "class_name",
                 "student_section",
                 "mobile number",
@@ -667,6 +607,7 @@ const uploadStudentsData = async (students) => {
             {[
               "school name",
               "student_name",
+              "roll_number",
               "class_name",
               "student_section",
               "mobile number",
@@ -702,6 +643,7 @@ const uploadStudentsData = async (students) => {
 
                 <td>{row.school_name}</td>
                 <td>{row.student_name}</td>
+                <td>{row.roll_no}</td>
                 <td>{row.class_name}</td>
 
                 <td>{row.student_section}</td>

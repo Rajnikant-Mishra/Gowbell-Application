@@ -22,42 +22,51 @@ export default function StudentUpdateForm() {
     mobile_number: "",
     whatsapp_number: "",
     student_subject: "",
+    roll_no:"",
   });
 
   const [schoolOptions, setSchoolOptions] = useState([]);
   const [classOptions, setClassOptions] = useState([]);
   const [subjectOptions, setSubjectOptions] = useState([]);
-  
+
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch school options
-        const schoolResponse = await fetch(`${ API_BASE_URL }/api/get/schools`);
+        const schoolResponse = await fetch(`${API_BASE_URL}/api/get/schools`);
         const schoolData = await schoolResponse.json();
-        setSchoolOptions(schoolData.map(school => ({
-          value: school.school_name,
-          label: school.school_name,
-        })));
+        setSchoolOptions(
+          schoolData.map((school) => ({
+            value: school.school_name,
+            label: school.school_name,
+          }))
+        );
 
         // Fetch class options
-        const classResponse = await fetch(`${ API_BASE_URL }/api/class`);
+        const classResponse = await fetch(`${API_BASE_URL}/api/class`);
         const classData = await classResponse.json();
-        setClassOptions(classData.map(item => ({
-          value: item.name,
-          label: item.name,
-        })));
+        setClassOptions(
+          classData.map((item) => ({
+            value: item.name,
+            label: item.name,
+          }))
+        );
 
         // Fetch subject options
-        const subjectResponse = await fetch(`${ API_BASE_URL }/api/subject`);
+        const subjectResponse = await fetch(`${API_BASE_URL}/api/subject`);
         const subjectData = await subjectResponse.json();
-        setSubjectOptions(subjectData.map(subject => ({
-          value: subject.name,
-          label: subject.name,
-        })));
+        setSubjectOptions(
+          subjectData.map((subject) => ({
+            value: subject.name,
+            label: subject.name,
+          }))
+        );
 
         // Fetch student data
-        const studentResponse = await fetch(`${ API_BASE_URL }/api/get/student/${id}`);
+        const studentResponse = await fetch(
+          `${API_BASE_URL}/api/get/student/${id}`
+        );
         if (!studentResponse.ok) throw new Error("Student data not found");
         const studentData = await studentResponse.json();
         setFormData({
@@ -94,137 +103,143 @@ export default function StudentUpdateForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  
-   const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      // Define validation rules for each field dynamically
-      const validationRules = [
-        {
-          field: "school_name",
-          label: "School Name",
-          validate: (value) => !!value || "School Name is required.",
-        },
-        {
-          field: "student_name",
-          label: "Student Name",
-          validate: (value) => !!value || "Student Name is required.",
-        },
-        {
-          field: "class_name",
-          label: "Class Name",
-          validate: (value) => !!value || "Class Name is required.",
-        },
-        {
-          field: "mobile_number",
-          label: "Mobile Number",
-          validate: (value) =>
-            /^\d{10}$/.test(value) || "Mobile Number must be exactly 10 digits.",
-        },
-        {
-          field: "whatsapp_number",
-          label: "WhatsApp Number",
-          validate: (value) =>
-            /^\d{10}$/.test(value) ||
-            "WhatsApp Number must be exactly 10 digits.",
-        },
-        {
-          field: "student_subject",
-          label: "Student subject",
-          validate: (value) => !!value || "Student subject is required.",
-        },
-      ];
-  
-      // Iterate through validation rules and check for errors
-      for (const { field, validate } of validationRules) {
-        const value = formData[field]; // Get field value
-        const validationResult = validate(value); // Run validation
-  
-        if (validationResult !== true) {
-          // Show validation error dynamically
-          Swal.fire({
-            position: "top-end",
-            icon: "error",
-            text: validationResult, // Show the validation error message
-            showConfirmButton: true,
-            timer: 3000,
-            timerProgressBar: true,
-            toast: true,
-            background: "#fff",
-            customClass: {
-              popup: "small-swal",
-            },
-          });
-          return; // Stop further execution on first validation error
-        }
-      }
-  
-      // Proceed with API call after validation
-      try {
-        const response = await fetch(`${ API_BASE_URL }/api/get/student/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-  
-        if (response.ok) {
-          // Success - Show success message
-           Swal.fire({
-                    position: "top-end",
-                    icon: "success",
-                    title: "Success!",
-                    text: `student  updated successfully!`,
-                    showConfirmButton: false,
-                    timer: 1000,
-                    timerProgressBar: true,
-                    toast: true,
-                    background: "#fff",
-                    customClass: {
-                      popup: "small-swal",
-                    },
-                  }).then(() => {
-            navigate("/studentList");
-          });
-  
-          // Reset form data after successful submission
-          setFormData({
-            school_name: "",
-            student_name: "",
-            class_name: "",
-            student_section: "",
-            mobile_number: "",
-            whatsapp_number: "",
-            student_subject: "",
-          });
-        } else {
-          throw new Error("Failed to submit form");
-        }
-      } catch (error) {
-        // Error - Show error message
-        console.error("Error details:", error.response?.data || error.message);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Define validation rules for each field dynamically
+    const validationRules = [
+      {
+        field: "school_name",
+        label: "School Name",
+        validate: (value) => !!value || "School Name is required.",
+      },
+      {
+        field: "student_name",
+        label: "Student Name",
+        validate: (value) => !!value || "Student Name is required.",
+      },
+      {
+        field: "class_name",
+        label: "Class Name",
+        validate: (value) => !!value || "Class Name is required.",
+      },
+      {
+        field: "mobile_number",
+        label: "Mobile Number",
+        validate: (value) =>
+          /^\d{10}$/.test(value) || "Mobile Number must be exactly 10 digits.",
+      },
+      {
+        field: "whatsapp_number",
+        label: "WhatsApp Number",
+        validate: (value) =>
+          /^\d{10}$/.test(value) ||
+          "WhatsApp Number must be exactly 10 digits.",
+      },
+      {
+        field: "student_subject",
+        label: "Student subject",
+        validate: (value) => !!value || "Student subject is required.",
+      },
+     
+      {
+        field: "roll_no",
+        label: "roll number",
+        validate: (value) => !!value || "roll number is required.",
+      },
+    ];
+
+    // Iterate through validation rules and check for errors
+    for (const { field, validate } of validationRules) {
+      const value = formData[field]; // Get field value
+      const validationResult = validate(value); // Run validation
+
+      if (validationResult !== true) {
+        // Show validation error dynamically
         Swal.fire({
           position: "top-end",
           icon: "error",
-          title: "Error!",
-          text: error.response?.data?.error || "An unexpected error occurred.",
-          showConfirmButton: false,
-          timer: 4000,
+          text: validationResult, // Show the validation error message
+          showConfirmButton: true,
+          timer: 3000,
           timerProgressBar: true,
           toast: true,
-          customClass: {
-            popup: "animate__animated animate__shakeX",
-            title: "text-danger fw-bold",
-            text: "text-dark",
-          },
           background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
+        return; // Stop further execution on first validation error
       }
-    };
+    }
+
+    // Proceed with API call after validation
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        // Success - Show success message
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `student  updated successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
+          navigate("/studentList");
+        });
+
+        // Reset form data after successful submission
+        setFormData({
+          school_name: "",
+          student_name: "",
+          class_name: "",
+          student_section: "",
+          mobile_number: "",
+          whatsapp_number: "",
+          student_subject: "",
+          roll_no: "",
+        });
+      } else {
+        throw new Error("Failed to submit form");
+      }
+    } catch (error) {
+      // Error - Show error message
+      console.error("Error details:", error.response?.data || error.message);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text: error.response?.data?.error || "An unexpected error occurred.",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: "animate__animated animate__shakeX",
+          title: "text-danger fw-bold",
+          text: "text-dark",
+        },
+        background: "#fff",
+      });
+    }
+  };
 
   return (
     <Mainlayout>
@@ -312,6 +327,16 @@ export default function StudentUpdateForm() {
                   options={subjectOptions}
                   value={formData.student_subject}
                   onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextInput
+                  label="Roll Number"
+                  name="roll_no"
+                  value={formData.roll_no}
+                  onChange={handleChange}
+                  type="tel"
                   fullWidth
                 />
               </Grid>

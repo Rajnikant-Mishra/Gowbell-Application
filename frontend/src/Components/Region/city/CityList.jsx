@@ -42,18 +42,101 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  useEffect(() => {
-    // Fetch data from the API when the component mounts
-    axios
-      .get(`${API_BASE_URL}/api/cities/`) // Your API URL here
-      .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the records!", error);
+  // useEffect(() => {
+  //   // Fetch data from the API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/cities/`) // Your API URL here
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+  const [districts, setDistricts] = useState([]);
+const [states, setStates] = useState([]);
+const [countries, setCountries] = useState([]);
+
+
+const formatTimestamp = (timestamp) => {
+  return new Date(timestamp).toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+};
+
+// Fetch districts
+useEffect(() => {
+  axios
+    .get(`${API_BASE_URL}/api/districts/`)
+    .then((response) => {
+      setDistricts(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching districts!", error);
+    });
+}, []);
+
+// Fetch states
+useEffect(() => {
+  axios
+    .get(`${API_BASE_URL}/api/states/`)
+    .then((response) => {
+      setStates(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching states!", error);
+    });
+}, []);
+
+// Fetch countries
+useEffect(() => {
+  axios
+    .get(`${API_BASE_URL}/api/countries/`)
+    .then((response) => {
+      setCountries(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching countries!", error);
+    });
+}, []);
+
+// Fetch cities and map district, state, and country names
+useEffect(() => {
+  axios
+    .get(`${API_BASE_URL}/api/cities/`)
+    .then((response) => {
+      const formattedData = response.data.map((record) => {
+        const district = districts.find((d) => d.id === record.district_id);
+        const state = states.find((s) => s.id === district?.state_id);
+        const country = countries.find((c) => c.id === state?.country_id);
+
+        return {
+          ...record,
+          district_id: district?.name || "Unknown",
+          state_id: state?.name || "Unknown",
+          country_id: country?.name || "Unknown",
+          created_at: formatTimestamp(record.created_at),
+          updated_at: formatTimestamp(record.updated_at),
+        };
       });
-  }, []);
+
+      setRecords(formattedData);
+      setFilteredRecords(formattedData);
+    })
+    .catch((error) => {
+      console.error("Error fetching cities!", error);
+    });
+}, [districts, states, countries]); // Runs again when districts, states, and countries are fetched
+
+  
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -240,7 +323,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name", "created_at", "updated_at"].map((col) => (
+              {["city", "district", "state", "country", "status", "created_at", "updated_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -261,7 +344,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["name", "created_at", "updated_at"].map((col) => (
+            {["city", "district", "state", "country", "status", "created_at", "updated_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -290,6 +373,10 @@ export default function DataTable() {
                   />
                 </td>
                 <td>{row.name}</td>
+                <td>{row.district_id}</td>
+                <td>{row.state_id}</td>
+                <td>{row.country_id}</td>
+                <td>{row.status}</td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 

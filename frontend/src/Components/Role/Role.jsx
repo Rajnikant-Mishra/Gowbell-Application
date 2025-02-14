@@ -1,36 +1,38 @@
 // import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import Mainlayout from "../Layouts/Mainlayout";
-// import { TextField, Box, Container, Typography } from "@mui/material";
+// import { TextField, Box, Container, Typography, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 // import Swal from "sweetalert2";
 // import Breadcrumb from "../CommonButton/Breadcrumb";
 // import ButtonComp from "../School/CommonComp/ButtonComp";
 // import { API_BASE_URL } from "../ApiConfig/APIConfig";
 // import "../Common-Css/Swallfire.css";
 
+// const permissionsList = ["View", "Edit", "Delete", "Create", "Disable", "Enable"];
+
 // const CreateRoleForm = () => {
 //   const [formData, setFormData] = useState({
 //     role_name: "",
+//     permissions: []
 //   });
 //   const [error, setError] = useState("");
 //   const navigate = useNavigate();
 
 //   const handleChange = (e) => {
 //     const { name, value } = e.target;
-
-//     // Check if the field being changed is 'role_name'
 //     if (name === "role_name") {
-//       // Only allow alphabetic characters and spaces in 'role_name'
 //       if (!/^[a-zA-Z\s]*$/.test(value)) {
 //         setError("Only letters and spaces are allowed in the Role field.");
-//         return; // Do not update the state if the value is invalid
+//         return;
 //       } else {
-//         setError(""); // Clear error if the input is valid
+//         setError("");
 //       }
 //     }
-
-//     // Update the state for the valid input
 //     setFormData({ ...formData, [name]: value });
+//   };
+
+//   const handlePermissionChange = (event) => {
+//     setFormData({ ...formData, permissions: event.target.value });
 //   };
 
 //   const handleSubmit = async (e) => {
@@ -115,15 +117,26 @@
 //               fullWidth
 //               size="small"
 //               required
-//               InputProps={{
-//                 style: { fontSize: "14px" },
-//               }}
-//               InputLabelProps={{
-//                 style: { fontSize: "14px" },
-//               }}
-//               error={!!error} // Set the error state to true if there's an error
-//               helperText={error} // Display the error message
+//               InputProps={{ style: { fontSize: "14px" } }}
+//               InputLabelProps={{ style: { fontSize: "14px" } }}
+//               error={!!error}
+//               helperText={error}
 //             />
+//             <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+//               <InputLabel>Permissions</InputLabel>
+//               <Select
+//                 multiple
+//                 value={formData.permissions}
+//                 onChange={handlePermissionChange}
+//                 renderValue={(selected) => selected.join(", ")}
+//               >
+//                 {permissionsList.map((permission) => (
+//                   <MenuItem key={permission} value={permission}>
+//                     {permission}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
 //             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
 //               <ButtonComp text="Submit" type="submit" sx={{ flexGrow: 1 }} />
 //               <ButtonComp
@@ -146,7 +159,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Mainlayout from "../Layouts/Mainlayout";
-import { TextField, Box, Container, Typography, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+import {
+  TextField,
+  Box,
+  Container,
+  Typography,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import Swal from "sweetalert2";
 import Breadcrumb from "../CommonButton/Breadcrumb";
 import ButtonComp from "../School/CommonComp/ButtonComp";
@@ -158,13 +180,15 @@ const permissionsList = ["View", "Edit", "Delete", "Create", "Disable", "Enable"
 const CreateRoleForm = () => {
   const [formData, setFormData] = useState({
     role_name: "",
-    permissions: []
+    permissions: [],
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "role_name") {
       if (!/^[a-zA-Z\s]*$/.test(value)) {
         setError("Only letters and spaces are allowed in the Role field.");
@@ -176,20 +200,27 @@ const CreateRoleForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Handle Permissions Selection
   const handlePermissionChange = (event) => {
     setFormData({ ...formData, permissions: event.target.value });
   };
 
+  // Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/r1/role`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          role_name: formData.role_name,
+          permissions: JSON.stringify(formData.permissions), // Store as JSON string
+        }),
       });
+
       if (response.ok) {
         Swal.fire({
           position: "top-end",
@@ -236,9 +267,7 @@ const CreateRoleForm = () => {
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <Breadcrumb
-          data={[{ name: "Role", link: "/role-list" }, { name: "Create Role" }]}
-        />
+        <Breadcrumb data={[{ name: "Role", link: "/role-list" }, { name: "Create Role" }]} />
       </div>
       <Container maxWidth="sm">
         <Box
@@ -254,6 +283,7 @@ const CreateRoleForm = () => {
             Create Role
           </Typography>
           <form onSubmit={handleSubmit}>
+            {/* Role Name Input */}
             <TextField
               label="Role"
               name="role_name"
@@ -267,6 +297,8 @@ const CreateRoleForm = () => {
               error={!!error}
               helperText={error}
             />
+
+            {/* Permissions Selection */}
             <FormControl fullWidth size="small" sx={{ mt: 2 }}>
               <InputLabel>Permissions</InputLabel>
               <Select
@@ -274,6 +306,7 @@ const CreateRoleForm = () => {
                 value={formData.permissions}
                 onChange={handlePermissionChange}
                 renderValue={(selected) => selected.join(", ")}
+                required
               >
                 {permissionsList.map((permission) => (
                   <MenuItem key={permission} value={permission}>
@@ -282,6 +315,8 @@ const CreateRoleForm = () => {
                 ))}
               </Select>
             </FormControl>
+
+            {/* Submit & Cancel Buttons */}
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
               <ButtonComp text="Submit" type="submit" sx={{ flexGrow: 1 }} />
               <ButtonComp

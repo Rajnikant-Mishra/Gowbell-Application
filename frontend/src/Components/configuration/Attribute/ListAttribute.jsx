@@ -40,24 +40,26 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-//   useEffect(() => {
-//     // Fetch data from the new API when the component mounts
-//     axios
-//       .get(`${API_BASE_URL}/api/m1/menu`) // Updated API URL
-//       .then((response) => {
-//         setRecords(response.data);
-//         setFilteredRecords(response.data);
-//       })
-//       .catch((error) => {
-//         console.error("There was an error fetching the records!", error);
-//       });
-//   }, []);
+  useEffect(() => {
+    // Fetch data from the new API when the component mounts
+    axios
+      .get(`${API_BASE_URL}/api/attributes`) // Updated API URL
+      .then((response) => {
+        setRecords(response.data);
+        setFilteredRecords(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the records!", error);
+      });
+  }, []);
+
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
+      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -69,14 +71,22 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${API_BASE_URL}/api/m1/menu/${id}`)
-          .then(() => {
-            // Show a success alert
+          .delete(`${API_BASE_URL}/api/attributes/${id}`)
+          .then((response) => {
+            // Update the state after successful deletion
+            setRecords((prevCountries) =>
+              prevCountries.filter((country) => country.id !== id)
+            );
+            setFilteredRecords((prevFiltered) =>
+              prevFiltered.filter((country) => country.id !== id)
+            );
+
+            // delete Show a success alert
             Swal.fire({
               position: "top-end",
               icon: "success",
               title: "Success!",
-              text: `The menu has been deleted.`,
+              text: `The attribute has been deleted.`,
               showConfirmButton: false,
               timer: 1000,
               timerProgressBar: true,
@@ -85,25 +95,22 @@ export default function DataTable() {
               customClass: {
                 popup: "small-swal",
               },
-            }).then(() => {
-              // Refresh the page
-              window.location.reload();
             });
           })
           .catch((error) => {
-            console.error("Error deleting menu:", error);
+            console.error("Error deleting :", error);
             // Show an error alert if deletion fails
             Swal.fire(
               "Error!",
-              "There was an issue deleting the menu.",
+              "There was an issue deleting the country.",
               "error"
             );
           });
       }
     });
   };
-  
-  
+
+
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
@@ -240,21 +247,19 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["title", "link", "enable", "visible", "created_at"].map(
-                (col) => (
-                  <th
-                    key={col}
-                    className={styles.sortableHeader}
-                    onClick={() => handleSort(col)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-                      {getSortIcon(col)}
-                    </div>
-                  </th>
-                )
-              )}
+              {["attributes", "key", "value", "sequence"].map((col) => (
+                <th
+                  key={col}
+                  className={styles.sortableHeader}
+                  onClick={() => handleSort(col)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    {getSortIcon(col)}
+                  </div>
+                </th>
+              ))}
               <th>Action</th>
             </tr>
           </thead>
@@ -263,7 +268,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["title", "link", "enable", "visible", "created_at"].map((col) => (
+            {["attributes", "key", "value", "sequence"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -292,30 +297,18 @@ export default function DataTable() {
                   />
                 </td>
 
-                <td>{row.title}</td>
+                <td>{row.attribute_name}</td>
                 {/* <td>{row.link}</td> */}
-                <td>
-                  {row.link ? (
-                    <a
-                      href={row.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {row.link}
-                    </a>
-                  ) : (
-                    "No link available"
-                  )}
-                </td>
-                <td>{row.enable}</td>
-                <td>{row.visible}</td>
-                <td>{row.created_at}</td>
+                <td>{row.ckey}</td>
+                <td>{row.cvalue}</td>
+                <td>{row.display_sequence}</td>
+              
 
                 <td>
                   <div className={styles.actionButtons}>
-                    <Link to={`/menu/update/${row.id}`}>
+                    {/* <Link to={`/menu/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
-                    </Link>
+                    </Link> */}
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}

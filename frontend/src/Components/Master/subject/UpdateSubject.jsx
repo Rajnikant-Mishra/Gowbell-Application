@@ -24,21 +24,21 @@ const validationSchema = Yup.object({
     .min(3, "Subject name must be at least 3 characters")
     .max(255, "Subject name must be less than or equal to 255 characters")
     .required("Subject name is required")
-    .matches(/^[a-zA-Z0-9 ]*$/, "Subject name can only contain letters and numbers")
-    .test("unique-name", "Subject name already exists.", async (value) => {
-      if (!value) return true;
-      try {
-        const { data: existingSubjects } = await axios.get(
-          `${API_BASE_URL}/api/subject`
-        );
-        return !existingSubjects.some(
-          (subject) => subject.name.toLowerCase() === value.toLowerCase()
-        );
-      } catch (error) {
-        console.error("Error checking duplicate subject name:", error);
-        return false;
-      }
-    }),
+    .matches(/^[a-zA-Z0-9 ]*$/, "Subject name can only contain letters and numbers"),
+    // .test("unique-name", "Subject name already exists.", async (value) => {
+    //   if (!value) return true;
+    //   try {
+    //     const { data: existingSubjects } = await axios.get(
+    //       `${API_BASE_URL}/api/subject`
+    //     );
+    //     return !existingSubjects.some(
+    //       (subject) => subject.name.toLowerCase() === value.toLowerCase()
+    //     );
+    //   } catch (error) {
+    //     console.error("Error checking duplicate subject name:", error);
+    //     return false;
+    //   }
+    // }),
   status: Yup.string()
     .oneOf(["active", "inactive"], "Status must be either 'active' or 'inactive'")
     .required("Status is required"),
@@ -88,8 +88,23 @@ const Updatesubject = () => {
         });
       })
       .catch((error) => {
-        // Error: Show error alert
+        // Error: Show error alert Subject name already exists.
         console.error("Error updating subject:", error);
+        Swal.fire({
+                position: "top-end",
+                icon: "Errors",
+                title: "Error",
+                text: "Subject name already exists",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 1000,
+                timerProgressBar: true,
+                toast: true,
+                background: "#fff",
+                customClass: {
+                  popup: "small-swal",
+                },
+              });
       });
   };
 

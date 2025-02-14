@@ -42,18 +42,36 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/get/incharges`) // Your API URL here
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
   useEffect(() => {
-    // Fetch data from the API when the component mounts
     axios
       .get(`${API_BASE_URL}/api/get/incharges`) // Your API URL here
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        // Convert `incharge_dob` to 'YYYY-MM-DD' format
+        const formattedData = response.data.map((item) => ({
+          ...item,
+          incharge_dob: item.incharge_dob ? item.incharge_dob.split("T")[0] : null,
+        }));
+  
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
       })
       .catch((error) => {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog

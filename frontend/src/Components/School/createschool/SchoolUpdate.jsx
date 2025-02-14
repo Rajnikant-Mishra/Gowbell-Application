@@ -6,6 +6,10 @@ import {
   Grid,
   Autocomplete,
   Checkbox,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { FaPhoneAlt, FaTrash, FaWhatsapp } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -34,11 +38,11 @@ export default function SchoolForm() {
     city: "",
     pincode: "",
     principal_name: "",
- 
+
     principal_contact_number: "",
     principal_whatsapp: "",
     vice_principal_name: "",
-    
+
     vice_principal_contact_number: "",
     vice_principal_whatsapp: "",
     student_strength: "",
@@ -64,9 +68,10 @@ export default function SchoolForm() {
     { value: "100035", label: "100035" },
   ];
 
-
   //classes codes ----------------------------------------------------------//
   const classOptions = [
+    { value: "LKG", label: "LKG" },
+    { value: "UKG", label: "UKG" },
     { value: "Class 1", label: "Class 1" },
     { value: "Class 2", label: "Class 2" },
     { value: "Class 3", label: "Class 3" },
@@ -76,6 +81,9 @@ export default function SchoolForm() {
     { value: "Class 7", label: "Class 7" },
     { value: "Class 8", label: "Class 8" },
     { value: "Class 9", label: "Class 9" },
+    { value: "Class 10", label: "Class 10" },
+    { value: "Class 11", label: "Class 11" },
+    { value: "Class 12", label: "Class 12" },
   ];
 
   const handleChange = (e, newValue) => {
@@ -103,12 +111,11 @@ export default function SchoolForm() {
     }
   };
 
-  
   // Fetch states dynamically
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const response = await axios.get(`${ API_BASE_URL }/api/states/`);
+        const response = await axios.get(`${API_BASE_URL}/api/states/`);
         setStates(response.data);
       } catch (error) {
         console.error("Error fetching states:", error);
@@ -123,7 +130,7 @@ export default function SchoolForm() {
       const fetchSchoolData = async () => {
         try {
           const response = await axios.get(
-            `${ API_BASE_URL }/api/get/schools/${id}`
+            `${API_BASE_URL}/api/get/schools/${id}`
           );
           setFormData(response.data); // Pre-fill form with fetched data
         } catch (error) {
@@ -140,7 +147,7 @@ export default function SchoolForm() {
       const fetchDistricts = async () => {
         try {
           const response = await axios.get(
-            `${ API_BASE_URL }/api/districts/?state_id=${formData.state}`
+            `${API_BASE_URL}/api/districts/?state_id=${formData.state}`
           );
           setDistricts(response.data);
         } catch (error) {
@@ -159,7 +166,7 @@ export default function SchoolForm() {
       const fetchCities = async () => {
         try {
           const response = await axios.get(
-            `${ API_BASE_URL }/api/cities/?district_id=${formData.district}`
+            `${API_BASE_URL}/api/cities/?district_id=${formData.district}`
           );
           setCities(response.data);
         } catch (error) {
@@ -175,42 +182,44 @@ export default function SchoolForm() {
   // Handle form submission (update)
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const { id, school_code, created_at, updated_at, ...payload } = { ...formData };
-  
+
+    const { id, school_code, created_at, updated_at, ...payload } = {
+      ...formData,
+    };
+
     try {
       console.log("Submitting data: ", payload);
-  
+
       const response = await axios.put(
-        `${ API_BASE_URL }/api/get/schools/${id}`,
+        `${API_BASE_URL}/api/get/schools/${id}`,
         payload,
         {
           headers: { "Content-Type": "application/json" },
         }
       );
-  
+
       // Display success notification
-     Swal.fire({
-               position: "top-end",
-               icon: "success",
-               title: "Success!",
-               text: `school updated successfully!`,
-               showConfirmButton: false,
-               timer: 1000,
-               timerProgressBar: true,
-               toast: true,
-               background: "#fff",
-               customClass: {
-                 popup: "small-swal",
-               },
-             }).then(() => navigate("/schoolList"));
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Success!",
+        text: `school updated successfully!`,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      }).then(() => navigate("/schoolList"));
     } catch (error) {
       console.error("Error during update: ", error.response?.data || error);
-  
+
       // Check for validation errors
       if (error.response?.data?.errors) {
         const validationErrors = error.response.data.errors;
-  
+
         // Display each validation error as a toast
         validationErrors.forEach((message) => {
           Swal.fire({
@@ -241,8 +250,6 @@ export default function SchoolForm() {
       }
     }
   };
-  
-  
 
   return (
     <Mainlayout>
@@ -300,7 +307,7 @@ export default function SchoolForm() {
                 />
               </Grid>
               {/* School Contact Number, State, District */}
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={2}>
                 <TextInput
                   label="School Contact Number"
                   name="school_contact_number"
@@ -311,27 +318,35 @@ export default function SchoolForm() {
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={2}>
-                
+                <TextInput
+                  label="School Landline Number"
+                  name="school_landline_number"
+                  value={formData.school_landline_number}
+                  onChange={handleChange}
+                  type="tel"
+                  fullWidth
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={2}>
                 <SelectDrop
                   label="State"
                   name="state"
                   options={states.map((state) => ({
-                    value: String(state.name), 
+                    value: String(state.name),
                     label: state.name,
                   }))}
                   value={formData.state}
-                  onChange={
-                    (e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        state: e.target.value,
-                      })) 
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      state: e.target.value,
+                    }))
                   }
                   fullWidth
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={2}>
-                
                 <SelectDrop
                   label="District"
                   name="district"
@@ -351,8 +366,7 @@ export default function SchoolForm() {
               </Grid>
               {/* City, Pincode */}
               <Grid item xs={12} sm={6} md={2}>
-               
-                 <SelectDrop
+                <SelectDrop
                   label="City"
                   name="city"
                   options={cities.map((city) => ({
@@ -555,6 +569,21 @@ export default function SchoolForm() {
                     />
                   )}
                 />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small" variant="outlined">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    label="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    sx={{ fontSize: "14px" }} // Use sx for consistent styling
+                  >
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="inactive">Inactive</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             {/* Submit and Cancel Buttons */}

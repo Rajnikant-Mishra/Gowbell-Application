@@ -34,15 +34,18 @@ const helperTextStyle = {
 
 export default function InventoryUpdateForm() {
   const [initialValues, setInitialValues] = useState({
-    item_id: "",
     date: "",
     created_by: "",
+    invoice_no: "",
     item: "",
     quantity: "",
-    remarks: "",
     unit: "",
+    price: "",
+    remarks: "",
+    manufacturer_details: "",
   });
-
+ const [selectedItem, setSelectedItem] = useState("");
+ const [items, setItems] = useState([]);
   const { id } = useParams(); // Get the inventory ID from the route
   const navigate = useNavigate();
 
@@ -54,10 +57,12 @@ export default function InventoryUpdateForm() {
           `${API_BASE_URL}/api/v1/inventory/${id}`
         );
         const data = response.data;
-  
+
         // Format the date field
-        const formattedDate = data.date ? new Date(data.date).toISOString().split("T")[0] : "";
-        
+        const formattedDate = data.date
+          ? new Date(data.date).toISOString().split("T")[0]
+          : "";
+
         setInitialValues({
           ...data,
           date: formattedDate, // Set the formatted date here
@@ -67,10 +72,21 @@ export default function InventoryUpdateForm() {
         Swal.fire("Error", "Unable to fetch inventory data.", "error");
       }
     };
-  
+
     fetchInventoryData();
   }, [id]);
-  
+
+  useEffect(() => {
+    // Fetch data from API
+    axios
+      .get(`${API_BASE_URL}/api/attributes/item/cvalues`)
+      .then((response) => {
+        setItems(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   const handleSubmit = async (values) => {
     try {
@@ -108,16 +124,6 @@ export default function InventoryUpdateForm() {
     }
   };
 
-  const itemOptions = [
-    { value: "", name: "--Item Name--" },
-    { value: "rubber", name: "Rubber" },
-    { value: "pencil", name: "Pencil" },
-    { value: "pencil box", name: "Pencil Box" },
-    { value: "pen", name: "Pen" },
-    { value: "water bottle", name: "Water Bottle" },
-    { value: "tiffin box", name: "Tiffin Box" },
-  ];
-
   const units = [
     { value: "", name: "--Unit--" },
     { value: "numbers", name: "Numbers" },
@@ -149,35 +155,7 @@ export default function InventoryUpdateForm() {
             {({ values, handleChange, errors, touched }) => (
               <Form className={styles.formContent}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <TextField
-                      label="Item Id"
-                      name="item_id"
-                      value={values.item_id}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      InputProps={{
-                        className: styles.inputField,
-                        style: {
-                          fontFamily: "Nunito, sans-serif",
-
-                          fontSize: "0.8rem",
-                        },
-                      }}
-                      InputLabelProps={{
-                        style: {
-                          fontFamily: "Nunito, sans-serif",
-                          fontSize: "0.85rem",
-                          fontWeight: "bolder",
-                        },
-                      }}
-                      error={touched.item_id && Boolean(errors.item_id)}
-                      helperText={touched.item_id && errors.item_id}
-                      FormHelperTextProps={{ style: helperTextStyle }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={2}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       name="date"
                       value={values.date}
@@ -205,7 +183,7 @@ export default function InventoryUpdateForm() {
                       FormHelperTextProps={{ style: helperTextStyle }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label="Created By"
                       name="created_by"
@@ -233,11 +211,11 @@ export default function InventoryUpdateForm() {
                       FormHelperTextProps={{ style: helperTextStyle }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
-                      select
-                      name="item"
-                      value={values.item}
+                      label="Invoice No"
+                      name="invoice_no"
+                      value={values.invoice_no}
                       onChange={handleChange}
                       fullWidth
                       size="small"
@@ -245,7 +223,38 @@ export default function InventoryUpdateForm() {
                         className: styles.inputField,
                         style: {
                           fontFamily: "Nunito, sans-serif",
-
+                          fontSize: "0.8rem",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.85rem",
+                          fontWeight: "bolder",
+                        },
+                      }}
+                      error={touched.invoice_no && errors.invoice_no}
+                      helperText={touched.invoice_no && errors.invoice_no}
+                      FormHelperTextProps={{
+                        style: helperTextStyle,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      select
+                      name="item"
+                      size="small"
+                      value={selectedItem}
+                      onChange={(e) => {
+                        setSelectedItem(e.target.value);
+                        handleChange(e);
+                      }}
+                      fullWidth
+                      InputProps={{
+                        className: styles.inputField,
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
                           fontSize: "0.8rem",
                         },
                       }}
@@ -261,14 +270,18 @@ export default function InventoryUpdateForm() {
                       helperText={touched.item && errors.item}
                       FormHelperTextProps={{ style: helperTextStyle }}
                     >
-                      {itemOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.name}
+                      <option value="">Select an item</option>
+                      {items.map((option) => (
+                        <option
+                          key={option.value || option.id}
+                          value={option.value || option.id}
+                        >
+                          {option.cvalue || option.name}
                         </option>
                       ))}
                     </TextField>
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label="Quantity"
                       name="quantity"
@@ -297,7 +310,7 @@ export default function InventoryUpdateForm() {
                       FormHelperTextProps={{ style: helperTextStyle }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       select
                       name="unit"
@@ -332,7 +345,36 @@ export default function InventoryUpdateForm() {
                       ))}
                     </TextField>
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Price"
+                      name="price"
+                      value={values.price}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      InputProps={{
+                        className: styles.inputField,
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.8rem",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.85rem",
+                          fontWeight: "bolder",
+                        },
+                      }}
+                      error={touched.price && errors.price}
+                      helperText={touched.price && errors.price}
+                      FormHelperTextProps={{
+                        style: helperTextStyle,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextInput
                       label="Remarks"
                       name="remarks"

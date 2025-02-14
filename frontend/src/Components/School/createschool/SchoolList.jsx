@@ -13,6 +13,8 @@ import {
   UilEditAlt,
   UilAngleRightB,
   UilAngleLeftB,
+  UilDownloadAlt,
+  UilInfoCircle,
 } from "@iconscout/react-unicons";
 
 import Mainlayout from "../../Layouts/Mainlayout";
@@ -21,12 +23,15 @@ import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../../CommonButton/ButtonComp";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/DeleteSwal.css";
 import "../../Common-Css/Swallfire.css";
+import { Menu, MenuItem } from "@mui/material";
 import CreateButton from "../../../Components/CommonButton/CreateButton";
+import excelImg from "../../../../public/excell-img.png";
+import Papa from "papaparse"; // Import Papaparse for CSV parsing
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -216,15 +221,389 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
+  //bulk upload for student data---------------------------------//
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Handle file selection and upload
+  const handleUploadClick = () => {
+    document.getElementById("fileInput").click();
+    handleClose();
+  };
+
+  // Handle file change (when a file is selected)
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.type !== "text/csv") {
+        Swal.fire({
+          position: "top-end",
+          icon: "warning",
+          title: "Invalid File",
+          text: "Please upload a valid CSV file.",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const csvData = reader.result;
+        parseCSVData(csvData);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  // Parse CSV and upload data
+  const parseCSVData = (csvData) => {
+    Papa.parse(csvData, {
+      complete: (result) => {
+        console.log("Parsed CSV Data:", result.data); // Log parsed data
+        const students = result.data.map((row) => ({
+          // school_name: row.school_name,
+          // student_name: row.student_name,
+          // roll_no: row.roll_no,
+          // class_name: row.class_name,
+          // student_section: row.student_section,
+          // mobile_number: row.mobile_number,
+          // whatsapp_number: row.whatsapp_number,
+          // student_subject: row.student_subject,
+          board: row.board,
+          school_name: row.school_name,
+          school_email: row.school_email,
+          school_contact_number: row.school_contact_number,
+          state: row.state,
+          district: row.district,
+          city: row.city,
+          pincode: row.pincode,
+          principal_name: row.principal_name,
+          principal_contact_number: row.principal_contact_number,
+          principal_whatsapp: row.principal_whatsapp,
+          vice_principal_name: row.vice_principal_name,
+          vice_principal_contact_number: row.vice_principal_contact_number,
+          vice_principal_whatsapp: row.vice_principal_whatsapp,
+          student_strength: row.student_strength,
+          classes: row.classes,
+        }));
+        uploadStudentsData(students);
+      },
+      header: true,
+      skipEmptyLines: true,
+    });
+  };
+
+  // Function to upload students data to backend
+  const uploadStudentsData = async (students) => {
+    if (!Array.isArray(students) || students.length === 0) {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        title: "No Data",
+        text: "Please upload a valid CSV file with data.",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/get/school/bulk-upload`,
+        students
+      );
+      setLoading(false);
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Success!",
+        text: `Successfully uploaded ${response.data.insertedCount} students.`,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      }).then(() => {
+        // navigate("/studentList");
+        // window.location.reload();  // Force a page reload
+        navigate(0);
+      });
+    } catch (error) {
+      setLoading(false);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text:
+          error.response?.data?.message || "An error occurred during upload.",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      });
+    }
+  };
+
+  // Handle download button click (Download CSV file)
+  const handleDownloadClick = () => {
+    // Define CSV headers and data (Replace with actual data if needed)
+    const headers = [
+      // "school_name",
+      // "student_name",
+      // "roll_no",
+      // "class_name",
+      // "student_section",
+      // "mobile_number",
+      // "whatsapp_number",
+      // "student_subject",
+      "board",
+      "school_name",
+      "school_email",
+      "school_contact_number",
+      "school_landline_number",
+      "state",
+      "district",
+      "city",
+      "pincode",
+      "principal_name",
+      "principal_contact_number",
+      "principal_whatsapp",
+      "vice_principal_name",
+      "vice_principal_contact_number",
+      "vice_principal_whatsapp",
+      "student_strength",
+      "classes",
+      "status",
+    ];
+    const rows = [
+      [
+        // "DM school",
+        // "Alice Johnson",
+        // "010001",
+        // "class-1",
+        // "A",
+        // "1234567890",
+        // "1234567890",
+        // "python",
+        "CBSE",
+        "ABC School",
+        "abc@example.com",
+        "7991048546",
+        "7991048546",
+        "7",
+        "8",
+        "9",
+        "123456",
+        "John Doe",
+        "7991048546",
+        "7991048546",
+        "Jane Roe",
+        "6476734353",
+        "9876543213",
+        "1000",
+        "class-1",
+        "active",
+      ],
+      // Add more rows as needed
+    ];
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","), // Header row
+      ...rows.map((row) => row.join(",")), // Data rows
+    ].join("\n");
+
+    // Create a Blob from the CSV content
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    // Create a download link and trigger the download
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "data.csv"; // Set the file name
+    link.click();
+
+    handleClose();
+  };
+
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb data={[{ name: "School" }]} />
         </div>
-        <div>
-        <CreateButton link={"/school-create"} />
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            width: "auto",
+            gap: "10px",
+          }}
+        >
+          {/* //bulk upload */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "10px",
+              flexDirection: "column",
+              borderRadius: "15px",
+            }}
+          >
+            <div
+              onClick={handleClick}
+              style={{
+                cursor: "pointer",
+                padding: " 14px 12px",
+                display: "flex",
+                alignItems: "center",
+                // marginLeft: "584px",
+                height: "27px",
+                fontSize: "14px",
+                // border: "0.2px solid white",
+                // backgroundColor: "white",
+                // boxShadow: "rgba(0, 0, 0, 0.05) 1.95px 1.95px 2.6px",
+                borderRadius: "5px",
+                color: "#1230AE",
+                textDecoration: "none",
+                fontFamily: '"Poppins", sans-serif',
+              }}
+            >
+              <img
+                src={excelImg}
+                alt="Upload"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  marginRight: "8px",
+                }}
+              />
+              Bulk Action
+            </div>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              style={{ padding: "0px", margin: "0px" }}
+            >
+              <div
+                style={{
+                  fontFamily: "Poppins, sans-serif",
+                  gap: "15px",
+                  borderRadius: "10px",
+                  padding: "0px 10px",
+                }}
+              >
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={handleUploadClick}
+                    style={{
+                      fontSize: "13px",
+                      backgroundColor: "#4A4545",
+                      color: "white",
+                    }}
+                  >
+                    <img
+                      src={excelImg}
+                      alt="Upload"
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        marginRight: "8px",
+                      }}
+                    />{" "}
+                    Upload Excel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={handleDownloadClick}
+                    style={{ fontSize: "13px" }}
+                  >
+                    <UilDownloadAlt /> Download Sample File
+                  </button>
+                </div>
+                <div className="mt-2">
+                  <p style={{ color: "#4A4545" }} className="fw-bold mb-0">
+                    Note:
+                    <UilInfoCircle
+                      style={{ height: "20px", width: "20px", color: "blue" }}
+                    />
+                  </p>
+                  <ol
+                    style={{
+                      fontSize: "10px",
+                      paddingLeft: "10px",
+                      color: "gray",
+                    }}
+                  >
+                    <li>Click Download Sample File to get the template.</li>
+                    <li>Fill in the data as per the given columns.</li>
+                    <li>Save the file in Excel format (XLSX or CSV).</li>
+                    <li>Use Upload Excel to bulk upload your data.</li>
+                    <li>
+                      Ensure all required fields are filled correctly to avoid
+                      errors.
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </Menu>
+            <input
+              id="fileInput"
+              type="file"
+              accept=".csv"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+          </div>
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "45px" }}
+          >
+            <CreateButton link="/school-create" className="MY-AUTO" />
+          </div>
         </div>
+        {/* <div>
+          <CreateButton link={"/school-create"} />
+        </div> */}
       </div>
       <div className={`${styles.tablecont} mt-0`}>
         <table

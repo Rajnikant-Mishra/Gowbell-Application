@@ -52,6 +52,63 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
+
+
+  const handleDelete = (id) => {
+    // Show SweetAlert confirmation dialog
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      // icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with the delete request
+        axios
+          .delete(`${API_BASE_URL}/api/e1/exams/${id}`)
+          .then((response) => {
+            // Update the state after successful deletion
+            setRecords((prevCountries) =>
+              prevCountries.filter((country) => country.id !== id)
+            );
+            setFilteredRecords((prevFiltered) =>
+              prevFiltered.filter((country) => country.id !== id)
+            );
+
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The exam has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
+          })
+          .catch((error) => {
+            console.error("Error deleting country:", error);
+            // Show an error alert if deletion fails
+            Swal.fire(
+              "Error!",
+              "There was an issue deleting the country.",
+              "error"
+            );
+          });
+      }
+    });
+  };
   
 
   const handleFilter = (event, column) => {
@@ -249,11 +306,11 @@ export default function DataTable() {
                   <div className={styles.actionButtons}>
                     {/* <Link to={`/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
-                    </Link>
+                    </Link> */}
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
-                    /> */}
+                    />
                   </div>
                 </td>
               </tr>

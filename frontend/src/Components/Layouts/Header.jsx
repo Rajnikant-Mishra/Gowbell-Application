@@ -4,10 +4,15 @@ import { RxHamburgerMenu } from "react-icons/rx";
 import styles from "./Header.module.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contextsAuthsecurity/AuthContext";
-import { UilSearch } from "@iconscout/react-unicons";
+// import { UilSearch , UilBell} from "@iconscout/react-unicons";
+import {UilSearch , UilBell } from '@iconscout/react-unicons';
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons"; // Example icon
+
 
 const Header = ({ toggleSidebar }) => {
   const { logout } = useAuth();
@@ -95,6 +100,16 @@ const Header = ({ toggleSidebar }) => {
             />
             <UilSearch className={styles.searchIcon} />
           </form>
+          <div className="d-flex align-items-center gap-3">
+            {/* Notification Icon */}
+            <div className={styles.notificationIcon}>
+              {/* <UilBell size="24" className={styles.bellIcon} /> */}
+              {/* <FontAwesomeIcon icon="fa-solid fa-bell" /> */}
+              <FontAwesomeIcon icon={faBell } />
+
+            </div>
+          
+
           <div className={`${styles.dropdowndiv} dropdown text-end `}>
             <a
               href="#"
@@ -130,6 +145,7 @@ const Header = ({ toggleSidebar }) => {
                 </a>
               </li>
             </ul>
+            </div>
           </div>
         </div>
       </div>

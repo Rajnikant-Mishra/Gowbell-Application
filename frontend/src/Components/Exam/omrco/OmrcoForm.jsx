@@ -37,7 +37,7 @@ const OmrcoForm = ({ refreshData }) => {
     exam_level: "",
   });
   const [schools, setSchools] = useState([]);
-  const [omrOptions, setOmrOptions] = useState([]);
+  // const [omrOptions, setOmrOptions] = useState([]);
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
@@ -50,17 +50,9 @@ const OmrcoForm = ({ refreshData }) => {
         console.error("Error fetching schools:", error);
       }
     };
-    const fetchOmrOptions = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/get/omr`);
-        const data = await response.json();
-        setOmrOptions(data);
-      } catch (error) {
-        console.error("Error fetching OMR options:", error);
-      }
-    };
+   
     fetchSchools();
-    fetchOmrOptions();
+    
   }, []);
 
   const handleChange = async (e) => {
@@ -389,7 +381,7 @@ const OmrcoForm = ({ refreshData }) => {
                   {/* OMR Details Select */}
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      select
+                     
                       fullWidth
                       label="OMR Details"
                       name="omr"
@@ -405,11 +397,6 @@ const OmrcoForm = ({ refreshData }) => {
                         style: { fontSize: "14px" }, // Adjust label size
                       }}
                     >
-                      {omrOptions.map((omr) => (
-                        <MenuItem key={omr.id} value={omr.title}>
-                          {omr.title}
-                        </MenuItem>
-                      ))}
                     </TextField>
                   </Grid>
                 </Grid>

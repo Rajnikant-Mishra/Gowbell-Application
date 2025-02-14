@@ -25,19 +25,12 @@ const BookForm = () => {
   const [schoolName, setSchoolName] = useState("");
   const [trackingNo, setTrackingNo] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [questions, setQuestions] = useState([]);
+  // const [questions, setQuestions] = useState([]);
   const [schools, setSchools] = useState([]);
   const navigate = useNavigate();
 
   // Fetch dynamic data for questions and schools
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/get/question`) // Replace with your API endpoint
-      .then((response) => {
-        setQuestions(response.data);
-      })
-      .catch((error) => console.error("Error fetching questions:", error));
-
     axios
       .get(`${API_BASE_URL}/api/get/schools`) // Replace with your API endpoint
       .then((response) => {
@@ -117,7 +110,7 @@ const BookForm = () => {
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth margin="normal" size="small">
               <TextField
-                select
+               
                 label="Select the question"
                 size="small"
                 labelId="paper-name-label"
@@ -132,15 +125,6 @@ const BookForm = () => {
                   style: { fontSize: "14px" }, // Adjust label size
                 }}
               >
-                {questions?.length ? (
-                  questions.map((question) => (
-                    <MenuItem key={question.id} value={question.paper_name}>
-                      {question.paper_name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>No questions available</MenuItem>
-                )}
               </TextField>
             </FormControl>
 

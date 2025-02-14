@@ -297,30 +297,30 @@ const EditCountry = () => {
       const response = await axios.get(`${API_BASE_URL}/api/countries/`);
       const existingCountries = response.data;
 
-      // Check for duplicate (ignoring the current country being edited)
-      const isDuplicate = existingCountries.some(
-        (country) =>
-          country.name.toLowerCase() === selectedCountry.toLowerCase() &&
-          country.id !== id // Exclude current country's ID
-      );
+      // // Check for duplicate (ignoring the current country being edited)
+      // const isDuplicate = existingCountries.some(
+      //   (country) =>
+      //     country.name.toLowerCase() === selectedCountry.toLowerCase() &&
+      //     country.id !== id // Exclude current country's ID
+      // );
 
-      if (isDuplicate) {
-        Swal.fire({
-          position: "top-end",
-          icon: "error",
-          title: "Duplicate Country Name",
-          text: `The country "${selectedCountry}" already exists.`,
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-          toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
-        });
-        return;
-      }
+      // if (isDuplicate) {
+      //   Swal.fire({
+      //     position: "top-end",
+      //     icon: "error",
+      //     title: "Duplicate Country Name",
+      //     text: `The country "${selectedCountry}" already exists.`,
+      //     showConfirmButton: false,
+      //     timer: 3000,
+      //     timerProgressBar: true,
+      //     toast: true,
+      //     background: "#fff",
+      //     customClass: {
+      //       popup: "small-swal",
+      //     },
+      //   });
+      //   return;
+      // }
 
       // Update the country in the database
       await axios.put(`${API_BASE_URL}/api/countries/${id}`, {
@@ -350,7 +350,7 @@ const EditCountry = () => {
         position: "top-end",
         icon: "error",
         title: "Error",
-        text: "Oops! There was an issue. Please try again.",
+        text: `The country "${selectedCountry}" already exists`,
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,

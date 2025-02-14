@@ -208,21 +208,21 @@ const validationSchema = Yup.object({
     .min(3, "Name must be at least 3 characters")
     .max(255, "Name must be less than or equal to 255 characters")
     .required("Name is required")
-    .matches(/^[a-zA-Z0-9 ]*$/, "Name can only contain letters and numbers")
-    .test("unique-name", "Affiliated name already exists.", async (value) => {
-      if (!value) return true; // Skip validation if field is empty
-      try {
-        const { data: existingAffiliates } = await axios.get(
-          `${API_BASE_URL}/api/affiliated`
-        );
-        return !existingAffiliates.some(
-          (affiliate) => affiliate.name.toLowerCase() === value.toLowerCase()
-        );
-      } catch (error) {
-        console.error("Error checking duplicate affiliated name:", error);
-        return false; // Assume duplicate if there's an error
-      }
-    }),
+    .matches(/^[a-zA-Z0-9 ]*$/, "Name can only contain letters and numbers"),
+    // .test("unique-name", "Affiliated name already exists.", async (value) => {
+    //   if (!value) return true; // Skip validation if field is empty
+    //   try {
+    //     const { data: existingAffiliates } = await axios.get(
+    //       `${API_BASE_URL}/api/affiliated`
+    //     );
+    //     return !existingAffiliates.some(
+    //       (affiliate) => affiliate.name.toLowerCase() === value.toLowerCase()
+    //     );
+    //   } catch (error) {
+    //     console.error("Error checking duplicate affiliated name:", error);
+    //     return false; // Assume duplicate if there's an error
+    //   }
+    // }),
   status: Yup.string()
     .oneOf(
       ["active", "inactive"],
@@ -276,10 +276,19 @@ const UpdateCountry = () => {
     } catch (error) {
       console.error("Error updating affiliated:", error);
       Swal.fire({
+        position: "top-end",
         title: "Error!",
-        text: "There was an issue updating the affiliated. Please try again.",
+        text: "Affiliated name already exists",
         icon: "error",
-        confirmButtonText: "OK",
+      
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
       });
     }
   };

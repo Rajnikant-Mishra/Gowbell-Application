@@ -42,13 +42,43 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the API when the component mounts
+  //   axios
+  //     .get(`${ API_BASE_URL }/api/class`) // Your API URL here
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+
   useEffect(() => {
-    // Fetch data from the API when the component mounts
     axios
-      .get(`${ API_BASE_URL }/api/class`) // Your API URL here
+      .get(`${API_BASE_URL}/api/class`)
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        const formattedData = response.data.map((record) => ({
+          ...record,
+          created_at: formatTimestamp(record.created_at),
+          updated_at: formatTimestamp(record.updated_at),
+        }));
+
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
       })
       .catch((error) => {
         console.error("There was an error fetching the records!", error);
