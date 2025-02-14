@@ -48,6 +48,9 @@ import roleRoutes from './routes/Role/roleRoutes.js';
 import menuRoutes from "./routes/Menu/menuRoutes.js";
 import role_menuRoutes from "./routes/configuration/role_menuRoutes.js";
 
+//attribute
+import attributeRoutes from "./routes/attribute/attributeRoutes.js";
+
 const app = express();
 
 
@@ -110,7 +113,8 @@ app.use('/api/e1',examRoutes)
 app.use('/api/m1',menuRoutes);
 app.use('/api/permission',role_menuRoutes)
 
-
+//attribute
+app.use('/api',attributeRoutes);
 
 
 const PORT = process.env.PORT || 5000;

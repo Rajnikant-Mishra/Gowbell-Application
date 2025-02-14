@@ -1,11 +1,10 @@
 import { db } from '../../config/db.js';
 
-
 const Role = {
-    // Create a new role
-    create: (role_name, callback) => {
-        const query = 'INSERT INTO roles (role_name) VALUES (?)';
-        db.query(query, [role_name], callback);
+    // Create a new role with permissions
+    create: (role_name, permissions, callback) => {
+        const query = 'INSERT INTO roles (role_name, permissions) VALUES (?, ?)';
+        db.query(query, [role_name, permissions], callback);
     },
 
     // Get all roles
@@ -17,13 +16,16 @@ const Role = {
     // Get a role by its ID
     getById: (id, callback) => {
         const query = 'SELECT * FROM roles WHERE id = ?';
-        db.query(query, [id], callback);
+        db.query(query, [id], (err, result) => {
+            if (err) return callback(err, null);
+            callback(null, result.length ? result[0] : null);
+        });
     },
 
     // Update a role by its ID
-    update: (id, role_name, callback) => {
-        const query = 'UPDATE roles SET role_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-        db.query(query, [role_name, id], callback);
+    update: (id, role_name, permissions, callback) => {
+        const query = 'UPDATE roles SET role_name = ?, permissions = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
+        db.query(query, [role_name, permissions, id], callback);
     },
 
     // Delete a role by its ID

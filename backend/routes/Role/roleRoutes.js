@@ -12,6 +12,7 @@ router.get('/role', getAllRoles);
 // Get a role by its ID
 router.get('/role/:id', getRoleById);
 
+
 // Update a role by its ID
 router.put('/role/:id', updateRole);
 

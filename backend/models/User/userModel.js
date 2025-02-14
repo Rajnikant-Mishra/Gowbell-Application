@@ -23,6 +23,7 @@ const User = {
   //   const query = 'SELECT * FROM users';
   //   db.query(query, callback);
   // },
+  
   getAllUsers: (callback) => {
     const query = `
         SELECT users.*, roles.role_name 

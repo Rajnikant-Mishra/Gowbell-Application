@@ -86,7 +86,7 @@ export const bulkUploadStudents = (req, res) => {
   });
 };       
 
-  
+ 
   // Get all students
   export const getAllStudents = (req, res) => {
     Student.getAll((err, result) => {

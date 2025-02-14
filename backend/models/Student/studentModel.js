@@ -21,35 +21,64 @@ export const Student = {
 
 
   //BULK UPLOAD
-  bulkCreate: (students, callback) => {
-    // Ensure bulk insertion query is properly constructed
-    const query = `
-      INSERT INTO student 
-      (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
-      VALUES ?
-    `;
+  // bulkCreate: (students, callback) => {
+  //   // Ensure bulk insertion query is properly constructed
+  //   const query = `
+  //     INSERT INTO student 
+  //     (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
+  //     VALUES ?
+  //   `;
   
-    // Convert student objects to an array of arrays for bulk insertion
-    const values = students.map(student => [
-      student.school_name,
-      student.student_name,
-      student.roll_no,
-      student.class_name,
-      student.student_section,
-      student.mobile_number,
-      student.whatsapp_number,
-      student.student_subject,
-      student.approved,
-      student.approved_by,
-      student.student_code,
-      new Date(), // This will insert the current date and time for created_at
-      new Date()  // This will insert the current date and time for updated_at
-    ]);
+  //   // Convert student objects to an array of arrays for bulk insertion
+  //   const values = students.map(student => [
+  //     student.school_name,
+  //     student.student_name,
+  //     student.roll_no,
+  //     student.class_name,
+  //     student.student_section,
+  //     student.mobile_number,
+  //     student.whatsapp_number,
+  //     student.student_subject,
+  //     student.approved,
+  //     student.approved_by,
+  //     student.student_code,
+  //     new Date(), // This will insert the current date and time for created_at
+  //     new Date()  // This will insert the current date and time for updated_at
+  //   ]);
   
-    // Execute the query with the array of values
-    db.query(query, [values], callback);
-  },
+  //   // Execute the query with the array of values
+  //   db.query(query, [values], callback);
+  // },
   
+  // BULK UPLOAD
+bulkCreate: (students, callback) => {
+  // Ensure bulk insertion query is properly constructed
+  const query = `
+    INSERT INTO student 
+    (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, student_code, created_at, updated_at) 
+    VALUES ?
+  `;
+
+  // Convert student objects to an array of arrays for bulk insertion
+  const values = students.map(student => [
+    student.school_name,
+    student.student_name,
+    student.roll_no,
+    student.class_name,
+    student.student_section,
+    student.mobile_number,
+    student.whatsapp_number,
+    student.student_subject,
+    student.approved,
+    student.approved_by,
+    student.student_code || `${student.school_name?.slice(0, 3).toUpperCase()}-${Date.now()}`, // Ensure unique student code
+    new Date(), // created_at
+    new Date()  // updated_at
+  ]);
+
+  // Execute the query with the array of values
+  db.query(query, [values], callback);
+},
   
 
 
