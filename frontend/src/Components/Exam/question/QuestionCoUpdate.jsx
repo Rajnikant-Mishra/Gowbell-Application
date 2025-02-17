@@ -48,23 +48,45 @@ const UpdateBookForm = () => {
   }, []);
 
   // Fetch data for the selected ID
-  useEffect(() => {
-    if (id) {
-      axios
-        .get(`${API_BASE_URL}/api/co/question/${id}`) // Fetch data for the given ID
-        .then((response) => {
-          const data = response.data;
-          setQuestionName(data.question_name);
-          setExamDate(data.exam_date);
-          setSchoolName(data.school_name_co);
-          setTrackingNo(data.tracking_no);
-          setQuantity(data.quantity_co);
-        })
-        .catch((error) =>
-          console.error("Error fetching question details:", error)
-        );
-    }
-  }, [id]);
+  // useEffect(() => {
+  //   if (id) {
+  //     axios
+  //       .get(`${API_BASE_URL}/api/co/question/${id}`) // Fetch data for the given ID
+  //       .then((response) => {
+  //         const data = response.data;
+  //         setQuestionName(data.question_name);
+  //         setExamDate(data.exam_date);
+  //         setSchoolName(data.school_name_co);
+  //         setTrackingNo(data.tracking_no);
+  //         setQuantity(data.quantity_co);
+  //       })
+  //       .catch((error) =>
+  //         console.error("Error fetching question details:", error)
+  //       );
+  //   }
+  // }, [id]);
+  // Fetch data for the selected ID
+useEffect(() => {
+  if (id) {
+    axios
+      .get(`${API_BASE_URL}/api/co/question/${id}`) // Fetch data for the given ID
+      .then((response) => {
+        const data = response.data;
+        // Format exam_date to YYYY-MM-DD if it exists
+        const formattedExamDate = data.exam_date ? data.exam_date.split("T")[0] : "";
+
+        setQuestionName(data.question_name || "");
+        setExamDate(formattedExamDate);
+        setSchoolName(data.school_name_co || "");
+        setTrackingNo(data.tracking_no || "");
+        setQuantity(data.quantity_co || "");
+      })
+      .catch((error) =>
+        console.error("Error fetching question details:", error)
+      );
+  }
+}, [id]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -135,29 +157,20 @@ const UpdateBookForm = () => {
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth margin="normal" size="small">
               <TextField
-                select
-                label="Select the question"
+                label="Question paper"
                 size="small"
+                labelId="paper-name-label"
+                id="paper-name-select"
                 value={questionName}
                 onChange={(e) => setQuestionName(e.target.value)}
                 required
                 InputProps={{
-                  style: { fontSize: "14px" },
+                  style: { fontSize: "14px" }, // Adjust input text size
                 }}
                 InputLabelProps={{
-                  style: { fontSize: "14px" },
+                  style: { fontSize: "14px" }, // Adjust label size
                 }}
-              >
-                {questions?.length ? (
-                  questions.map((question) => (
-                    <MenuItem key={question.id} value={question.paper_name}>
-                      {question.paper_name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>No questions available</MenuItem>
-                )}
-              </TextField>
+              ></TextField>
             </FormControl>
 
             <TextField

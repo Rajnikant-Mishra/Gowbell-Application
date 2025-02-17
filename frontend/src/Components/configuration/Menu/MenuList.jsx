@@ -40,18 +40,49 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the new API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/m1/menu`) // Updated API URL
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+
   useEffect(() => {
-    // Fetch data from the new API when the component mounts
     axios
-      .get(`${API_BASE_URL}/api/m1/menu`) // Updated API URL
+      .get(`${API_BASE_URL}/api/m1/menu`)
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        const formattedData = response.data.map((record) => ({
+          ...record,
+          created_at: formatTimestamp(record.created_at),
+          // updated_at: formatTimestamp(record.updated_at),
+        }));
+
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
       })
       .catch((error) => {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
+
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog

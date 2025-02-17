@@ -353,7 +353,7 @@ const CreateUserForm = () => {
     role: Yup.string().required("Role is required"),
     password: Yup.string()
         .required("Password is required")
-        .min(6, "Password must be at least 6 characters"),
+        .min(5, "Password must be at least 5 characters"),
     confirm_password: Yup.string()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required("Confirm password is required"),

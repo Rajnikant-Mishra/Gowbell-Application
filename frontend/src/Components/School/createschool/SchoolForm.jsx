@@ -946,21 +946,6 @@ export default function SchoolForm() {
           <form onSubmit={formik.handleSubmit} className={styles.formContent}>
             <Grid container spacing={2}>
               {/* Board Name */}
-              {/* <Grid item xs={12} sm={6} md={4}>
-                <SelectDrop
-                  label="Board Name"
-                  name="board"
-                  options={[
-                    { value: "CBSE", label: "CBSE" },
-                    { value: "ICSE", label: "ICSE" },
-                  ]}
-                  value={formik.values.board}
-                  onChange={formik.handleChange}
-                  error={formik.touched.board && Boolean(formik.errors.board)}
-                  helperText={formik.touched.board && formik.errors.board}
-                  fullWidth
-                />
-              </Grid> */}
               <Grid item xs={12} sm={6} md={4}>
                 <SelectDrop
                   label="Board Name"
@@ -1081,7 +1066,7 @@ export default function SchoolForm() {
               {/* School Landline Number */}
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
-                  label="School Landline Number"
+                  label="Landline Number"
                   name="school_landline_number"
                   value={formik.values.school_landline_number}
                   onChange={formik.handleChange}

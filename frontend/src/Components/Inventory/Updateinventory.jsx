@@ -44,8 +44,8 @@ export default function InventoryUpdateForm() {
     remarks: "",
     manufacturer_details: "",
   });
- const [selectedItem, setSelectedItem] = useState("");
- const [items, setItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState("");
+  const [items, setItems] = useState([]);
   const { id } = useParams(); // Get the inventory ID from the route
   const navigate = useNavigate();
 
@@ -383,6 +383,30 @@ export default function InventoryUpdateForm() {
                       fullWidth
                       multiline
                       rows={1}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Manufacturer"
+                      name="manufacturer_details"
+                      value={values.manufacturer_details}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      InputProps={{
+                        className: styles.inputField,
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.8rem",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.85rem",
+                          fontWeight: "bolder",
+                        },
+                      }}
                     />
                   </Grid>
                 </Grid>

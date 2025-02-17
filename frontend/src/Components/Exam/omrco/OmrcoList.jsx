@@ -41,18 +41,38 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/co/omr`) // Your API URL here
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
       .get(`${API_BASE_URL}/api/co/omr`) // Your API URL here
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        // Format the date field before setting the records
+        const formattedData = response.data.map((record) => ({
+          ...record,
+          date: record.date ? record.date.split("T")[0] : "", // Extract YYYY-MM-DD
+        }));
+  
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
       })
       .catch((error) => {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog

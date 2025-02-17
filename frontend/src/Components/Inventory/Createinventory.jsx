@@ -427,7 +427,6 @@ export default function BookForm() {
    const todayDate = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState({
-
     date: todayDate,
     created_by: "",
     invoice_no:"",
@@ -469,10 +468,6 @@ export default function BookForm() {
     { value: "packs", name: "Packs" },
   ];
 
- 
-
-
- 
 
   // Handle form submission
   const handleSubmit = async (values) => {
@@ -481,9 +476,6 @@ export default function BookForm() {
         `${API_BASE_URL}/api/v1/inventory`,
         values
       );
-
-
-
       Swal.fire({
         position: "top-end",
         icon: "success",

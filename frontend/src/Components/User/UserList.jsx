@@ -40,13 +40,44 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the new API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/u1/users`) // Updated API URL
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+
   useEffect(() => {
-    // Fetch data from the new API when the component mounts
     axios
-      .get(`${API_BASE_URL}/api/u1/users`) // Updated API URL
+      .get(`${API_BASE_URL}/api/u1/users`)
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        const formattedData = response.data.map((record) => ({
+          ...record,
+          created_at: formatTimestamp(record.created_at),
+          // updated_at: formatTimestamp(record.updated_at),
+        }));
+
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
       })
       .catch((error) => {
         console.error("There was an error fetching the records!", error);
@@ -239,7 +270,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["id", "role", "name", "email", "phone", "status", "created_at"].map((col) => (
+              {["id", "role", "name", "email", "phone", "created_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -260,7 +291,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["id","role","name", "email", "phone","status", "created_at"].map((col) => (
+            {["id","role","name", "email", "phone", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -293,7 +324,6 @@ export default function DataTable() {
                 <td>{row.username}</td>
                 <td>{row.email}</td>
                 <td>{row.phone}</td>
-                <td>{row.status}</td>
                 <td>{row.created_at}</td>
                
 

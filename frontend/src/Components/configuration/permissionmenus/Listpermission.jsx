@@ -40,30 +40,44 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  // useEffect(() => {
-  //   // Fetch data from the new API when the component mounts
-  //   axios
-  //     .get(`${API_BASE_URL}/api/permission/`) // Updated API URL
-  //     .then((response) => {
-  //       setRecords(response.data);
-  //       setFilteredRecords(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("There was an error fetching the records!", error);
-  //     });
-  // }, []);
+  
+//   useEffect(() => {
+//     axios
+//         .get(`${API_BASE_URL}/api/permission/`)
+//         .then((response) => {
+//             setRecords(response.data.data); // Update state with the new data format
+//             setFilteredRecords(response.data.data); // Update filtered records if needed
+//         })
+//         .catch((error) => {
+//             console.error('Error fetching role-menu data with names!', error);
+//         });
+// }, []);
 
-  useEffect(() => {
-    axios
-        .get(`${API_BASE_URL}/api/permission/`)
-        .then((response) => {
-            setRecords(response.data.data); // Update state with the new data format
-            setFilteredRecords(response.data.data); // Update filtered records if needed
-        })
-        .catch((error) => {
-            console.error('Error fetching role-menu data with names!', error);
-        });
+useEffect(() => {
+  axios
+      .get(`${API_BASE_URL}/api/permission/`)
+      .then((response) => {
+          const formattedData = response.data.data.map(item => ({
+              ...item,
+              created_at: new Intl.DateTimeFormat('en-US', {
+                  month: '2-digit',
+                  day: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                  hour12: true
+              }).format(new Date(item.created_at))
+          }));
+
+          setRecords(formattedData);
+          setFilteredRecords(formattedData);
+      })
+      .catch((error) => {
+          console.error('Error fetching role-menu data with names!', error);
+      });
 }, []);
+
 
 
   const handleDelete = (id) => {
