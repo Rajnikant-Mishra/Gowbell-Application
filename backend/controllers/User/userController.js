@@ -26,6 +26,7 @@ const usersController = {
         phone,
         status,
         password: hashedPassword,
+        confirm_password:hashedPassword,
       };
 
       User.createUser(newUser, (dbErr, result) => {
