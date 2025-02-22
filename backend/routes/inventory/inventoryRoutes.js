@@ -1,10 +1,11 @@
 import express from 'express';
 import { createInventory, getInventory, getInventoryById, updateInventory, deleteInventory } from '../../controllers/inventory/inventoryController.js';
-
+import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
+
 // Route to create a new inventory item
-router.post('/inventory', createInventory);
+router.post('/inventory', authenticateToken,createInventory);
 
 // Route to get all inventory items
 router.get('/inventory', getInventory);

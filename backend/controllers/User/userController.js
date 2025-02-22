@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 import RoleMenu from "../../models/configuration/role_menuModel.js";
 import Role from "../../models/Role/roleModel.js";
 import User from "../../models/User/userModel.js";
+import dotenv from 'dotenv';
+dotenv.config(); // Load environment variables
+
 
 const usersController = {
   // Create a new user

@@ -1,19 +1,46 @@
+// import jwt from 'jsonwebtoken';
+// import dotenv from 'dotenv';
+// dotenv.config();
+
+// export const authenticateToken = (req, res, next) => {
+//   const token = req.header('Authorization')?.split(' ')[1]; // Extract Bearer token
+
+//   if (!token) {
+//     return res.status(401).json({ error: 'Access denied. No token provided.' });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     req.user = decoded; // Attach user data to request
+//     next();
+//   } catch (error) {
+//     res.status(403).json({ error: 'Invalid token' });
+//   }
+// };
+
+
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
-export const verifyToken = (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[2];
+export const authenticateToken = (req, res, next) => {
+    const authHeader = req.header("Authorization"); // Get token from headers
 
-  if (!token) {
-      return res.status(401).json({ status: false, message: "Access denied. No token provided." });
-  }
+    if (!authHeader) {
+        return res.status(401).json({ error: "Access denied. No token provided." });
+    }
 
-  try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded; // Store user info for later use
-      next();
-  } catch (error) {
-      res.status(400).json({ status: false, message: "Invalid token." });
-  }
+    const token = authHeader.split(" ")[1]; // Extract Bearer token
+
+    if (!token) {
+        return res.status(401).json({ error: "Invalid token format." });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+        req.user = decoded; // Attach user info to request
+        next(); // Proceed to next middleware/controller
+    } catch (error) {
+        return res.status(403).json({ error: "Invalid token." });
+    }
 };
-
-export default verifyToken;

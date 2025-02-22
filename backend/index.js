@@ -54,7 +54,6 @@ import attributeRoutes from "./routes/attribute/attributeRoutes.js";
 const app = express();
 
 
-
 dotenv.config();
 // Your other middlewares and routes
 app.use(express.json());
