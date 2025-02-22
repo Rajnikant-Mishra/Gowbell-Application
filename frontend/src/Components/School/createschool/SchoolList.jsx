@@ -236,13 +236,13 @@ export default function DataTable() {
     setAnchorEl(null);
   };
 
-  // Handle file selection and upload
+  // Trigger file selection dialog
   const handleUploadClick = () => {
     document.getElementById("fileInput").click();
     handleClose();
   };
 
-  // Handle file change (when a file is selected)
+  // Handle file selection change
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -257,9 +257,7 @@ export default function DataTable() {
           timerProgressBar: true,
           toast: true,
           background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
+          customClass: { popup: "small-swal" },
         });
         return;
       }
@@ -272,24 +270,20 @@ export default function DataTable() {
     }
   };
 
-  // Parse CSV and upload data
+  // Parse CSV data and map to school objects
   const parseCSVData = (csvData) => {
     Papa.parse(csvData, {
+      header: true,
+      skipEmptyLines: true,
       complete: (result) => {
-        console.log("Parsed CSV Data:", result.data); // Log parsed data
-        const students = result.data.map((row) => ({
-          // school_name: row.school_name,
-          // student_name: row.student_name,
-          // roll_no: row.roll_no,
-          // class_name: row.class_name,
-          // student_section: row.student_section,
-          // mobile_number: row.mobile_number,
-          // whatsapp_number: row.whatsapp_number,
-          // student_subject: row.student_subject,
+        console.log("Parsed CSV Data:", result.data);
+        // Map CSV rows to school objects as expected by your backend
+        const schools = result.data.map((row) => ({
           board: row.board,
           school_name: row.school_name,
           school_email: row.school_email,
           school_contact_number: row.school_contact_number,
+          school_landline_number: row.school_landline_number,
           state: row.state,
           district: row.district,
           city: row.city,
@@ -302,30 +296,27 @@ export default function DataTable() {
           vice_principal_whatsapp: row.vice_principal_whatsapp,
           student_strength: row.student_strength,
           classes: row.classes,
+          status: row.status,
         }));
-        uploadStudentsData(students);
+        uploadSchoolsData(schools);
       },
-      header: true,
-      skipEmptyLines: true,
     });
   };
 
-  // Function to upload students data to backend
-  const uploadStudentsData = async (students) => {
-    if (!Array.isArray(students) || students.length === 0) {
+  // Upload the schools data to backend
+const uploadSchoolsData = async (schools) => {
+    if (!Array.isArray(schools) || schools.length === 0) {
       Swal.fire({
         position: "top-end",
         icon: "warning",
         title: "No Data",
-        text: "Please upload a valid CSV file with data.",
+        text: "Please upload a valid CSV file with school data.",
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       });
       return;
     }
@@ -335,25 +326,22 @@ export default function DataTable() {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/get/school/bulk-upload`,
-        students
+        schools
       );
       setLoading(false);
       Swal.fire({
         position: "top-end",
         icon: "success",
         title: "Success!",
-        text: `Successfully uploaded ${response.data.insertedCount} students.`,
+        text: `Successfully uploaded ${response.data.insertedCount} schools.`,
         showConfirmButton: false,
         timer: 1000,
         timerProgressBar: true,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       }).then(() => {
-        // navigate("/studentList");
-        // window.location.reload();  // Force a page reload
+        // Refresh the page or navigate to your school list view
         navigate(0);
       });
     } catch (error) {
@@ -369,25 +357,15 @@ export default function DataTable() {
         timerProgressBar: true,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       });
     }
   };
 
-  // Handle download button click (Download CSV file)
+  // Download CSV template for schools
   const handleDownloadClick = () => {
-    // Define CSV headers and data (Replace with actual data if needed)
+    // Define CSV headers for school data
     const headers = [
-      // "school_name",
-      // "student_name",
-      // "roll_no",
-      // "class_name",
-      // "student_section",
-      // "mobile_number",
-      // "whatsapp_number",
-      // "student_subject",
       "board",
       "school_name",
       "school_email",
@@ -407,25 +385,19 @@ export default function DataTable() {
       "classes",
       "status",
     ];
+
+    // Sample row for template purposes (update values as needed)
     const rows = [
       [
-        // "DM school",
-        // "Alice Johnson",
-        // "010001",
-        // "class-1",
-        // "A",
-        // "1234567890",
-        // "1234567890",
-        // "python",
         "CBSE",
         "ABC School",
         "abc@example.com",
         "7991048546",
         "7991048546",
-        "7",
-        "8",
-        "9",
-        "123456",
+        "Odisha",
+        "Kendrapara",
+        "Bhitarkanika National Park",
+        "411001",
         "John Doe",
         "7991048546",
         "7991048546",
@@ -433,25 +405,20 @@ export default function DataTable() {
         "6476734353",
         "9876543213",
         "1000",
-        "class-1",
+        ["class-1"],
         "active",
       ],
-      // Add more rows as needed
     ];
 
-    // Create CSV content
     const csvContent = [
       headers.join(","), // Header row
       ...rows.map((row) => row.join(",")), // Data rows
     ].join("\n");
 
-    // Create a Blob from the CSV content
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-
-    // Create a download link and trigger the download
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "data.csv"; // Set the file name
+    link.download = "schools_data.csv";
     link.click();
 
     handleClose();
@@ -616,6 +583,7 @@ export default function DataTable() {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
+                "school_code",
                 "board",
                 "school ",
                 "email",
@@ -624,6 +592,7 @@ export default function DataTable() {
                 "district",
                 "city",
                 "pincode",
+                "status",
               ].map((col) => (
                 <th
                   key={col}
@@ -646,6 +615,7 @@ export default function DataTable() {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
+              "school_code",
               "board",
               "school name",
               "email",
@@ -654,6 +624,7 @@ export default function DataTable() {
               "district",
               "city",
               "pincode",
+              "status",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -682,14 +653,16 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
+                <td>{row.school_code}</td>
                 <td>{row.board}</td>
                 <td>{row.school_name}</td>
                 <td>{row.school_email}</td>
                 <td>{row.school_contact_number}</td>
-                <td>{row.state}</td>
-                <td>{row.district}</td>
-                <td>{row.city}</td>
+                <td>{row.state_name}</td>
+                <td>{row.district_name}</td>
+                <td>{row.city_name}</td>
                 <td>{row.pincode}</td>
+                <td>{row.status}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

@@ -13,10 +13,10 @@
 // import axios from "axios";
 // import "../Common-Css/Swallfire.css";
 
-// export default function BookForm() {
+// export default function InventoryForm() {
 //   // Validation schema using Yup
 //   const validationSchema = Yup.object({
-//     item_id: Yup.string().required("Item ID is required"),
+//     invoice_no: Yup.string().required("invoice_no is required"),
 //     date: Yup.date().required("Date is required"),
 //     created_by: Yup.string().required("Created By is required"),
 //     item: Yup.string().required("Item Name is required"),
@@ -25,6 +25,7 @@
 //       .integer()
 //       .required("Item Quantity is required"),
 //     unit: Yup.string().required("Unit is required"),
+//     price: Yup.string().required("price is required"),
 //     remarks: Yup.string().optional(),
 //   });
 
@@ -34,32 +35,26 @@
 //     color: "red", // Custom color for error messages
 //   };
 
-//     const [items, setItems] = useState([]);
+//   const [items, setItems] = useState([]);
 //   const [selectedItem, setSelectedItem] = useState("");
 //   const navigate = useNavigate();
-
 //   const [profileData, setProfileData] = useState({});
 
-//     useEffect(() => {
-//       const storedUser = localStorage.getItem("user");
-//       if (storedUser) {
-//         const userData = JSON.parse(storedUser);
-//         setProfileData(userData);
-//         setFormData((prev) => ({ ...prev, created_by: userData.username || "" }));
-//       } else {
-//         navigate("/login");
-//       }
-//     }, [navigate]);
+//   // Get today's date in YYYY-MM-DD format
+//   const todayDate = new Date().toISOString().split("T")[0];
 
 //   const [formData, setFormData] = useState({
-//     item_id: "",
-//     date: "",
-//     created_by:profileData.username || "",
+//     date: todayDate,
+//     created_by: "",
+//     invoice_no: "",
 //     item: "",
 //     quantity: "",
-//     remarks: "",
 //     unit: "",
+//     price: "",
+//     remarks: "",
+//     manufacturer_details: "",
 //   });
+
 
 //   useEffect(() => {
 //     // Fetch data from API
@@ -83,10 +78,18 @@
 //   // Handle form submission
 //   const handleSubmit = async (values) => {
 //     try {
+//       const token = localStorage.getItem("token"); // Get token from localStorage
+
 //       const response = await axios.post(
 //         `${API_BASE_URL}/api/v1/inventory`,
-//         values
+//         values,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`, // Add Authorization header
+//           },
+//         }
 //       );
+
 //       Swal.fire({
 //         position: "top-end",
 //         icon: "success",
@@ -101,7 +104,8 @@
 //           popup: "small-swal",
 //         },
 //       });
-//       navigate("/list-inventory"); // Redirect to the list inventory page after successful submission
+
+//       navigate("/list-inventory"); // Redirect after successful submission
 //     } catch (error) {
 //       Swal.fire({
 //         position: "top-end",
@@ -141,41 +145,12 @@
 //             initialValues={formData}
 //             validationSchema={validationSchema}
 //             onSubmit={handleSubmit}
+//             enableReinitialize // This ensures Formik reinitializes when formData changes
 //           >
 //             {({ values, handleChange, errors, touched, setFieldValue }) => (
 //               <Form className={styles.formContent}>
 //                 <Grid container spacing={3}>
-//                   <Grid item xs={12} sm={6} md={2}>
-//                     <TextField
-//                       label="Item Id"
-//                       name="item_id"
-//                       value={values.item_id} // Use formData to get the item_id
-//                       onChange={handleChange}
-//                       fullWidth
-//                       size="small"
-//                       InputProps={{
-//                         className: styles.inputField,
-//                         style: {
-//                           fontFamily: "Nunito, sans-serif",
-//                           fontSize: "0.8rem",
-//                         },
-//                       }}
-//                       InputLabelProps={{
-//                         style: {
-//                           fontFamily: "Nunito, sans-serif",
-//                           fontSize: "0.85rem",
-//                           fontWeight: "bolder",
-//                         },
-//                       }}
-//                       error={touched.item_id && errors.item_id}
-//                       helperText={touched.item_id && errors.item_id}
-//                       FormHelperTextProps={{
-//                         style: helperTextStyle, // Apply centralized style
-//                       }}
-//                     />
-//                   </Grid>
-
-//                   <Grid item xs={12} sm={6} md={2}>
+//                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       name="date"
 //                       value={values.date}
@@ -200,11 +175,12 @@
 //                       error={touched.date && errors.date}
 //                       helperText={touched.date && errors.date}
 //                       FormHelperTextProps={{
-//                         style: helperTextStyle, // Apply centralized style
+//                         style: helperTextStyle,
 //                       }}
 //                     />
 //                   </Grid>
-//                   <Grid item xs={12} sm={6} md={4}>
+
+//                   {/* <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       label="Created By"
 //                       name="created_by"
@@ -230,11 +206,41 @@
 //                       error={touched.created_by && errors.created_by}
 //                       helperText={touched.created_by && errors.created_by}
 //                       FormHelperTextProps={{
-//                         style: helperTextStyle, // Apply centralized style
+//                         style: helperTextStyle,
+//                       }}
+//                     />
+//                   </Grid> */}
+
+//                   <Grid item xs={12} sm={6} md={3}>
+//                     <TextField
+//                       label="Invoice No"
+//                       name="invoice_no"
+//                       value={values.invoice_no}
+//                       onChange={handleChange}
+//                       fullWidth
+//                       size="small"
+//                       InputProps={{
+//                         className: styles.inputField,
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.8rem",
+//                         },
+//                       }}
+//                       InputLabelProps={{
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.85rem",
+//                           fontWeight: "bolder",
+//                         },
+//                       }}
+//                       error={touched.invoice_no && errors.invoice_no}
+//                       helperText={touched.invoice_no && errors.invoice_no}
+//                       FormHelperTextProps={{
+//                         style: helperTextStyle,
 //                       }}
 //                     />
 //                   </Grid>
-//                   <Grid item xs={12} sm={6} md={4}>
+//                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       select
 //                       name="item"
@@ -264,8 +270,7 @@
 //                       helperText={touched.item && errors.item}
 //                       FormHelperTextProps={{ style: helperTextStyle }}
 //                     >
-//                       <option value="">Select an item</option>{" "}
-//                       {/* Default placeholder */}
+//                       <option value="">Select an item</option>
 //                       {items.map((option) => (
 //                         <option
 //                           key={option.value || option.id}
@@ -276,7 +281,8 @@
 //                       ))}
 //                     </TextField>
 //                   </Grid>
-//                   <Grid item xs={12} sm={6} md={4}>
+//                   {/* //second */}
+//                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       label="Quantity"
 //                       name="quantity"
@@ -289,7 +295,6 @@
 //                         className: styles.inputField,
 //                         style: {
 //                           fontFamily: "Nunito, sans-serif",
-
 //                           fontSize: "0.8rem",
 //                         },
 //                       }}
@@ -303,11 +308,11 @@
 //                       error={touched.quantity && errors.quantity}
 //                       helperText={touched.quantity && errors.quantity}
 //                       FormHelperTextProps={{
-//                         style: helperTextStyle, // Apply centralized style
+//                         style: helperTextStyle,
 //                       }}
 //                     />
 //                   </Grid>
-//                   <Grid item xs={12} sm={6} md={4}>
+//                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       select
 //                       name="unit"
@@ -317,7 +322,6 @@
 //                         className: styles.inputField,
 //                         style: {
 //                           fontFamily: "Nunito, sans-serif",
-
 //                           fontSize: "0.8rem",
 //                         },
 //                       }}
@@ -334,7 +338,7 @@
 //                       error={touched.unit && errors.unit}
 //                       helperText={touched.unit && errors.unit}
 //                       FormHelperTextProps={{
-//                         style: helperTextStyle, // Apply centralized style
+//                         style: helperTextStyle,
 //                       }}
 //                     >
 //                       {units.map((option) => (
@@ -344,7 +348,36 @@
 //                       ))}
 //                     </TextField>
 //                   </Grid>
-//                   <Grid item xs={12} sm={6} md={4}>
+//                   <Grid item xs={12} sm={6} md={3}>
+//                     <TextField
+//                       label="Price"
+//                       name="price"
+//                       value={values.price}
+//                       onChange={handleChange}
+//                       fullWidth
+//                       size="small"
+//                       InputProps={{
+//                         className: styles.inputField,
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.8rem",
+//                         },
+//                       }}
+//                       InputLabelProps={{
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.85rem",
+//                           fontWeight: "bolder",
+//                         },
+//                       }}
+//                       error={touched.price && errors.price}
+//                       helperText={touched.price && errors.price}
+//                       FormHelperTextProps={{
+//                         style: helperTextStyle,
+//                       }}
+//                     />
+//                   </Grid>
+//                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextInput
 //                       label="Remarks"
 //                       name="remarks"
@@ -353,6 +386,30 @@
 //                       fullWidth
 //                       multiline
 //                       rows={1}
+//                     />
+//                   </Grid>
+//                   <Grid item xs={12} sm={6} md={3}>
+//                     <TextField
+//                       label="Manufacturer"
+//                       name="manufacturer_details"
+//                       value={values.manufacturer_details}
+//                       onChange={handleChange}
+//                       fullWidth
+//                       size="small"
+//                       InputProps={{
+//                         className: styles.inputField,
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.8rem",
+//                         },
+//                       }}
+//                       InputLabelProps={{
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.85rem",
+//                           fontWeight: "bolder",
+//                         },
+//                       }}
 //                     />
 //                   </Grid>
 //                 </Grid>
@@ -380,12 +437,10 @@
 //     </Mainlayout>
 //   );
 // }
-
 import React, { useState, useEffect } from "react";
 import { Box, Typography, TextField, Grid } from "@mui/material";
 import styles from "./inventory.module.css";
 import Swal from "sweetalert2";
-import TextInput from "../School/CommonComp/TextInput";
 import Mainlayout from "../Layouts/Mainlayout";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../CommonButton/Breadcrumb";
@@ -396,61 +451,52 @@ import * as Yup from "yup";
 import axios from "axios";
 import "../Common-Css/Swallfire.css";
 
-export default function BookForm() {
-  // Validation schema using Yup
+export default function InventoryForm() {
   const validationSchema = Yup.object({
     invoice_no: Yup.string().required("invoice_no is required"),
     date: Yup.date().required("Date is required"),
-    created_by: Yup.string().required("Created By is required"),
     item: Yup.string().required("Item Name is required"),
     quantity: Yup.number()
       .positive()
       .integer()
       .required("Item Quantity is required"),
     unit: Yup.string().required("Unit is required"),
-    price: Yup.string().required("price is required"),
+    price: Yup.number()
+      .positive()
+      .required("Price is required"),
     remarks: Yup.string().optional(),
   });
 
-  //message css
   const helperTextStyle = {
-    fontSize: "0.7rem", // Custom font size
-    color: "red", // Custom color for error messages
+    fontSize: "0.7rem",
+    color: "red",
   };
 
   const [items, setItems] = useState([]);
-  const [selectedItem, setSelectedItem] = useState("");
   const navigate = useNavigate();
-  const [profileData, setProfileData] = useState({});
-
-   // Get today's date in YYYY-MM-DD format
-   const todayDate = new Date().toISOString().split("T")[0];
+  const todayDate = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState({
     date: todayDate,
-    created_by: "",
-    invoice_no:"",
+    invoice_no: "",
     item: "",
     quantity: "",
     unit: "",
-    price:"",
+    price: "",
     remarks: "",
-    manufacturer_details:""
+    manufacturer_details: "",
   });
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      setProfileData(userData);
-      setFormData((prev) => ({ ...prev, created_by: userData.username || "" }));
-    } else {
-      navigate("/login");
-    }
-  }, [navigate]);
+  // Static units array
+  const units = [
+    { value: "", name: "--Unit--" },
+    { value: "numbers", name: "Numbers" },
+    { value: "kg", name: "Kg" },
+    { value: "packs", name: "Packs" },
+  ];
 
   useEffect(() => {
-    // Fetch data from API
+    // Fetch items from API
     axios
       .get(`${API_BASE_URL}/api/attributes/item/cvalues`)
       .then((response) => {
@@ -461,21 +507,15 @@ export default function BookForm() {
       });
   }, []);
 
-  const units = [
-    { value: "", name: "--Unit--" },
-    { value: "numbers", name: "Numbers" },
-    { value: "kg", name: "Kg" },
-    { value: "packs", name: "Packs" },
-  ];
-
-
-  // Handle form submission
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/v1/inventory`,
-        values
-      );
+      const token = localStorage.getItem("token");
+      await axios.post(`${API_BASE_URL}/api/v1/inventory`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -490,13 +530,18 @@ export default function BookForm() {
           popup: "small-swal",
         },
       });
-      navigate("/list-inventory"); // Redirect to the list inventory page after successful submission
+
+      navigate("/list-inventory");
     } catch (error) {
+      let errorMessage = "There was an error creating the inventory item.";
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
       Swal.fire({
         position: "top-end",
         icon: "error",
         title: "Error",
-        text: `There was an error creating the inventory item.`,
+        text: errorMessage,
         showConfirmButton: false,
         timer: 1000,
         timerProgressBar: true,
@@ -506,7 +551,6 @@ export default function BookForm() {
           popup: "small-swal",
         },
       });
-      
     }
   };
 
@@ -531,13 +575,11 @@ export default function BookForm() {
             initialValues={formData}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
-            enableReinitialize // This ensures Formik reinitializes when formData changes
+            enableReinitialize
           >
-            {({ values, handleChange, errors, touched, setFieldValue }) => (
+            {({ values, handleChange, errors, touched }) => (
               <Form className={styles.formContent}>
                 <Grid container spacing={3}>
-                  
-
                   <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       name="date"
@@ -562,36 +604,6 @@ export default function BookForm() {
                       }}
                       error={touched.date && errors.date}
                       helperText={touched.date && errors.date}
-                      FormHelperTextProps={{
-                        style: helperTextStyle,
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <TextField
-                      label="Created By"
-                      name="created_by"
-                      size="small"
-                      value={values.created_by}
-                      onChange={handleChange}
-                      type="text"
-                      fullWidth
-                      InputProps={{
-                        className: styles.inputField,
-                        style: {
-                          fontFamily: "Nunito, sans-serif",
-                          fontSize: "0.8rem",
-                        },
-                      }}
-                      InputLabelProps={{
-                        style: {
-                          fontFamily: "Nunito, sans-serif",
-                          fontSize: "0.85rem",
-                          fontWeight: "bolder",
-                        },
-                      }}
-                      error={touched.created_by && errors.created_by}
-                      helperText={touched.created_by && errors.created_by}
                       FormHelperTextProps={{
                         style: helperTextStyle,
                       }}
@@ -631,11 +643,8 @@ export default function BookForm() {
                       select
                       name="item"
                       size="small"
-                      value={selectedItem}
-                      onChange={(e) => {
-                        setSelectedItem(e.target.value);
-                        handleChange(e);
-                      }}
+                      value={values.item}
+                      onChange={handleChange}
                       fullWidth
                       InputProps={{
                         className: styles.inputField,
@@ -667,7 +676,6 @@ export default function BookForm() {
                       ))}
                     </TextField>
                   </Grid>
-                  {/* //second */}
                   <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label="Quantity"
@@ -704,6 +712,8 @@ export default function BookForm() {
                       name="unit"
                       size="small"
                       value={values.unit}
+                      onChange={handleChange}
+                      fullWidth
                       InputProps={{
                         className: styles.inputField,
                         style: {
@@ -718,8 +728,6 @@ export default function BookForm() {
                           fontWeight: "bolder",
                         },
                       }}
-                      onChange={handleChange}
-                      fullWidth
                       SelectProps={{ native: true }}
                       error={touched.unit && errors.unit}
                       helperText={touched.unit && errors.unit}
@@ -764,7 +772,7 @@ export default function BookForm() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
-                    <TextInput
+                    <TextField
                       label="Remarks"
                       name="remarks"
                       value={values.remarks}
@@ -772,6 +780,21 @@ export default function BookForm() {
                       fullWidth
                       multiline
                       rows={1}
+                      size="small"
+                      InputProps={{
+                        className: styles.inputField,
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.8rem",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.85rem",
+                          fontWeight: "bolder",
+                        },
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>

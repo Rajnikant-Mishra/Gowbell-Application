@@ -318,7 +318,7 @@ const CreateUserForm = () => {
   const validationSchema = Yup.object({
     username: Yup.string()
         .required("Username is required")
-        .test("unique-name", "username name already exists.", async (value) => {
+        .test("unique-name", "username  already exists.", async (value) => {
           if (!value) return true; // Skip validation if field is empty
           try {
             const { data: existingUser} = await axios.get(

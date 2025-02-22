@@ -383,8 +383,8 @@ const uploadStudentsData = async (students) => {
       [
         "DM school",
         "Alice Johnson",
-        "010001",
-        "class-1",
+        "7626040103",
+        "01",
         "A",
         "1234567890",
         "1234567890",

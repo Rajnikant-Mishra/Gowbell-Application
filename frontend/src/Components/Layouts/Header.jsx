@@ -91,7 +91,7 @@ const Header = ({ toggleSidebar }) => {
           <p onClick={toggleSidebar} className="my-auto">
             <RxHamburgerMenu className={styles.hamburgerIcon} />
           </p>
-          <form className={styles.searchForm} role="search">
+          {/* <form className={styles.searchForm} role="search">
             <input
               type="search"
               className={styles.searchInput}
@@ -99,7 +99,7 @@ const Header = ({ toggleSidebar }) => {
               aria-label="Search"
             />
             <UilSearch className={styles.searchIcon} />
-          </form>
+          </form> */}
           <div className="d-flex align-items-center gap-3">
             {/* Notification Icon */}
             <div className={styles.notificationIcon}>

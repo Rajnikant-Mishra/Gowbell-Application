@@ -255,7 +255,7 @@ export default function DataTable() {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation" >
-          <Breadcrumb data={[{ name: "Affiliateed" }]} />
+          <Breadcrumb data={[{ name: "Affiliated " }]} />
         </div>
         <div>
           {/* <ButtonComp
@@ -277,7 +277,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name", "created_at", "updated_at"].map((col) => (
+              {["name","status","created_at", "updated_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -298,7 +298,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["name", "created_at", "updated_at"].map((col) => (
+            {["name","status", "created_at", "updated_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -327,6 +327,7 @@ export default function DataTable() {
                   />
                 </td>
                 <td>{row.name}</td>
+                <td>{row.status}</td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 

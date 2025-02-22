@@ -391,7 +391,7 @@ export default function UpdateStudentForm() {
     mobile_number: "",
     whatsapp_number: "",
     student_subject: "",
-    roll_no: "",
+    // roll_no: "",
   });
 
   const navigate = useNavigate();
@@ -516,7 +516,7 @@ export default function UpdateStudentForm() {
       .required("WhatsApp Number is required")
       .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
     student_subject: Yup.string().required("Subject is required"),
-    roll_no: Yup.string().required("Roll Number is required"),
+    // roll_no: Yup.string().required("Roll Number is required"),
   });
 
   const formik = useFormik({
@@ -787,7 +787,7 @@ export default function UpdateStudentForm() {
                   fullWidth
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              {/* <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   label="Roll Number"
                   name="roll_no"
@@ -816,7 +816,7 @@ export default function UpdateStudentForm() {
                   type="tel"
                   fullWidth
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             <Box

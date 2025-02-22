@@ -55,88 +55,84 @@ export default function DataTable() {
   //     });
   // }, []);
   const [districts, setDistricts] = useState([]);
-const [states, setStates] = useState([]);
-const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [countries, setCountries] = useState([]);
 
-
-const formatTimestamp = (timestamp) => {
-  return new Date(timestamp).toLocaleString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-};
-
-// Fetch districts
-useEffect(() => {
-  axios
-    .get(`${API_BASE_URL}/api/districts/`)
-    .then((response) => {
-      setDistricts(response.data);
-    })
-    .catch((error) => {
-      console.error("Error fetching districts!", error);
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
     });
-}, []);
+  };
 
-// Fetch states
-useEffect(() => {
-  axios
-    .get(`${API_BASE_URL}/api/states/`)
-    .then((response) => {
-      setStates(response.data);
-    })
-    .catch((error) => {
-      console.error("Error fetching states!", error);
-    });
-}, []);
-
-// Fetch countries
-useEffect(() => {
-  axios
-    .get(`${API_BASE_URL}/api/countries/`)
-    .then((response) => {
-      setCountries(response.data);
-    })
-    .catch((error) => {
-      console.error("Error fetching countries!", error);
-    });
-}, []);
-
-// Fetch cities and map district, state, and country names
-useEffect(() => {
-  axios
-    .get(`${API_BASE_URL}/api/cities/`)
-    .then((response) => {
-      const formattedData = response.data.map((record) => {
-        const district = districts.find((d) => d.id === record.district_id);
-        const state = states.find((s) => s.id === district?.state_id);
-        const country = countries.find((c) => c.id === state?.country_id);
-
-        return {
-          ...record,
-          district_id: district?.name || "Unknown",
-          state_id: state?.name || "Unknown",
-          country_id: country?.name || "Unknown",
-          created_at: formatTimestamp(record.created_at),
-          updated_at: formatTimestamp(record.updated_at),
-        };
+  // Fetch districts
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/api/districts/`)
+      .then((response) => {
+        setDistricts(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching districts!", error);
       });
+  }, []);
 
-      setRecords(formattedData);
-      setFilteredRecords(formattedData);
-    })
-    .catch((error) => {
-      console.error("Error fetching cities!", error);
-    });
-}, [districts, states, countries]); // Runs again when districts, states, and countries are fetched
+  // Fetch states
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/api/states/`)
+      .then((response) => {
+        setStates(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching states!", error);
+      });
+  }, []);
 
-  
-  
+  // Fetch countries
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/api/countries/`)
+      .then((response) => {
+        setCountries(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching countries!", error);
+      });
+  }, []);
+
+  // Fetch cities and map district, state, and country names
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/api/cities/`)
+      .then((response) => {
+        const formattedData = response.data.map((record) => {
+          const district = districts.find((d) => d.id === record.district_id);
+          const state = states.find((s) => s.id === district?.state_id);
+          const country = countries.find((c) => c.id === state?.country_id);
+
+          return {
+            ...record,
+            district_id: district?.name || "Unknown",
+            state_id: state?.name || "Unknown",
+            country_id: country?.name || "Unknown",
+            created_at: formatTimestamp(record.created_at),
+            updated_at: formatTimestamp(record.updated_at),
+          };
+        });
+
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
+      })
+      .catch((error) => {
+        console.error("Error fetching cities!", error);
+      });
+  }, [districts, states, countries]); // Runs again when districts, states, and countries are fetched
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -309,7 +305,6 @@ useEffect(() => {
           <Breadcrumb data={[{ name: "City" }]} />
         </div>
         <div>
-          
           <CreateButton link={"/city/create"} />
         </div>
       </div>
@@ -323,7 +318,15 @@ useEffect(() => {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["city", "district", "state", "country", "status", "created_at", "updated_at"].map((col) => (
+              {[
+                "country",
+                "state",
+                "district",
+                "city",
+                "status",
+                "created_at",
+                "updated_at",
+              ].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -344,7 +347,15 @@ useEffect(() => {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["city", "district", "state", "country", "status", "created_at", "updated_at"].map((col) => (
+            {[
+              "country",
+              "state",
+              "district",
+              "city",
+              "status",
+              "created_at",
+              "updated_at",
+            ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -372,10 +383,10 @@ useEffect(() => {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.name}</td>
-                <td>{row.district_id}</td>
-                <td>{row.state_id}</td>
                 <td>{row.country_id}</td>
+                <td>{row.state_id}</td>
+                <td>{row.district_id}</td>
+                <td>{row.name}</td>
                 <td>{row.status}</td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>

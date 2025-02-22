@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Grid, TextField } from "@mui/material";
 import styles from "./Student.module.css";
@@ -15,6 +13,7 @@ import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 import SelectDrop from "../School/createschool/SelectDrop";
 
 export default function StudentForm() {
@@ -111,7 +110,23 @@ export default function StudentForm() {
 
   const validationSchema = Yup.object({
     school_name: Yup.string().required("School Name is required"),
-    student_name: Yup.string().required("Student Name is required"),
+    // student_name: Yup.string().required("Student Name is required"),
+    student_name: Yup.string()
+      .required("student name is required")
+      .test("unique-name", "student name  already exists.", async (value) => {
+        if (!value) return true; // Skip validation if field is empty
+        try {
+          const { data: existingUser } = await axios.get(
+            `${API_BASE_URL}/api/get/student`
+          );
+          return !existingUser.some(
+            (user) => user.student_name.toLowerCase() === value.toLowerCase()
+          );
+        } catch (error) {
+          console.error("Error checking duplicate username:", error);
+          return false; // Assume duplicate if there's an error
+        }
+      }),
     class_name: Yup.string().required("Class Name is required"),
     student_section: Yup.string().required("Section is required"),
     mobile_number: Yup.string()
@@ -121,7 +136,7 @@ export default function StudentForm() {
       .required("WhatsApp Number is required")
       .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
     student_subject: Yup.string().required("Subject is required"),
-    roll_no: Yup.string().required("Roll Number is required"),
+    // roll_no: Yup.string().required("Roll Number is required"),
   });
 
   const formik = useFormik({
@@ -133,7 +148,7 @@ export default function StudentForm() {
       mobile_number: "",
       whatsapp_number: "",
       student_subject: "",
-      roll_no: "",
+      // roll_no: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -400,7 +415,7 @@ export default function StudentForm() {
                   fullWidth
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              {/* <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   label="Roll Number"
                   name="roll_no"
@@ -429,7 +444,7 @@ export default function StudentForm() {
                   type="tel"
                   fullWidth
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             <Box

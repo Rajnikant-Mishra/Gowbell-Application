@@ -175,12 +175,12 @@ import ButtonComp from "../School/CommonComp/ButtonComp";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
 
-const permissionsList = ["View", "Edit", "Delete", "Create", "Disable", "Enable"];
+// const permissionsList = ["View", "Edit", "Delete", "Create", "Disable", "Enable"];
 
 const CreateRoleForm = () => {
   const [formData, setFormData] = useState({
     role_name: "",
-    permissions: [],
+    // permissions: [],
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -200,10 +200,10 @@ const CreateRoleForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle Permissions Selection
-  const handlePermissionChange = (event) => {
-    setFormData({ ...formData, permissions: event.target.value });
-  };
+  // // Handle Permissions Selection
+  // const handlePermissionChange = (event) => {
+  //   setFormData({ ...formData, permissions: event.target.value });
+  // };
 
   // Handle Form Submission
   const handleSubmit = async (e) => {
@@ -217,7 +217,7 @@ const CreateRoleForm = () => {
         },
         body: JSON.stringify({
           role_name: formData.role_name,
-          permissions: JSON.stringify(formData.permissions), // Store as JSON string
+          // permissions: JSON.stringify(formData.permissions), // Store as JSON string
         }),
       });
 
@@ -298,7 +298,7 @@ const CreateRoleForm = () => {
               helperText={error}
             />
 
-            {/* Permissions Selection */}
+            {/* Permissions Selection
             <FormControl fullWidth size="small" sx={{ mt: 2 }}>
               <InputLabel>Permissions</InputLabel>
               <Select
@@ -314,7 +314,7 @@ const CreateRoleForm = () => {
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
 
             {/* Submit & Cancel Buttons */}
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>

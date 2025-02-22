@@ -32,8 +32,8 @@ import "../Common-Css/DeleteSwal.css";
 import "../Common-Css/Swallfire.css";
 import CreateButton from "../../Components/CommonButton/CreateButton";
 import { Menu, MenuItem } from "@mui/material";
-import excelImg from "../../../public/excell-img.png";
-import Papa from "papaparse"; // Import Papaparse for CSV parsing
+// import excelImg from "../../../public/excell-img.png";
+// import Papa from "papaparse"; // Import Papaparse for CSV parsing
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -46,24 +46,57 @@ export default function DataTable() {
   const [pageSize, setPageSize] = useState(10);
 
   const pageSizes = [10, 20, 50, 100];
-  
+
+  // useEffect(() => {
+  //   axios
+  //     .get(`${API_BASE_URL}/api/v1/inventory`)
+  //     .then((response) => {
+  //       // Format the date before setting records
+  //       const formattedData = response.data.map((record) => ({
+  //         ...record,
+  //         date: record.date.split("T")[0], // Convert "2025-01-17T18:30:00.000Z" to "2025-01-17"
+  //       }));
+  //       setRecords(formattedData);
+  //       setFilteredRecords(formattedData);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/v1/inventory`) 
-      .then((response) => {
-        // Format the date before setting records
-        const formattedData = response.data.map((record) => ({
-          ...record,
-          date: record.date.split("T")[0], // Convert "2025-01-17T18:30:00.000Z" to "2025-01-17"
-        }));
+    const fetchData = async () => {
+      try {
+        // Fetch inventory records
+        const inventoryResponse = await axios.get(
+          `${API_BASE_URL}/api/v1/inventory`
+        );
+        const inventoryData = inventoryResponse.data;
+
+        // Fetch user details for each record
+        const formattedData = await Promise.all(
+          inventoryData.map(async (record) => {
+            const userResponse = await axios.get(
+              `${API_BASE_URL}/api/u1/users/${record.created_by}`
+            );
+            const userName = userResponse.data.username; 
+
+            return {
+              ...record,
+              date: record.date.split("T")[0], // Format date
+              created_by: userName, // Add the user's name
+            };
+          })
+        );
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("There was an error fetching the records!", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
-  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
