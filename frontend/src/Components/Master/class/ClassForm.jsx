@@ -221,34 +221,39 @@ const CreateClass = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        await axios.post(`${API_BASE_URL}/api/class`, values);
-
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Success!",
-          text: `Class ${values.name} created successfully!`,
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
-        }).then(() => {
-          navigate("/class");
-        });
+          await axios.post(`${API_BASE_URL}/api/class`, values, {
+              headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}` // Send user token
+              }
+          });
+  
+          Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `Class ${values.name} created successfully!`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                  popup: "small-swal",
+              },
+          }).then(() => {
+              navigate("/class");
+          });
       } catch (error) {
-        Swal.fire({
-          title: "Error!",
-          text: "There was an issue creating the Class. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-        console.error("Error creating Class:", error);
+          Swal.fire({
+              title: "Error!",
+              text: "There was an issue creating the Class. Please try again.",
+              icon: "error",
+              confirmButtonText: "OK",
+          });
+          console.error("Error creating Class:", error);
       }
-    },
+  },
+  
   });
   return (
     <Mainlayout>

@@ -114,7 +114,17 @@ export default function SchoolForm() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        // Show processing alert
+        const token = localStorage.getItem("token"); // Or sessionStorage.getItem("token")
+        
+        if (!token) {
+          Swal.fire({
+            icon: "error",
+            title: "Unauthorized",
+            text: "Authentication token is missing. Please log in again.",
+          });
+          return;
+        }
+    
         const loadingSwal = Swal.fire({
           title: "Processing...",
           text: "Please wait while we create the school.",
@@ -130,13 +140,15 @@ export default function SchoolForm() {
           `${API_BASE_URL}/api/get/schools`,
           values,
           {
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}` // Add token here
+            },
           }
         );
     
-        // Close the loading alert
         Swal.close();
-    
+        
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -146,18 +158,14 @@ export default function SchoolForm() {
           timer: 1000,
           timerProgressBar: true,
           toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
         }).then(() => {
           navigate("/schoolList");
         });
       } catch (error) {
-        // Close the loading alert if an error occurs
         Swal.close();
         
-        console.error("Error details:", error.response?.data || error.message);
+        console.error("Error details:", error.response?.status, error.response?.data || error.message);
+        
         Swal.fire({
           position: "top-end",
           icon: "error",
@@ -167,13 +175,10 @@ export default function SchoolForm() {
           timer: 2000,
           timerProgressBar: true,
           toast: true,
-          customClass: {
-            popup: "small-swal",
-          },
-          background: "#fff",
         });
       }
     },
+    
     
   });
 

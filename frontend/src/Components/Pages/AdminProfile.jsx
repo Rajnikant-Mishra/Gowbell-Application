@@ -124,9 +124,7 @@ const User = () => {
           <div className={`${styles.div2} col-12 pb-3 px-4`}>
             <h2 className="pt-3 mb-0 pb-0">Accounts</h2>
             <hr className={`${styles.hr} mb-4`} />
-            <form>
-            
-
+            <form>          
               <div className={`${styles.inputdiv} mb-3 d-flex`}>
                 <label className={`${styles.lables} form-label my-auto`}>
                   Username <span style={{ color: "red" }}>*</span>
@@ -138,6 +136,7 @@ const User = () => {
                   value={profileData.username}
                   onChange={handleInputChange}
                   placeholder="Enter your Username"
+                  readOnly
                 />
               </div>
               <div className={`${styles.inputdiv} mb-3 d-flex`}>
@@ -151,6 +150,7 @@ const User = () => {
                   value={profileData.email}
                   onChange={handleInputChange}
                   placeholder="Enter your Email"
+                  readOnly
                 />
               </div>
               

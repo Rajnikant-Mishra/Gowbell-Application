@@ -47,22 +47,7 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  // useEffect(() => {
-  //   axios
-  //     .get(`${API_BASE_URL}/api/v1/inventory`)
-  //     .then((response) => {
-  //       // Format the date before setting records
-  //       const formattedData = response.data.map((record) => ({
-  //         ...record,
-  //         date: record.date.split("T")[0], // Convert "2025-01-17T18:30:00.000Z" to "2025-01-17"
-  //       }));
-  //       setRecords(formattedData);
-  //       setFilteredRecords(formattedData);
-  //     })
-  //     .catch((error) => {
-  //       console.error("There was an error fetching the records!", error);
-  //     });
-  // }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {

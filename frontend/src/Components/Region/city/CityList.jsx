@@ -106,25 +106,71 @@ export default function DataTable() {
       });
   }, []);
 
-  // Fetch cities and map district, state, and country names
+  // // Fetch cities and map district, state, and country names
+  // useEffect(() => {
+  //   axios
+  //     .get(`${API_BASE_URL}/api/cities/`)
+  //     .then((response) => {
+  //       const formattedData = response.data.map((record) => {
+  //         const district = districts.find((d) => d.id === record.district_id);
+  //         const state = states.find((s) => s.id === district?.state_id);
+  //         const country = countries.find((c) => c.id === state?.country_id);
+
+  //         return {
+  //           ...record,
+  //           district_id: district?.name || "Unknown",
+  //           state_id: state?.name || "Unknown",
+  //           country_id: country?.name || "Unknown",
+  //           created_at: formatTimestamp(record.created_at),
+  //           updated_at: formatTimestamp(record.updated_at),
+  //         };
+  //       });
+
+  //       setRecords(formattedData);
+  //       setFilteredRecords(formattedData);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching cities!", error);
+  //     });
+  // }, [districts, states, countries]);
+  // Fetch cities and map district, state, country, and username
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/cities/`)
-      .then((response) => {
-        const formattedData = response.data.map((record) => {
-          const district = districts.find((d) => d.id === record.district_id);
-          const state = states.find((s) => s.id === district?.state_id);
-          const country = countries.find((c) => c.id === state?.country_id);
+      .then(async (response) => {
+        const formattedData = await Promise.all(
+          response.data.map(async (record) => {
+            const district = districts.find((d) => d.id === record.district_id);
+            const state = states.find((s) => s.id === district?.state_id);
+            const country = countries.find((c) => c.id === state?.country_id);
 
-          return {
-            ...record,
-            district_id: district?.name || "Unknown",
-            state_id: state?.name || "Unknown",
-            country_id: country?.name || "Unknown",
-            created_at: formatTimestamp(record.created_at),
-            updated_at: formatTimestamp(record.updated_at),
-          };
-        });
+            // Fetch user data based on created_by ID
+            let userName = "Unknown";
+            if (record.created_by) {
+              try {
+                const userResponse = await axios.get(
+                  `${API_BASE_URL}/api/u1/users/${record.created_by}`
+                );
+                userName = userResponse.data.username || "Unknown";
+              } catch (error) {
+                console.error(
+                  `Error fetching user ${record.created_by}`,
+                  error
+                );
+              }
+            }
+
+            return {
+              ...record,
+              district_id: district?.name || "Unknown",
+              state_id: state?.name || "Unknown",
+              country_id: country?.name || "Unknown",
+              created_by: userName, // Show username instead of ID
+              created_at: formatTimestamp(record.created_at),
+              updated_at: formatTimestamp(record.updated_at),
+            };
+          })
+        );
 
         setRecords(formattedData);
         setFilteredRecords(formattedData);
@@ -132,7 +178,7 @@ export default function DataTable() {
       .catch((error) => {
         console.error("Error fetching cities!", error);
       });
-  }, [districts, states, countries]); // Runs again when districts, states, and countries are fetched
+  }, [districts, states, countries]);
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -302,7 +348,7 @@ export default function DataTable() {
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "City" }]} />
+          <Breadcrumb data={[{ name: "Region Setup" }]} />
         </div>
         <div>
           <CreateButton link={"/city/create"} />
@@ -324,6 +370,7 @@ export default function DataTable() {
                 "district",
                 "city",
                 "status",
+                "created_by",
                 "created_at",
                 "updated_at",
               ].map((col) => (
@@ -353,6 +400,7 @@ export default function DataTable() {
               "district",
               "city",
               "status",
+              "created_by",
               "created_at",
               "updated_at",
             ].map((col) => (
@@ -387,7 +435,9 @@ export default function DataTable() {
                 <td>{row.state_id}</td>
                 <td>{row.district_id}</td>
                 <td>{row.name}</td>
+
                 <td>{row.status}</td>
+                <td>{row.created_by}</td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 

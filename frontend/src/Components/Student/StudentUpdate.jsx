@@ -1,423 +1,34 @@
-// import React, { useState, useEffect } from "react";
-// import { Box, Typography, Grid } from "@mui/material";
-// import styles from "./Student.module.css";
-// import ButtonComp from "../School/CommonComp/ButtonComp";
-// import TextInput from "../School/CommonComp/TextInput";
-// import SelectDrop from "../School/CommonComp/SelectDrop";
-// import Mainlayout from "../Layouts/Mainlayout";
-// import Swal from "sweetalert2";
-// import { useNavigate, useParams } from "react-router-dom";
-// import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
-// import { API_BASE_URL } from "../ApiConfig/APIConfig";
-
-// export default function StudentUpdateForm() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-
-//   const [formData, setFormData] = useState({
-//     school_name: "",
-//     student_name: "",
-//     class_name: "",
-//     student_section: "",
-//     mobile_number: "",
-//     whatsapp_number: "",
-//     student_subject: "",
-//     roll_no:"",
-//   });
-
-//   const [schoolOptions, setSchoolOptions] = useState([]);
-//   const [classOptions, setClassOptions] = useState([]);
-//   const [subjectOptions, setSubjectOptions] = useState([]);
-
-//   // Fetch data
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         // Fetch school options
-//         const schoolResponse = await fetch(`${API_BASE_URL}/api/get/schools`);
-//         const schoolData = await schoolResponse.json();
-//         setSchoolOptions(
-//           schoolData.map((school) => ({
-//             value: school.school_name,
-//             label: school.school_name,
-//           }))
-//         );
-
-//         // Fetch class options
-//         const classResponse = await fetch(`${API_BASE_URL}/api/class`);
-//         const classData = await classResponse.json();
-//         setClassOptions(
-//           classData.map((item) => ({
-//             value: item.name,
-//             label: item.name,
-//           }))
-//         );
-
-//         // Fetch subject options
-//         const subjectResponse = await fetch(`${API_BASE_URL}/api/subject`);
-//         const subjectData = await subjectResponse.json();
-//         setSubjectOptions(
-//           subjectData.map((subject) => ({
-//             value: subject.name,
-//             label: subject.name,
-//           }))
-//         );
-
-//         // Fetch student data
-//         const studentResponse = await fetch(
-//           `${API_BASE_URL}/api/get/student/${id}`
-//         );
-//         if (!studentResponse.ok) throw new Error("Student data not found");
-//         const studentData = await studentResponse.json();
-//         setFormData({
-//           school_name: studentData.school_name || "",
-//           student_name: studentData.student_name || "",
-//           class_name: studentData.class_name || "",
-//           student_section: studentData.student_section || "",
-//           mobile_number: studentData.mobile_number || "",
-//           whatsapp_number: studentData.whatsapp_number || "",
-//           student_subject: studentData.student_subject || "",
-//         });
-//       } catch (error) {
-//         console.error("Error loading data", error);
-//         Swal.fire({
-//           icon: "error",
-//           title: "Error",
-//           text: "Failed to load data. Please try again.",
-//           timer: 2000,
-//         });
-//       }
-//     };
-
-//     fetchData();
-//   }, [id]);
-
-//   // Section options
-//   const sectionOptions = [
-//     { value: "A", label: "A" },
-//     { value: "B", label: "B" },
-//     { value: "C", label: "C" },
-//     { value: "D", label: "D" },
-//     { value: "E", label: "E" },
-//   ];
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     // Define validation rules for each field dynamically
-//     const validationRules = [
-//       {
-//         field: "school_name",
-//         label: "School Name",
-//         validate: (value) => !!value || "School Name is required.",
-//       },
-//       {
-//         field: "student_name",
-//         label: "Student Name",
-//         validate: (value) => !!value || "Student Name is required.",
-//       },
-//       {
-//         field: "class_name",
-//         label: "Class Name",
-//         validate: (value) => !!value || "Class Name is required.",
-//       },
-//       {
-//         field: "mobile_number",
-//         label: "Mobile Number",
-//         validate: (value) =>
-//           /^\d{10}$/.test(value) || "Mobile Number must be exactly 10 digits.",
-//       },
-//       {
-//         field: "whatsapp_number",
-//         label: "WhatsApp Number",
-//         validate: (value) =>
-//           /^\d{10}$/.test(value) ||
-//           "WhatsApp Number must be exactly 10 digits.",
-//       },
-//       {
-//         field: "student_subject",
-//         label: "Student subject",
-//         validate: (value) => !!value || "Student subject is required.",
-//       },
-     
-//       {
-//         field: "roll_no",
-//         label: "roll number",
-//         validate: (value) => !!value || "roll number is required.",
-//       },
-//     ];
-
-//     // Iterate through validation rules and check for errors
-//     for (const { field, validate } of validationRules) {
-//       const value = formData[field]; // Get field value
-//       const validationResult = validate(value); // Run validation
-
-//       if (validationResult !== true) {
-//         // Show validation error dynamically
-//         Swal.fire({
-//           position: "top-end",
-//           icon: "error",
-//           text: validationResult, // Show the validation error message
-//           showConfirmButton: true,
-//           timer: 3000,
-//           timerProgressBar: true,
-//           toast: true,
-//           background: "#fff",
-//           customClass: {
-//             popup: "small-swal",
-//           },
-//         });
-//         return; // Stop further execution on first validation error
-//       }
-//     }
-
-//     // Proceed with API call after validation
-//     try {
-//       const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`, {
-//         method: "PUT",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(formData),
-//       });
-
-//       if (response.ok) {
-//         // Success - Show success message
-//         Swal.fire({
-//           position: "top-end",
-//           icon: "success",
-//           title: "Success!",
-//           text: `student  updated successfully!`,
-//           showConfirmButton: false,
-//           timer: 1000,
-//           timerProgressBar: true,
-//           toast: true,
-//           background: "#fff",
-//           customClass: {
-//             popup: "small-swal",
-//           },
-//         }).then(() => {
-//           navigate("/studentList");
-//         });
-
-//         // Reset form data after successful submission
-//         setFormData({
-//           school_name: "",
-//           student_name: "",
-//           class_name: "",
-//           student_section: "",
-//           mobile_number: "",
-//           whatsapp_number: "",
-//           student_subject: "",
-//           roll_no: "",
-//         });
-//       } else {
-//         throw new Error("Failed to submit form");
-//       }
-//     } catch (error) {
-//       // Error - Show error message
-//       console.error("Error details:", error.response?.data || error.message);
-//       Swal.fire({
-//         position: "top-end",
-//         icon: "error",
-//         title: "Error!",
-//         text: error.response?.data?.error || "An unexpected error occurred.",
-//         showConfirmButton: false,
-//         timer: 4000,
-//         timerProgressBar: true,
-//         toast: true,
-//         customClass: {
-//           popup: "animate__animated animate__shakeX",
-//           title: "text-danger fw-bold",
-//           text: "text-dark",
-//         },
-//         background: "#fff",
-//       });
-//     }
-//   };
-
-//   return (
-//     <Mainlayout>
-//       <div className="d-flex justify-content-between align-items-center mb-3">
-//         <div role="presentation">
-//           <Breadcrumb
-//             data={[
-//               { name: "Student", link: "/studentList" },
-//               { name: "Update Student" },
-//             ]}
-//           />
-//         </div>
-//       </div>
-//       <Box className={`${styles.formContainer} container-fluid pt-5`}>
-//         <div className={`${styles.formBox}`}>
-//           <Typography className={`${styles.formTitle} mb-4`}>
-//             Update Student Details
-//           </Typography>
-//           <form className={styles.formContent} onSubmit={handleSubmit}>
-//             <Grid container spacing={2}>
-//               <Grid item xs={12} sm={6} md={6}>
-//                 <SelectDrop
-//                   label="School Name"
-//                   name="school_name"
-//                   options={schoolOptions}
-//                   value={formData.school_name}
-//                   onChange={handleChange}
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={6}>
-//                 <TextInput
-//                   className={styles.textInput}
-//                   label="Student Name"
-//                   name="student_name"
-//                   value={formData.student_name}
-//                   onChange={handleChange}
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={3}>
-//                 <SelectDrop
-//                   label="Class"
-//                   name="class_name"
-//                   options={classOptions}
-//                   value={formData.class_name}
-//                   onChange={handleChange}
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={3}>
-//                 <SelectDrop
-//                   label="Section"
-//                   name="student_section"
-//                   options={sectionOptions}
-//                   value={formData.student_section}
-//                   onChange={handleChange}
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={3}>
-//                 <TextInput
-//                   label="Mobile Number"
-//                   name="mobile_number"
-//                   value={formData.mobile_number}
-//                   onChange={handleChange}
-//                   type="tel"
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={3}>
-//                 <TextInput
-//                   label="Whatsapp Number"
-//                   name="whatsapp_number"
-//                   value={formData.whatsapp_number}
-//                   onChange={handleChange}
-//                   type="tel"
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={3}>
-//                 <SelectDrop
-//                   label="Subject"
-//                   name="student_subject"
-//                   options={subjectOptions}
-//                   value={formData.student_subject}
-//                   onChange={handleChange}
-//                   fullWidth
-//                 />
-//               </Grid>
-//               <Grid item xs={12} sm={6} md={3}>
-//                 <TextInput
-//                   label="Roll Number"
-//                   name="roll_no"
-//                   value={formData.roll_no}
-//                   onChange={handleChange}
-//                   type="tel"
-//                   fullWidth
-//                 />
-//               </Grid>
-//             </Grid>
-
-//             <Box
-//               className={`${styles.buttonContainer} gap-2 mt-4`}
-//               sx={{ display: "flex", gap: 2 }}
-//             >
-//               <ButtonComp
-//                 text="Submit"
-//                 type="submit"
-//                 disabled={false}
-//                 sx={{ flexGrow: 1 }}
-//               />
-//               <ButtonComp
-//                 text="Cancel"
-//                 type="button"
-//                 sx={{ flexGrow: 1 }}
-//                 onClick={() => navigate("/studentList")}
-//               />
-//             </Box>
-//           </form>
-//         </div>
-//       </Box>
-//     </Mainlayout>
-//   );
-// }
-
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, TextField } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  Autocomplete,
+  Checkbox,
+} from "@mui/material";
 import styles from "./Student.module.css";
 import ButtonComp from "../School/CommonComp/ButtonComp";
 import Mainlayout from "../Layouts/Mainlayout";
 import Swal from "sweetalert2";
+import "animate.css";
 import { useNavigate, useParams } from "react-router-dom";
 import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
+import "../Common-Css/Swallfire.css";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 import SelectDrop from "../School/createschool/SelectDrop";
 
 export default function UpdateStudentForm() {
   const [schoolOptions, setSchoolOptions] = useState([]);
   const [classOptions, setClassOptions] = useState([]);
   const [subjectOptions, setSubjectOptions] = useState([]);
-  const [initialValues, setInitialValues] = useState({
-    school_name: "",
-    student_name: "",
-    class_name: "",
-    student_section: "",
-    mobile_number: "",
-    whatsapp_number: "",
-    student_subject: "",
-    // roll_no: "",
-  });
-
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // Get the student ID from the URL
 
   useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setInitialValues(data);
-        } else {
-          throw new Error("Failed to fetch student data");
-        }
-      } catch (error) {
-        console.error(error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to load student data.",
-          timer: 2000,
-        });
-      }
-    };
-
     const fetchSchools = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/get/schools`);
@@ -490,10 +101,38 @@ export default function UpdateStudentForm() {
       }
     };
 
-    fetchStudentData();
+    const fetchStudentData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          formik.setValues({
+            school_name: data.school_name,
+            student_name: data.student_name,
+            class_name: data.class_name,
+            student_section: data.student_section,
+            mobile_number: data.mobile_number,
+            whatsapp_number: data.whatsapp_number,
+            student_subject: data.student_subject,
+          });
+        } else {
+          throw new Error("Failed to fetch student data");
+        }
+      } catch (error) {
+        console.error(error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load student data.",
+          timer: 2000,
+        });
+      }
+    };
+
     fetchSchools();
     fetchClasses();
     fetchSubjects();
+    fetchStudentData();
   }, [id]);
 
   const sectionOptions = [
@@ -515,20 +154,31 @@ export default function UpdateStudentForm() {
     whatsapp_number: Yup.string()
       .required("WhatsApp Number is required")
       .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
-    student_subject: Yup.string().required("Subject is required"),
-    // roll_no: Yup.string().required("Roll Number is required"),
+    student_subject: Yup.array()
+      .min(1, "Select at least one subject")
+      .required("Subject is required"),
   });
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues: {
+      school_name: "",
+      student_name: "",
+      class_name: "",
+      student_section: "",
+      mobile_number: "",
+      whatsapp_number: "",
+      student_subject: [],
+    },
     validationSchema: validationSchema,
-    enableReinitialize: true, // This allows the form to reinitialize when initialValues change
     onSubmit: async (values) => {
       try {
+        const token = localStorage.getItem("token");
+
         const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(values),
         });
@@ -556,20 +206,19 @@ export default function UpdateStudentForm() {
           throw new Error("Failed to update student");
         }
       } catch (error) {
-        console.error("Error details:", error.response?.data || error.message);
         Swal.fire({
           position: "top-end",
           icon: "error",
           title: "Error!",
-          text: error.response?.data?.error || "An unexpected error occurred.",
+          text: error.message || "An unexpected error occurred.",
           showConfirmButton: false,
-          timer: 4000,
+          timer: 1000,
           timerProgressBar: true,
           toast: true,
+          background: "#fff",
           customClass: {
             popup: "small-swal",
           },
-          background: "#fff",
         });
       }
     },
@@ -753,70 +402,73 @@ export default function UpdateStudentForm() {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6} md={3}>
-                <SelectDrop
-                  label="Subject"
-                  name="student_subject"
+              <Grid item xs={12} sm={6} md={6}>
+                <Autocomplete
+                  multiple
+                  id="student_subject"
                   options={subjectOptions}
-                  value={formik.values.student_subject}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  value={formik.values.student_subject.map((item) => ({
+                    value: item,
+                    label: item,
+                  }))}
                   size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
+                  onChange={(e, newValue) => {
+                    formik.setFieldValue(
+                      "student_subject",
+                      newValue.map((item) => item.value)
+                    );
                   }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.student_subject &&
-                    Boolean(formik.errors.student_subject)
+                  onBlur={formik.handleBlur}
+                  disableCloseOnSelect
+                  getOptionLabel={(option) => option.label}
+                  isOptionEqualToValue={(option, value) =>
+                    option.value === value.value
                   }
-                  helperText={
-                    formik.touched.student_subject &&
-                    formik.errors.student_subject
-                  }
-                  fullWidth
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox
+                        checked={formik.values.student_subject.includes(
+                          option.value
+                        )}
+                        color="primary"
+                      />
+                      {option.label}
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Subjects"
+                      placeholder="Subjects"
+                      variant="outlined"
+                      error={
+                        formik.touched.student_subject &&
+                        Boolean(formik.errors.student_subject)
+                      }
+                      helperText={
+                        formik.touched.student_subject &&
+                        formik.errors.student_subject
+                      }
+                      InputProps={{
+                        ...params.InputProps,
+                        style: {
+                          fontSize: "0.8rem",
+                          padding: "6px 12px",
+                          fontFamily: "Poppins",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "0.85rem",
+                          lineHeight: "1.5",
+                          fontFamily: "Poppins",
+                          fontWeight: "bolder",
+                        },
+                      }}
+                    />
+                  )}
                 />
               </Grid>
-              {/* <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  label="Roll Number"
-                  name="roll_no"
-                  value={formik.values.roll_no}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.roll_no && Boolean(formik.errors.roll_no)
-                  }
-                  helperText={formik.touched.roll_no && formik.errors.roll_no}
-                  type="tel"
-                  fullWidth
-                />
-              </Grid> */}
             </Grid>
 
             <Box

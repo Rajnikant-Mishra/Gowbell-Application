@@ -228,11 +228,13 @@ const CreateCountry = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (values) => {
-    // Sending the POST request to the server
     axios
-      .post(`${API_BASE_URL}/api/affiliated`, values)
+      .post(`${API_BASE_URL}/api/affiliated`, values, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is sent
+        },
+      })
       .then((response) => {
-        // Success: Show success alert and redirect
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -247,7 +249,7 @@ const CreateCountry = () => {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate("/affiliated"); // Redirect after the user clicks OK
+          navigate("/affiliated"); // Redirect after success
         });
       })
       .catch((error) => {
@@ -268,7 +270,8 @@ const CreateCountry = () => {
 
         console.error("Error creating affiliated:", error);
       });
-  };
+};
+
 
   return (
     <Mainlayout>

@@ -69,13 +69,23 @@ export default function DataTable() {
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/class`)
-      .then((response) => {
-        const formattedData = response.data.map((record) => ({
-          ...record,
-          created_at: formatTimestamp(record.created_at),
-          updated_at: formatTimestamp(record.updated_at),
-        }));
-
+      .then(async (response) => {
+        const formattedData = await Promise.all(
+          response.data.map(async (record) => {
+            const userResponse = await axios.get(
+              `${API_BASE_URL}/api/u1/users/${record.created_by}`
+            );
+            const userName = userResponse.data.username;
+  
+            return {
+              ...record,
+              created_at: formatTimestamp(record.created_at),
+              updated_at: formatTimestamp(record.updated_at),
+              created_by: userName, // Adding username to the record
+            };
+          })
+        );
+  
         setRecords(formattedData);
         setFilteredRecords(formattedData);
       })
@@ -83,6 +93,7 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -268,7 +279,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["class", "status", "created_at", "updated_at"].map((col) => (
+              {["class", "status","created_by", "created_at", "updated_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -289,7 +300,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["class", "status", "created_at", "updated_at"].map((col) => (
+            {["class", "status","created_by", "created_at", "updated_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -319,6 +330,7 @@ export default function DataTable() {
                 </td>
                 <td>{row.name}</td>
                 <td>{row.status}</td>
+                <td>{row.created_by}</td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 

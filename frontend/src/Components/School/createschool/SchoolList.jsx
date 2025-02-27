@@ -583,9 +583,10 @@ const uploadSchoolsData = async (schools) => {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                "school_code",
+                
                 "board",
                 "school ",
+                "school code",
                 "email",
                 "contact",
                 "state",
@@ -593,6 +594,7 @@ const uploadSchoolsData = async (schools) => {
                 "city",
                 "pincode",
                 "status",
+                "created_by",
               ].map((col) => (
                 <th
                   key={col}
@@ -615,9 +617,10 @@ const uploadSchoolsData = async (schools) => {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
-              "school_code",
+             
               "board",
               "school name",
+              "school code",
               "email",
               "contact",
               "state",
@@ -625,6 +628,7 @@ const uploadSchoolsData = async (schools) => {
               "city",
               "pincode",
               "status",
+              "created_by",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -653,9 +657,10 @@ const uploadSchoolsData = async (schools) => {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.school_code}</td>
+                
                 <td>{row.board}</td>
                 <td>{row.school_name}</td>
+                <td>{row.school_code}</td>
                 <td>{row.school_email}</td>
                 <td>{row.school_contact_number}</td>
                 <td>{row.state_name}</td>
@@ -663,6 +668,7 @@ const uploadSchoolsData = async (schools) => {
                 <td>{row.city_name}</td>
                 <td>{row.pincode}</td>
                 <td>{row.status}</td>
+                <td>{row.created_by}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

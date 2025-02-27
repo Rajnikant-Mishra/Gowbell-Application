@@ -68,12 +68,36 @@ export default function DataTable() {
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/subject`)
-      .then((response) => {
-        const formattedData = response.data.map((record) => ({
-          ...record,
-          created_at: formatTimestamp(record.created_at),
-          updated_at: formatTimestamp(record.updated_at),
-        }));
+      .then(async (response) => {
+        const formattedData = await Promise.all(
+          response.data.map(async (record) => {
+            try {
+              // Fetch user details based on created_by field
+              const userResponse = await axios.get(
+                `${API_BASE_URL}/api/u1/users/${record.created_by}`
+              );
+              const userName = userResponse.data.username;
+
+              return {
+                ...record,
+                created_at: formatTimestamp(record.created_at),
+                updated_at: formatTimestamp(record.updated_at),
+                created_by: userName, // Adding username to the record
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching user data for ID ${record.created_by}`,
+                error
+              );
+              return {
+                ...record,
+                created_at: formatTimestamp(record.created_at),
+                updated_at: formatTimestamp(record.updated_at),
+                created_by: "Unknown", // Fallback value in case of an error
+              };
+            }
+          })
+        );
 
         setRecords(formattedData);
         setFilteredRecords(formattedData);
@@ -268,19 +292,21 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name", "status", "created_at", "updated_at"].map((col) => (
-                <th
-                  key={col}
-                  className={styles.sortableHeader}
-                  onClick={() => handleSort(col)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-                    {getSortIcon(col)}
-                  </div>
-                </th>
-              ))}
+              {["name", "status", "created_by", "created_at", "updated_at"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className={styles.sortableHeader}
+                    onClick={() => handleSort(col)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                      {getSortIcon(col)}
+                    </div>
+                  </th>
+                )
+              )}
               <th>Action</th>
             </tr>
           </thead>
@@ -289,19 +315,21 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["name","status", "created_at", "updated_at"].map((col) => (
-              <th key={col}>
-                <div className={styles.inputContainer}>
-                  <FaSearch className={styles.searchIcon} />
-                  <input
-                    type="text"
-                    placeholder={`Search ${col}`}
-                    onChange={(e) => handleFilter(e, col)}
-                    className={styles.filterInput}
-                  />
-                </div>
-              </th>
-            ))}
+            {["name", "status", "created_by", "created_at", "updated_at"].map(
+              (col) => (
+                <th key={col}>
+                  <div className={styles.inputContainer}>
+                    <FaSearch className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      placeholder={`Search ${col}`}
+                      onChange={(e) => handleFilter(e, col)}
+                      className={styles.filterInput}
+                    />
+                  </div>
+                </th>
+              )
+            )}
             <th></th>
           </tr>
           <tbody>
@@ -319,6 +347,7 @@ export default function DataTable() {
                 </td>
                 <td>{row.name}</td>
                 <td>{row.status}</td>
+                <td>{row.created_by}</td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 

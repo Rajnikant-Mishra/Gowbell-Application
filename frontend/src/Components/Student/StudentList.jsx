@@ -378,6 +378,7 @@ const uploadStudentsData = async (students) => {
       "mobile_number",
       "whatsapp_number",
       "student_subject",
+      
     ];
     const rows = [
       [
@@ -583,6 +584,7 @@ const uploadStudentsData = async (students) => {
                 "student_section",
                 "mobile number",
                 "student_subject",
+                "created_by",
               ].map((col) => (
                 <th
                   key={col}
@@ -612,6 +614,7 @@ const uploadStudentsData = async (students) => {
               "student_section",
               "mobile number",
               "student_subject",
+              "created_by",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -649,6 +652,7 @@ const uploadStudentsData = async (students) => {
                 <td>{row.student_section}</td>
                 <td>{row.mobile_number}</td>
                 <td>{row.student_subject}</td>
+                <td>{row.created_by}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

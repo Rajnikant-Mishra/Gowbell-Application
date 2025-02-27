@@ -40,30 +40,16 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  // useEffect(() => {
-  //   // Fetch data from the new API when the component mounts
-  //   axios
-  //     .get(`${API_BASE_URL}/api/e1/exams`) // Updated API URL
-  //     .then((response) => {
-  //       setRecords(response.data);
-  //       setFilteredRecords(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("There was an error fetching the records!", error);
-  //     });
-  // }, []);
-
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/api/e1/exams`) // Updated API URL
+      .get(`${API_BASE_URL}/api/e1/get-exams`) // Updated API URL
       .then((response) => {
         // Format the date_from and date_to fields before setting the records
         const formattedData = response.data.map((record) => ({
           ...record,
-          date_from: record.date_from ? record.date_from.split("T")[0] : "",
-          date_to: record.date_to ? record.date_to.split("T")[0] : "",
+          exam_date: record.exam_date ? record.exam_date.split("T")[0] : "",
         }));
-  
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
       })
@@ -71,8 +57,7 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
-  
-  
+
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
     Swal.fire({
@@ -90,7 +75,7 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${API_BASE_URL}/api/e1/exams/${id}`)
+          .delete(`${API_BASE_URL}/api/e1/delete-exam/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -264,7 +249,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["id", "school", "class", "level", "date_from", "date_to"].map(
+              {["id", "school name", "class", "level", "date form"].map(
                 (col) => (
                   <th
                     key={col}
@@ -287,21 +272,19 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["id", "school", "class", "level", "date_from", "date_to"].map(
-              (col) => (
-                <th key={col}>
-                  <div className={styles.inputContainer}>
-                    <FaSearch className={styles.searchIcon} />
-                    <input
-                      type="text"
-                      placeholder={`Search ${col}`}
-                      onChange={(e) => handleFilter(e, col)}
-                      className={styles.filterInput}
-                    />
-                  </div>
-                </th>
-              )
-            )}
+            {["id", "school name", "class", "level", "date form"].map((col) => (
+              <th key={col}>
+                <div className={styles.inputContainer}>
+                  <FaSearch className={styles.searchIcon} />
+                  <input
+                    type="text"
+                    placeholder={`Search ${col}`}
+                    onChange={(e) => handleFilter(e, col)}
+                    className={styles.filterInput}
+                  />
+                </div>
+              </th>
+            ))}
             <th></th>
           </tr>
           <tbody>
@@ -319,11 +302,9 @@ export default function DataTable() {
                 </td>
                 <td>{row.id}</td>
                 <td>{row.school}</td>
-                <td>{row.class_name}</td>
+                <td>{row.class}</td>
                 <td>{row.level}</td>
-                <td>{row.date_from}</td>
-
-                <td>{row.date_to}</td>
+                <td>{row.exam_date}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

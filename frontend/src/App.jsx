@@ -310,7 +310,7 @@ function App() {
             element={<ProtectedRoute element={<Create />} />}
           />
           <Route
-            path="/update/:id"
+            path="/consignment/update/:id"
             element={<ProtectedRoute element={<Update />} />}
           />
           {/* report*/}

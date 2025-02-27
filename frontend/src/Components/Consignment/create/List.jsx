@@ -40,37 +40,34 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  // useEffect(() => {
-  //   // Fetch data from the API when the component mounts
-  //   axios
-  //     .get(`${API_BASE_URL}/api/c1/consignments`) // Your API URL here
-  //     .then((response) => {
-  //       setRecords(response.data);
-  //       setFilteredRecords(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("There was an error fetching the records!", error);
-  //     });
-  // }, []);
   useEffect(() => {
-    // Fetch data from the API when the component mounts
-    axios
-      .get(`${API_BASE_URL}/api/c1/consignments`) // Your API URL here
-      .then((response) => {
-        // Format the date field before setting the records
-        const formattedData = response.data.map((record) => ({
-          ...record,
-          date: record.date ? record.date.split("T")[0] : "", // Extract YYYY-MM-DD
-        }));
-  
+    const fetchData = async () => {
+      try {
+        // Fetch consignments data
+        const consignmentsResponse = await axios.get(`${API_BASE_URL}/api/c1/consignments`);
+        const formattedData = await Promise.all(
+          consignmentsResponse.data.map(async (record) => {
+            // Fetch user data for the created_by field
+            const userResponse = await axios.get(`${API_BASE_URL}/api/u1/users/${record.created_by}`);
+            const userName = userResponse.data.username;
+
+            return {
+              ...record,
+              date: record.date ? record.date.split("T")[0] : "", // Extract YYYY-MM-DD
+              created_by: userName, // Replace created_by with the username
+            };
+          })
+        );
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("There was an error fetching the records!", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
-  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -331,9 +328,9 @@ export default function DataTable() {
                     {/* <Link to={`/omrco/update/${row.id}`}>
                       <FaEdit className={styles.FaEdit} />
                     </Link> */}
-                    {/* <Link to="#">
-                      <FaEdit className={styles.FaEdit} />
-                    </Link> */}
+                    <Link to={`/consignment/update/${row.id}`}>
+                      <UilEditAlt className={styles.FaEdit} />
+                    </Link>
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}

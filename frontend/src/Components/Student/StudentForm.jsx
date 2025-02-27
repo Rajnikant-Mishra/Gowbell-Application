@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, TextField } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  Autocomplete,
+  Checkbox,
+} from "@mui/material";
 import styles from "./Student.module.css";
 import ButtonComp from "../School/CommonComp/ButtonComp";
-import TextInput from "../School/CommonComp/TextInput";
-// import SelectDrop from "../School/CommonComp/SelectDrop";
 import Mainlayout from "../Layouts/Mainlayout";
 import Swal from "sweetalert2";
 import "animate.css";
@@ -110,10 +115,9 @@ export default function StudentForm() {
 
   const validationSchema = Yup.object({
     school_name: Yup.string().required("School Name is required"),
-    // student_name: Yup.string().required("Student Name is required"),
     student_name: Yup.string()
-      .required("student name is required")
-      .test("unique-name", "student name  already exists.", async (value) => {
+      .required("Student Name is required")
+      .test("unique-name", "Student name already exists.", async (value) => {
         if (!value) return true; // Skip validation if field is empty
         try {
           const { data: existingUser } = await axios.get(
@@ -135,8 +139,9 @@ export default function StudentForm() {
     whatsapp_number: Yup.string()
       .required("WhatsApp Number is required")
       .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
-    student_subject: Yup.string().required("Subject is required"),
-    // roll_no: Yup.string().required("Roll Number is required"),
+    student_subject: Yup.array()
+      .min(1, "Select at least one subject")
+      .required("Subject is required"),
   });
 
   const formik = useFormik({
@@ -147,16 +152,18 @@ export default function StudentForm() {
       student_section: "",
       mobile_number: "",
       whatsapp_number: "",
-      student_subject: "",
-      // roll_no: "",
+      student_subject: [],
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
+        const token = localStorage.getItem("token");
+
         const response = await fetch(`${API_BASE_URL}/api/get/student`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(values),
         });
@@ -184,20 +191,19 @@ export default function StudentForm() {
           throw new Error("Failed to submit form");
         }
       } catch (error) {
-        console.error("Error details:", error.response?.data || error.message);
         Swal.fire({
           position: "top-end",
           icon: "error",
           title: "Error!",
-          text: error.response?.data?.error || "An unexpected error occurred.",
+          text: error.message || "An unexpected error occurred.",
           showConfirmButton: false,
-          timer: 4000,
+          timer: 1000,
           timerProgressBar: true,
           toast: true,
+          background: "#fff",
           customClass: {
             popup: "small-swal",
           },
-          background: "#fff",
         });
       }
     },
@@ -381,70 +387,73 @@ export default function StudentForm() {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6} md={3}>
-                <SelectDrop
-                  label="Subject"
-                  name="student_subject"
+              <Grid item xs={12} sm={6} md={6}>
+                <Autocomplete
+                  multiple
+                  id="student_subject"
                   options={subjectOptions}
-                  value={formik.values.student_subject}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  value={formik.values.student_subject.map((item) => ({
+                    value: item,
+                    label: item,
+                  }))}
                   size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
+                  onChange={(e, newValue) => {
+                    formik.setFieldValue(
+                      "student_subject",
+                      newValue.map((item) => item.value)
+                    );
                   }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.student_subject &&
-                    Boolean(formik.errors.student_subject)
+                  onBlur={formik.handleBlur}
+                  disableCloseOnSelect
+                  getOptionLabel={(option) => option.label}
+                  isOptionEqualToValue={(option, value) =>
+                    option.value === value.value
                   }
-                  helperText={
-                    formik.touched.student_subject &&
-                    formik.errors.student_subject
-                  }
-                  fullWidth
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox
+                        checked={formik.values.student_subject.includes(
+                          option.value
+                        )}
+                        color="primary"
+                      />
+                      {option.label}
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Subjects"
+                      placeholder="Subjects"
+                      variant="outlined"
+                      error={
+                        formik.touched.student_subject &&
+                        Boolean(formik.errors.student_subject)
+                      }
+                      helperText={
+                        formik.touched.student_subject &&
+                        formik.errors.student_subject
+                      }
+                      InputProps={{
+                        ...params.InputProps,
+                        style: {
+                          fontSize: "0.8rem",
+                          padding: "6px 12px",
+                          fontFamily: "Poppins",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "0.85rem",
+                          lineHeight: "1.5",
+                          fontFamily: "Poppins",
+                          fontWeight: "bolder",
+                        },
+                      }}
+                    />
+                  )}
                 />
               </Grid>
-              {/* <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  label="Roll Number"
-                  name="roll_no"
-                  value={formik.values.roll_no}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.roll_no && Boolean(formik.errors.roll_no)
-                  }
-                  helperText={formik.touched.roll_no && formik.errors.roll_no}
-                  type="tel"
-                  fullWidth
-                />
-              </Grid> */}
             </Grid>
 
             <Box
