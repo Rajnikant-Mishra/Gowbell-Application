@@ -1,18 +1,33 @@
 import { Class } from '../../models/Master/classModel.js';
 
 // CREATE - Add a new record
+// export const createClass = (req, res) => {
+//     const { name, status } = req.body;
+//     Class.create(name, status, (err, result) => {
+//         if (err) {
+//             if (err.code === 'ER_DUP_ENTRY') {
+//                 return res.status(400).json({ error: 'Class name must be unique' });
+//             }
+//             return res.status(500).json({ error: err });
+//         }
+//         res.status(201).json({ id: result.insertId, name, status });
+//     });
+// };
 export const createClass = (req, res) => {
     const { name, status } = req.body;
-    Class.create(name, status, (err, result) => {
+    const created_by = req.user.id; // Auto-generated from the logged-in user
+
+    Class.create(name, status, created_by, (err, result) => {
         if (err) {
             if (err.code === 'ER_DUP_ENTRY') {
                 return res.status(400).json({ error: 'Class name must be unique' });
             }
             return res.status(500).json({ error: err });
         }
-        res.status(201).json({ id: result.insertId, name, status });
+        res.status(201).json({ id: result.insertId, name, status, created_by });
     });
 };
+
 
 // READ - Get all records
 export const getAllClasses = (req, res) => {

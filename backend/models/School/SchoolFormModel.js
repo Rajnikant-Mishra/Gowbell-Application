@@ -24,82 +24,164 @@ const School = {
     db.query(sql, [id], callback);
   },
 
+  // create: (data) => {
+  //   return new Promise((resolve, reject) => {
+  //     const { state, city } = data; // Get state and city codes from input
+
+  //     if (!state || !city) {
+  //       return reject(new Error("State code and city code are required"));
+  //     }
+
+  //     // Query to get the latest school code for the given state and city
+  //     const sqlGetLatestCode = `
+  //       SELECT school_code FROM school 
+  //       WHERE school_code LIKE '${state}${city}%' 
+  //       ORDER BY school_code DESC LIMIT 1
+  //     `;
+
+  //     db.query(sqlGetLatestCode, (err, results) => {
+  //       if (err) {
+  //         reject(err);
+  //       } else {
+  //         let schoolCode;
+  //         if (results.length > 0) {
+  //           // Extract the numeric part of the latest school code
+  //           const latestCode = results[0].school_code;
+  //           const numericPart = parseInt(latestCode.substring(4), 10); // Get the incremental number
+  //           const newNumericPart = numericPart + 1;
+  //           schoolCode = `${state}${city}${String(newNumericPart).padStart(
+  //             2,
+  //             "0"
+  //           )}`;
+  //         } else {
+  //           // If no school exists for the state & city, start from '001'
+  //           schoolCode = `${state}${city}01`;
+  //         }
+
+  //         // SQL for inserting the new school data
+  //         const sql = `
+  //           INSERT INTO school (
+  //             board, school_name, school_email, school_contact_number, school_landline_number,
+  //             state, district, city, pincode, principal_name, 
+  //             principal_contact_number, principal_whatsapp, vice_principal_name, 
+  //             vice_principal_contact_number, vice_principal_whatsapp, student_strength, 
+  //             classes, status, school_code
+  //           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  //         `;
+
+  //         const values = [
+  //           data.board,
+  //           data.school_name,
+  //           data.school_email,
+  //           data.school_contact_number,
+  //           data.school_landline_number || null,
+  //           data.state,
+  //           data.district,
+  //           data.city,
+  //           data.pincode,
+  //           data.principal_name,
+  //           data.principal_contact_number,
+  //           data.principal_whatsapp,
+  //           data.vice_principal_name,
+  //           data.vice_principal_contact_number,
+  //           data.vice_principal_whatsapp,
+  //           data.student_strength,
+  //           JSON.stringify(data.classes || []) || null,
+  //           data.status || null,
+  //           schoolCode, // Newly generated school_code
+  //         ];
+
+  //         // Insert the new school data
+  //         db.query(sql, values, (err, results) => {
+  //           if (err) {
+  //             reject(err);
+  //           } else {
+  //             resolve({ ...results, school_code: schoolCode });
+  //           }
+  //         });
+  //       }
+  //     });
+  //   });
+  // },
+
+
   create: (data) => {
     return new Promise((resolve, reject) => {
       const { state, city } = data; // Get state and city codes from input
-
+  
       if (!state || !city) {
         return reject(new Error("State code and city code are required"));
       }
-
+  
       // Query to get the latest school code for the given state and city
       const sqlGetLatestCode = `
         SELECT school_code FROM school 
-        WHERE school_code LIKE '${state}${city}%' 
+        WHERE school_code LIKE ? 
         ORDER BY school_code DESC LIMIT 1
       `;
-
-      db.query(sqlGetLatestCode, (err, results) => {
+  
+      const stateCityPrefix = `${state}${city}`;
+  
+      db.query(sqlGetLatestCode, [`${stateCityPrefix}%`], (err, results) => {
         if (err) {
-          reject(err);
-        } else {
-          let schoolCode;
-          if (results.length > 0) {
-            // Extract the numeric part of the latest school code
-            const latestCode = results[0].school_code;
-            const numericPart = parseInt(latestCode.substring(4), 10); // Get the incremental number
-            const newNumericPart = numericPart + 1;
-            schoolCode = `${state}${city}${String(newNumericPart).padStart(
-              2,
-              "0"
-            )}`;
-          } else {
-            // If no school exists for the state & city, start from '001'
-            schoolCode = `${state}${city}01`;
-          }
-
-          // SQL for inserting the new school data
-          const sql = `
-            INSERT INTO school (
-              board, school_name, school_email, school_contact_number, school_landline_number,
-              state, district, city, pincode, principal_name, 
-              principal_contact_number, principal_whatsapp, vice_principal_name, 
-              vice_principal_contact_number, vice_principal_whatsapp, student_strength, 
-              classes, status, school_code
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `;
-
-          const values = [
-            data.board,
-            data.school_name,
-            data.school_email,
-            data.school_contact_number,
-            data.school_landline_number || null,
-            data.state,
-            data.district,
-            data.city,
-            data.pincode,
-            data.principal_name,
-            data.principal_contact_number,
-            data.principal_whatsapp,
-            data.vice_principal_name,
-            data.vice_principal_contact_number,
-            data.vice_principal_whatsapp,
-            data.student_strength,
-            JSON.stringify(data.classes || []) || null,
-            data.status || null,
-            schoolCode, // Newly generated school_code
-          ];
-
-          // Insert the new school data
-          db.query(sql, values, (err, results) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve({ ...results, school_code: schoolCode });
-            }
-          });
+          return reject(err);
         }
+  
+        let schoolCode;
+        if (results.length > 0) {
+          // Extract the numeric part of the latest school code
+          const latestCode = results[0].school_code;
+          const numericPart = parseInt(latestCode.substring(4), 10); // Get the incremental number
+          const newNumericPart = numericPart + 1;
+          schoolCode = `${stateCityPrefix}${String(newNumericPart).padStart(2, "0")}`;
+        } else {
+          // If no school exists for the state & city, start from '01'
+          schoolCode = `${stateCityPrefix}01`;
+        }
+  
+        // SQL for inserting the new school data
+        const sql = `
+          INSERT INTO school (
+            board, school_name, school_email, school_contact_number, school_landline_number,
+            state, district, city, pincode, principal_name, 
+            principal_contact_number, principal_whatsapp, vice_principal_name, 
+            vice_principal_contact_number, vice_principal_whatsapp, student_strength, 
+            classes, status, school_code, created_by, updated_by
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+  
+        const values = [
+          data.board,
+          data.school_name,
+          data.school_email,
+          data.school_contact_number,
+          data.school_landline_number || null,
+          data.state,
+          data.district,
+          data.city,
+          data.pincode,
+          data.principal_name,
+          data.principal_contact_number,
+          data.principal_whatsapp,
+          data.vice_principal_name,
+          data.vice_principal_contact_number,
+          data.vice_principal_whatsapp,
+          data.student_strength,
+          JSON.stringify(data.classes || []),
+          data.status || null,
+          schoolCode, // Newly generated school_code
+          data.created_by, // Added created_by
+          data.updated_by, // Added updated_by
+        ];
+  
+        // Insert the new school data
+        db.query(sql, values, (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ ...results, school_code: schoolCode });
+          }
+        });
       });
     });
   },

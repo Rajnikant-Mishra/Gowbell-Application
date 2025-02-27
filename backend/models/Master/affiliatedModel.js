@@ -1,54 +1,73 @@
-import { db } from '../../config/db.js';
+import { db } from "../../config/db.js";
 
 export const Affiliated = {
-    create: (name, status, callback) => {
-        // Check if the name already exists
-        const checkSql = 'SELECT * FROM affiliated WHERE name = ?';
-        db.query(checkSql, [name], (err, result) => {
-            if (err) return callback(err, null);
+  // create: (name, status, callback) => {
+  //     // Check if the name already exists
+  //     const checkSql = 'SELECT * FROM affiliated WHERE name = ?';
+  //     db.query(checkSql, [name], (err, result) => {
+  //         if (err) return callback(err, null);
 
-            if (result.length > 0) {
-                // Name already exists, prevent creation
-                return callback(new Error('Affiliated entry with this name already exists'), null);
-            }
+  //         if (result.length > 0) {
+  //             // Name already exists, prevent creation
+  //             return callback(new Error('this Affiliated already exists'), null);
+  //         }
 
-            // Proceed to insert if no duplicate found
-            const sql = 'INSERT INTO affiliated (name, status, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
-            db.query(sql, [name, status], callback);
-        });
-    },
+  //         // Proceed to insert if no duplicate found
+  //         const sql = 'INSERT INTO affiliated (name, status, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+  //         db.query(sql, [name, status], callback);
+  //     });
+  // },
+  create: (name, status, userId, callback) => {
+    // Check if the name already exists
+    const checkSql = "SELECT * FROM affiliated WHERE name = ?";
+    db.query(checkSql, [name], (err, result) => {
+      if (err) return callback(err, null);
 
-    findAll: (callback) => {
-        const sql = 'SELECT * FROM affiliated';
-        db.query(sql, callback);
-    },
+      if (result.length > 0) {
+        return callback(new Error("This Affiliated already exists"), null);
+      }
+      // Insert the new affiliated record with created_by and updated_by
+      const sql =
+        "INSERT INTO affiliated (name, status, created_by, updated_by, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+      db.query(sql, [name, status, userId, userId], callback);
+    });
+  },
 
-    findById: (id, callback) => {
-        const sql = 'SELECT * FROM affiliated WHERE id = ?';
-        db.query(sql, [id], callback);
-    },
+  findAll: (callback) => {
+    const sql = "SELECT * FROM affiliated";
+    db.query(sql, callback);
+  },
 
-    update: (id, name, status, callback) => {
-        // Check if the name already exists for another record (excluding the current ID)
-        const checkSql = 'SELECT * FROM affiliated WHERE name = ? AND id != ?';
-        db.query(checkSql, [name, id], (err, result) => {
-            if (err) return callback(err, null);
+  findById: (id, callback) => {
+    const sql = "SELECT * FROM affiliated WHERE id = ?";
+    db.query(sql, [id], callback);
+  },
 
-            if (result.length > 0) {
-                // Name already exists, prevent update
-                return callback(new Error('Affiliated entry with this name already exists'), null);
-            }
+  update: (id, name, status, callback) => {
+    // Check if the name already exists for another record (excluding the current ID)
+    const checkSql = "SELECT * FROM affiliated WHERE name = ? AND id != ?";
+    db.query(checkSql, [name, id], (err, result) => {
+      if (err) return callback(err, null);
 
-            // Proceed to update if no duplicate found
-            const sql = 'UPDATE affiliated SET name = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-            db.query(sql, [name, status, id], callback);
-        });
-    },
+      if (result.length > 0) {
+        // Name already exists, prevent update
+        return callback(
+          new Error("Affiliated entry with this name already exists"),
+          null
+        );
+      }
 
-    delete: (id, callback) => {
-        const sql = 'DELETE FROM affiliated WHERE id = ?';
-        db.query(sql, [id], callback);
-    }
+      // Proceed to update if no duplicate found
+      const sql =
+        "UPDATE affiliated SET name = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+      db.query(sql, [name, status, id], callback);
+    });
+  },
+
+  delete: (id, callback) => {
+    const sql = "DELETE FROM affiliated WHERE id = ?";
+    db.query(sql, [id], callback);
+  },
 };
 
 export default Affiliated;

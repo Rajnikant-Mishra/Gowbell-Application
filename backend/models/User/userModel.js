@@ -19,10 +19,6 @@ const User = {
     db.query(query, [role], callback);
   },
 
-  // getAllUsers: (callback) => {
-  //   const query = 'SELECT * FROM users';
-  //   db.query(query, callback);
-  // },
   
   getAllUsers: (callback) => {
     const query = `

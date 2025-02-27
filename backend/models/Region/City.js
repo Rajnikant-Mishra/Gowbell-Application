@@ -1,7 +1,33 @@
 import { db } from '../../config/db.js';
 
 export const City = {
-  create: (name, country_id, state_id, district_id, status, callback) => {
+  // create: (name, country_id, state_id, district_id, status, callback) => {
+  //   // First, check if the city already exists in the database
+  //   db.query(
+  //     'SELECT * FROM cities WHERE name = ? AND country_id = ? AND state_id = ? AND district_id = ?',
+  //     [name, country_id, state_id, district_id],
+  //     (err, result) => {
+  //       if (err) {
+  //         console.error('Error checking for duplicate city:', err);
+  //         return callback(err, null);
+  //       }
+
+  //       // If a city already exists with the same name, country_id, state_id, and district_id
+  //       if (result.length > 0) {
+  //         return callback(new Error('City already exists'), null);
+  //       }
+
+  //       // If no duplicate, proceed with the insert
+  //       db.query(
+  //         'INSERT INTO cities (name, country_id, state_id, district_id, status) VALUES (?, ?, ?, ?, ?)',
+  //         [name, country_id, state_id, district_id, status],
+  //         callback
+  //       );
+  //     }
+  //   );
+  // },
+
+  create: (name, country_id, state_id, district_id, status, created_by, callback) => {
     // First, check if the city already exists in the database
     db.query(
       'SELECT * FROM cities WHERE name = ? AND country_id = ? AND state_id = ? AND district_id = ?',
@@ -19,13 +45,14 @@ export const City = {
 
         // If no duplicate, proceed with the insert
         db.query(
-          'INSERT INTO cities (name, country_id, state_id, district_id, status) VALUES (?, ?, ?, ?, ?)',
-          [name, country_id, state_id, district_id, status],
+          'INSERT INTO cities (name, country_id, state_id, district_id, status, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [name, country_id, state_id, district_id, status, created_by, created_by], // updated_by initially same as created_by
           callback
         );
       }
     );
   },
+
 
   getAll: (callback) => {
     db.query('SELECT * FROM cities', callback);

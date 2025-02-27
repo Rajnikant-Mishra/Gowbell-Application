@@ -1,10 +1,30 @@
 import { City } from '../../models/Region/City.js';
 
+// export const createCity = (req, res) => {
+//   const { name, country_id, state_id, district_id, status } = req.body;
+  
+//   // Check for duplicate city before creating
+//   City.create(name, country_id, state_id, district_id, status, (err, result) => {
+//     if (err) {
+//       if (err.message === 'City already exists') {
+//         return res.status(400).json({ error: 'City already exists in this district.' });
+//       }
+//       return res.status(500).json({ error: err.message });
+//     }
+//     res.status(201).json({ message: 'City created', cityId: result.insertId });
+//   });
+// };
+
 export const createCity = (req, res) => {
   const { name, country_id, state_id, district_id, status } = req.body;
-  
+  // const created_by = req.user?.id; // Assuming the user ID is stored in `req.user` after authentication
+  const created_by = req.user.id; 
+  if (!created_by) {
+    return res.status(401).json({ error: "Unauthorized: User ID is required" });
+  }
+
   // Check for duplicate city before creating
-  City.create(name, country_id, state_id, district_id, status, (err, result) => {
+  City.create(name, country_id, state_id, district_id, status, created_by, (err, result) => {
     if (err) {
       if (err.message === 'City already exists') {
         return res.status(400).json({ error: 'City already exists in this district.' });
@@ -14,6 +34,7 @@ export const createCity = (req, res) => {
     res.status(201).json({ message: 'City created', cityId: result.insertId });
   });
 };
+
 
 export const getAllCities = (req, res) => {
   City.getAll((err, results) => {

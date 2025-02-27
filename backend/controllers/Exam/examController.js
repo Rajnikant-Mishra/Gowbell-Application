@@ -1,69 +1,81 @@
-import  examModel from '../../models/Exam/ExamModel.js';
+import ExamParent from "../../models/Exam/Exam_parentModel.js";
+import ExamChild from "../../models/Exam/Exam_childModel.js";
 
-// Create an exam
+/** ✅ Create Exam (Parent + Child) */
 export const createExam = (req, res) => {
-  const examData = req.body;
-  examModel.createExam(examData, (error, result) => {
-    if (error) {
-      res.status(500).send({ message: 'Error creating exam', error });
-    } else {
-      res.status(201).send({ message: 'Exam created successfully', result });
+  const { exam_code, school, class_name, subject, level, exam_date, students } = req.body;
+
+  // Step 1: Insert into exam_parent and get `exam_id`
+  ExamParent.create({ exam_code, school, class_name, subject, level, exam_date }, (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to create exam", err });
     }
+
+    const exam_id = result.insertId; // ✅ Get the generated exam_id
+
+    // Step 2: Prepare student data with the correct `exam_id`
+    const studentData = students.map((student) => ({
+      exam_id, // ✅ Ensure exam_id is set
+      student_name: student.student_name,
+      roll_number: student.roll_number,
+      class: student.class,
+      full_mark: student.full_mark,
+      subject: student.subject,
+    }));
+
+    // Step 3: Insert students into exam_child
+    ExamChild.createMany(studentData, (err) => {
+      if (err) {
+        return res.status(500).json({ error: "Failed to add students", err });
+      }
+      res.status(201).json({ message: "Exam and students created successfully" });
+    });
   });
 };
 
-// Get all exams
+/** ✅ Get All Exams with Student Data */
+export const getExams = (req, res) => {
+  ExamParent.getAll((err, exams) => {
+    if (err) return res.status(500).json({ error: "Failed to fetch exams", err });
 
-export  const getExams = (req, res) => {
-  examModel.getExams((error, results) => {
-    if (error) {
-      res.status(500).send({ message: 'Error fetching exams', error });
-    } else {
-      res.status(200).send(results);
-    }
+    const examPromises = exams.map((exam) => {
+      return new Promise((resolve) => {
+        ExamChild.getByExamCode(exam.exam_code, (err, students) => {
+          if (err) resolve({ ...exam, students: [] });
+          else resolve({ ...exam, students });
+        });
+      });
+    });
+
+    Promise.all(examPromises).then((examList) => res.status(200).json(examList));
   });
 };
 
-// Get exam by ID
+/** ✅ Update Exam */
+export const updateExam = (req, res) => {
+  const { exam_code } = req.params;
+  const { school, class_name, subject, level, exam_date, students } = req.body;
 
-export  const getExamById = (req, res) => {
-  const { id } = req.params;
-  examModel.getExamById(id, (error, result) => {
-    if (error) {
-      res.status(500).send({ message: 'Error fetching exam', error });
-    } else if (result.length === 0) {
-      res.status(404).send({ message: 'Exam not found' });
-    } else {
-      res.status(200).send(result);
-    }
+  ExamParent.update(exam_code, { school, class_name, subject, level, exam_date }, (err) => {
+    if (err) return res.status(500).json({ error: "Failed to update exam", err });
+
+    ExamChild.deleteByExamCode(exam_code, (err) => {
+      if (err) return res.status(500).json({ error: "Failed to remove old students", err });
+
+      ExamChild.createMany(students, (err) => {
+        if (err) return res.status(500).json({ error: "Failed to update students", err });
+        res.status(200).json({ message: "Exam updated successfully" });
+      });
+    });
   });
 };
 
-// Update an exam
-
-export  const updateExam = (req, res) => {
-  const { id } = req.params;
-  const examData = req.body;
-  examModel.updateExam(id, examData, (error, result) => {
-    if (error) {
-      res.status(500).send({ message: 'Error updating exam', error });
-    } else {
-      res.status(200).send({ message: 'Exam updated successfully', result });
-    }
-  });
-};
-
-// Delete an exam
-
+/** ✅ Delete Exam */
 export const deleteExam = (req, res) => {
   const { id } = req.params;
-  examModel.deleteExam(id, (error, result) => {
-    if (error) {
-      res.status(500).send({ message: 'Error deleting exam', error });
-    } else {
-      res.status(200).send({ message: 'Exam deleted successfully', result });
-    }
+
+  ExamParent.delete(id, (err) => {
+    if (err) return res.status(500).json({ error: "Failed to delete exam", err });
+    res.status(200).json({ message: "Exam deleted successfully" });
   });
 };
-
-

@@ -1,10 +1,12 @@
 import express from 'express';
-import { createStudent, bulkUploadStudents, getAllStudents, getStudentById, updateStudent, deleteStudent, getStudentsByClassController } from '../../controllers/Student/studentController.js';
-
+import { createStudent, bulkUploadStudents, getAllStudents, getStudentById,
+     updateStudent, deleteStudent, getStudentsByClassController,
+     getClassesBySchool,getSubjectsByClassAndSchool,getStudentsBySubjectClassAndSchool } from '../../controllers/Student/studentController.js';
+import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
 // Create a new student
-router.post('/student', createStudent);
+router.post('/student',authenticateToken , createStudent);
 
 //BULK ROUTE
 router.post('/student/bulk-upload', bulkUploadStudents); // Bulk student upload
@@ -23,5 +25,18 @@ router.delete('/student/:id', deleteStudent);
 
 // Define route for fetching students by class and school
 router.post('/students-by-class', getStudentsByClassController);
+
+
+
+// Fetch classes by school
+router.get('/students-by-classes', getClassesBySchool);
+
+// Fetch subjects by class and school
+router.get('/students-by-subjects', getSubjectsByClassAndSchool);
+
+// Fetch students by subject, class, and school
+router.get('/students-by-all', getStudentsBySubjectClassAndSchool);
+
+
 
 export default router;

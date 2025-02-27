@@ -1,68 +1,106 @@
-import Consignment from '../../models/Consignment/consignmentModel.js';
+import Consignment from "../../models/Consignment/consignmentModel.js";
+
+// export const createConsignment = (req, res) => {
+//     const data = req.body;
+
+//     // Ensure date is valid or set to NULL
+//     data.date = data.date || null;
+//     data.delivery_date = data.delivery_date || null;
+//     data.postal_delivery_date = data.postal_delivery_date || null;
+
+//     // Validate date formats
+//     const isValidDate = (date) => !date || !isNaN(new Date(date).getTime());
+
+//     if (!isValidDate(data.date) || !isValidDate(data.delivery_date) || !isValidDate(data.postal_delivery_date)) {
+//         return res.status(400).json({ error: 'Invalid date format' });
+//     }
+
+//     Consignment.create(data, (err, results) => {
+//         if (err) return res.status(500).json({ error: err.message });
+//         res.status(201).json({ message: 'Consignment created successfully', results });
+//     });
+// };
 
 export const createConsignment = (req, res) => {
-    const data = req.body;
+  const data = req.body;
 
-    // Ensure date is valid or set to NULL
-    data.date = data.date || null;
-    data.delivery_date = data.delivery_date || null;
-    data.postal_delivery_date = data.postal_delivery_date || null;
+  // Auto-generate created_by from logged-in user
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: "Unauthorized: User ID not found" });
+  }
+  data.created_by = req.user.id; // Set created_by from logged-in user
 
-    // Validate date formats
-    const isValidDate = (date) => !date || !isNaN(new Date(date).getTime());
+  // Ensure date is valid or set to NULL
+  data.date = data.date || null;
+  data.delivery_date = data.delivery_date || null;
+  data.postal_delivery_date = data.postal_delivery_date || null;
 
-    if (!isValidDate(data.date) || !isValidDate(data.delivery_date) || !isValidDate(data.postal_delivery_date)) {
-        return res.status(400).json({ error: 'Invalid date format' });
-    }
+  // Validate date formats
+  const isValidDate = (date) => !date || !isNaN(new Date(date).getTime());
+  if (
+    !isValidDate(data.date) ||
+    !isValidDate(data.delivery_date) ||
+    !isValidDate(data.postal_delivery_date)
+  ) {
+    return res.status(400).json({ error: "Invalid date format" });
+  }
 
-    Consignment.create(data, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ message: 'Consignment created successfully', results });
-    });
+  // Insert into database
+  Consignment.create(data, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res
+      .status(201)
+      .json({ message: "Consignment created successfully", results });
+  });
 };
 
 export const getAllConsignments = (req, res) => {
-    Consignment.findAll((err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(200).json(results);
-    });
+  Consignment.findAll((err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json(results);
+  });
 };
 
 export const getConsignmentById = (req, res) => {
-    const { id } = req.params;
-    Consignment.findById(id, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!results.length) return res.status(404).json({ message: 'Consignment not found' });
-        res.status(200).json(results[0]);
-    });
+  const { id } = req.params;
+  Consignment.findById(id, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!results.length)
+      return res.status(404).json({ message: "Consignment not found" });
+    res.status(200).json(results[0]);
+  });
 };
 
 export const updateConsignment = (req, res) => {
-    const { id } = req.params;
-    const data = req.body;
+  const { id } = req.params;
+  const data = req.body;
 
-    // Ensure date is valid or set to NULL
-    data.date = data.date || null;
-    data.delivery_date = data.delivery_date || null;
-    data.postal_delivery_date = data.postal_delivery_date || null;
+  // Ensure date is valid or set to NULL
+  data.date = data.date || null;
+  data.delivery_date = data.delivery_date || null;
+  data.postal_delivery_date = data.postal_delivery_date || null;
 
-    // Validate date formats
-    const isValidDate = (date) => !date || !isNaN(new Date(date).getTime());
+  // Validate date formats
+  const isValidDate = (date) => !date || !isNaN(new Date(date).getTime());
 
-    if (!isValidDate(data.date) || !isValidDate(data.delivery_date) || !isValidDate(data.postal_delivery_date)) {
-        return res.status(400).json({ error: 'Invalid date format' });
-    }
+  if (
+    !isValidDate(data.date) ||
+    !isValidDate(data.delivery_date) ||
+    !isValidDate(data.postal_delivery_date)
+  ) {
+    return res.status(400).json({ error: "Invalid date format" });
+  }
 
-    Consignment.update(id, data, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(200).json({ message: 'Consignment updated successfully' });
-    });
+  Consignment.update(id, data, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json({ message: "Consignment updated successfully" });
+  });
 };
 
 export const deleteConsignment = (req, res) => {
-    const { id } = req.params;
-    Consignment.delete(id, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(200).json({ message: 'Consignment deleted successfully' });
-    });
+  const { id } = req.params;
+  Consignment.delete(id, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json({ message: "Consignment deleted successfully" });
+  });
 };

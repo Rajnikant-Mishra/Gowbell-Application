@@ -3,27 +3,27 @@ import School from "../../models/School/SchoolFormModel.js";
 import { sendEmail } from "../../controllers/School/mailer.js";
 import { sendSms } from "../../controllers/School/smsService.js";
 
-
 // export const createSchool = async (req, res) => {
-//   const { error } = schoolValidationSchema.validate(req.body);
-//   if (error) {
-//     return res.status(400).json({ error: error.details[0].message });
-//   }
-
+//   const { id } = req.user.id; // Get logged-in user ID
 //   const data = req.body;
 
 //   try {
+//     // Ensure created_by and updated_by are set to the logged-in user's ID
+//     const schoolData = {
+//       ...data,
+//       created_by: id,
+//       updated_by: id,
+//     };
+
 //     // Create school in the database
-//     const results = await School.create(data);
+//     const results = await School.create(schoolData);
 
 //     if (!results || !results.insertId) {
-//       return res
-//         .status(500)
-//         .json({ message: "School creation failed, no ID returned" });
+//       return res.status(500).json({ message: "School creation failed, no ID returned" });
 //     }
 
 //     const schoolId = results.insertId;
-//     const schoolCode = results.school_code; // Get the generated school_code
+//     const schoolCode = results.school_code;
 
 //     // Prepare details for email and SMS
 //     const schoolName = data.school_name;
@@ -41,10 +41,8 @@ import { sendSms } from "../../controllers/School/smsService.js";
 //     await sendEmail(schoolEmail, emailSubject, emailText, emailHtml);
 
 //     // Validate and send SMS
-//     if (!principalPhoneNumber || !/^\+?\d{10,15}$/.test(principalPhoneNumber)) {
-//       return res
-//         .status(400)
-//         .json({ message: "Invalid principal contact number" });
+//     if (!principalPhoneNumber || !/^[+]?\d{10,15}$/.test(principalPhoneNumber)) {
+//       return res.status(400).json({ message: "Invalid principal contact number" });
 //     }
 //     await sendSms(principalPhoneNumber, smsMessage);
 
@@ -52,32 +50,38 @@ import { sendSms } from "../../controllers/School/smsService.js";
 //     res.status(201).json({
 //       message: "School created, email sent successfully, and SMS sent!",
 //       id: schoolId,
-//       school_code: schoolCode, // Return the school_code in the response
+//       school_code: schoolCode,
 //     });
 //   } catch (err) {
 //     console.error("Error during school creation:", err);
 
 //     if (err.response) {
-//       return res
-//         .status(500)
-//         .json({
-//           message: "Error in external service",
-//           error: err.response.data,
-//         });
+//       return res.status(500).json({ message: "Error in external service", error: err.response.data });
 //     }
 
 //     res.status(500).json({ message: "An error occurred", error: err.message });
 //   }
 // };
+
 export const createSchool = async (req, res) => {
+  const { id } = req.user; // Corrected: Removed `.id` since `req.user` should directly contain the ID
   const data = req.body;
 
   try {
+    // Ensure created_by and updated_by are set to the logged-in user's ID
+    const schoolData = {
+      ...data,
+      created_by: id,
+      updated_by: id,
+    };
+
     // Create school in the database
-    const results = await School.create(data);
+    const results = await School.create(schoolData);
 
     if (!results || !results.insertId) {
-      return res.status(500).json({ message: "School creation failed, no ID returned" });
+      return res
+        .status(500)
+        .json({ message: "School creation failed, no ID returned" });
     }
 
     const schoolId = results.insertId;
@@ -99,8 +103,13 @@ export const createSchool = async (req, res) => {
     await sendEmail(schoolEmail, emailSubject, emailText, emailHtml);
 
     // Validate and send SMS
-    if (!principalPhoneNumber || !/^[+]?\d{10,15}$/.test(principalPhoneNumber)) {
-      return res.status(400).json({ message: "Invalid principal contact number" });
+    if (
+      !principalPhoneNumber ||
+      !/^[+]?\d{10,15}$/.test(principalPhoneNumber)
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Invalid principal contact number" });
     }
     await sendSms(principalPhoneNumber, smsMessage);
 
@@ -114,13 +123,17 @@ export const createSchool = async (req, res) => {
     console.error("Error during school creation:", err);
 
     if (err.response) {
-      return res.status(500).json({ message: "Error in external service", error: err.response.data });
+      return res
+        .status(500)
+        .json({
+          message: "Error in external service",
+          error: err.response.data,
+        });
     }
 
     res.status(500).json({ message: "An error occurred", error: err.message });
   }
 };
-
 
 // Bulk Upload Schools
 // export const bulkUploadSchools = async (req, res) => {
@@ -239,10 +252,6 @@ export const bulkUploadSchools = async (req, res) => {
   }
 };
 
-
-
-
-
 // Get all schools
 export const getAllSchools = (req, res) => {
   School.getAll((err, results) => {
@@ -275,7 +284,6 @@ export const updateSchool = (req, res) => {
       .json({ message: "School updated successfully", data: results });
   });
 };
-
 
 // Delete school
 export const deleteSchool = (req, res) => {

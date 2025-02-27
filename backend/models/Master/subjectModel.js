@@ -2,23 +2,41 @@ import { db } from '../../config/db.js';
 
 export const Subject = {
     // CREATE - Add a new subject
-    create: (name, status, callback) => {
-        // Check if the subject already exists
+    // create: (name, status, callback) => {
+    //     // Check if the subject already exists
+    //     const checkDuplicateSql = 'SELECT * FROM subject_master WHERE name = ?';
+    //     db.query(checkDuplicateSql, [name], (err, result) => {
+    //         if (err) {
+    //             return callback(err, null);  // Error checking for duplicates
+    //         }
+
+    //         if (result.length > 0) {
+    //             return callback('Subject already exists', null);  // Subject already exists
+    //         }
+
+    //         // Proceed to insert the new subject
+    //         const sql = 'INSERT INTO subject_master (name, status) VALUES (?, ?)';
+    //         db.query(sql, [name, status], callback);
+    //     });
+    // },
+
+    create: (name, status, createdBy, callback) => {
         const checkDuplicateSql = 'SELECT * FROM subject_master WHERE name = ?';
         db.query(checkDuplicateSql, [name], (err, result) => {
             if (err) {
-                return callback(err, null);  // Error checking for duplicates
+                return callback(err, null);
             }
-
+    
             if (result.length > 0) {
-                return callback('Subject already exists', null);  // Subject already exists
+                return callback('Subject already exists', null);
             }
-
-            // Proceed to insert the new subject
-            const sql = 'INSERT INTO subject_master (name, status) VALUES (?, ?)';
-            db.query(sql, [name, status], callback);
+    
+            // Insert new subject with created_by
+            const sql = 'INSERT INTO subject_master (name, status, created_by) VALUES (?, ?, ?)';
+            db.query(sql, [name, status, createdBy], callback);
         });
     },
+    
 
     // UPDATE - Update a subject by ID
     update: (id, name, status, callback) => {

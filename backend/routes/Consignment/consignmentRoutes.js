@@ -6,11 +6,11 @@ import {
     updateConsignment,
     deleteConsignment
 } from '../../controllers/Consignment/consignmentController.js';
-
+import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
 // Create a new consignment
-router.post('/consignments', createConsignment);
+router.post('/consignments',authenticateToken, createConsignment);
 
 // Get all consignments
 router.get('/consignments', getAllConsignments);

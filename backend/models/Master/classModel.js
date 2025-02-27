@@ -1,9 +1,13 @@
 import { db } from '../../config/db.js';
 
 export const Class = {
-    create: (name, status, callback) => {
-        const sql = 'INSERT INTO class (name, status) VALUES (?, ?)';
-        db.query(sql, [name, status], callback);
+    // create: (name, status, callback) => {
+    //     const sql = 'INSERT INTO class (name, status) VALUES (?, ?)';
+    //     db.query(sql, [name, status], callback);
+    // },
+    create: (name, status, created_by, callback) => {
+        const sql = 'INSERT INTO class (name, status, created_by) VALUES (?, ?, ?)';
+        db.query(sql, [name, status, created_by], callback);
     },
 
     findAll: (callback) => {

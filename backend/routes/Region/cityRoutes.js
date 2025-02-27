@@ -2,10 +2,10 @@
 import express from 'express';
 
 import {createCity, getAllCities, getCityById, updateCity, deleteCity} from '../../controllers/Region/cityController.js';
-
+import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
-router.post('/', createCity);      // Create a new city
+router.post('/',authenticateToken , createCity);      // Create a new city
 router.get('/', getAllCities);      // Get all cities
 router.get('/:id', getCityById);   // Get city by ID
 router.put('/:id', updateCity);    // Update city by ID

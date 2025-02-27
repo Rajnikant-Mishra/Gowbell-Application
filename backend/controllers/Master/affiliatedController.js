@@ -2,19 +2,37 @@ import { Affiliated } from '../../models/Master/affiliatedModel.js';
 
 
 // CREATE - Add a new affiliated entry
+// export const createAffiliated = (req, res) => {
+//     const { name, status } = req.body;
+//     Affiliated.create(name, status, (err, result) => {
+//         if (err) {
+//             if (err.message.includes('already exists')) {
+//                 return res.status(400).json({ error: err.message });
+//             }
+//             return res.status(500).json({ error: err });
+//         }
+//         res.status(201).json({ id: result.insertId, name, status });
+//     });
+// };
+
 export const createAffiliated = (req, res) => {
     const { name, status } = req.body;
-    Affiliated.create(name, status, (err, result) => {
+    const userId = req.user.id; // Extracted from JWT authentication middleware
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: User ID is required' });
+    }
+
+    Affiliated.create(name, status, userId, (err, result) => {
         if (err) {
             if (err.message.includes('already exists')) {
                 return res.status(400).json({ error: err.message });
             }
             return res.status(500).json({ error: err });
         }
-        res.status(201).json({ id: result.insertId, name, status });
+        res.status(201).json({ id: result.insertId, name, status, created_by: userId });
     });
 };
-
 
 
 // READ - Get all affiliated entries
