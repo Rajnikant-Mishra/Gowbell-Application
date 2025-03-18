@@ -30,7 +30,7 @@ import studentRoutes from './routes/Student/studentRoutes.js';
 
 
 //exam
-import coomrRoutes from './routes/Exam/co-omrRoutes.js';
+import omrRoutes from './routes/Exam/omrRoutes.js';
 import questionCoRoutes from './routes/Exam/questionCoRoutes.js';
 import examRoutes from './routes/Exam/examRoutes.js';
 
@@ -39,6 +39,7 @@ import userRoutes from "./routes/User/userRoutes.js";
 
 //consignment
 import consignmentRoutes  from './routes/Consignment/consignmentRoutes.js';
+import packingRoutes from './routes/packing/packingRoutes.js';
 
 //role
 import roleRoutes from './routes/Role/roleRoutes.js';
@@ -61,7 +62,7 @@ app.use(bodyParser.json());
 
 
 
-// Use CORS middleware with specific origin
+// Use CORS middleware with specific origin http://localhost:5175/ 
 app.use(cors({
     origin: "http://localhost:5173", // Allow your frontend's origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
@@ -95,6 +96,7 @@ app.use('/api/get', studentRoutes );
 
 //consignment
 app.use('/api/c1',consignmentRoutes);
+app.use('/api',packingRoutes);
 
 
 //role
@@ -104,7 +106,7 @@ app.use('/api/r1',roleRoutes);
 app.use('/api/u1', userRoutes);
 
 //exam
-app.use('/api/co',coomrRoutes);
+app.use('/api/omr',omrRoutes);
 app.use('/api/co',questionCoRoutes);
 app.use('/api/e1',examRoutes)
 

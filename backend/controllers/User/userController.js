@@ -3,13 +3,12 @@ import jwt from "jsonwebtoken";
 import RoleMenu from "../../models/configuration/role_menuModel.js";
 import Role from "../../models/Role/roleModel.js";
 import User from "../../models/User/userModel.js";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config(); // Load environment variables
 
 
-const usersController = {
   // Create a new user
-  createUser: (req, res) => {
+  export const createUser = (req, res) => {
     const { role, username, email, phone, status, password, confirm_password } =
       req.body;
 
@@ -29,7 +28,7 @@ const usersController = {
         phone,
         status,
         password: hashedPassword,
-        confirm_password:hashedPassword,
+        confirm_password: hashedPassword,
       };
 
       User.createUser(newUser, (dbErr, result) => {
@@ -42,50 +41,10 @@ const usersController = {
         });
       });
     });
-  },
+  };
 
   // User login
-  // loginUser: (req, res) => {
-  //   const { email, password } = req.body;
-
-  //   User.getUserByEmail(email, (err, users) => {
-  //     if (err || users.length === 0) {
-  //       return res.status(401).json({ error: 'Invalid credentials' });
-  //     }
-
-  //     const user = users[0];
-  //     bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
-  //       if (bcryptErr || !isMatch) {
-  //         return res.status(401).json({ error: 'Invalid credentials' });
-  //       }
-
-  //       const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-  //       RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {
-  //         if (menuErr) {
-  //           return res.status(500).json({ error: 'Failed to fetch menus' });
-  //         }
-
-  //         res.status(200).json({
-  //           message: 'Login successful',
-  //           token,
-  //           user: {
-  //             id: user.id,
-  //             username: user.username,
-  //             email: user.email,
-  //             password:user.password,
-  //             phone: user.phone,
-  //             status: user.status,
-  //             role: user.role,
-  //           },
-  //           menus,
-  //         });
-  //       });
-  //     });
-  //   });
-  // },
-
-  loginUser: (req, res) => {
+  export const loginUser = (req, res) => {
     const { email, password } = req.body;
 
     User.getUserByEmail(email, (err, users) => {
@@ -136,25 +95,27 @@ const usersController = {
         });
       });
     });
-  },
+  };
 
   // Logout user
-  logoutUser: (req, res) => {
+  export const logoutUser = (req, res) => {
     // Invalidate the JWT token on the client side by removing it
     res.status(200).json({ message: "Logged out successfully" });
-  },
+  };
+
+ 
 
   // Other CRUD operations...
-  getAllUsers: (req, res) => {
+ export const getAllUsers = (req, res) => {
     User.getAllUsers((err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
       res.status(200).json(results);
     });
-  },
+  };
 
-  getUserById: (req, res) => {
+  export const getUserById = (req, res) => {
     const { id } = req.params;
 
     User.getUserById(id, (err, results) => {
@@ -166,9 +127,9 @@ const usersController = {
       }
       res.status(200).json(results[0]);
     });
-  },
+  };
 
-  updateUser: (req, res) => {
+  export const updateUser = (req, res) => {
     const { id } = req.params;
     const { role, username, email, phone, status, password, confirm_password } =
       req.body;
@@ -201,9 +162,9 @@ const usersController = {
         res.status(200).json({ message: "User updated successfully" });
       });
     });
-  },
+  };
 
-  deleteUser: (req, res) => {
+  export const deleteUser = (req, res) => {
     const { id } = req.params;
 
     User.deleteUser(id, (err, result) => {
@@ -215,11 +176,11 @@ const usersController = {
       }
       res.status(200).json({ message: "User deleted successfully" });
     });
-  },
-};
+  };
+
 
 //for user data
-getUserProfile: (req, res) => {
+export const getUserProfile = (req, res) => {
   const userId = req.user.id; // Extracted from the JWT by `verifyToken`
 
   User.getUserById(userId, (err, results) => {
@@ -233,4 +194,4 @@ getUserProfile: (req, res) => {
   });
 };
 
-export default usersController;
+

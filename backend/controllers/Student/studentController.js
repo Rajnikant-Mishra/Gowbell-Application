@@ -49,11 +49,15 @@ export const bulkUploadStudents = (req, res) => {
     return res.status(400).send({ message: "No student data provided" });
   }
 
-  // Prepare data without student_code
-  const studentData = students.map(({ student_code, ...student }) => student);
+  // Extract logged-in user ID from request
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
 
   // Call bulkCreate method from the model
-  Student.bulkCreate(studentData, (err, result) => {
+  Student.bulkCreate(students, userId, (err, result) => {
     if (err) {
       console.error("Error inserting students:", err);
       return res
@@ -68,12 +72,25 @@ export const bulkUploadStudents = (req, res) => {
 };
 
 // Get all students
-export const getAllStudents = (req, res) => {
-  Student.getAll((err, result) => {
+export const getAllstudentserach = (req, res) => {
+  Student.getAllStudent((err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
   });
 };
+export const getAllStudents = (req, res) => {
+  let { page = 1, limit = 10 } = req.query;
+  page = parseInt(page);
+  limit = parseInt(limit);
+
+  Student.getAll(page, limit, (err, data) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(200).json(data);
+  });
+};
+
+
 
 // Get a single student by ID
 export const getStudentById = (req, res) => {
@@ -146,7 +163,6 @@ export const getStudentsByClassController = (req, res) => {
   );
 };
 
-
 // Fetch classes by school
 export const getClassesBySchool = (req, res) => {
   const { school_name } = req.query;
@@ -163,34 +179,25 @@ export const getClassesBySchool = (req, res) => {
   });
 };
 
-// Fetch subjects by class and school
-export const getSubjectsByClassAndSchool = (req, res) => {
-  const { school_name, class_name } = req.query;
-
-  if (!school_name || !class_name) {
-    return res.status(400).json({ error: "School name and class name are required" });
-  }
-
-  Student.getSubjectsByClassAndSchool(school_name, class_name, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(results);
-  });
-};
-
-
+// // Fetch subjects by class and school
 export const getStudentsBySubjectClassAndSchool = (req, res) => {
   const { school_name, class_name, student_subject } = req.query;
 
   if (!school_name || !class_name || !student_subject) {
-    return res.status(400).json({ error: "School name, class name, and subject are required" });
+    return res
+      .status(400)
+      .json({ error: "School name, class name, and subject are required" });
   }
 
-  Student.getStudentsBySubjectClassAndSchool(school_name, class_name, student_subject, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  Student.getStudentsBySubjectClassAndSchool(
+    school_name,
+    class_name,
+    student_subject,
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(200).json(results);
     }
-    res.status(200).json(results);
-  });
+  );
 };

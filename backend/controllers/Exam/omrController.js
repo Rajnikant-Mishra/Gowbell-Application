@@ -1,54 +1,32 @@
-import Omr from '../../models/Exam/omrModel.js';
+import OmrData from '../../models/Exam/omrModel.js';
 
-// Create a new student
-export const createStudent = (req, res) => {
-    const { school_name, class_from, class_to, omr, exam_level, date, student_count } = req.body;
-    const newStudent = { school_name, class_from, class_to, omr, exam_level, date, student_count };
+// Create a new record
 
-    Omr.create(newStudent, (err, result) => {
-        if (err) return res.status(500).send(err);
-        res.status(201).send({ message: 'Student created', studentId: result.insertId });
-    });
-};
-
-// Get all students
-export const getAllStudents = (req, res) => {
-    Omr.getAll((err, result) => {
-        if (err) return res.status(500).send(err);
-        res.status(200).send(result);
-    });
-};
-
-// Get a single student by ID
-export const getStudentById = (req, res) => {
-    const { id } = req.params;
-    Omr.getById(id, (err, result) => {
-        if (err) return res.status(500).send(err);
-        if (result.length === 0) return res.status(404).send('Student not found');
-        res.status(200).send(result[0]);
-    });
-};
-
-// Update a student by ID
-export const updateStudent = (req, res) => {
-    const { id } = req.params;
-    const { school_name, class_from, class_to, omr, exam_level, date, student_count } = req.body;
-    const updatedStudent = { school_name, class_from, class_to, omr, exam_level, date, student_count };
-
-    Omr.update(id, updatedStudent, (err, result) => {
-        if (err) return res.status(500).send(err);
-        if (result.affectedRows === 0) return res.status(404).send('Student not found');
-        res.status(200).send({ message: 'Student updated' });
-    });
-};
-
-// Delete a student by ID
-export const deleteStudent = (req, res) => {
-    const { id } = req.params;
-    Omr.delete(id, (err, result) => {
-        if (err) return res.status(500).send(err);
-        if (result.affectedRows === 0) return res.status(404).send('Student not found');
-        res.status(200).send({ message: 'Student deleted' });
-    });
-};
+export const createOmr = (req, res) => {
+    const omrRecords = req.body; // Expecting an array of OMR records
+  
+    if (!Array.isArray(omrRecords) || omrRecords.length === 0) {
+      return res.status(400).json({ error: "Invalid OMR data" });
+    }
+  
+    // Insert each OMR record into the database
+    const promises = omrRecords.map(
+      (data) =>
+        new Promise((resolve, reject) => {
+          OmrData.create(data, (err, result) => {
+            if (err) reject(err);
+            else resolve(result.insertId);
+          });
+        })
+    );
+  
+    Promise.all(promises)
+      .then((ids) =>
+        res.status(201).json({
+          message: "OMR data created successfully",
+          insertedIds: ids,
+        })
+      )
+      .catch((err) => res.status(500).json({ error: err.message }));
+  };
 
