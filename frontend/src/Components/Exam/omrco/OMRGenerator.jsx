@@ -1,6 +1,6 @@
 import React from "react";
 
-export const OMRGenerator = ({ fill, line }) => {
+const OMRGenerator = ({ fill, line }) => {
   return (
     <div className="d-flex justify-content-center gap-3 mb-1">
       <svg height="18" width="18">
@@ -43,7 +43,6 @@ export const OMRGenerator = ({ fill, line }) => {
           B
         </text>
       </svg>
-
       <svg height="18" width="18">
         <circle
           cx="9"

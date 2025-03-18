@@ -64,7 +64,6 @@ export default function DataTable() {
               `${API_BASE_URL}/api/u1/users/${record.created_by}`
             );
             const userName = userResponse.data.username; 
-
             return {
               ...record,
               date: record.date.split("T")[0], // Format date
@@ -72,14 +71,12 @@ export default function DataTable() {
             };
           })
         );
-
         setRecords(formattedData);
         setFilteredRecords(formattedData);
       } catch (error) {
         console.error("There was an error fetching the records!", error);
       }
     };
-
     fetchData();
   }, []);
 

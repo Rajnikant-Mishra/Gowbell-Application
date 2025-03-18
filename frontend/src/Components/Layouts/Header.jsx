@@ -26,7 +26,7 @@ const Header = ({ toggleSidebar }) => {
         setProfileData(JSON.parse(storedUser));
       } else {
         // Redirect to login if no user data is found
-        navigate("/login");
+        navigate("/");
       }
     }, [navigate]);
   

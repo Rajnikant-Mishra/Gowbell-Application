@@ -45,17 +45,50 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   // Fetch data from the API when the component mounts
+  //   axios
+  //     .get(`${API_BASE_URL}/api/get/schools`) // Your API URL here
+  //     .then((response) => {
+  //       setRecords(response.data);
+  //       setFilteredRecords(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the records!", error);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    // Fetch data from the API when the component mounts
-    axios
-      .get(`${API_BASE_URL}/api/get/schools`) // Your API URL here
-      .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
-      })
-      .catch((error) => {
+    const fetchData = async () => {
+      try {
+        // Fetch school records
+        const schoolResponse = await axios.get(
+          `${API_BASE_URL}/api/get/schools`
+        );
+        const schoolData = schoolResponse.data;
+
+        // Fetch user details for each school based on created_by
+        const formattedData = await Promise.all(
+          schoolData.map(async (record) => {
+            const userResponse = await axios.get(
+              `${API_BASE_URL}/api/u1/users/${record.created_by}`
+            );
+            const userName = userResponse.data.username;
+            return {
+              ...record,
+              created_by: userName, // Replace created_by ID with username
+            };
+          })
+        );
+
+        setRecords(formattedData);
+        setFilteredRecords(formattedData);
+      } catch (error) {
         console.error("There was an error fetching the records!", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleDelete = (id) => {
@@ -304,7 +337,7 @@ export default function DataTable() {
   };
 
   // Upload the schools data to backend
-const uploadSchoolsData = async (schools) => {
+  const uploadSchoolsData = async (schools) => {
     if (!Array.isArray(schools) || schools.length === 0) {
       Swal.fire({
         position: "top-end",
@@ -583,7 +616,6 @@ const uploadSchoolsData = async (schools) => {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                
                 "board",
                 "school ",
                 "school code",
@@ -617,7 +649,6 @@ const uploadSchoolsData = async (schools) => {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
-             
               "board",
               "school name",
               "school code",
@@ -657,7 +688,7 @@ const uploadSchoolsData = async (schools) => {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                
+
                 <td>{row.board}</td>
                 <td>{row.school_name}</td>
                 <td>{row.school_code}</td>

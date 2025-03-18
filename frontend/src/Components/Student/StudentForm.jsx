@@ -121,7 +121,7 @@ export default function StudentForm() {
         if (!value) return true; // Skip validation if field is empty
         try {
           const { data: existingUser } = await axios.get(
-            `${API_BASE_URL}/api/get/student`
+            `${API_BASE_URL}/api/get/allstudents`
           );
           return !existingUser.some(
             (user) => user.student_name.toLowerCase() === value.toLowerCase()

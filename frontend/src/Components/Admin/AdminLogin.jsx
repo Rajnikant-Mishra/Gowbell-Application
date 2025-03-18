@@ -7,34 +7,44 @@
 // import styles from "./AdminLogin.module.css";
 // import image from "../../../public/Group 3196.svg";
 // import logo from "../../../public/logo GOWBELL.png";
+// import { API_BASE_URL } from "../ApiConfig/APIConfig";
+// import "../Common-Css/Swallfire.css";
+
 // const AdminLogin = () => {
 //   const [email, setEmail] = useState("");
 //   const [password, setPassword] = useState("");
 //   const { login } = useAuth();
 //   const navigate = useNavigate();
+
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     try {
-//       const response = await axios.post(
-//         "http://localhost:5000/api/auth/login",
-//         { email, password }
-//       );
+//       const response = await axios.post(`${API_BASE_URL}/api/u1/users/login`, {
+//         email,
+//         password,
+//       });
 //       login(response.data.token);
+
+//       // Storing user details and menus
+//       const { token, user, menus, roleDetails } = response.data;
+//       localStorage.setItem("token", token);
+//       localStorage.setItem("user", JSON.stringify(user));
+//       localStorage.setItem("menus", JSON.stringify(menus));
+//       localStorage.setItem("roleDetails", JSON.stringify(roleDetails));
+
 //       Swal.fire({
 //         position: "top-end",
 //         icon: "success",
 //         title: "Success!",
 //         text: "You have logged in successfully!",
 //         showConfirmButton: false,
-//         timer: 2000,
+//         timer: 1000,
 //         timerProgressBar: true,
 //         toast: true,
-//         customClass: {
-//           popup: "animate__animated animate__fadeInDown",
-//           title: "text-success fw-bold",
-//           text: "text-dark",
-//         },
 //         background: "#fff",
+//         customClass: {
+//           popup: "small-swal",
+//         },
 //       }).then(() => {
 //         navigate("/dashboard");
 //       });
@@ -57,6 +67,7 @@
 //       });
 //     }
 //   };
+
 //   return (
 //     <div>
 //       <nav class={`${styles.navbardiv}navbar  ps-4 py-4`}>
@@ -75,8 +86,10 @@
 //         <div className={`${styles.formContainer}`}>
 //           <div className={`${styles.formWrapper} pb-4`}>
 //             <form onSubmit={handleSubmit}>
-//               <div className={`${styles.formGroup} ${styles.first} my-2 `}>
-//                 <label htmlFor="email" className="my-3">
+//               <div
+//                 className={`${styles.formGroup} ${styles.first} ${styles.mb3} mb-3 `}
+//               >
+//                 <label htmlFor="email" className="my-4">
 //                   Email
 //                 </label>
 //                 <input
@@ -94,7 +107,7 @@
 //               <div
 //                 className={`${styles.formGroup} ${styles.last} ${styles.mb3} mb-3`}
 //               >
-//                 <label htmlFor="password" className="my-3">
+//                 <label htmlFor="password" className="my-4">
 //                   Password
 //                 </label>
 //                 <input
@@ -109,26 +122,28 @@
 //                   autoComplete="off"
 //                 />
 //               </div>
-//               <div className="d-flex mb-4 justify-content-between">
+//               <div className="d-flex  mt-4 justify-content-between">
 //                 <label
 //                   className={`${styles.control} ${styles.controlCheckbox} mb-0`}
 //                 >
-//                   <span className={styles.caption}>Remember me</span>
+//                   <span className={styles.caption}>Remember Me</span>
 //                   <input type="checkbox" />
 //                   <div className={styles.control__indicator}></div>
 //                 </label>
-//                 <span className="ml-auto">
-//                   <a href="#" className={styles.forgotPass}>
+//               </div>
+//               <div className="d-flex mb-4 justify-content-between mt-5">
+//                 <button
+//                   type="submit"
+//                   className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
+//                 >
+//                   Login
+//                 </button>
+//                 <span className="ml-auto my-auto">
+//                   {/* <a href="#" className={styles.forgotPass}>
 //                     Forgot Password
-//                   </a>
+//                   </a> */}
 //                 </span>
 //               </div>
-//               <button
-//                 type="submit"
-//                 className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
-//               >
-//                 Log In
-//               </button>
 //             </form>
 //           </div>
 //         </div>
@@ -164,7 +179,7 @@
 // };
 // export default AdminLogin;
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contextsAuthsecurity/AuthContext";
 import axios from "axios";
@@ -175,6 +190,7 @@ import image from "../../../public/Group 3196.svg";
 import logo from "../../../public/logo GOWBELL.png";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
+import {jwtDecode} from "jwt-decode";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -182,28 +198,33 @@ const AdminLogin = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken.exp * 1000 < Date.now()) {
+        localStorage.clear();
+        navigate("/");
+      }
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/u1/users/login`,
-        { email, password }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/u1/users/login`, {
+        email,
+        password,
+      });
       login(response.data.token);
-      
+
       // Storing user details and menus
-      // const { user, menus } = response.data;
-   // Extract user and token data
-   const { token, user, menus, roleDetails } = response.data;
-      // Save to context or local storage (depending on your app structure)
-      // You can store menus in your context or in a state management solution
+      const { token, user, menus, roleDetails } = response.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("menus", JSON.stringify(menus));
-      localStorage.setItem("roleDetails", JSON.stringify(roleDetails ));
-  
+      localStorage.setItem("roleDetails", JSON.stringify(roleDetails));
+
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -217,7 +238,6 @@ const AdminLogin = () => {
         customClass: {
           popup: "small-swal",
         },
-        
       }).then(() => {
         navigate("/dashboard");
       });
@@ -240,14 +260,12 @@ const AdminLogin = () => {
       });
     }
   };
-  
-
 
   return (
     <div>
-      <nav class={`${styles.navbardiv}navbar  ps-4 py-4`}>
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#">
+      <nav className={`${styles.navbardiv}navbar  ps-4 py-4`}>
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">
             <img
               src={logo}
               alt="Gowbell"
@@ -335,8 +353,8 @@ const AdminLogin = () => {
           </div>
         </div>
       </div>
-      <footer class={`${styles.footer}navbar  ps-4`}>
-        <div class="container-fluid">
+      <footer className={`${styles.footer}navbar  ps-4`}>
+        <div className="container-fluid">
           <p className={styles.footerp}>
             Copyright © 2024 Gowbell Foundation | Powered by{" "}
             <a
@@ -353,10 +371,3 @@ const AdminLogin = () => {
   );
 };
 export default AdminLogin;
-
-
-
-
-
-
-

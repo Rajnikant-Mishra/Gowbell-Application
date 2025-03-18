@@ -141,19 +141,27 @@ export default function UpdateConsignmentForm() {
             },
           }
         );
-
+  
         const consignmentData = response.data;
+  
+        // Format the date field
+        const formattedDate = consignmentData.date
+          ? new Date(consignmentData.date).toISOString().split("T")[0]
+          : "";
+  
         formik.setValues({
           ...consignmentData,
+          date: formattedDate, // Ensure date is formatted
           goodies: consignmentData.goodies || [], // Ensure goodies is an array
         });
       } catch (error) {
         console.error("Error fetching consignment data:", error);
       }
     };
-
+  
     fetchConsignmentData();
   }, [id]);
+  
 
   // Fetch schools for the dropdown
   const [schools, setSchools] = useState([]);

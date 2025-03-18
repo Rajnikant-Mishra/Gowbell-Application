@@ -44,11 +44,15 @@ export default function DataTable() {
     const fetchData = async () => {
       try {
         // Fetch consignments data
-        const consignmentsResponse = await axios.get(`${API_BASE_URL}/api/c1/consignments`);
+        const consignmentsResponse = await axios.get(
+          `${API_BASE_URL}/api/c1/consignments`
+        );
         const formattedData = await Promise.all(
           consignmentsResponse.data.map(async (record) => {
             // Fetch user data for the created_by field
-            const userResponse = await axios.get(`${API_BASE_URL}/api/u1/users/${record.created_by}`);
+            const userResponse = await axios.get(
+              `${API_BASE_URL}/api/u1/users/${record.created_by}`
+            );
             const userName = userResponse.data.username;
 
             return {
@@ -57,7 +61,7 @@ export default function DataTable() {
               created_by: userName, // Replace created_by with the username
             };
           })
-        );
+        );0
 
         setRecords(formattedData);
         setFilteredRecords(formattedData);

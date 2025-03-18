@@ -16,8 +16,8 @@ import {
 } from "@iconscout/react-unicons";
 
 import Mainlayout from "../../Layouts/Mainlayout";
-import styles from "../../CommonTable/DataTable.module.css";
-// import "../../Common-Css/DeleteSwal.css";
+import styles from "./../../CommonTable/DataTable.module.css";
+import "../../Common-Css/DeleteSwal.css";
 import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
 import ButtonComp from "../../CommonButton/ButtonComp";
@@ -41,38 +41,22 @@ export default function DataTable() {
   const pageSizes = [10, 20, 50, 100];
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch exam records
-        const examResponse = await axios.get(
-          `${API_BASE_URL}/api/e1/get-exams`
-        );
-        const examData = examResponse.data;
-
-        // Fetch user details for each exam based on created_by
-        const formattedData = await Promise.all(
-          examData.map(async (record) => {
-            const userResponse = await axios.get(
-              `${API_BASE_URL}/api/u1/users/${record.created_by}`
-            );
-            const userName = userResponse.data.username;
-            return {
-              ...record,
-              exam_date: record.exam_date ? record.exam_date.split("T")[0] : "", // Format exam_date
-              created_by: userName, // Replace created_by ID with username
-            };
-          })
-        );
-
-        setRecords(formattedData);
-        setFilteredRecords(formattedData);
-      } catch (error) {
-        console.error("There was an error fetching the records!", error);
-      }
-    };
-
-    fetchData();
+    axios
+      .get(`${API_BASE_URL}/api/all-packings`)
+      .then((response) => {
+        console.log("API Response:", response.data); // Debugging
+        if (response.data && Array.isArray(response.data.data)) {
+          setRecords(response.data.data);
+          setFilteredRecords(response.data.data);
+        } else {
+          console.error("Unexpected API response structure:", response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching records:", error);
+      });
   }, []);
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -91,7 +75,7 @@ export default function DataTable() {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${API_BASE_URL}/api/e1/delete-exam/${id}`)
+          .delete(`${API_BASE_URL}/api/packing/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -106,7 +90,7 @@ export default function DataTable() {
               position: "top-end",
               icon: "success",
               title: "Success!",
-              text: `The exam has been deleted.`,
+              text: `The country has been deleted.`,
               showConfirmButton: false,
               timer: 1000,
               timerProgressBar: true,
@@ -198,10 +182,6 @@ export default function DataTable() {
     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
   };
 
-  // const currentRecords = filteredRecords.slice(
-  //   (page - 1) * pageSize,
-  //   page * pageSize
-  // );
   const currentRecords = Array.isArray(filteredRecords)
     ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
     : [];
@@ -222,36 +202,40 @@ export default function DataTable() {
     });
   };
 
-  //breadcrumb codes
-
+    //  breadcrumb codes
   const handleSelectAll = () => {
-    if (isAllChecked) {
-      setCheckedRows({}); // Uncheck all rows
-    } else {
-      const allChecked = filteredRecords.reduce((acc, row) => {
-        acc[row.id] = true; // Check all rows
-        return acc;
-      }, {});
-      setCheckedRows(allChecked);
-    }
-    setIsAllChecked(!isAllChecked);
-  };
-  useEffect(() => {
-    if (filteredRecords.every((row) => checkedRows[row.id])) {
-      setIsAllChecked(true);
+     if (isAllChecked) {
+       setCheckedRows({}); // Uncheck all rows
+     } else {
+       const allChecked = filteredRecords.reduce((acc, row) => {
+         acc[row.id] = true; // Check all rows
+         return acc;
+       }, {});
+       setCheckedRows(allChecked);
+     }
+     setIsAllChecked(!isAllChecked);
+   };
+   useEffect(() => {
+    if (Array.isArray(filteredRecords) && filteredRecords.length > 0) {
+      if (filteredRecords.every((row) => checkedRows[row.id])) {
+        setIsAllChecked(true);
+      } else {
+        setIsAllChecked(false);
+      }
     } else {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+  
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "Exam" }]} />
+          <Breadcrumb data={[{ name: "Packing list" }]} />
         </div>
         <div>
-          <CreateButton link={"/exam"} />
+          <CreateButton link={"/packing-create"} />
         </div>
       </div>
 
@@ -265,14 +249,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {[
-                "id",
-                "school name",
-                "class",
-                "level",
-                "date form",
-                "created_by",
-              ].map((col) => (
+              {["school", "subject", "exam set", "exam name"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -293,14 +270,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {[
-              "id",
-              "school name",
-              "class",
-              "level",
-              "date form",
-              "created_by",
-            ].map((col) => (
+            {["school", "subject", "exam set", "exam name"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -328,18 +298,16 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.id}</td>
                 <td>{row.school}</td>
-                <td>{row.class}</td>
-                <td>{row.level}</td>
-                <td>{row.exam_date}</td>
-                <td>{row.created_by}</td>
+                <td>{row.subject}</td>
+                <td>{row.exam_set}</td>
+                <td>{row.exam_name}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <Link to={`/update/${row.id}`}>
+                    <Link to={`/packing/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
-                    </Link> */}
+                    </Link>
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}

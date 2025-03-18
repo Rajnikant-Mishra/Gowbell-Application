@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaCaretDown,
-  FaCaretUp,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaHome,
-  FaPlus,
-} from "react-icons/fa";
+import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
 import {
   UilTrashAlt,
   UilEditAlt,
@@ -17,23 +9,19 @@ import {
   UilInfoCircle,
 } from "@iconscout/react-unicons";
 import Button from "@mui/material/Button";
-
 import Mainlayout from "../Layouts/Mainlayout";
 import styles from "../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../CommonButton/ButtonComp";
-
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
-import "../Common-Css/DeleteSwal.css";
-import "../Common-Css/Swallfire.css";
 import CreateButton from "../../Components/CommonButton/CreateButton";
-import { Menu, MenuItem } from "@mui/material";
+import { Menu } from "@mui/material";
 import excelImg from "../../../public/excell-img.png";
-import Papa from "papaparse"; // Import Papaparse for CSV parsing
+import Papa from "papaparse";
+import { useNavigate } from "react-router-dom";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -44,78 +32,130 @@ export default function DataTable() {
   });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [isAllChecked, setIsAllChecked] = useState(false);
+  const [checkedRows, setCheckedRows] = useState({});
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [students, setStudents] = useState([]);
 
-  const pageSizes = [10, 20, 50, 100];
+  // Fetch paginated data from the backend
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         `${API_BASE_URL}/api/get/student`,
+  //         {
+  //           params: { page: currentPage, limit: pageSize },
+  //         }
+  //       );
 
+  //       const { students, totalRecords, totalPages, nextPage, prevPage } =
+  //         response.data;
+
+  //       setStudents(students);
+  //       setTotalRecords(totalRecords);
+  //       setTotalPages(totalPages);
+  //       setCurrentPage(currentPage);
+  //     } catch (error) {
+  //       console.error("Error fetching student data:", error);
+  //       Swal.fire("Error", "Failed to fetch student data.", "error");
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [currentPage, pageSize]); //
+  
   useEffect(() => {
-    // Fetch data from the API when the component mounts
-    axios
-      .get(`${API_BASE_URL}/api/get/student`) // Your API URL here
-      .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the records!", error);
-      });
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/api/get/student`, // ✅ Added backticks for template literals
+          {
+            params: { page: currentPage, limit: pageSize },
+          }
+        );
 
+        const { students, totalRecords, totalPages } = response.data;
+
+        // ✅ Fetch user details for each student based on created_by
+        const formattedData = await Promise.all(
+          students.map(async (record) => {
+            try {
+              const userResponse = await axios.get(
+                `${API_BASE_URL}/api/u1/users/${record.created_by}`
+              );
+              const userName = userResponse.data.username;
+              return {
+                ...record,
+                created_by: userName, // Replace created_by ID with username
+              };
+            } catch (error) {
+              console.error(
+                `Failed to fetch user details for created_by: ${record.created_by}`,
+                error
+              );
+              return {
+                ...record,
+                created_by: "Unknown User", // Fallback in case of error
+              };
+            }
+          })
+        );
+
+        setStudents(formattedData);
+        setTotalRecords(totalRecords);
+        setTotalPages(totalPages);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+        Swal.fire("Error", "Failed to fetch student data.", "error");
+      }
+    };
+
+    fetchData();
+  }, [currentPage, pageSize]);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  // Handle row deletion
   const handleDelete = (id) => {
-    // Show SweetAlert confirmation dialog
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      customClass: {
-        popup: "custom-swal-popup", // Add custom class to the popup
-      },
     }).then((result) => {
       if (result.isConfirmed) {
-        // Proceed with the delete request
         axios
           .delete(`${API_BASE_URL}/api/get/student/${id}`)
-          .then((response) => {
-            // Update the state after successful deletion
-            setRecords((prevCountries) =>
-              prevCountries.filter((country) => country.id !== id)
+          .then(() => {
+            setRecords((prev) => prev.filter((record) => record.id !== id));
+            setFilteredRecords((prev) =>
+              prev.filter((record) => record.id !== id)
             );
-            setFilteredRecords((prevFiltered) =>
-              prevFiltered.filter((country) => country.id !== id)
-            );
-
-            // delete Show a success alert
-            Swal.fire({
-              position: "top-end",
-              icon: "success",
-              title: "Success!",
-              text: `The student has been deleted.`,
-              showConfirmButton: false,
-              timer: 1000,
-              timerProgressBar: true,
-              toast: true,
-              background: "#fff",
-              customClass: {
-                popup: "small-swal",
-              },
-            });
+            Swal.fire("Deleted!", "The student has been deleted.", "success");
           })
           .catch((error) => {
-            console.error("Error deleting country:", error);
-            // Show an error alert if deletion fails
-            Swal.fire(
-              "Error!",
-              "There was an issue deleting the country.",
-              "error"
-            );
+            console.error("Error deleting student:", error);
+            Swal.fire("Error", "Failed to delete student.", "error");
           });
       }
     });
   };
 
+  // Handle filtering
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
     const filtered = records.filter((row) =>
@@ -125,15 +165,14 @@ export default function DataTable() {
     setPage(1);
   };
 
+  // Handle sorting
   const handleSort = (column) => {
     let direction = "asc";
-
     if (sortConfig.column === column) {
       direction = sortConfig.direction === "asc" ? "desc" : "asc";
     }
 
-    let sortedData = [...filteredRecords];
-    sortedData.sort((a, b) => {
+    const sortedData = [...filteredRecords].sort((a, b) => {
       const aValue = a[column];
       const bValue = b[column];
       if (typeof aValue === "string" && typeof bValue === "string") {
@@ -176,23 +215,6 @@ export default function DataTable() {
     );
   };
 
-  const handlePreviousPage = () => {
-    if (page > 1) setPage(page - 1);
-  };
-
-  const handleNextPage = () => {
-    if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
-  };
-
-  const currentRecords = filteredRecords.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
-
-  const [isAllChecked, setIsAllChecked] = useState(false);
-
-  const [checkedRows, setCheckedRows] = useState({});
-
   const handleRowCheck = (id) => {
     setCheckedRows((prevCheckedRows) => {
       const newCheckedRows = { ...prevCheckedRows };
@@ -217,6 +239,7 @@ export default function DataTable() {
     }
     setIsAllChecked(!isAllChecked);
   };
+
   useEffect(() => {
     if (filteredRecords.every((row) => checkedRows[row.id])) {
       setIsAllChecked(true);
@@ -226,10 +249,8 @@ export default function DataTable() {
   }, [checkedRows, filteredRecords]);
 
   //bulk upload for student data---------------------------------//
-  const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -274,97 +295,94 @@ export default function DataTable() {
       reader.readAsText(file);
     }
   };
-  
 
-  
-// Parse CSV and upload data
-const parseCSVData = (csvData) => {
-  Papa.parse(csvData, {
-    complete: (result) => {
-      console.log("Parsed CSV Data:", result.data); // Log parsed data
-      const students = result.data.map((row) => ({
-        school_name: row.school_name,
-        student_name: row.student_name,
-        roll_no: row.roll_no,
-        class_name: row.class_name,
-        student_section: row.student_section,
-        mobile_number: row.mobile_number,
-        whatsapp_number: row.whatsapp_number,
-        student_subject: row.student_subject,
-      }));
-      uploadStudentsData(students);
-    },
-    header: true,
-    skipEmptyLines: true,
-  });
-};
+  // Function to parse CSV and upload data
+  const parseCSVData = (csvFile) => {
+    Papa.parse(csvFile, {
+      complete: (result) => {
+        console.log("Parsed CSV Data:", result.data); // Debugging log
 
-// Function to upload students data to backend
-const uploadStudentsData = async (students) => {
-  if (!Array.isArray(students) || students.length === 0) {
-    Swal.fire({
-      position: "top-end",
-      icon: "warning",
-      title: "No Data",
-      text: "Please upload a valid CSV file with data.",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      toast: true,
-      background: "#fff",
-      customClass: {
-        popup: "small-swal",
+        // Ensure CSV data is valid
+        if (!Array.isArray(result.data) || result.data.length === 0) {
+          Swal.fire("Warning", "CSV file is empty or invalid.", "warning");
+          return;
+        }
+
+        // Map CSV data into the required format
+        const students = result.data.map((row) => ({
+          school_name: row.school_name?.trim() || "",
+          student_name: row.student_name?.trim() || "",
+          class_name: row.class_name?.trim() || "",
+          student_section: row.student_section?.trim() || "",
+          mobile_number: row.mobile_number?.trim() || "",
+          whatsapp_number: row.whatsapp_number?.trim() || "",
+          student_subject: row.student_subject
+            ? row.student_subject.split(",").map((s) => s.trim())
+            : [],
+        }));
+
+        console.log("Formatted Student Data:", students);
+        uploadStudentsData(students);
       },
+      header: true,
+      skipEmptyLines: true,
     });
-    return;
-  }
+  };
 
-  setLoading(true);
+  // Function to upload students data to backend
+  const uploadStudentsData = async (students) => {
+    if (!Array.isArray(students) || students.length === 0) {
+      Swal.fire("Error", "No student data to upload.", "error");
+      return;
+    }
+    setLoading(true);
 
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/get/student/bulk-upload`,
-      students
-    );
-    setLoading(false);
-    Swal.fire({
-      position: "top-end",
-      icon: "success",
-      title: "Success!",
-      text: `Successfully uploaded ${response.data.insertedCount} students.`,
-      showConfirmButton: false,
-      timer: 1000,
-      timerProgressBar: true,
-      toast: true,
-      background: "#fff",
-      customClass: {
-        popup: "small-swal",
-      },
-    }).then(() => {
-      // navigate("/studentList");
-      // window.location.reload();  // Force a page reload
-      navigate(0); 
-    });
+    try {
+      const token = localStorage.getItem("token"); // ✅ Get token from localStorage
 
-  } catch (error) {
-    setLoading(false);
-    Swal.fire({
-      position: "top-end",
-      icon: "error",
-      title: "Error!",
-      text: error.response?.data?.message || "An error occurred during upload.",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      toast: true,
-      background: "#fff",
-      customClass: {
-        popup: "small-swal",
-      },
-    });
-  }
-};
+      if (!token) {
+        setLoading(false);
+        Swal.fire("Error", "Unauthorized. Please log in again.", "error");
+        return;
+      }
 
+      const response = await axios.post(
+        `${API_BASE_URL}/api/get/student/bulk-upload`, // ✅ Fixed API URL
+        students,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ Send token in headers
+          },
+        }
+      );
+
+      setLoading(false);
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Upload Successful",
+        text: `Successfully uploaded ${response.data.insertedCount} students.`,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: {
+          popup: "small-swal",
+        },
+      }).then(() => {
+        window.location.reload(); // ✅ Reload after success
+      });
+    } catch (error) {
+      setLoading(false);
+      console.error("Upload Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: error.response?.data?.message || "An error occurred.",
+      });
+    }
+  };
 
   // Handle download button click (Download CSV file)
   const handleDownloadClick = () => {
@@ -372,24 +390,25 @@ const uploadStudentsData = async (students) => {
     const headers = [
       "school_name",
       "student_name",
-      "roll_no",
       "class_name",
       "student_section",
       "mobile_number",
       "whatsapp_number",
       "student_subject",
-      
+      "approved",
+      "approved_by",
     ];
     const rows = [
       [
         "DM school",
         "Alice Johnson",
-        "7626040103",
         "01",
         "A",
         "1234567890",
         "1234567890",
         "python",
+        "false",
+        "null",
       ],
       // Add more rows as needed
     ];
@@ -406,7 +425,7 @@ const uploadStudentsData = async (students) => {
     // Create a download link and trigger the download
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "data.csv"; // Set the file name
+    link.download = "studentdata.csv"; // Set the file name
     link.click();
 
     handleClose();
@@ -421,13 +440,12 @@ const uploadStudentsData = async (students) => {
 
         {/* //bulk upload */}
 
-       
         <div
           style={{
             display: "flex",
             flexDirection: "row",
             width: "auto",
-            gap:"10px",
+            gap: "10px",
           }}
         >
           {/* //bulk upload */}
@@ -448,12 +466,8 @@ const uploadStudentsData = async (students) => {
                 padding: " 14px 12px",
                 display: "flex",
                 alignItems: "center",
-                // marginLeft: "584px",
                 height: "27px",
                 fontSize: "14px",
-                // border: "0.2px solid white",
-                // backgroundColor: "white",
-                // boxShadow: "rgba(0, 0, 0, 0.05) 1.95px 1.95px 2.6px",
                 borderRadius: "5px",
                 color: "#1230AE",
                 textDecoration: "none",
@@ -477,11 +491,10 @@ const uploadStudentsData = async (students) => {
               onClose={handleClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
-      
-             style={{padding:"0px", margin:"0px"}}
+              style={{ padding: "0px", margin: "0px" }}
             >
               <div
-                style={{    
+                style={{
                   fontFamily: "Poppins, sans-serif",
                   gap: "15px",
                   borderRadius: "10px",
@@ -560,11 +573,6 @@ const uploadStudentsData = async (students) => {
             <CreateButton link="/student-create" className="MY-AUTO" />
           </div>
         </div>
-
-        {/* //create button */}
-        {/* <div>
-          <CreateButton link={"/student-create"} />
-        </div> */}
       </div>
       <div className={`${styles.tablecont} mt-0`}>
         <table
@@ -577,13 +585,13 @@ const uploadStudentsData = async (students) => {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                "school name",
-                "student_name",
+                "school",
+                "student",
                 "roll_number",
-                "class_name",
-                "student_section",
+                "class",
+                "section",
                 "mobile number",
-                "student_subject",
+                "subject",
                 "created_by",
               ].map((col) => (
                 <th
@@ -607,13 +615,13 @@ const uploadStudentsData = async (students) => {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
-              "school name",
-              "student_name",
+              "school",
+              "student",
               "roll_number",
-              "class_name",
-              "student_section",
+              "class",
+              "section",
               "mobile number",
-              "student_subject",
+              "subject",
               "created_by",
             ].map((col) => (
               <th key={col}>
@@ -631,7 +639,7 @@ const uploadStudentsData = async (students) => {
             <th></th>
           </tr>
           <tbody>
-            {currentRecords.map((row) => (
+            {students.map((row) => (
               <tr
                 key={row.id}
                 className={styles.dataRow}
@@ -648,10 +656,9 @@ const uploadStudentsData = async (students) => {
                 <td>{row.student_name}</td>
                 <td>{row.roll_no}</td>
                 <td>{row.class_name}</td>
-
                 <td>{row.student_section}</td>
                 <td>{row.mobile_number}</td>
-                <td>{row.student_subject}</td>
+                <td>{row.student_subject.join(", ")}</td>
                 <td>{row.created_by}</td>
 
                 <td>
@@ -671,57 +678,57 @@ const uploadStudentsData = async (students) => {
           </tbody>
         </table>
         <div className="d-flex justify-content-between flex-wrap mt-2">
+          {/* Page Size Selector */}
           <div
             className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
           >
             <select
               value={pageSize}
               onChange={(e) => {
-                const selectedSize = parseInt(e.target.value, 10);
-                setPageSize(selectedSize);
-                setPage(1);
+                setPageSize(parseInt(e.target.value, 10));
+                setCurrentPage(1); // Reset to first page
               }}
               className={styles.pageSizeSelect}
             >
-              {pageSizes.map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
               ))}
             </select>
-            <p className={`  my-auto text-secondary`}>data per Page</p>
+            <p className="my-auto text-secondary">data per Page</p>
           </div>
 
+          {/* Total Records Display */}
           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
             <label
               htmlFor="pageSize"
               style={{ fontFamily: "Nunito, sans-serif" }}
             >
-              <p className={`  my-auto text-secondary`}>
-                {filteredRecords.length} of {page}-
-                {Math.ceil(filteredRecords.length / pageSize)}
+              <p className="my-auto text-secondary">
+                {totalRecords} records, Page {currentPage} of {totalPages}
               </p>
             </label>
           </div>
 
+          {/* Pagination Navigation */}
           <div className={`${styles.pagination} my-auto`}>
+            {/* Previous Page Button */}
             <button
               onClick={handlePreviousPage}
-              disabled={page === 1}
+              disabled={!prevPage}
               className={styles.paginationButton}
             >
               <UilAngleLeftB />
             </button>
 
-            {Array.from(
-              { length: Math.ceil(filteredRecords.length / pageSize) },
-              (_, i) => i + 1
-            )
+            {/* Page Numbers with Ellipsis */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter(
                 (pg) =>
                   pg === 1 ||
-                  pg === Math.ceil(filteredRecords.length / pageSize) ||
-                  Math.abs(pg - page) <= 2
+                  pg === totalPages ||
+                  Math.abs(pg - currentPage) <= 2
               )
               .map((pg, index, array) => (
                 <React.Fragment key={pg}>
@@ -729,9 +736,9 @@ const uploadStudentsData = async (students) => {
                     <span className={styles.ellipsis}>...</span>
                   )}
                   <button
-                    onClick={() => setPage(pg)}
+                    onClick={() => setCurrentPage(pg)}
                     className={`${styles.paginationButton} ${
-                      page === pg ? styles.activePage : ""
+                      currentPage === pg ? styles.activePage : ""
                     }`}
                   >
                     {pg}
@@ -739,9 +746,10 @@ const uploadStudentsData = async (students) => {
                 </React.Fragment>
               ))}
 
+            {/* Next Page Button */}
             <button
               onClick={handleNextPage}
-              disabled={page === Math.ceil(filteredRecords.length / pageSize)}
+              disabled={!nextPage}
               className={styles.paginationButton}
             >
               <UilAngleRightB />

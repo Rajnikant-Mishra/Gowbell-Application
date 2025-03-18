@@ -72,7 +72,7 @@
   outline: none;
   background: transparent;
 
-padding-bottom: 15px;
+  padding-bottom: 15px;
   margin-left: 0px !important;
   border-radius: 0px !important;
 }
@@ -109,12 +109,12 @@ padding-bottom: 15px;
 .examDetails .textBox label {
   text-align: center;
   margin-bottom: 8px; /* Adjust label spacing */
-  font-size: 12px ;
+  font-size: 12px;
 }
 
 .examDetails .textBox p {
   margin-top: 5px; /* Adjust margin for paragraph */
-  font-size: 12px ;
+  font-size: 12px;
 }
 /* instruction */
 .instructionDetails .row {
@@ -151,7 +151,7 @@ padding-bottom: 15px;
   margin-top: 5px; /* Adjust margin for paragraph */
 }
 .rollno {
-  background-color: #000; 
+  background-color: #000;
   color: #fff;
   font-size: 10px;
 }
@@ -217,7 +217,7 @@ padding-bottom: 15px;
   background-color: #000;
   color: white;
 }
-.questiondiv th{
+.questiondiv th {
   font-size: 10px;
 }
 /* table {
@@ -244,10 +244,10 @@ td {
   margin-left: 0px !important;
   margin-top: 0px !important;
 }
-.footerdiv label{
+.footerdiv label {
   font-size: 10px;
 }
-.footerdiv input{
+.footerdiv input {
   height: 40px !important;
 }
 .bars {
