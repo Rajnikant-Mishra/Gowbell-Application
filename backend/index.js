@@ -33,6 +33,7 @@ import studentRoutes from './routes/Student/studentRoutes.js';
 import omrRoutes from './routes/Exam/omrRoutes.js';
 import questionCoRoutes from './routes/Exam/questionCoRoutes.js';
 import examRoutes from './routes/Exam/examRoutes.js';
+import ResultRoutes from './routes/Exam/ResultRoutes.js';
 
 //users
 import userRoutes from "./routes/User/userRoutes.js";
@@ -108,7 +109,9 @@ app.use('/api/u1', userRoutes);
 //exam
 app.use('/api/omr',omrRoutes);
 app.use('/api/co',questionCoRoutes);
-app.use('/api/e1',examRoutes)
+app.use('/api/e1',examRoutes);
+app.use('/api',ResultRoutes);
+
 
 //menu
 app.use('/api/m1',menuRoutes);

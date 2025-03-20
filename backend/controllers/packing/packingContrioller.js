@@ -14,7 +14,7 @@ export const fetchExamDate = (req, res) => {
           .status(500)
           .json({ error: "Error fetching exam date", details: error });
       }
-      if (results.length === 0) {
+      if (results.length === 1) {
         return res
           .status(404)
           .json({
@@ -80,5 +80,32 @@ export const deletePacking = (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Packing record deleted successfully" });
+  });
+};
+
+// ✅ Get Packing Record by ID
+export const getPackingById = (req, res) => {
+  const { id } = req.params;
+
+  packingModel .getPackingById(id, (err, result) => {
+    if (err) {
+      console.error("Error fetching packing by ID:", err);
+      return res.status(500).json({ success: false, message: "Server error", error: err });
+    }
+    res.status(200).json({ success: true, data: result });
+  });
+};
+
+
+// ✅ Update Packing Record
+export const updatePacking = (req, res) => {
+  const { id } = req.params;
+
+  packingModel.updatePacking(id, req.body, (err, result) => {
+    if (err) {
+      console.error("Error updating packing:", err);
+      return res.status(500).json({ success: false, message: "Server error", error: err });
+    }
+    res.status(200).json({ success: true, message: "Packing updated successfully", data: result });
   });
 };
