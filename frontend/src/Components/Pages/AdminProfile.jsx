@@ -165,6 +165,7 @@ const User = () => {
                   value={profileData.phone}
                   onChange={handleInputChange}
                   placeholder="phone"
+                  readOnly
                 />
               </div>
 

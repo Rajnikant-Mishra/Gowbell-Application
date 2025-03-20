@@ -13,24 +13,17 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import JsBarcode from "jsbarcode";
 
-const Extra = () => {
-  const { id } = useParams(); // Get the ID from the URL
+const PackingUpdateForm = () => {
+  const { id } = useParams(); // Get the packingId from the URL
   const [formData, setFormData] = useState({
     school: "",
+    school_code: "",
     subject: "",
     exam_date: "",
     exam_set: "",
-    print_date: new Date().toISOString().split("T")[0], // Default to today's date
+    print_date: new Date().toISOString().split("T")[0],
     packing_no: "",
-    rows: [
-      {
-        product_code: "",
-        product_name: "",
-        registered_quantity: "",
-        extra_quantity: "",
-        total_quantity: "",
-      },
-    ],
+    rows: [], // Initialize as an empty array
   });
 
   const [schools, setSchools] = useState([]);
@@ -40,6 +33,48 @@ const Extra = () => {
   const [submittedData, setSubmittedData] = useState(null);
 
   const navigate = useNavigate();
+
+  // Fetch existing packing list data
+  useEffect(() => {
+    const fetchPackingData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/packing/${id}`);
+        console.log("API Response:", response.data); // Debugging
+
+        // Ensure data exists and rows is an array
+        if (response.data.success && response.data.data) {
+          const packingData = response.data.data;
+          //console.log('packing list ',packingData.products_json);
+          setFormData({
+            school: packingData.school || "",
+            school_code: packingData.school_code || "",
+            subject: packingData.subject || "",
+            exam_date: packingData.exam_date
+              ? packingData.exam_date.split("T")[0]
+              : "",
+            exam_set: packingData.exam_set || "",
+            print_date:
+              packingData.print_date || new Date().toISOString().split("T")[0],
+            packing_no: packingData.packing_no || "",
+            rows: Array.isArray(packingData.products_json)
+              ? packingData.products_json
+              : [],
+          });
+
+          console.log("Updated FormData:", packingData); // Debugging
+        } else {
+          setError("No data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching packing data:", error);
+        setError("Failed to fetch packing data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPackingData();
+  }, [id]);
 
   // Fetch schools on component mount
   useEffect(() => {
@@ -85,6 +120,7 @@ const Extra = () => {
             params: {
               school: formData.school,
               subject: formData.subject,
+              exam_date: formData.exam_date,
             },
           });
           if (response.data.data.length > 0) {
@@ -92,7 +128,7 @@ const Extra = () => {
             const formattedDate = isoDate.split("T")[0]; // Extract "yyyy-MM-dd"
             setFormData((prevData) => ({
               ...prevData,
-              examDate: formattedDate,
+              exam_date: formattedDate, // Use `exam_date` consistently
             }));
           }
         } catch (error) {
@@ -105,34 +141,6 @@ const Extra = () => {
     };
     fetchExamDate();
   }, [formData.school, formData.subject]);
-
-  // Fetch packing list data if ID is present
-  useEffect(() => {
-    if (id) {
-      const fetchPackingData = async () => {
-        setIsLoading(true);
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/packing/${id}`);
-          const data = response.data;
-          setFormData({
-            school: data.school,
-            subject: data.subject,
-            exam_date: data.exam_date,
-            exam_set: data.exam_set,
-            print_date: data.print_date,
-            packing_no: data.packing_no,
-            rows: data.rows,
-          });
-        } catch (error) {
-          console.error("Error fetching packing data:", error);
-          setError("Failed to fetch packing data. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchPackingData();
-    }
-  }, [id]);
 
   // Function to add a new row to `rows`
   const addRow = () => {
@@ -172,8 +180,12 @@ const Extra = () => {
     setFormData({ ...formData, [field]: value });
   };
 
+    // Function to generate PDF
   const generatePDF = (data) => {
-    const doc = new jsPDF(); // Create new PDF document
+    const doc = new jsPDF();
+
+    // Ensure rows is an array
+    const rows = Array.isArray(data.rows) ? data.rows : [];
 
     // Add Header
     doc.setFontSize(14);
@@ -192,9 +204,9 @@ const Extra = () => {
     doc.setFontSize(14);
     doc.text(`SOF2425063980`, 105, 42, { align: "center" });
 
-    // Generate Barcode
+    // Generate Barcode using school_code
     const barcodeCanvas = document.createElement("canvas");
-    JsBarcode(barcodeCanvas, data.school, {
+    JsBarcode(barcodeCanvas, data.school_code, {
       format: "CODE128",
       displayValue: true,
     });
@@ -206,7 +218,7 @@ const Extra = () => {
     // School Details on the Right Side
     doc.setFontSize(10);
     const xRight = 140;
-    doc.text(`School Code: ${data.school}`, xRight, 50);
+    doc.text(`School Code: ${data.school_code}`, xRight, 50);
     doc.text(`Exam Set: ${data.exam_set}`, xRight, 55);
     doc.text(`Exam Name: ${data.exam_name}`, xRight, 60);
     doc.text(`Exam Date: ${data.exam_date}`, xRight, 65);
@@ -250,7 +262,7 @@ const Extra = () => {
 
     // Draw Table Rows
     startY += rowHeight;
-    data.rows.forEach((row, rowIndex) => {
+    rows.forEach((row, rowIndex) => {
       let xPos = startX;
       doc.rect(
         startX,
@@ -283,41 +295,48 @@ const Extra = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Auto-generate exam_name
-    const exam_name = `GW${formData.subject}`;
-
-    // Prepare payload
-    const payload = {
-      ...formData,
-      exam_name,
-      rows: formData.rows.map((row) => ({
-        ...row,
-        total_quantity:
-          parseFloat(row.registered_quantity || 0) +
-          parseFloat(row.extra_quantity || 0),
-      })),
-    };
+    if (formData.rows.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Please add at least one row to the packing list.",
+      });
+      return;
+    }
 
     try {
-      let response;
-      if (id) {
-        // Update existing packing list
-        response = await axios.put(
-          `${API_BASE_URL}/api/packing/${id}`,
-          payload
-        );
-      } else {
-        // Create new packing list
-        response = await axios.post(`${API_BASE_URL}/api/packing`, payload);
-      }
+      // Fetch school_code based on school_name
+      const schoolCodeResponse = await axios.get(
+        `${API_BASE_URL}/api/school-code/${formData.school}`
+      );
+      const school_code = schoolCodeResponse.data.school_code;
 
+      // Auto-generate exam_name
+      const exam_name = `GW${formData.subject}`;
+
+      // Prepare payload
+      const payload = {
+        ...formData,
+        school_code,
+        exam_name,
+        rows: formData.rows.map((row) => ({
+          ...row,
+          total_quantity: row.total_quantity,
+        })),
+      };
+
+      // Update the packing list
+      const response = await axios.put(
+        `${API_BASE_URL}/api/update/${id}`,
+        payload
+      );
       if (response.status === 200) {
         setSubmittedData(payload); // Store submitted data
         generatePDF(payload); // Generate PDF
         Swal.fire({
           position: "top-end",
           icon: "success",
-          text: id ? "Packing updated successfully!" : "Packing added successfully!",
+          text: "Packing updated successfully!",
           showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
@@ -327,15 +346,17 @@ const Extra = () => {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate("/packing-list"); // Redirect to packing list page
+          navigate("/packing-list"); // Redirect to packing list
         });
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error updating form:", error);
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "An error occurred while submitting the form.",
+        text:
+          error.response?.data?.message ||
+          "An error occurred while updating the form.",
       });
     }
   };
@@ -346,13 +367,13 @@ const Extra = () => {
         <Breadcrumb
           data={[
             { name: "Packing list", link: "/packing-list" },
-            { name: id ? "Edit" : "Create", link: id ? `/packing-edit/${id}` : "/packing-create" },
+            { name: "Update", link: `/packing-update/${id}` },
           ]}
         />
       </div>
       <Paper elevation={3} className="w-100 bg-white p-4 mx-auto rounded">
         <Typography variant="h6" gutterBottom>
-          {id ? "Edit Packing List" : "Create Packing List"}
+          Update Packing List
         </Typography>
         <form onSubmit={handleSubmit} style={{ fontFamily: "Poppins" }}>
           <Grid container spacing={3}>
@@ -362,7 +383,7 @@ const Extra = () => {
                 fullWidth
                 select
                 label="School"
-                value={formData.school}
+                value={formData.school || ""} // Ensure a fallback value
                 onChange={(e) => handleChange("school", e.target.value)}
                 size="small"
                 variant="outlined"
@@ -381,7 +402,7 @@ const Extra = () => {
                 fullWidth
                 select
                 label="Subject"
-                value={formData.subject}
+                value={formData.subject || ""} // Ensure a fallback value
                 onChange={(e) => handleChange("subject", e.target.value)}
                 size="small"
                 variant="outlined"
@@ -400,7 +421,7 @@ const Extra = () => {
                 fullWidth
                 select
                 label="Exam Set"
-                value={formData.exam_set}
+                value={formData.exam_set || ""} // Ensure a fallback value
                 onChange={(e) => handleChange("exam_set", e.target.value)}
                 size="small"
                 variant="outlined"
@@ -419,7 +440,7 @@ const Extra = () => {
               <TextField
                 fullWidth
                 label="Packet No"
-                value={formData.packing_no}
+                value={formData.packing_no || ""} // Ensure a fallback value
                 onChange={(e) => handleChange("packing_no", e.target.value)}
                 size="small"
                 variant="outlined"
@@ -452,109 +473,96 @@ const Extra = () => {
               </tr>
             </thead>
             <tbody>
-              {formData.rows.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="text"
-                      className="rounded m-0 my-1 w-100"
-                      value={row.product_code}
-                      onChange={(e) =>
-                        handleRowChange(index, "product_code", e.target.value)
-                      }
-                      required
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="rounded m-0 my-1 w-100"
-                      value={row.product_name}
-                      onChange={(e) =>
-                        handleRowChange(index, "product_name", e.target.value)
-                      }
-                      required
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="rounded m-0 my-1 w-100"
-                      value={row.registered_quantity}
-                      onChange={(e) =>
-                        handleRowChange(
-                          index,
-                          "registered_quantity",
-                          e.target.value
-                        )
-                      }
-                      required
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="rounded m-0 my-1 w-100"
-                      value={row.extra_quantity}
-                      onChange={(e) =>
-                        handleRowChange(index, "extra_quantity", e.target.value)
-                      }
-                      required
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="rounded m-0 my-1 w-100"
-                      value={row.total_quantity}
-                      onChange={(e) =>
-                        handleRowChange(index, "total_quantity", e.target.value)
-                      }
-                      required
-                    />
-                  </td>
-                  <td>
-                    {formData.rows.length > 1 ? (
-                      <UilMinus
-                        className="my-2"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => removeRow(index)}
+              {/* {console.log(formData.rows)} */}
+              {/* {Array.isArray(formData.rows) ? (
+                formData.rows.map((row, index) => ( */}
+              {Array.isArray(formData.rows) && formData.rows.length > 0 ? (
+                formData.rows.map((row, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        className="rounded m-0 my-1 w-100"
+                        value={row.product_code || ""}
+                        onChange={(e) =>
+                          handleRowChange(index, "product_code", e.target.value)
+                        }
+                        required
                       />
-                    ) : (
-                      <UilMinus
-                        className="my-2"
-                        style={{ cursor: "pointer" }}
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="rounded m-0 my-1 w-100"
+                        value={row.product_name || ""}
+                        onChange={(e) =>
+                          handleRowChange(index, "product_name", e.target.value)
+                        }
+                        required
                       />
-                    )}
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="rounded m-0 my-1 w-100"
+                        value={row.registered_quantity || ""}
+                        onChange={(e) =>
+                          handleRowChange(
+                            index,
+                            "registered_quantity",
+                            e.target.value
+                          )
+                        }
+                        required
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="rounded m-0 my-1 w-100"
+                        value={row.extra_quantity || ""}
+                        onChange={(e) =>
+                          handleRowChange(
+                            index,
+                            "extra_quantity",
+                            e.target.value
+                          )
+                        }
+                        required
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="rounded m-0 my-1 w-100"
+                        value={row.total_quantity || ""}
+                        onChange={(e) =>
+                          handleRowChange(
+                            index,
+                            "total_quantity",
+                            e.target.value
+                          )
+                        }
+                        required
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center">
+                    No packing data available
                   </td>
                 </tr>
-              ))}
-              {/* Summary Row */}
-              <tr>
-                <td colSpan="4" className="text-end fw-bold">
-                  Total:
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    className="rounded m-0 my-1 w-100"
-                    value={formData.rows.reduce(
-                      (sum, row) => sum + parseFloat(row.total_quantity || 0),
-                      0
-                    )}
-                    readOnly
-                  />
-                </td>
-                <td></td>
-              </tr>
+              )}
             </tbody>
           </table>
 
           <div className="d-flex gap-2">
             <ButtonComp
-              text={id ? "Update" : "Submit"}
+              text="Update"
               type="submit"
-              disabled={false}
+              disabled={isLoading}
               sx={{ flexGrow: 1 }}
             />
             <ButtonComp
@@ -570,4 +578,4 @@ const Extra = () => {
   );
 };
 
-export default Extra;
+export default PackingUpdateForm;

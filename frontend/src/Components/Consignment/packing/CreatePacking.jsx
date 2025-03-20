@@ -18,7 +18,7 @@ const Extra = () => {
     school: "",
     school_code: "",
     subject: "",
-    exam_date: "",
+    exam_date:"",
     exam_set: "",
     print_date: new Date().toISOString().split("T")[0], // Default to today's date
     packing_no: "",
@@ -85,6 +85,7 @@ const Extra = () => {
             params: {
               school: formData.school,
               subject: formData.subject,
+              exam_date:formData.exam_date,
               
             },
           });
@@ -144,113 +145,6 @@ const Extra = () => {
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
-
-  // const generatePDF = (data) => {
-  //   const doc = new jsPDF(); // Create new PDF document
-
-  //   // Add Header
-  //   doc.setFontSize(14);
-  //   doc.text("Gowbell", 105, 15, { align: "center" });
-  //   doc.setFontSize(10);
-  //   doc.text("8/4, BMC Panchdeep Complex, Unit 4,", 105, 20, {
-  //     align: "center",
-  //   });
-  //   doc.text("Bhouma Nagar, Bhubaneswar, Odisha 751001", 105, 25, {
-  //     align: "center",
-  //   });
-
-  //   // Packing List Title
-  //   doc.setFontSize(16);
-  //   doc.text("PACKING LIST", 105, 35, { align: "center" });
-  //   doc.setFontSize(14);
-  //   doc.text(`SOF2425063980`, 105, 42, { align: "center" });
-
-  //   // Generate Barcode
-  //   const barcodeCanvas = document.createElement("canvas");
-  //   JsBarcode(barcodeCanvas, data.school, {
-  //     format: "CODE128",
-  //     displayValue: true,
-  //   });
-
-  //   // Convert barcode to image and add it to PDF
-  //   const barcodeImage = barcodeCanvas.toDataURL("image/png");
-  //   doc.addImage(barcodeImage, "PNG", 10, 50, 40, 20);
-
-  //   // School Details on the Right Side
-  //   doc.setFontSize(10);
-  //   const xRight = 140;
-  //   doc.text(`School Code: ${data.school_code}`, xRight, 50);
-  //   doc.text(`Exam Set: ${data.exam_set}`, xRight, 55);
-  //   doc.text(`Exam Name: ${data.exam_name}`, xRight, 60);
-  //   doc.text(`Exam Date: ${data.exam_date}`, xRight, 65);
-  //   doc.text(`Print Date: ${data.print_date}`, xRight, 70);
-  //   doc.text(`Packet No: ${data.packing_no}`, xRight, 75);
-
-  //   // Table Positioning
-  //   let startX = 10;
-  //   let startY = 85;
-  //   let rowHeight = 8;
-  //   let colWidths = [10, 30, 50, 40, 30, 30]; // Column widths
-
-  //   // Table Headers
-  //   const headers = [
-  //     "S.No",
-  //     "Product Code",
-  //     "Product Name",
-  //     "Registered Quantity",
-  //     "Extra Quantity",
-  //     "Total Quantity",
-  //   ];
-
-  //   // Draw Header Background
-  //   doc.setFillColor(200, 200, 200); // Light gray background
-  //   doc.rect(
-  //     startX,
-  //     startY,
-  //     colWidths.reduce((a, b) => a + b, 0),
-  //     rowHeight,
-  //     "F"
-  //   );
-
-  //   // Draw Table Headers
-  //   doc.setFontSize(10);
-  //   doc.setTextColor(0, 0, 0);
-  //   let xPos = startX;
-  //   headers.forEach((header, index) => {
-  //     doc.text(header, xPos + 2, startY + 5);
-  //     xPos += colWidths[index];
-  //   });
-
-  //   // Draw Table Rows
-  //   startY += rowHeight;
-  //   data.rows.forEach((row, rowIndex) => {
-  //     let xPos = startX;
-  //     doc.rect(
-  //       startX,
-  //       startY,
-  //       colWidths.reduce((a, b) => a + b, 0),
-  //       rowHeight
-  //     ); // Row boundary
-
-  //     const rowData = [
-  //       rowIndex + 1,
-  //       row.product_code,
-  //       row.product_name,
-  //       row.registered_quantity,
-  //       row.extra_quantity,
-  //       row.total_quantity,
-  //     ];
-
-  //     rowData.forEach((cell, index) => {
-  //       doc.text(String(cell), xPos + 2, startY + 5);
-  //       xPos += colWidths[index];
-  //     });
-
-  //     startY += rowHeight; // Move to next row
-  //   });
-
-  //   doc.save("packing_list.pdf");
-  // };
 
 
   const generatePDF = (data) => {
@@ -360,55 +254,7 @@ const Extra = () => {
     doc.save("packing_list.pdf");
   };
 
-  // Function to handle form submission
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
 
-  //   // Auto-generate exam_name
-  //   const exam_name = `GW${formData.subject}`;
-
-  //   // Prepare payload
-  //   const payload = {
-  //     ...formData,
-  //     exam_name,
-  //     rows: formData.rows.map((row) => ({
-  //       ...row,
-  //       total_quantity:
-  //         parseFloat(row.registered_quantity || 0) +
-  //         parseFloat(row.extra_quantity || 0),
-  //     })),
-  //   };
-
-  //   try {
-  //     const response = await axios.post(`${API_BASE_URL}/api/packing`, payload);
-  //     if (response.status === 200) {
-  //       setSubmittedData(payload); // Store submitted data
-  //       generatePDF(payload); // Generate PDF
-  //       Swal.fire({
-  //         position: "top-end",
-  //         icon: "success",
-  //         text: "Packing added successfully!",
-  //         showConfirmButton: false,
-  //         timer: 1000,
-  //         timerProgressBar: true,
-  //         toast: true,
-  //         background: "#fff",
-  //         customClass: {
-  //           popup: "small-swal",
-  //         },
-  //       }).then(() => {
-  //         navigate(0); // Refresh the current page
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error submitting form:", error);
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Error!",
-  //       text: "An error occurred while submitting the form.",
-  //     });
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -427,9 +273,9 @@ const Extra = () => {
         exam_name,
         rows: formData.rows.map((row) => ({
           ...row,
-          total_quantity:
-            parseFloat(row.registered_quantity || 0) +
-            parseFloat(row.extra_quantity || 0),
+          total_quantity: row.total_quantity,
+            // parseFloat(row.registered_quantity || 0) +
+            // parseFloat(row.extra_quantity || 0),
         })),
       };
   

@@ -90,7 +90,9 @@ import Rolelist from "./Components/Role/RoleList";
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
 
-//configuration
+import Result from "./Components/Exam/Result/Result";
+
+
 
 //menu
 import Menu from "./Components/configuration/Menu/Menu";
@@ -298,6 +300,15 @@ function App() {
             path="/co-question/update/:id"
             element={<ProtectedRoute element={<QuestionCoUpdate />} />}
           />
+
+          {/* //result */}
+         
+          <Route
+            path="/result-list"
+            element={<ProtectedRoute element={<Result/>} />}
+          />
+
+
           {/* //conginments */}
           <Route
             path="/consignment-list"
