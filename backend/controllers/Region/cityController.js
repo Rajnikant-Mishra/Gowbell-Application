@@ -36,12 +36,30 @@ export const createCity = (req, res) => {
 };
 
 
-export const getAllCities = (req, res) => {
-  City.getAll((err, results) => {
+export const getAll = (req, res) => {
+  City.getAllcities((err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(200).json(results);
   });
 };
+
+// Controller function to handle API request
+export const getAllCities = (req, res) => {
+  let { page = 1, limit = 10 } = req.query;
+  page = parseInt(page, 10);
+  limit = parseInt(limit, 10);
+
+  if (isNaN(page) || page < 1) page = 1;
+  if (isNaN(limit) || limit < 1) limit = 10;
+
+  City.getAll(page, limit, (err, data) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(200).json(data);
+  });
+};
+
+
 
 export const getCityById = (req, res) => {
   const { id } = req.params;

@@ -148,8 +148,6 @@ const PackingModel = {
   // },
 
 
-  
-
   // Create packing record
   createPacking: (data, callback) => {
     const { school, subject, exam_set, packing_no, rows } = data;

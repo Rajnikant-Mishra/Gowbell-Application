@@ -24,138 +24,64 @@ const School = {
     db.query(sql, [id], callback);
   },
 
-  // create: (data) => {
-  //   return new Promise((resolve, reject) => {
-  //     const { state, city } = data; // Get state and city codes from input
-
-  //     if (!state || !city) {
-  //       return reject(new Error("State code and city code are required"));
-  //     }
-
-  //     // Query to get the latest school code for the given state and city
-  //     const sqlGetLatestCode = `
-  //       SELECT school_code FROM school 
-  //       WHERE school_code LIKE '${state}${city}%' 
-  //       ORDER BY school_code DESC LIMIT 1
-  //     `;
-
-  //     db.query(sqlGetLatestCode, (err, results) => {
-  //       if (err) {
-  //         reject(err);
-  //       } else {
-  //         let schoolCode;
-  //         if (results.length > 0) {
-  //           // Extract the numeric part of the latest school code
-  //           const latestCode = results[0].school_code;
-  //           const numericPart = parseInt(latestCode.substring(4), 10); // Get the incremental number
-  //           const newNumericPart = numericPart + 1;
-  //           schoolCode = `${state}${city}${String(newNumericPart).padStart(
-  //             2,
-  //             "0"
-  //           )}`;
-  //         } else {
-  //           // If no school exists for the state & city, start from '001'
-  //           schoolCode = `${state}${city}01`;
-  //         }
-
-  //         // SQL for inserting the new school data
-  //         const sql = `
-  //           INSERT INTO school (
-  //             board, school_name, school_email, school_contact_number, school_landline_number,
-  //             state, district, city, pincode, principal_name, 
-  //             principal_contact_number, principal_whatsapp, vice_principal_name, 
-  //             vice_principal_contact_number, vice_principal_whatsapp, student_strength, 
-  //             classes, status, school_code
-  //           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  //         `;
-
-  //         const values = [
-  //           data.board,
-  //           data.school_name,
-  //           data.school_email,
-  //           data.school_contact_number,
-  //           data.school_landline_number || null,
-  //           data.state,
-  //           data.district,
-  //           data.city,
-  //           data.pincode,
-  //           data.principal_name,
-  //           data.principal_contact_number,
-  //           data.principal_whatsapp,
-  //           data.vice_principal_name,
-  //           data.vice_principal_contact_number,
-  //           data.vice_principal_whatsapp,
-  //           data.student_strength,
-  //           JSON.stringify(data.classes || []) || null,
-  //           data.status || null,
-  //           schoolCode, // Newly generated school_code
-  //         ];
-
-  //         // Insert the new school data
-  //         db.query(sql, values, (err, results) => {
-  //           if (err) {
-  //             reject(err);
-  //           } else {
-  //             resolve({ ...results, school_code: schoolCode });
-  //           }
-  //         });
-  //       }
-  //     });
-  //   });
-  // },
-
-
   create: (data) => {
     return new Promise((resolve, reject) => {
       const { state, city } = data; // Get state and city codes from input
-  
+
       if (!state || !city) {
         return reject(new Error("State code and city code are required"));
       }
-  
+
       // Query to get the latest school code for the given state and city
       const sqlGetLatestCode = `
         SELECT school_code FROM school 
         WHERE school_code LIKE ? 
         ORDER BY school_code DESC LIMIT 1
       `;
-  
+
       const stateCityPrefix = `${state}${city}`;
-  
+
       db.query(sqlGetLatestCode, [`${stateCityPrefix}%`], (err, results) => {
         if (err) {
           return reject(err);
         }
-  
+
         let schoolCode;
         if (results.length > 0) {
           // Extract the numeric part of the latest school code
           const latestCode = results[0].school_code;
           const numericPart = parseInt(latestCode.substring(4), 10); // Get the incremental number
           const newNumericPart = numericPart + 1;
-          schoolCode = `${stateCityPrefix}${String(newNumericPart).padStart(2, "0")}`;
+          schoolCode = `${stateCityPrefix}${String(newNumericPart).padStart(
+            2,
+            "0"
+          )}`;
         } else {
           // If no school exists for the state & city, start from '01'
           schoolCode = `${stateCityPrefix}01`;
         }
-  
+
         // SQL for inserting the new school data
         const sql = `
-          INSERT INTO school (
-            board, school_name, school_email, school_contact_number, school_landline_number,
-            state, district, city, pincode, principal_name, 
-            principal_contact_number, principal_whatsapp, vice_principal_name, 
-            vice_principal_contact_number, vice_principal_whatsapp, student_strength, 
-            classes, status, school_code, created_by, updated_by
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-  
+      INSERT INTO school (
+        board, school_name, school_email, school_contact_number, school_landline_number,
+        school_address, state, district, city, pincode, 
+        principal_name, principal_contact_number, principal_whatsapp, 
+        vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp, 
+        manager_name, manager_contact_number, manager_whatsapp_number, 
+        first_incharge_name, first_incharge_number, first_incharge_whatsapp, 
+        second_incharge_name, second_incharge_number, second_incharge_whatsapp, 
+        junior_student_strength, senior_student_strength, classes, 
+        status, school_code, created_by, updated_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
         const values = [
           data.board,
           data.school_name,
           data.school_email,
           data.school_contact_number,
           data.school_landline_number || null,
+          data.school_address,
           data.state,
           data.district,
           data.city,
@@ -166,14 +92,24 @@ const School = {
           data.vice_principal_name,
           data.vice_principal_contact_number,
           data.vice_principal_whatsapp,
-          data.student_strength,
-          JSON.stringify(data.classes || []),
+          data.manager_name,
+          data.manager_contact_number,
+          data.manager_whatsapp_number,
+          data.first_incharge_name,
+          data.first_incharge_number,
+          data.first_incharge_whatsapp,
+          data.second_incharge_name,
+          data.second_incharge_number,
+          data.second_incharge_whatsapp,
+          data.junior_student_strength,
+          data.senior_student_strength,
+          JSON.stringify(data.classes || []), // Ensure JSON string format
           data.status || null,
           schoolCode, // Newly generated school_code
           data.created_by, // Added created_by
-          data.updated_by, // Added updated_by
-        ];
-  
+          data.updated_by , //  Ensure `updated_by` is always present
+        ]; //  NO EXTRA COMMA HERE!
+
         // Insert the new school data
         db.query(sql, values, (err, results) => {
           if (err) {
@@ -194,8 +130,8 @@ const School = {
   //     const generateSchoolCode = (state, city) => {
   //       return new Promise((resolve, reject) => {
   //         const sqlGetLatestCode = `
-  //       SELECT school_code FROM school 
-  //       WHERE school_code LIKE '${state}${city}%' 
+  //       SELECT school_code FROM school
+  //       WHERE school_code LIKE '${state}${city}%'
   //       ORDER BY school_code DESC LIMIT 1
   //     `;
 
@@ -231,13 +167,13 @@ const School = {
   //     const getLocationIds = (state, district, city) => {
   //       return new Promise((resolve, reject) => {
   //         const sqlQuery = `
-  //         SELECT 
-  //           s.id AS state_id, 
-  //           d.id AS district_id, 
+  //         SELECT
+  //           s.id AS state_id,
+  //           d.id AS district_id,
   //           c.id AS city_id
-  //         FROM states s 
-  //         JOIN districts d ON d.state_id = s.id 
-  //         JOIN cities c ON c.district_id = d.id 
+  //         FROM states s
+  //         JOIN districts d ON d.state_id = s.id
+  //         JOIN cities c ON c.district_id = d.id
   //         WHERE s.name = ? AND d.name = ? AND c.name = ?
   //       `;
 
@@ -330,35 +266,34 @@ const School = {
             WHERE school_code LIKE '${stateId}${cityId}%' 
             ORDER BY school_code DESC LIMIT 1
           `;
-  
+
           db.query(sqlGetLatestCode, (err, results) => {
             if (err) {
               return reject(err);
             }
-  
+
             let schoolCode;
             if (results.length > 0) {
               const latestCode = results[0].school_code;
               const numericPart = parseInt(latestCode.substring(4), 10);
               const newNumericPart = numericPart + 1;
-              schoolCode = `${stateId}${cityId}${String(newNumericPart).padStart(
-                2,
-                "0"
-              )}`;
+              schoolCode = `${stateId}${cityId}${String(
+                newNumericPart
+              ).padStart(2, "0")}`;
             } else {
               schoolCode = `${stateId}${cityId}01`;
             }
-  
+
             // Ensure the school_code length does not exceed 20 characters (adjust based on your schema)
             if (schoolCode.length > 20) {
               schoolCode = schoolCode.substring(0, 20);
             }
-  
+
             resolve(schoolCode);
           });
         });
       };
-  
+
       // Function to get state, district, and city IDs
       const getLocationIds = (state, district, city) => {
         return new Promise((resolve, reject) => {
@@ -372,7 +307,7 @@ const School = {
             JOIN cities c ON c.district_id = d.id 
             WHERE s.name = ? AND d.name = ? AND c.name = ?
           `;
-  
+
           db.query(sqlQuery, [state, district, city], (err, results) => {
             if (err) {
               return reject(err);
@@ -385,25 +320,28 @@ const School = {
           });
         });
       };
-  
+
       // Process each school entry
       const processSchools = async () => {
         try {
           const values = [];
-  
+
           for (const school of schools) {
             const { state, district, city } = school;
-  
+
             if (!state || !district || !city) {
               throw new Error(
                 "State, district, and city are required for each school."
               );
             }
-  
+
             try {
               const locationIds = await getLocationIds(state, district, city);
-              const schoolCode = await generateSchoolCode(locationIds.state_id, locationIds.city_id);
-  
+              const schoolCode = await generateSchoolCode(
+                locationIds.state_id,
+                locationIds.city_id
+              );
+
               values.push([
                 school.board,
                 school.school_name,
@@ -431,13 +369,13 @@ const School = {
               return;
             }
           }
-  
+
           const query = `
             INSERT INTO school
             (board, school_name, school_email, school_contact_number, school_landline_number, state, district, city, pincode, principal_name, principal_contact_number, principal_whatsapp, vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp, student_strength, classes, status, school_code)
             VALUES ?
           `;
-  
+
           db.query(query, [values], (err, results) => {
             if (err) {
               return reject(err);
@@ -448,7 +386,7 @@ const School = {
           reject(error);
         }
       };
-  
+
       processSchools();
     });
   },
@@ -583,11 +521,51 @@ const School = {
   //   });
   // },
 
-
-
-
-
   // Update a school's details
+
+  // update: (id, data, callback) => {
+  //   // Ensure 'classes' is a valid JSON string
+  //   const classes = data.classes ? JSON.stringify(data.classes) : "[]"; // Default to an empty array if null/undefined
+
+  //   const sql = `
+  //   UPDATE school 
+  //   SET board = ?, school_name = ?, school_email = ?, school_contact_number = ?, 
+  //       school_landline_number = ?, state = ?, district = ?, city = ?, pincode = ?, 
+  //       principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?, 
+  //       vice_principal_name = ?, vice_principal_contact_number = ?, 
+  //       vice_principal_whatsapp = ?, student_strength = ?, classes = ?, status = ? 
+  //   WHERE id = ?`;
+
+  //   const values = [
+  //     data.board,
+  //     data.school_name,
+  //     data.school_email,
+  //     data.school_contact_number,
+  //     data.school_landline_number || null,
+  //     data.state,
+  //     data.district,
+  //     data.city,
+  //     data.pincode,
+  //     data.principal_name,
+  //     data.principal_contact_number,
+  //     data.principal_whatsapp,
+  //     data.vice_principal_name,
+  //     data.vice_principal_contact_number,
+  //     data.vice_principal_whatsapp,
+  //     data.student_strength,
+  //     classes, // Update classes as JSON string
+  //     data.status || null,
+  //     id,
+  //   ];
+
+  //   db.query(sql, values, (err, result) => {
+  //     if (err) {
+  //       console.error("Error updating school:", err);
+  //       return callback(err, null);
+  //     }
+  //     return callback(null, result);
+  //   });
+  // },
   update: (id, data, callback) => {
     // Ensure 'classes' is a valid JSON string
     const classes = data.classes ? JSON.stringify(data.classes) : "[]"; // Default to an empty array if null/undefined
@@ -598,7 +576,11 @@ const School = {
         school_landline_number = ?, state = ?, district = ?, city = ?, pincode = ?, 
         principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?, 
         vice_principal_name = ?, vice_principal_contact_number = ?, 
-        vice_principal_whatsapp = ?, student_strength = ?, classes = ?, status = ? 
+        vice_principal_whatsapp = ?,  classes = ?, status = ?,
+        manager_name = ?, manager_contact_number = ?, manager_whatsapp_number = ?,
+        first_incharge_name = ?, first_incharge_number = ?, first_incharge_whatsapp = ?,
+        second_incharge_name = ?, second_incharge_number = ?, second_incharge_whatsapp = ?,
+        junior_student_strength = ?, senior_student_strength = ?, school_address = ?
     WHERE id = ?`;
 
     const values = [
@@ -617,9 +599,20 @@ const School = {
       data.vice_principal_name,
       data.vice_principal_contact_number,
       data.vice_principal_whatsapp,
-      data.student_strength,
       classes, // Update classes as JSON string
       data.status || null,
+      data.manager_name || null,
+      data.manager_contact_number || null,
+      data.manager_whatsapp_number || null,
+      data.first_incharge_name || null,
+      data.first_incharge_number || null,
+      data.first_incharge_whatsapp || null,
+      data.second_incharge_name || null,
+      data.second_incharge_number || null,
+      data.second_incharge_whatsapp || null,
+      data.junior_student_strength || null,
+      data.senior_student_strength || null,
+      data.school_address || null,
       id,
     ];
 

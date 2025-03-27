@@ -1,6 +1,46 @@
 import Student from "../../models/Student/studentModel.js";
 
 // Create a single student
+// export const createStudent = (req, res) => {
+//   const {
+//     school_name,
+//     student_name,
+//     class_name,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//   } = req.body;
+
+//   // Extract logged-in user ID from request
+//   const userId = req.user?.id;
+
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized. Please log in." });
+//   }
+
+//   const newStudent = {
+//     school_name,
+//     student_name,
+//     class_name,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//   };
+
+//   Student.create(newStudent, userId, (err, result) => {
+//     if (err) return res.status(500).send(err);
+//     res
+//       .status(201)
+//       .send({ message: "Student created", studentId: result.insertId });
+//   });
+// };
+
 export const createStudent = (req, res) => {
   const {
     school_name,
@@ -12,6 +52,10 @@ export const createStudent = (req, res) => {
     student_subject,
     approved,
     approved_by,
+    country,
+    state,
+    district,
+    city,
   } = req.body;
 
   // Extract logged-in user ID from request
@@ -31,6 +75,10 @@ export const createStudent = (req, res) => {
     student_subject,
     approved,
     approved_by,
+    country,
+    state,
+    district,
+    city,
   };
 
   Student.create(newStudent, userId, (err, result) => {
@@ -78,19 +126,18 @@ export const getAllstudentserach = (req, res) => {
     res.status(200).send(result);
   });
 };
+
 export const getAllStudents = (req, res) => {
   let { page = 1, limit = 10 } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
 
   Student.getAll(page, limit, (err, data) => {
-      if (err) return res.status(500).json({ error: err.message });
+    if (err) return res.status(500).json({ error: err.message });
 
-      res.status(200).json(data);
+    res.status(200).json(data);
   });
 };
-
-
 
 // Get a single student by ID
 export const getStudentById = (req, res) => {
@@ -103,6 +150,40 @@ export const getStudentById = (req, res) => {
 };
 
 // Update a student by ID
+// export const updateStudent = (req, res) => {
+//   const { id } = req.params;
+//   const {
+//     school_name,
+//     student_name,
+//     class_name,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//   } = req.body;
+
+//   const updatedStudent = {
+//     school_name,
+//     student_name,
+//     class_name,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject: JSON.stringify(student_subject || []) || null,
+//     approved,
+//     approved_by,
+//   };
+
+//   Student.update(id, updatedStudent, (err, result) => {
+//     if (err) return res.status(500).send(err);
+//     if (result.affectedRows === 0)
+//       return res.status(404).send("Student not found");
+//     res.status(200).send({ message: "Student updated successfully" });
+//   });
+// };
+
 export const updateStudent = (req, res) => {
   const { id } = req.params;
   const {
@@ -115,6 +196,10 @@ export const updateStudent = (req, res) => {
     student_subject,
     approved,
     approved_by,
+    country,
+    state,
+    district,
+    city,
   } = req.body;
 
   const updatedStudent = {
@@ -127,15 +212,20 @@ export const updateStudent = (req, res) => {
     student_subject: JSON.stringify(student_subject || []) || null,
     approved,
     approved_by,
+    country,
+    state,
+    district,
+    city,
   };
 
   Student.update(id, updatedStudent, (err, result) => {
     if (err) return res.status(500).send(err);
     if (result.affectedRows === 0)
-      return res.status(404).send("Student not found");
+      return res.status(404).send({ message: "Student not found" });
     res.status(200).send({ message: "Student updated successfully" });
   });
 };
+
 
 // Delete a student by ID
 export const deleteStudent = (req, res) => {

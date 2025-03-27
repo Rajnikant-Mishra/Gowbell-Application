@@ -3,65 +3,7 @@ import School from "../../models/School/SchoolFormModel.js";
 import { sendEmail } from "../../controllers/School/mailer.js";
 import { sendSms } from "../../controllers/School/smsService.js";
 
-// export const createSchool = async (req, res) => {
-//   const { id } = req.user.id; // Get logged-in user ID
-//   const data = req.body;
 
-//   try {
-//     // Ensure created_by and updated_by are set to the logged-in user's ID
-//     const schoolData = {
-//       ...data,
-//       created_by: id,
-//       updated_by: id,
-//     };
-
-//     // Create school in the database
-//     const results = await School.create(schoolData);
-
-//     if (!results || !results.insertId) {
-//       return res.status(500).json({ message: "School creation failed, no ID returned" });
-//     }
-
-//     const schoolId = results.insertId;
-//     const schoolCode = results.school_code;
-
-//     // Prepare details for email and SMS
-//     const schoolName = data.school_name;
-//     const schoolEmail = data.school_email;
-//     const principalPhoneNumber = data.principal_contact_number;
-//     const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
-
-//     const emailSubject = `School Registration Successful: ${schoolName}`;
-//     const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
-//     const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
-//                        <p>Your registration with Gowbell Foundation was successful.</p>
-//                        <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
-
-//     // Send confirmation email
-//     await sendEmail(schoolEmail, emailSubject, emailText, emailHtml);
-
-//     // Validate and send SMS
-//     if (!principalPhoneNumber || !/^[+]?\d{10,15}$/.test(principalPhoneNumber)) {
-//       return res.status(400).json({ message: "Invalid principal contact number" });
-//     }
-//     await sendSms(principalPhoneNumber, smsMessage);
-
-//     // Success response
-//     res.status(201).json({
-//       message: "School created, email sent successfully, and SMS sent!",
-//       id: schoolId,
-//       school_code: schoolCode,
-//     });
-//   } catch (err) {
-//     console.error("Error during school creation:", err);
-
-//     if (err.response) {
-//       return res.status(500).json({ message: "Error in external service", error: err.response.data });
-//     }
-
-//     res.status(500).json({ message: "An error occurred", error: err.message });
-//   }
-// };
 
 export const createSchool = async (req, res) => {
   const { id } = req.user; // Corrected: Removed `.id` since `req.user` should directly contain the ID

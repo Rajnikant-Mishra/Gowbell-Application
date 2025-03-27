@@ -2,6 +2,78 @@ import { db } from "../../config/db.js";
 
 export const Student = {
   
+  // create: (studentData, userId, callback) => {
+  //   const {
+  //     school_name,
+  //     student_name,
+  //     class_name,
+  //     student_section,
+  //     mobile_number,
+  //     whatsapp_number,
+  //     student_subject,
+  //     approved,
+  //     approved_by,
+  //   } = studentData;
+
+  //   // Step 1: Get school_code from school table
+  //   const schoolQuery = `SELECT school_code FROM school WHERE school_name = ?`;
+
+  //   db.query(schoolQuery, [school_name], (err, schoolResult) => {
+  //     if (err) return callback(err);
+
+  //     if (schoolResult.length === 0) {
+  //       return callback(new Error("School not found"));
+  //     }
+
+  //     const school_code = schoolResult[0].school_code;
+
+  //     // Step 2: Get the last roll_no for this school_code and class_name
+  //     const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
+  //     const rollPrefix = `${school_code}${class_name}%`;
+
+  //     db.query(rollQuery, [rollPrefix], (err, rollResult) => {
+  //       if (err) return callback(err);
+
+  //       let newRollNumber = 1;
+  //       if (rollResult.length > 0) {
+  //         const lastRoll = rollResult[0].roll_no;
+  //         const lastRollNumber = parseInt(lastRoll.slice(-2), 10); // Extract last 2 digits
+  //         newRollNumber = lastRollNumber + 1;
+  //       }
+
+  //       const formattedRollNo = `${school_code}${class_name}${String(
+  //         newRollNumber
+  //       ).padStart(2, "0")}`;
+
+  //       // Step 3: Insert the new student record
+  //       const insertQuery = `
+  //         INSERT INTO student 
+  //         (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_by, updated_by, created_at, updated_at) 
+  //         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+  //       `;
+
+  //       db.query(
+  //         insertQuery,
+  //         [
+  //           school_name,
+  //           student_name,
+  //           formattedRollNo,
+  //           class_name,
+  //           student_section,
+  //           mobile_number,
+  //           whatsapp_number,
+  //           JSON.stringify(student_subject || []) || null, // Convert JSON array to string
+  //           approved,
+  //           approved_by,
+  //           userId, // Created by logged-in user
+  //           userId, // Updated by logged-in user
+  //         ],
+  //         callback
+  //       );
+  //     });
+  //   });
+  // },
+
   create: (studentData, userId, callback) => {
     const {
       school_name,
@@ -13,6 +85,10 @@ export const Student = {
       student_subject,
       approved,
       approved_by,
+      country,
+      state,
+      district,
+      city
     } = studentData;
 
     // Step 1: Get school_code from school table
@@ -48,8 +124,8 @@ export const Student = {
         // Step 3: Insert the new student record
         const insertQuery = `
           INSERT INTO student 
-          (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_by, updated_by, created_at, updated_at) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+          (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, created_by, updated_by, created_at, updated_at) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         `;
 
         db.query(
@@ -65,6 +141,10 @@ export const Student = {
             JSON.stringify(student_subject || []) || null, // Convert JSON array to string
             approved,
             approved_by,
+            country,
+            state,
+            district,
+            city,
             userId, // Created by logged-in user
             userId, // Updated by logged-in user
           ],
@@ -73,6 +153,7 @@ export const Student = {
       });
     });
   },
+
 
   // BULK UPLOAD
   bulkCreate: (students, userId, callback) => {
@@ -157,7 +238,7 @@ export const Student = {
       .then((allStudents) => {
         const query = `
           INSERT INTO student 
-          (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, created_by, updated_by, created_at, updated_at) 
+          (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at) 
           VALUES ?
         `;
 
@@ -171,6 +252,10 @@ export const Student = {
           student.mobile_number,
           student.whatsapp_number,
           JSON.stringify(student.student_subject || []) || null, // Convert JSON array to string
+          student.country,
+          student.state,
+          student.district,
+          student.city,
           student.approved,
           student.approved_by,
           userId, // Created by logged-in user
@@ -224,6 +309,45 @@ export const Student = {
     db.query(query, [id], callback);
   },
 
+  // update: (id, studentData, callback) => {
+  //   const {
+  //     school_name,
+  //     student_name,
+  //     class_name,
+  //     student_section,
+  //     mobile_number,
+  //     whatsapp_number,
+  //     student_subject,
+  //     approved,
+  //     approved_by,
+  //   } = studentData;
+
+  //   const query = `
+  //       UPDATE student 
+  //       SET school_name = ?, student_name = ?, class_name = ?, student_section = ?, 
+  //           mobile_number = ?, whatsapp_number = ?, student_subject = ?, 
+  //           approved = ?, approved_by = ?, updated_at = NOW() 
+  //       WHERE id = ?
+  //   `;
+
+  //   db.query(
+  //     query,
+  //     [
+  //       school_name,
+  //       student_name,
+  //       class_name,
+  //       student_section,
+  //       mobile_number,
+  //       whatsapp_number,
+  //       student_subject,
+  //       approved,
+  //       approved_by,
+  //       id,
+  //     ],
+  //     callback
+  //   );
+  // },
+
   update: (id, studentData, callback) => {
     const {
       school_name,
@@ -235,16 +359,21 @@ export const Student = {
       student_subject,
       approved,
       approved_by,
+      country,
+      state,
+      district,
+      city,
     } = studentData;
-
+  
     const query = `
         UPDATE student 
         SET school_name = ?, student_name = ?, class_name = ?, student_section = ?, 
             mobile_number = ?, whatsapp_number = ?, student_subject = ?, 
-            approved = ?, approved_by = ?, updated_at = NOW() 
+            approved = ?, approved_by = ?, country = ?, state = ?, district = ?, city = ?, 
+            updated_at = NOW() 
         WHERE id = ?
     `;
-
+  
     db.query(
       query,
       [
@@ -257,11 +386,16 @@ export const Student = {
         student_subject,
         approved,
         approved_by,
+        country,
+        state,
+        district,
+        city,
         id,
       ],
       callback
     );
   },
+  
 
   delete: (id, callback) => {
     const query = "DELETE FROM student WHERE id = ?";

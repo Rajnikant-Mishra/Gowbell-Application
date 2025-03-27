@@ -61,7 +61,7 @@ dotenv.config(); // Load environment variables
         const token = jwt.sign(
           { id: user.id, role: user.role },
           process.env.JWT_SECRET,
-          { expiresIn: "1h" }
+          { expiresIn: "60000" }
         );
 
         RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {
@@ -69,7 +69,7 @@ dotenv.config(); // Load environment variables
             return res.status(500).json({ error: "Failed to fetch menus" });
           }
 
-          // Fetch role details after login
+          // Fetch role details after login         
           Role.getById(user.role, (roleErr, roleDetails) => {
             if (roleErr) {
               return res

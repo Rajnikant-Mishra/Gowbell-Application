@@ -1,31 +1,7 @@
 import { db } from '../../config/db.js';
 
 export const City = {
-  // create: (name, country_id, state_id, district_id, status, callback) => {
-  //   // First, check if the city already exists in the database
-  //   db.query(
-  //     'SELECT * FROM cities WHERE name = ? AND country_id = ? AND state_id = ? AND district_id = ?',
-  //     [name, country_id, state_id, district_id],
-  //     (err, result) => {
-  //       if (err) {
-  //         console.error('Error checking for duplicate city:', err);
-  //         return callback(err, null);
-  //       }
-
-  //       // If a city already exists with the same name, country_id, state_id, and district_id
-  //       if (result.length > 0) {
-  //         return callback(new Error('City already exists'), null);
-  //       }
-
-  //       // If no duplicate, proceed with the insert
-  //       db.query(
-  //         'INSERT INTO cities (name, country_id, state_id, district_id, status) VALUES (?, ?, ?, ?, ?)',
-  //         [name, country_id, state_id, district_id, status],
-  //         callback
-  //       );
-  //     }
-  //   );
-  // },
+ 
 
   create: (name, country_id, state_id, district_id, status, created_by, callback) => {
     // First, check if the city already exists in the database
@@ -54,9 +30,42 @@ export const City = {
   },
 
 
-  getAll: (callback) => {
+  getAllcities: (callback) => {
     db.query('SELECT * FROM cities', callback);
   },
+
+
+// Model function for fetching paginated city data
+getAll: (page = 1, limit = 10, callback) => {
+  const offset = (page - 1) * limit;
+
+  const query = `SELECT * FROM cities LIMIT ? OFFSET ?`;
+  const countQuery = `SELECT COUNT(*) AS total FROM cities`;
+
+  db.query(countQuery, (err, countResult) => {
+      if (err) return callback(err);
+
+      const totalRecords = countResult[0].total;
+      const totalPages = Math.ceil(totalRecords / limit);
+      const nextPage = page < totalPages ? page + 1 : null;
+      const prevPage = page > 1 ? page - 1 : null;
+
+      db.query(query, [limit, offset], (err, results) => {
+          if (err) return callback(err);
+
+          callback(null, {
+              cities: results,
+              currentPage: page,
+              nextPage,
+              prevPage,
+              totalPages,
+              totalRecords,
+          });
+      });
+  });
+},
+
+  
 
   getById: (id, callback) => {
     db.query('SELECT * FROM cities WHERE id = ?', [id], callback);
