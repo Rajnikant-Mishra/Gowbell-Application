@@ -272,12 +272,7 @@ export default function DataTable() {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                "date",
-                "created_by",
-                "item",
-                "quantity",
-                "unit",
-                "remarks",
+               "Date", "Invoice No" , "Items", "Quantity", "Unit", "Price", "Supplier" ,"created_by"
               ].map((col) => (
                 <th
                   key={col}
@@ -299,7 +294,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["date", "created_by", "item", "quantity", "unit", "remarks"].map(
+            {["Date", "Invoice No" , "Items", "Quantity", "Unit", "Price", "Supplier" ,"created_by"].map(
               (col) => (
                 <th key={col}>
                   <div className={styles.inputContainer}>
@@ -330,11 +325,13 @@ export default function DataTable() {
                   />
                 </td>
                 <td>{row.date}</td>
-                <td>{row.created_by}</td>
+                <td>{row.invoice_no}</td>
                 <td>{row.item}</td>
                 <td>{row.quantity}</td>
                 <td>{row.unit}</td>
-                <td>{row.remarks}</td>
+                <td>{row.price}</td>
+                <td>{row.manufacturer_details}</td>
+                <td>{row.created_by}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

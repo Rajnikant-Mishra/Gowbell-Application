@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useFormik } from "formik";
 import {
   Box,
   Typography,
@@ -16,7 +17,6 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
-import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import SelectDrop from "../School/createschool/SelectDrop";
@@ -27,6 +27,205 @@ export default function StudentForm() {
   const [subjectOptions, setSubjectOptions] = useState([]);
   const navigate = useNavigate();
 
+  // Location data states
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  // Filtered location options
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+
+  const validationSchema = Yup.object({
+    school_name: Yup.string().required("School Name is required"),
+    student_name: Yup.string().required("Student Name is required"),
+    country: Yup.string().required("Country is required"),
+    state: Yup.string().required("State is required"),
+    district: Yup.string().required("District is required"),
+    city: Yup.string().required("City is required"),
+    class_name: Yup.string().required("Class Name is required"),
+    student_section: Yup.string().required("Section is required"),
+    mobile_number: Yup.string()
+      .required("Mobile Number is required")
+      .matches(/^\d{10}$/, "Mobile Number must be exactly 10 digits"),
+    whatsapp_number: Yup.string()
+      .required("WhatsApp Number is required")
+      .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
+    student_subject: Yup.array()
+      .min(1, "Select at least one subject")
+      .required("Subject is required"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      school_name: "",
+      student_name: "",
+      country: "",
+      state: "",
+      district: "",
+      city: "",
+      class_name: "",
+      student_section: "",
+      mobile_number: "",
+      whatsapp_number: "",
+      student_subject: [],
+    },
+    validationSchema: validationSchema,
+    // onSubmit: async (values) => {
+    //   try {
+    //     const token = localStorage.getItem("token");
+
+    //     const response = await fetch(`${API_BASE_URL}/api/get/student`, {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //       body: JSON.stringify(values),
+    //     });
+
+    //     if (response.ok) {
+    //       Swal.fire({
+    //         position: "top-end",
+    //         icon: "success",
+    //         title: "Success!",
+    //         text: `Student created successfully!`,
+    //         showConfirmButton: false,
+    //         timer: 1000,
+    //         timerProgressBar: true,
+    //         toast: true,
+    //         background: "#fff",
+    //         customClass: {
+    //           popup: "small-swal",
+    //         },
+    //       }).then(() => {
+    //         navigate("/student-create");
+    //       });
+
+    //       formik.resetForm();
+    //     } else {
+    //       throw new Error("Failed to submit form");
+    //     }
+    //   } catch (error) {
+    //     Swal.fire({
+    //       position: "top-end",
+    //       icon: "error",
+    //       title: "Error!",
+    //       text: error.message || "An unexpected error occurred.",
+    //       showConfirmButton: false,
+    //       timer: 1000,
+    //       timerProgressBar: true,
+    //       toast: true,
+    //       background: "#fff",
+    //       customClass: {
+    //         popup: "small-swal",
+    //       },
+    //     });
+    //   }
+    // },
+    onSubmit: async (values) => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE_URL}/api/get/student`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        });
+        if (response.ok) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Success!",
+            text: `Student created successfully!`,
+            showConfirmButton: false,
+            timer: 1000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: {
+              popup: "small-swal",
+            },
+          });
+          // Reset only specific fields (keep school & location data)
+          formik.setValues({
+            ...formik.values, // Keep existing values
+            student_name: "", // Clear student name
+            class_name: "", // Clear class
+            student_section: "", // Clear section
+            mobile_number: "", // Clear mobile
+            whatsapp_number: "", // Clear WhatsApp
+            student_subject: [], // Clear subjects
+          });
+        } else {
+          throw new Error("Failed to submit form");
+        }
+      } catch (error) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: error.message || "An unexpected error occurred.",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
+      }
+    },
+  });
+
+  // Handle country change
+  useEffect(() => {
+    if (formik.values.country) {
+      const filtered = states.filter(
+        (state) => state.country_id === formik.values.country
+      );
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]);
+    }
+    formik.setFieldValue("state", "");
+    formik.setFieldValue("district", "");
+    formik.setFieldValue("city", "");
+  }, [formik.values.country, states]);
+
+  // Handle state change
+  useEffect(() => {
+    if (formik.values.state) {
+      const filtered = districts.filter(
+        (district) => district.state_id === formik.values.state
+      );
+      setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]);
+    }
+    formik.setFieldValue("district", "");
+    formik.setFieldValue("city", "");
+  }, [formik.values.state, districts]);
+
+  // Handle district change
+  useEffect(() => {
+    if (formik.values.district) {
+      const filtered = cities.filter(
+        (city) => city.district_id === formik.values.district
+      );
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
+    }
+    formik.setFieldValue("city", "");
+  }, [formik.values.district, cities]);
+
+  //school fetch
   useEffect(() => {
     const fetchSchools = async () => {
       try {
@@ -100,9 +299,49 @@ export default function StudentForm() {
       }
     };
 
+    const fetchCountries = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/countries/`);
+        setCountries(response.data);
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    const fetchStates = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/states/`);
+        setStates(response.data);
+      } catch (error) {
+        console.error("Error fetching states:", error);
+      }
+    };
+
+    const fetchDistricts = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/districts/`);
+        setDistricts(response.data);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    };
+
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/cities/all/c1`);
+        setCities(response.data);
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+
     fetchSchools();
     fetchClasses();
     fetchSubjects();
+    fetchCountries();
+    fetchStates();
+    fetchDistricts();
+    fetchCities();
   }, []);
 
   const sectionOptions = [
@@ -113,101 +352,68 @@ export default function StudentForm() {
     { value: "E", label: "E" },
   ];
 
-  const validationSchema = Yup.object({
-    school_name: Yup.string().required("School Name is required"),
-    student_name: Yup.string()
-      .required("Student Name is required")
-      .test("unique-name", "Student name already exists.", async (value) => {
-        if (!value) return true; // Skip validation if field is empty
-        try {
-          const { data: existingUser } = await axios.get(
-            `${API_BASE_URL}/api/get/allstudents`
-          );
-          return !existingUser.some(
-            (user) => user.student_name.toLowerCase() === value.toLowerCase()
-          );
-        } catch (error) {
-          console.error("Error checking duplicate username:", error);
-          return false; // Assume duplicate if there's an error
-        }
-      }),
-    class_name: Yup.string().required("Class Name is required"),
-    student_section: Yup.string().required("Section is required"),
-    mobile_number: Yup.string()
-      .required("Mobile Number is required")
-      .matches(/^\d{10}$/, "Mobile Number must be exactly 10 digits"),
-    whatsapp_number: Yup.string()
-      .required("WhatsApp Number is required")
-      .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
-    student_subject: Yup.array()
-      .min(1, "Select at least one subject")
-      .required("Subject is required"),
-  });
+  // Prepare options for dropdowns
+  const countryOptions = countries.map((country) => ({
+    value: country.id,
+    label: country.name,
+  }));
 
-  const formik = useFormik({
-    initialValues: {
-      school_name: "",
-      student_name: "",
-      class_name: "",
-      student_section: "",
-      mobile_number: "",
-      whatsapp_number: "",
-      student_subject: [],
-    },
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      try {
-        const token = localStorage.getItem("token");
+  const stateOptions = filteredStates.map((state) => ({
+    value: state.id,
+    label: state.name,
+  }));
 
-        const response = await fetch(`${API_BASE_URL}/api/get/student`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(values),
-        });
+  const districtOptions = filteredDistricts.map((district) => ({
+    value: district.id,
+    label: district.name,
+  }));
 
-        if (response.ok) {
-          Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: "Success!",
-            text: `Student created successfully!`,
-            showConfirmButton: false,
-            timer: 1000,
-            timerProgressBar: true,
-            toast: true,
-            background: "#fff",
-            customClass: {
-              popup: "small-swal",
-            },
-          }).then(() => {
-            navigate("/studentList");
-          });
+  const cityOptions = filteredCities.map((city) => ({
+    value: city.id,
+    label: city.name,
+  }));
 
-          formik.resetForm();
-        } else {
-          throw new Error("Failed to submit form");
-        }
-      } catch (error) {
-        Swal.fire({
-          position: "top-end",
-          icon: "error",
-          title: "Error!",
-          text: error.message || "An unexpected error occurred.",
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          toast: true,
-          background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
-        });
-      }
-    },
-  });
+  // Handle country change
+  useEffect(() => {
+    if (formik.values.country) {
+      const filtered = states.filter(
+        (state) => state.country_id === formik.values.country
+      );
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]);
+    }
+    formik.setFieldValue("state", "");
+    formik.setFieldValue("district", "");
+    formik.setFieldValue("city", "");
+  }, [formik.values.country, states]);
+
+  // Handle state change
+  useEffect(() => {
+    if (formik.values.state) {
+      const filtered = districts.filter(
+        (district) => district.state_id === formik.values.state
+      );
+      setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]);
+    }
+    formik.setFieldValue("district", "");
+    formik.setFieldValue("city", "");
+  }, [formik.values.state, districts]);
+
+  // Handle district change
+  useEffect(() => {
+    if (formik.values.district) {
+      const filtered = cities.filter(
+        (city) => city.district_id === formik.values.district
+      );
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
+    }
+    formik.setFieldValue("city", "");
+  }, [formik.values.district, cities]);
 
   return (
     <Mainlayout>
@@ -225,7 +431,7 @@ export default function StudentForm() {
         <div className={`${styles.formBox}`}>
           <div>
             <Typography className={`${styles.formTitle} mb-4`}>
-              Student Registration Form
+              Create Student
             </Typography>
           </div>
           <form className={styles.formContent} onSubmit={formik.handleSubmit}>
@@ -278,6 +484,67 @@ export default function StudentForm() {
                   helperText={
                     formik.touched.student_name && formik.errors.student_name
                   }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* Location fields */}
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="Country"
+                  name="country"
+                  options={countryOptions}
+                  value={formik.values.country}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={
+                    formik.touched.country && Boolean(formik.errors.country)
+                  }
+                  helperText={formik.touched.country && formik.errors.country}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="State"
+                  name="state"
+                  options={stateOptions}
+                  value={formik.values.state}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={!formik.values.country}
+                  error={formik.touched.state && Boolean(formik.errors.state)}
+                  helperText={formik.touched.state && formik.errors.state}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="District"
+                  name="district"
+                  options={districtOptions}
+                  value={formik.values.district}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={!formik.values.state}
+                  error={
+                    formik.touched.district && Boolean(formik.errors.district)
+                  }
+                  helperText={formik.touched.district && formik.errors.district}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="City"
+                  name="city"
+                  options={cityOptions}
+                  value={formik.values.city}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={!formik.values.district}
+                  error={formik.touched.city && Boolean(formik.errors.city)}
+                  helperText={formik.touched.city && formik.errors.city}
                   fullWidth
                 />
               </Grid>

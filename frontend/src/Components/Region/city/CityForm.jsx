@@ -107,96 +107,100 @@ const CreateCity = () => {
     }
   }, [selectedState, districts]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId"); // Get logged-in user ID
 
-const handleSubmit = (e) => {
-  e.preventDefault();
-
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId"); // Get logged-in user ID
-
-  axios
-    .post(
-      `${API_BASE_URL}/api/cities/`,
-      {
-        name,
-        status,
-        country_id: selectedCountry,
-        state_id: selectedState,
-        district_id: selectedDistrict,
-        created_by: userId, // Capture logged-in user ID
-        updated_by: userId, // Initially same as created_by
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    axios
+      .post(
+        `${API_BASE_URL}/api/cities/`,
+        {
+          name,
+          status,
+          country_id: selectedCountry,
+          state_id: selectedState,
+          district_id: selectedDistrict,
+          created_by: userId, // Capture logged-in user ID
+          updated_by: userId, // Initially same as created_by
         },
-      }
-    )
-    .then(() => {
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Success!",
-        text: `City "${name}" created successfully!`,
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
-      }).then(() => {
-        navigate("/city");
-      });
-    })
-    .catch((error) => {
-      if (error.response && error.response.data && error.response.data.error) {
-        const errorMessage = error.response.data.error;
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `City "${name}" created successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
+          navigate("/city");
+        });
+      })
+      .catch((error) => {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          const errorMessage = error.response.data.error;
 
-        if (errorMessage.includes("City already exists")) {
-          Swal.fire({
-            position: "top-end",
-            icon: "error",
-            title: "Error!",
-            text: `A city with the same name already exists in this district`,
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            toast: true,
-            background: "#fff",
-            customClass: {
-              popup: "small-swal",
-            },
-          });
+          if (errorMessage.includes("City already exists")) {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: "Error!",
+              text: `A city with the same name already exists in this district`,
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: "There was an issue creating the city. Please try again.",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          }
         } else {
           Swal.fire({
             title: "Error!",
-            text: "There was an issue creating the city. Please try again.",
+            text: "Something went wrong. Please try again later.",
             icon: "error",
             confirmButtonText: "OK",
           });
         }
-      } else {
-        Swal.fire({
-          title: "Error!",
-          text: "Something went wrong. Please try again later.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      }
-      console.error("Error creating city:", error);
-    });
-};
-
+        console.error("Error creating city:", error);
+      });
+  };
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb
-            data={[{ name: "Region Setup", link: "/city" }, { name: "Create City" }]}
+            data={[
+              { name: "Region Setup", link: "/city" },
+              { name: "Create Region" },
+            ]}
           />
         </div>
       </div>
@@ -211,7 +215,7 @@ const handleSubmit = (e) => {
           }}
         >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
-            Create New City
+            Create Region
           </Typography>
           <form onSubmit={handleSubmit}>
             {/* Country selection input */}
@@ -289,7 +293,13 @@ const handleSubmit = (e) => {
                   fullWidth
                   label="City Name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    let inputValue = e.target.value;
+                    // Capitalize the first letter and keep the rest as is
+                    let formattedValue =
+                      inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                    setName(formattedValue);
+                  }}
                   required
                   variant="outlined"
                   margin="normal"

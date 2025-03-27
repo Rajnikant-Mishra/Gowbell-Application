@@ -92,8 +92,6 @@ import ExamList from "./Components/Exam/CreateExam/ExamList";
 
 import Result from "./Components/Exam/Result/Result";
 
-
-
 //menu
 import Menu from "./Components/configuration/Menu/Menu";
 import MenuList from "./Components/configuration/Menu/MenuList";

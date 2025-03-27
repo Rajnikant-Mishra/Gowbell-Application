@@ -22,6 +22,8 @@ import { Menu } from "@mui/material";
 import excelImg from "../../../public/excell-img.png";
 import Papa from "papaparse";
 import { useNavigate } from "react-router-dom";
+import "../Common-Css/DeleteSwal.css";
+import "../Common-Css/Swallfire.css";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -43,46 +45,28 @@ export default function DataTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [students, setStudents] = useState([]);
 
-  // Fetch paginated data from the backend
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `${API_BASE_URL}/api/get/student`,
-  //         {
-  //           params: { page: currentPage, limit: pageSize },
-  //         }
-  //       );
 
-  //       const { students, totalRecords, totalPages, nextPage, prevPage } =
-  //         response.data;
-
-  //       setStudents(students);
-  //       setTotalRecords(totalRecords);
-  //       setTotalPages(totalPages);
-  //       setCurrentPage(currentPage);
-  //     } catch (error) {
-  //       console.error("Error fetching student data:", error);
-  //       Swal.fire("Error", "Failed to fetch student data.", "error");
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [currentPage, pageSize]); //
-  
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/api/get/student`, // ✅ Added backticks for template literals
-          {
-            params: { page: currentPage, limit: pageSize },
-          }
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/get/student`, {
+          params: { page: currentPage, limit: pageSize },
+        });
 
         const { students, totalRecords, totalPages } = response.data;
 
-        // ✅ Fetch user details for each student based on created_by
+        //  Fetch user details for each student based on created_by
         const formattedData = await Promise.all(
           students.map(async (record) => {
             try {
@@ -92,7 +76,10 @@ export default function DataTable() {
               const userName = userResponse.data.username;
               return {
                 ...record,
-                created_by: userName, // Replace created_by ID with username
+                created_by: userName,
+                updated_by: userName, // Replace created_by ID with username
+                created_at: formatTimestamp(record.created_at),
+                updated_at: formatTimestamp(record.updated_at),
               };
             } catch (error) {
               console.error(
@@ -129,27 +116,55 @@ export default function DataTable() {
 
   // Handle row deletion
   const handleDelete = (id) => {
+    // Show SweetAlert confirmation dialog
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
+      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
     }).then((result) => {
       if (result.isConfirmed) {
+        // Proceed with the delete request
         axios
           .delete(`${API_BASE_URL}/api/get/student/${id}`)
-          .then(() => {
-            setRecords((prev) => prev.filter((record) => record.id !== id));
-            setFilteredRecords((prev) =>
-              prev.filter((record) => record.id !== id)
+          .then((response) => {
+            // Update the state after successful deletion
+            setRecords((prevCountries) =>
+              prevCountries.filter((country) => country.id !== id)
             );
-            Swal.fire("Deleted!", "The student has been deleted.", "success");
+            setFilteredRecords((prevFiltered) =>
+              prevFiltered.filter((country) => country.id !== id)
+            );
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The student has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
           })
           .catch((error) => {
-            console.error("Error deleting student:", error);
-            Swal.fire("Error", "Failed to delete student.", "error");
+            console.error("Error deleting country:", error);
+            // Show an error alert if deletion fails
+            Swal.fire(
+              "Error!",
+              "There was an issue deleting the country.",
+              "error"
+            );
           });
       }
     });
@@ -319,6 +334,10 @@ export default function DataTable() {
           student_subject: row.student_subject
             ? row.student_subject.split(",").map((s) => s.trim())
             : [],
+          country: row.country?.trim() || "",
+          state: row.state?.trim() || "",
+          district: row.district?.trim() || "",
+          city: row.city?.trim() || "",
         }));
 
         console.log("Formatted Student Data:", students);
@@ -338,7 +357,7 @@ export default function DataTable() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token"); // ✅ Get token from localStorage
+      const token = localStorage.getItem("token");
 
       if (!token) {
         setLoading(false);
@@ -347,11 +366,11 @@ export default function DataTable() {
       }
 
       const response = await axios.post(
-        `${API_BASE_URL}/api/get/student/bulk-upload`, // ✅ Fixed API URL
+        `${API_BASE_URL}/api/get/student/bulk-upload`,
         students,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ Send token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -395,6 +414,10 @@ export default function DataTable() {
       "mobile_number",
       "whatsapp_number",
       "student_subject",
+      "country",
+      "state",
+      "district",
+      "city",
       "approved",
       "approved_by",
     ];
@@ -407,6 +430,10 @@ export default function DataTable() {
         "1234567890",
         "1234567890",
         "python",
+        "india",
+        "odisha",
+        "cuttack",
+        "cuttack",
         "false",
         "null",
       ],
@@ -593,6 +620,9 @@ export default function DataTable() {
                 "mobile number",
                 "subject",
                 "created_by",
+                "updated_by",
+                "created_at",
+                "updated_at",
               ].map((col) => (
                 <th
                   key={col}
@@ -623,6 +653,9 @@ export default function DataTable() {
               "mobile number",
               "subject",
               "created_by",
+              "updated_by",
+              "created_at",
+              "updated_at",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -658,8 +691,17 @@ export default function DataTable() {
                 <td>{row.class_name}</td>
                 <td>{row.student_section}</td>
                 <td>{row.mobile_number}</td>
-                <td>{row.student_subject.join(", ")}</td>
+                {/* <td>{row.student_subject.join(", ")}</td> */}
+                <td>
+                  {Array.isArray(row.student_subject)
+                    ? row.student_subject.join(", ")
+                    : JSON.parse(row.student_subject || "[]").join(", ")}
+                </td>
+
                 <td>{row.created_by}</td>
+                <td>{row.updated_by}</td>
+                <td>{row.created_at}</td>
+                <td>{row.updated_at}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

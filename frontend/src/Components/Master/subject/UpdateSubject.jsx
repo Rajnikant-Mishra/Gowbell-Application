@@ -24,10 +24,7 @@ const validationSchema = Yup.object({
     .min(3, "Subject name must be at least 3 characters")
     .max(255, "Subject name must be less than or equal to 255 characters")
     .required("Subject name is required")
-    .matches(
-      /^[a-zA-Z0-9 ]*$/,
-      "Subject name can only contain letters and numbers"
-    ),
+    .matches(/^[A-Za-z ]+$/, "Subject name can only contain letters and spaces"),
   // .test("unique-name", "Subject name already exists.", async (value) => {
   //   if (!value) return true;
   //   try {

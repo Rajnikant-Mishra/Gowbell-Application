@@ -237,7 +237,7 @@ const UpdateCity = () => {
           }}
         >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
-            Update City
+            Update Region
           </Typography>
           <form onSubmit={handleSubmit}>
             {/* Country selection input */}

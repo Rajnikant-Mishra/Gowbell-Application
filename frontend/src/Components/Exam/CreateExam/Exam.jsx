@@ -686,7 +686,7 @@ const ExaminationForm = () => {
         <Breadcrumb
           data={[
             { name: "Exam", link: "/examList" },
-            { name: "Exam Schedule" },
+            { name: "Create Exam Schedule" },
           ]}
         />
       </div>
@@ -697,7 +697,7 @@ const ExaminationForm = () => {
           style={{ padding: "20px", marginTop: "16px" }}
         >
           <Typography className={`${styles.formTitle} mb-4`}>
-            Examination Form
+          Create Exam Schedule
           </Typography>
 
           <form noValidate autoComplete="off">

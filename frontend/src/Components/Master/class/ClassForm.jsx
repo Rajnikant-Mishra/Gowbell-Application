@@ -275,7 +275,7 @@ const CreateClass = () => {
           }}
         >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
-            Create New Class
+            Create Class
           </Typography>
           <form onSubmit={formik.handleSubmit}>
             <TextField

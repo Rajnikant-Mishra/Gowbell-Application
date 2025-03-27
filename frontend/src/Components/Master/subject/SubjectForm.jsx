@@ -26,10 +26,7 @@ const validationSchema = Yup.object({
     .min(3, "Subject name must be at least 3 characters")
     .max(255, "Subject name must be less than or equal to 255 characters")
     .required("Subject name is required")
-    .matches(
-      /^[a-zA-Z0-9 ]*$/,
-      "Subject name can only contain letters and numbers"
-    )
+    .matches(/^[A-Za-z ]+$/, "Subject name can only contain letters and spaces")
     .test("unique-name", "Subject name already exists.", async (value) => {
       if (!value) return true; // Skip validation if field is empty
       try {
@@ -119,7 +116,7 @@ const Createsubject = () => {
           }}
         >
           <Typography variant="h4" align="center" sx={{ marginBottom: 3 }}>
-            Create New Subject
+            Create  Subject
           </Typography>
           <Formik
             initialValues={{ name: "", status: "active" }}
