@@ -1,7 +1,7 @@
 .omrSheetContent {
   padding: 20px;
   margin: 20px auto;
-  /* background-color: #fff; */
+  /* / background-color: #fff; / */
   max-width: 800px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   font-family: "Nunito", sans-serif;
@@ -14,12 +14,12 @@
 .title {
   font-weight: bold;
   font-size: 22px;
-  /* margin: 10px 0 0px 0px ; */
+  /* / margin: 10px 0 0px 0px ; / */
   color: #1230ae;
 }
 
 .subtitle {
-  /* margin: 5px 0; */
+  /* / margin: 5px 0; / */
   font-size: 16px;
   color: #555;
 }
@@ -53,7 +53,7 @@
   text-align: right;
   padding-right: 8px;
   white-space: nowrap;
-  width: 90px; /* Fixed width for label */
+  width: 125px; 
 }
 
 .formContainer .label {
@@ -68,7 +68,7 @@
 .formContainer .inputField {
   width: 100%;
   border: none;
-  border-bottom: 1px solid #000; /* Only bottom border */
+  border-bottom: 1px solid #000; 
   outline: none;
   background: transparent;
 
@@ -76,7 +76,7 @@
   margin-left: 0px !important;
   border-radius: 0px !important;
 }
-/* hjjhjjk */
+/* / hjjhjjk / */
 .examDetails {
   margin-bottom: 1rem;
 }
@@ -84,12 +84,12 @@
 .examDetails .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
 }
 
 .examDetails .column {
   flex: 1;
-  /* min-width: 222.5px; */
+  /* / min-width: 222.5px; / */
   min-width: 220px;
   max-width: 28%;
   height: 50px;
@@ -108,19 +108,19 @@
 
 .examDetails .textBox label {
   text-align: center;
-  margin-bottom: 8px; /* Adjust label spacing */
+  margin-bottom: 8px; 
   font-size: 12px;
 }
 
 .examDetails .textBox p {
-  margin-top: 5px; /* Adjust margin for paragraph */
+  margin-top: 5px; 
   font-size: 12px;
 }
-/* instruction */
+/* / instruction / */
 .instructionDetails .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 17px;
 }
 
 .instructionDetails .column {
@@ -132,8 +132,8 @@
 
 .instructionDetails .middleColumn {
   flex: 1;
-  min-width: 350px; /* Slightly bigger than the others */
-  max-width: 30% !important; /* Increase the max-width to make the middle column wider */
+  min-width: 350px; 
+  max-width: 30% !important; 
 }
 
 .instructionDetails .textBox {
@@ -144,11 +144,11 @@
 
 .instructionDetails .textBox label {
   text-align: center;
-  margin-bottom: 8px; /* Adjust label spacing */
+  margin-bottom: 8px; 
 }
 
 .instructionDetails .textBox p {
-  margin-top: 5px; /* Adjust margin for paragraph */
+  margin-top: 5px; 
 }
 .rollno {
   background-color: #000;
@@ -178,19 +178,19 @@
 }
 .textBox2 {
   margin-top: 6%;
-  height: 250px;
+  height: 269px;
   width: 100%;
   border: 1px solid #000;
 
-  /* background-color: #f9f9f9; */
+  /* / background-color: #f9f9f9; / */
   box-sizing: border-box;
 }
 .textBox4 {
-  height: 260px;
+  height: 297px;
   width: 100%;
   border: 1px solid #000;
 
-  /* background-color: #f9f9f9; */
+  /* / background-color: #f9f9f9; / */
   box-sizing: border-box;
 }
 .textBox3 {
@@ -200,16 +200,16 @@
   font-size: 1rem;
   border: 1px solid #000;
 
-  /* background-color: #f9f9f9; */
+  /* / background-color: #f9f9f9; / */
   color: #000;
   box-sizing: border-box;
 }
 .textBox4 {
-  height: 260px;
+  height: 297px;
   width: 100%;
   border: 1px solid #000;
   margin-top: 5%;
-  /* background-color: #f9f9f9; */
+  /* / background-color: #f9f9f9; / */
   box-sizing: border-box;
 }
 .questiondiv {
@@ -220,10 +220,10 @@
 .questiondiv th {
   font-size: 10px;
 }
-/* table {
+table {
   border: 1px solid black;
   padding: 10px 0px !important;
-} */
+}
 td {
   padding: 2px 8px !important;
 }
@@ -251,10 +251,10 @@ td {
   height: 40px !important;
 }
 .bars {
-  margin-top: 15%;
+  margin-top: 12%;
 }
 .bars1 {
-  margin-top: 15%;
+  margin-top: 13%;
 }
 .omrtable {
   border: 1px solid black;

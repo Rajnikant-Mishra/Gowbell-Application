@@ -510,7 +510,7 @@ const Extra = () => {
                       0
                     )}
                     readOnly
-                  />
+                  />  
                 </td>
                 <td></td>
               </tr>

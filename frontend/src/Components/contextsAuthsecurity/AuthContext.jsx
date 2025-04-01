@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     // Set up interval to check token periodically (e.g., every minute)
     const interval = setInterval(() => {
       checkTokenValidity();
-    }, 60000); // 60 seconds
+    }, 3600000); // 60 seconds
 
     return () => clearInterval(interval);
   }, []);

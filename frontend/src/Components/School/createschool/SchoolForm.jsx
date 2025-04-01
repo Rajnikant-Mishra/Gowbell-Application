@@ -48,9 +48,7 @@ const validationSchema = Yup.object({
       }
     }),
 
-  school_email: Yup.string()
-    .email("Invalid email format")
-    .required("School email is required"),
+  school_email: Yup.string().email("Invalid email format"),
 
   school_contact_number: Yup.string()
     .required("Contact number is required")
@@ -62,6 +60,7 @@ const validationSchema = Yup.object({
     .required("School address is required")
     .min(5, "Address must be at least 5 characters"),
 
+  country: Yup.string().required("Country is required"),
   state: Yup.string().required("State is required"),
   district: Yup.string().required("District is required"),
   city: Yup.string().required("City is required"),
@@ -82,29 +81,53 @@ const validationSchema = Yup.object({
     .required("Principal WhatsApp Number is required")
     .matches(/^\d{10}$/, "Invalid WhatsApp number"),
 
-  vice_principal_name: Yup.string().matches(/^[A-Za-z\s]+$/, "Only letters are allowed").nullable(),
-  
-  vice_principal_contact_number: Yup.string().matches(/^\d{10}$/, "Invalid contact number").nullable(),
+  vice_principal_name: Yup.string()
+    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
+    .nullable(),
 
-  vice_principal_whatsapp: Yup.string().matches(/^\d{10}$/, "Invalid WhatsApp number").nullable(),
+  vice_principal_contact_number: Yup.string()
+    .matches(/^\d{10}$/, "Invalid contact number")
+    .nullable(),
 
-  manager_name: Yup.string().matches(/^[A-Za-z\s]+$/, "Only letters are allowed").nullable(),
-  
-  manager_contact_number: Yup.string().matches(/^\d{10}$/, "Invalid contact number").nullable(),
+  vice_principal_whatsapp: Yup.string()
+    .matches(/^\d{10}$/, "Invalid WhatsApp number")
+    .nullable(),
 
-  manager_whatsapp_number: Yup.string().matches(/^\d{10}$/, "Invalid WhatsApp number").nullable(),
+  manager_name: Yup.string()
+    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
+    .nullable(),
 
-  first_incharge_name: Yup.string().matches(/^[A-Za-z\s]+$/, "Only letters are allowed").nullable(),
+  manager_contact_number: Yup.string()
+    .matches(/^\d{10}$/, "Invalid contact number")
+    .nullable(),
 
-  first_incharge_number: Yup.string().matches(/^\d{10}$/, "Invalid contact number").nullable(),
+  manager_whatsapp_number: Yup.string()
+    .matches(/^\d{10}$/, "Invalid WhatsApp number")
+    .nullable(),
 
-  first_incharge_whatsapp: Yup.string().matches(/^\d{10}$/, "Invalid WhatsApp number").nullable(),
+  first_incharge_name: Yup.string()
+    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
+    .nullable(),
 
-  second_incharge_name: Yup.string().matches(/^[A-Za-z\s]+$/, "Only letters are allowed").nullable(),
+  first_incharge_number: Yup.string()
+    .matches(/^\d{10}$/, "Invalid contact number")
+    .nullable(),
 
-  second_incharge_number: Yup.string().matches(/^\d{10}$/, "Invalid contact number").nullable(),
+  first_incharge_whatsapp: Yup.string()
+    .matches(/^\d{10}$/, "Invalid WhatsApp number")
+    .nullable(),
 
-  second_incharge_whatsapp: Yup.string().matches(/^\d{10}$/, "Invalid WhatsApp number").nullable(),
+  second_incharge_name: Yup.string()
+    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
+    .nullable(),
+
+  second_incharge_number: Yup.string()
+    .matches(/^\d{10}$/, "Invalid contact number")
+    .nullable(),
+
+  second_incharge_whatsapp: Yup.string()
+    .matches(/^\d{10}$/, "Invalid WhatsApp number")
+    .nullable(),
 
   junior_student_strength: Yup.number()
     .required("Junior Student Strength is required")
@@ -121,12 +144,13 @@ const validationSchema = Yup.object({
   status: Yup.string().required("Status is required"),
 });
 
-
 export default function SchoolForm() {
   const navigate = useNavigate();
+  const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
+  const [filteredStates, setFilteredStates] = useState([]);
   const [filteredDistricts, setFilteredDistricts] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
 
@@ -138,7 +162,8 @@ export default function SchoolForm() {
       school_email: "",
       school_contact_number: "",
       school_landline_number: "",
-      school_address: "",  // ✅ Added school address field (textarea)
+      school_address: "", // ✅ Added school address field (textarea)
+      country: "",
       state: "",
       district: "",
       city: "",
@@ -149,20 +174,19 @@ export default function SchoolForm() {
       vice_principal_name: "",
       vice_principal_contact_number: "",
       vice_principal_whatsapp: "",
-      manager_name: "",  // ✅ Added Manager fields
+      manager_name: "", // ✅ Added Manager fields
       manager_contact_number: "",
       manager_whatsapp_number: "",
-      first_incharge_name: "",  // ✅ Added First Incharge fields
+      first_incharge_name: "", // ✅ Added First Incharge fields
       first_incharge_number: "",
       first_incharge_whatsapp: "",
-      second_incharge_name: "",  // ✅ Added Second Incharge fields
+      second_incharge_name: "", // ✅ Added Second Incharge fields
       second_incharge_number: "",
       second_incharge_whatsapp: "",
-      junior_student_strength: "",  // ✅ Replaced student_strength with junior/senior
+      junior_student_strength: "", // ✅ Replaced student_strength with junior/senior
       senior_student_strength: "",
-      classes: [],  // ✅ Stored as an array (Will be converted to JSON in the backend)
+      classes: [], // ✅ Stored as an array (Will be converted to JSON in the backend)
       status: "active",
-
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -238,7 +262,19 @@ export default function SchoolForm() {
     },
   });
 
-  // Fetch states, districts, and cities
+  // Fetch countries, states, districts, and cities
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/countries/`);
+        setCountries(response.data);
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+    fetchCountries();
+  }, []);
+
   useEffect(() => {
     const fetchStates = async () => {
       try {
@@ -275,7 +311,23 @@ export default function SchoolForm() {
     fetchCities();
   }, []);
 
-  // Filter districts and cities based on selected state and district
+  // Filter states based on selected country
+  useEffect(() => {
+    if (formik.values.country) {
+      const filtered = states.filter(
+        (state) => state.country_id === formik.values.country
+      );
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]);
+    }
+    // Reset dependent fields
+    formik.setFieldValue("state", "");
+    formik.setFieldValue("district", "");
+    formik.setFieldValue("city", "");
+  }, [formik.values.country, states]);
+
+  // Filter districts based on selected state
   useEffect(() => {
     if (formik.values.state) {
       const filtered = districts.filter(
@@ -285,10 +337,12 @@ export default function SchoolForm() {
     } else {
       setFilteredDistricts([]);
     }
+    // Reset dependent fields
     formik.setFieldValue("district", "");
     formik.setFieldValue("city", "");
   }, [formik.values.state, districts]);
 
+  // Filter cities based on selected district
   useEffect(() => {
     if (formik.values.district) {
       const filtered = cities.filter(
@@ -308,7 +362,7 @@ export default function SchoolForm() {
           <Breadcrumb
             data={[
               { name: "School", link: "/schoolList" },
-              { name: "Create School" },
+              { name: "Create School" },   
             ]}
           />
         </div>
@@ -341,7 +395,7 @@ export default function SchoolForm() {
               </Grid>
 
               {/* School Name */}
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={2}>
                 <TextField
                   label="School Name"
                   name="school_name"
@@ -373,43 +427,10 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* School Email */}
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  label="School Email"
-                  name="school_email"
-                  value={formik.values.school_email}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_email &&
-                    Boolean(formik.errors.school_email)
-                  }
-                  helperText={
-                    formik.touched.school_email && formik.errors.school_email
-                  }
-                  fullWidth
-                />
-              </Grid>
-
               {/* School Contact Number */}
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
-                  label="School Contact Number"
+                  label="School mobile Number"
                   name="school_contact_number"
                   type="tel" // Ensures numeric keyboard on mobile
                   value={formik.values.school_contact_number}
@@ -446,6 +467,39 @@ export default function SchoolForm() {
                   helperText={
                     formik.touched.school_contact_number &&
                     formik.errors.school_contact_number
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* School Email */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  label="School Email"
+                  name="school_email"
+                  value={formik.values.school_email}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_email &&
+                    Boolean(formik.errors.school_email)
+                  }
+                  helperText={
+                    formik.touched.school_email && formik.errors.school_email
                   }
                   fullWidth
                 />
@@ -496,12 +550,44 @@ export default function SchoolForm() {
                 />
               </Grid>
 
+              {/* country Dropdown */}
+              <Grid item xs={12} sm={6} md={2}>
+                <SelectDrop
+                  label="Country"
+                  name="country"
+                  options={countries.map((country) => ({
+                    value: country.id,
+                    label: country.name,
+                  }))}
+                  value={formik.values.country}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={formik.touched.country && Boolean(formik.errors.country)}
+                  helperText={formik.touched.country && formik.errors.country}
+                  fullWidth
+                />
+              </Grid>
+
               {/* State Dropdown */}
               <Grid item xs={12} sm={6} md={2}>
                 <SelectDrop
                   label="State"
                   name="state"
-                  options={states.map((state) => ({
+                  options={filteredStates.map((state) => ({
                     value: state.id,
                     label: state.name,
                   }))}
@@ -873,8 +959,7 @@ export default function SchoolForm() {
                     Boolean(formik.errors.manager_name)
                   }
                   helperText={
-                    formik.touched.manager_name &&
-                    formik.errors.manager_name
+                    formik.touched.manager_name && formik.errors.manager_name
                   }
                   fullWidth
                 />
@@ -1234,7 +1319,6 @@ export default function SchoolForm() {
                     { value: "LKG-CLASS-10  ", label: "LKG-CLASS-10  " },
                     { value: "LKG-CLASS-12", label: "LKG-CLASS-12" },
                     { value: "LKG-CLASS-8", label: "LKG-CLASS-8" },
-                  
                   ]}
                   value={formik.values.classes.map((classItem) => ({
                     value: classItem,

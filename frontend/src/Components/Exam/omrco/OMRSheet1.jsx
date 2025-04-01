@@ -4,10 +4,10 @@ import styles from "./OMRSheet.module.css";
 import sheetlogo from "../../../../public/logo GOWBELL.png";
 
 export default function OMRSheet({
-  schoolName,
-  student,
-  date,
-  level,
+    schoolName,
+    student,
+    date,
+    level,
 }) {
   return (
     <div
@@ -15,7 +15,7 @@ export default function OMRSheet({
       className={`${styles.omrSheetContent} d-flex gap-3`}
     >
       <div className={`${styles.bars}`}>
-        {Array.from({ length: 135 }).map((_, index) =>
+        {Array.from({ length: 135}).map((_, index) =>
           index % 2 === 0 ? (
             <div
               key={index}
@@ -46,10 +46,12 @@ export default function OMRSheet({
             Fill out all sections completely and accurately.
           </p>
         </div>
+
         <img src={sheetlogo} alt="Logo" className={styles.logo} />
 
         <div style={{ fontSize: "0.8rem" }}>
           <div className={styles.formContainer}>
+          
             <div className={styles.inputGroup}>
               <div className={styles.labelContainer}>
                 <label
@@ -57,6 +59,7 @@ export default function OMRSheet({
                   className={`${styles.label} fw-bold`}
                 >
                   CANDIDATE NAME: {student}
+                 
                 </label>
               </div>
               <div className={styles.inputContainer}>
@@ -68,14 +71,16 @@ export default function OMRSheet({
               </div>
             </div>
 
-            {/* {/ School Name /} */}
+       
             <div className={styles.inputGroup}>
-              <div className={styles.labelContainer}>
+              <div className={styles.labelContainer} style={{ width: "103px" }}>
                 <label
                   htmlFor="school-name"
-                  className={`${styles.label} text-start fw-bold`}
+                  className={`${styles.label} fw-bold text-start`}
+                  style={{ width: "103px" }}
                 >
-                  SCHOOL NAME:   {schoolName}
+                  SCHOOL NAME: {schoolName}
+                 
                 </label>
               </div>
               <div className={styles.inputContainer}>
@@ -104,7 +109,7 @@ export default function OMRSheet({
                 </div>
               </div>
             </div>
-            <div className={styles.column}>
+            <div className={styles.column} style={{ maxWidth: "170px" }}>
               <div className={styles.detailBox}>
                 <div
                   id="level"
@@ -290,6 +295,13 @@ export default function OMRSheet({
               <div
                 className={`${styles.textBox4} textBox text-center d-flex flex-column P-0`}
               >
+                <div className="my-auto">
+                  <h5 className="fw-bold">Gowbell Olympiads</h5>
+                  <p style={{ fontSize: "12px" }} className="fw-bold">
+                    Plot No-18,Matalia Dwaraka, Sector-3,New Delhi, India -
+                    110059
+                  </p>
+                </div>
                 <h5 className="mx-auto my-auto fw-bold">
                   Your Real Competition
                 </h5>
@@ -359,7 +371,7 @@ export default function OMRSheet({
                 </tr>
               </thead>
               <tbody>
-                {Array(10)
+                {Array(20)
                   .fill()
                   .map((item, index) => (
                     <tr key={index}>
@@ -373,19 +385,6 @@ export default function OMRSheet({
                   ))}
               </tbody>
             </table>
-            <div className={`${styles.detailBox1}`}>
-              <div
-                className={`${styles.textBox2} textBox text-center d-flex flex-column P-0`}
-              >
-                <div className="my-auto">
-                  <h5 className="fw-bold">Gowbell Olympiads</h5>
-                  <p style={{ fontSize: "12px" }} className="fw-bold">
-                    Plot No-18,Matalia Dwaraka, Sector-3,New Delhi, India -
-                    110059
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div className="row">

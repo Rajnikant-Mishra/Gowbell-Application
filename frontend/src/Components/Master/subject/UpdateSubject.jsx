@@ -98,7 +98,6 @@ const Updatesubject = () => {
           icon: "Errors",
           title: "Error",
           text: "Subject name already exists",
-          icon: "error",
           showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,

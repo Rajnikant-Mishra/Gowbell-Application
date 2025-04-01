@@ -404,6 +404,7 @@ export default function DataTable() {
       "school_email",
       "school_contact_number",
       "school_landline_number",
+      
       "state",
       "district",
       "city",
@@ -621,6 +622,7 @@ export default function DataTable() {
                 "school code",
                 "email",
                 "contact",
+                "country",
                 "state",
                 "district",
                 "city",
@@ -654,6 +656,7 @@ export default function DataTable() {
               "school code",
               "email",
               "contact",
+              "country",
               "state",
               "district",
               "city",
@@ -694,6 +697,7 @@ export default function DataTable() {
                 <td>{row.school_code}</td>
                 <td>{row.school_email}</td>
                 <td>{row.school_contact_number}</td>
+                <td>{row.country_name}</td>
                 <td>{row.state_name}</td>
                 <td>{row.district_name}</td>
                 <td>{row.city_name}</td>

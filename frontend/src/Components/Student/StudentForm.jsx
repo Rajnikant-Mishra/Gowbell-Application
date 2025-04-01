@@ -373,47 +373,7 @@ export default function StudentForm() {
     label: city.name,
   }));
 
-  // Handle country change
-  useEffect(() => {
-    if (formik.values.country) {
-      const filtered = states.filter(
-        (state) => state.country_id === formik.values.country
-      );
-      setFilteredStates(filtered);
-    } else {
-      setFilteredStates([]);
-    }
-    formik.setFieldValue("state", "");
-    formik.setFieldValue("district", "");
-    formik.setFieldValue("city", "");
-  }, [formik.values.country, states]);
 
-  // Handle state change
-  useEffect(() => {
-    if (formik.values.state) {
-      const filtered = districts.filter(
-        (district) => district.state_id === formik.values.state
-      );
-      setFilteredDistricts(filtered);
-    } else {
-      setFilteredDistricts([]);
-    }
-    formik.setFieldValue("district", "");
-    formik.setFieldValue("city", "");
-  }, [formik.values.state, districts]);
-
-  // Handle district change
-  useEffect(() => {
-    if (formik.values.district) {
-      const filtered = cities.filter(
-        (city) => city.district_id === formik.values.district
-      );
-      setFilteredCities(filtered);
-    } else {
-      setFilteredCities([]);
-    }
-    formik.setFieldValue("city", "");
-  }, [formik.values.district, cities]);
 
   return (
     <Mainlayout>
