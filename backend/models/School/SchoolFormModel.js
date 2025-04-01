@@ -5,15 +5,17 @@ const School = {
   getAll: (callback) => {
     const sql = `
       SELECT 
-        s.*, 
-        st.name AS state_name, 
-        d.name AS district_name, 
-        c.name AS city_name
-      FROM school s
-      LEFT JOIN states st ON s.state = st.id
-      LEFT JOIN districts d ON s.district = d.id
-      LEFT JOIN cities c ON s.city = c.id
-      ORDER BY s.id DESC
+    s.*, 
+    c1.name AS country_name,
+    s1.name AS state_name, 
+    d.name AS district_name, 
+    c2.name AS city_name
+FROM school s
+LEFT JOIN countries c1 ON s.country = c1.id
+LEFT JOIN states s1 ON s.state = s1.id
+LEFT JOIN districts d ON s.district = d.id
+LEFT JOIN cities c2 ON s.city = c2.id
+ORDER BY s.id DESC;
     `;
     db.query(sql, callback);
   },
@@ -63,18 +65,19 @@ const School = {
 
         // SQL for inserting the new school data
         const sql = `
-      INSERT INTO school (
-        board, school_name, school_email, school_contact_number, school_landline_number,
-        school_address, state, district, city, pincode, 
-        principal_name, principal_contact_number, principal_whatsapp, 
-        vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp, 
-        manager_name, manager_contact_number, manager_whatsapp_number, 
-        first_incharge_name, first_incharge_number, first_incharge_whatsapp, 
-        second_incharge_name, second_incharge_number, second_incharge_whatsapp, 
-        junior_student_strength, senior_student_strength, classes, 
-        status, school_code, created_by, updated_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+        INSERT INTO school (
+          board, school_name, school_email, school_contact_number, school_landline_number,
+          school_address, state, district, city, pincode, country,
+          principal_name, principal_contact_number, principal_whatsapp, 
+          vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp, 
+          manager_name, manager_contact_number, manager_whatsapp_number, 
+          first_incharge_name, first_incharge_number, first_incharge_whatsapp, 
+          second_incharge_name, second_incharge_number, second_incharge_whatsapp, 
+          junior_student_strength, senior_student_strength, classes, 
+          status, school_code, created_by, updated_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
         const values = [
           data.board,
           data.school_name,
@@ -86,6 +89,7 @@ const School = {
           data.district,
           data.city,
           data.pincode,
+          data.country, // Added country field
           data.principal_name,
           data.principal_contact_number,
           data.principal_whatsapp,
@@ -103,12 +107,12 @@ const School = {
           data.second_incharge_whatsapp,
           data.junior_student_strength,
           data.senior_student_strength,
-          JSON.stringify(data.classes || []), // Ensure JSON string format
+          JSON.stringify(data.classes || []),
           data.status || null,
-          schoolCode, // Newly generated school_code
-          data.created_by, // Added created_by
-          data.updated_by , //  Ensure `updated_by` is always present
-        ]; //  NO EXTRA COMMA HERE!
+          schoolCode,
+          data.created_by,
+          data.updated_by,
+        ];
 
         // Insert the new school data
         db.query(sql, values, (err, results) => {
@@ -528,12 +532,12 @@ const School = {
   //   const classes = data.classes ? JSON.stringify(data.classes) : "[]"; // Default to an empty array if null/undefined
 
   //   const sql = `
-  //   UPDATE school 
-  //   SET board = ?, school_name = ?, school_email = ?, school_contact_number = ?, 
-  //       school_landline_number = ?, state = ?, district = ?, city = ?, pincode = ?, 
-  //       principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?, 
-  //       vice_principal_name = ?, vice_principal_contact_number = ?, 
-  //       vice_principal_whatsapp = ?, student_strength = ?, classes = ?, status = ? 
+  //   UPDATE school
+  //   SET board = ?, school_name = ?, school_email = ?, school_contact_number = ?,
+  //       school_landline_number = ?, state = ?, district = ?, city = ?, pincode = ?,
+  //       principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?,
+  //       vice_principal_name = ?, vice_principal_contact_number = ?,
+  //       vice_principal_whatsapp = ?, student_strength = ?, classes = ?, status = ?
   //   WHERE id = ?`;
 
   //   const values = [
@@ -573,7 +577,7 @@ const School = {
     const sql = `
     UPDATE school 
     SET board = ?, school_name = ?, school_email = ?, school_contact_number = ?, 
-        school_landline_number = ?, state = ?, district = ?, city = ?, pincode = ?, 
+        school_landline_number = ?, country = ?, state = ?, district = ?, city = ?, pincode = ?, 
         principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?, 
         vice_principal_name = ?, vice_principal_contact_number = ?, 
         vice_principal_whatsapp = ?,  classes = ?, status = ?,
@@ -589,6 +593,7 @@ const School = {
       data.school_email,
       data.school_contact_number,
       data.school_landline_number || null,
+      data.country || null, // Added country field
       data.state,
       data.district,
       data.city,
@@ -629,6 +634,53 @@ const School = {
   delete: (id, callback) => {
     const sql = "DELETE FROM school WHERE id = ?";
     db.query(sql, [id], callback);
+  },
+
+  // Get schools filtered by location (country, state, district, city)
+  getSchoolCountByLocation: (filters) => {
+    return new Promise((resolve, reject) => {
+      const { country, state, district, city } = filters;
+
+      const sql = `
+          SELECT 
+            COUNT(s.id) AS school_count,
+            c.name AS country_name,
+            st.name AS state_name,
+            d.name AS district_name,
+            ci.name AS city_name,
+            GROUP_CONCAT(s.school_name ORDER BY s.school_name ASC) AS school_names
+          FROM school s
+          LEFT JOIN countries c ON s.country = c.id
+          LEFT JOIN states st ON s.state = st.id
+          LEFT JOIN districts d ON s.district = d.id
+          LEFT JOIN cities ci ON s.city = ci.id
+          WHERE 
+            (? IS NULL OR s.country = ?) AND
+            (? IS NULL OR s.state = ?) AND
+            (? IS NULL OR s.district = ?) AND
+            (? IS NULL OR s.city = ?)
+          GROUP BY 
+            c.name, st.name, d.name, ci.name
+          ORDER BY 
+            c.name, st.name, d.name, ci.name
+        `;
+
+      const values = [
+        country,
+        country,
+        state,
+        state,
+        district,
+        district,
+        city,
+        city,
+      ];
+
+      db.query(sql, values, (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
   },
 };
 

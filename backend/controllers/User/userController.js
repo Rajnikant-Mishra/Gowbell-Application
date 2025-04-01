@@ -61,7 +61,7 @@ dotenv.config(); // Load environment variables
         const token = jwt.sign(
           { id: user.id, role: user.role },
           process.env.JWT_SECRET,
-          { expiresIn: "60000" }
+          { expiresIn: "3600000" }
         );
 
         RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {

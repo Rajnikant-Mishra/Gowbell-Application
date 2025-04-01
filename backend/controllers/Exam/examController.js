@@ -1,7 +1,7 @@
 import ExamParent from "../../models/Exam/Exam_parentModel.js";
 import ExamChild from "../../models/Exam/Exam_childModel.js";
 
-/** ✅ Create Exam (Parent + Child) */
+/** Create Exam (Parent + Child) */
 export const createExam = (req, res) => {
   const { exam_code, school, class_name, subject, level, exam_date, students } =
     req.body;
@@ -54,7 +54,7 @@ export const createExam = (req, res) => {
   );
 };
 
-/** ✅ Get All Exams with Student Data */
+/** Get All Exams with Student Data */
 export const getExams = (req, res) => {
   ExamParent.getAll((err, exams) => {
     if (err)
@@ -75,7 +75,7 @@ export const getExams = (req, res) => {
   });
 };
 
-/** ✅ Update Exam */
+/** Update Exam */
 export const updateExam = (req, res) => {
   const { exam_code } = req.params;
   const { school, class_name, subject, level, exam_date, students } = req.body;
@@ -105,7 +105,7 @@ export const updateExam = (req, res) => {
   );
 };
 
-/** ✅ Delete Exam */
+/**  Delete Exam */
 export const deleteExam = (req, res) => {
   const { id } = req.params;
 
@@ -118,7 +118,7 @@ export const deleteExam = (req, res) => {
 
 export const getExamsWithStudents = (req, res) => {
   ExamParent.getAllWithStudents((err, results) => {
-    if (err) {
+    if (err) {    
       return res.status(500).json({ error: "Failed to fetch exams with students", err });
     }
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllSchools, getSchoolById, createSchool, updateSchool, deleteSchool, bulkUploadSchools } from '../../controllers/School/SchoolFormController.js';
+import { getAllSchools, getSchoolById, createSchool, updateSchool, deleteSchool, bulkUploadSchools, filterByLocation } from '../../controllers/School/SchoolFormController.js';
 import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
@@ -11,5 +11,8 @@ router.delete('/schools/:id', deleteSchool);    // Delete school
 
 //BULK ROUTE
 router.post('/school/bulk-upload',  bulkUploadSchools); // Bulk student upload
+
+//getschool from country...
+router.get('/filter', filterByLocation);
 
 export default router;

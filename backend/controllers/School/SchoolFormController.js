@@ -4,7 +4,6 @@ import { sendEmail } from "../../controllers/School/mailer.js";
 import { sendSms } from "../../controllers/School/smsService.js";
 
 
-
 export const createSchool = async (req, res) => {
   const { id } = req.user; // Corrected: Removed `.id` since `req.user` should directly contain the ID
   const data = req.body;
@@ -235,3 +234,51 @@ export const deleteSchool = (req, res) => {
     res.status(200).json({ message: "School deleted" });
   });
 };
+
+
+// Filter schools by location
+export const filterByLocation = (req, res) => {
+  const { country, state, district, city } = req.query;
+
+  const filters = {
+      country: country || null,
+      state: state || null,
+      district: district || null,
+      city: city || null
+  };
+
+  School.getSchoolCountByLocation(filters)
+      .then(schoolData => {
+          if (schoolData.length === 0) {
+              return res.status(404).json({
+                  success: false,
+                  message: "No schools found for the selected filters"
+              });
+          }
+
+          res.status(200).json({
+              success: true,
+              total_schools: schoolData.reduce((sum, item) => sum + item.school_count, 0),
+              data: schoolData.map(item => ({
+                  country: item.country_name,
+                  state: item.state_name,
+                  district: item.district_name,
+                  city: item.city_name,
+                  school_count: item.school_count,
+                  schools: item.school_names ? item.school_names.split(",") : []
+              }))
+          });
+      })
+      .catch(err => {
+          console.error('Error fetching school count:', err);
+          res.status(500).json({
+              success: false,
+              message: 'Failed to fetch school count',
+              error: err.message
+          });
+      });
+};
+
+
+
+
