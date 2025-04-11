@@ -254,7 +254,6 @@ const Extra = () => {
     doc.save("packing_list.pdf");
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
   

@@ -362,7 +362,7 @@ export default function SchoolForm() {
           <Breadcrumb
             data={[
               { name: "School", link: "/schoolList" },
-              { name: "Create School" },   
+              { name: "Create School" },
             ]}
           />
         </div>
@@ -576,7 +576,9 @@ export default function SchoolForm() {
                       fontWeight: "bolder",
                     },
                   }}
-                  error={formik.touched.country && Boolean(formik.errors.country)}
+                  error={
+                    formik.touched.country && Boolean(formik.errors.country)
+                  }
                   helperText={formik.touched.country && formik.errors.country}
                   fullWidth
                 />

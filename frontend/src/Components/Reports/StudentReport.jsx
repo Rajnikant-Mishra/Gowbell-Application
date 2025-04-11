@@ -27,7 +27,7 @@ export default function StudentReport() {
   useEffect(() => {
     // Fetch data from the API when the component mounts
     axios
-      .get(`${ API_BASE_URL }/api/get/student`) // Your API URL here
+      .get(`${ API_BASE_URL }/api/get/allstudents`) // Your API URL here
       .then((response) => {
         setRecords(response.data);
         setFilteredRecords(response.data);

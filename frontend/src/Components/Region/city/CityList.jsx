@@ -843,7 +843,7 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: "Region Setup" }]} />
         </div>
         <div>
-          <CreateButton link={"/city/create"} />
+          <CreateButton link={"/region/create"} />
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>

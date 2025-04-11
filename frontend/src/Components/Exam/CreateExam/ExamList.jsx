@@ -40,6 +40,19 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -59,6 +72,8 @@ export default function DataTable() {
             return {
               ...record,
               exam_date: record.exam_date ? record.exam_date.split("T")[0] : "", // Format exam_date
+              created_at: formatTimestamp(record.created_at),
+              updated_at: formatTimestamp(record.updated_at),
               created_by: userName, // Replace created_by ID with username
             };
           })
@@ -266,12 +281,15 @@ export default function DataTable() {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                "id",
+              
                 "school name",
                 "class",
+                "subjects",
                 "level",
                 "date form",
                 "created_by",
+                "created_at",
+                "updated_at",
               ].map((col) => (
                 <th
                   key={col}
@@ -294,12 +312,15 @@ export default function DataTable() {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
-              "id",
+              
               "school name",
               "class",
+              "subjects",
               "level",
               "date form",
               "created_by",
+              "created_at",
+              "updated_at",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -328,12 +349,14 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.id}</td>
                 <td>{row.school}</td>
-                <td>{row.class}</td>
+                <td>{row.classes.join(",")}</td>
+                <td>{row.subjects.join(",")}</td>
                 <td>{row.level}</td>
                 <td>{row.exam_date}</td>
                 <td>{row.created_by}</td>
+                <td>{row.created_at}</td>
+                <td>{row.updated_at}</td>
 
                 <td>
                   <div className={styles.actionButtons}>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
+
 .omrSheetContent {
   padding: 20px;
   margin: 20px auto;
@@ -83,10 +85,10 @@
 
 .examDetails .row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 14px;
 }
-
+s
 .examDetails .column {
   flex: 1;
   /* / min-width: 222.5px; / */
@@ -119,7 +121,7 @@
 /* / instruction / */
 .instructionDetails .row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 17px;
 }
 
@@ -259,4 +261,23 @@ td {
 .omrtable {
   border: 1px solid black;
   padding: 10px 0px !important;
+}
+
+
+
+.barcodeContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  padding: 2px;
+  background-color: white;
+  height: 50px;
+  overflow: hidden;
+}
+
+
+.rollNumberText {
+  font-size: 12px;
+  font-weight: bold;
+ 
 }

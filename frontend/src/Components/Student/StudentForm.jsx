@@ -257,7 +257,7 @@ export default function StudentForm() {
         if (response.ok) {
           const data = await response.json();
           const options = data.map((item) => ({
-            value: item.name,
+            value: item.id,
             label: item.name,
           }));
           setClassOptions(options);
@@ -281,7 +281,7 @@ export default function StudentForm() {
         if (response.ok) {
           const data = await response.json();
           const options = data.map((subject) => ({
-            value: subject.name,
+            value: subject.id,
             label: subject.name,
           }));
           setSubjectOptions(options);

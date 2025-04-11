@@ -1,713 +1,2000 @@
 // import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 // import {
-//   Grid,
-//   TextField,
-//   Button,
 //   Container,
-//   Card,
-//   CardContent,
+//   Paper,
 //   Typography,
-//   Box,
+//   TextField,
+//   Grid,
 //   MenuItem,
-//   FormControl,
-//   InputLabel,
+//   Box,
 //   Select,
+//   InputLabel,
+//   FormControl,
+//   Chip,
 // } from "@mui/material";
 // import Mainlayout from "../../Layouts/Mainlayout";
-// import Swal from "sweetalert2";
-// import { useNavigate } from "react-router-dom";
-// import { jsPDF } from "jspdf";
-// import html2canvas from "html2canvas";
-// import { createRoot } from "react-dom/client";
-// import OMRSheet from "./OMRSheet";
-// import { MdPadding } from "react-icons/md";
 // import Breadcrumb from "../../CommonButton/Breadcrumb";
+// import styles from "./OmrForm.module.css";
+// import axios from "axios";
 // import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+// import Swal from "sweetalert2";
 // import "../../Common-Css/Swallfire.css";
 // import ButtonComp from "../../School/CommonComp/ButtonComp";
+// import jsPDF from "jspdf";
+// import "jspdf-autotable";
+// import OMRSheet50 from "./OMRSheet50";
+// import OMRSheet60 from "./OMRSheet60";
+// import ReactDOM from "react-dom";
+// import html2canvas from "html2canvas";
 
-// const OmrcoForm = ({ refreshData }) => {
-//   const navigate = useNavigate();
-//   const [formData, setFormData] = useState({
-//     school_name: "",
-//     class_from: "",
-//     class_to: "",
-//     omr: "",
-//     date: "",
-//     exam_level: "",
-//   });
+// // Reusable Dropdown Component
+// const Dropdown = ({ label, value, options, onChange, disabled }) => (
+//   <TextField
+//     select
+//     label={label}
+//     variant="outlined"
+//     fullWidth
+//     margin="normal"
+//     size="small"
+//     value={value}
+//     onChange={onChange}
+//     disabled={disabled}
+//   >
+//     {options.map((option, index) => (
+//       <MenuItem key={index} value={option.value}>
+//         {option.label}
+//       </MenuItem>
+//     ))}
+//   </TextField>
+// );
+
+// const ExaminationForm = () => {
+//   // State variables
 //   const [schools, setSchools] = useState([]);
-//   // const [omrOptions, setOmrOptions] = useState([]);
-//   const [students, setStudents] = useState([]);
+//   const [selectedSchool, setSelectedSchool] = useState("");
+//   const [selectedLevel, setSelectedLevel] = useState("");
+//   const [selectedModel, setSelectedModel] = useState("");
+//   const [examDate, setExamDate] = useState("");
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   const navigate = useNavigate();
 
+//   // Location data states
+//   const [countries, setCountries] = useState([]);
+//   const [states, setStates] = useState([]);
+//   const [districts, setDistricts] = useState([]);
+//   const [cities, setCities] = useState([]);
+
+//   // Selected location values
+//   const [selectedCountry, setSelectedCountry] = useState("");
+//   const [selectedState, setSelectedState] = useState("");
+//   const [selectedDistrict, setSelectedDistrict] = useState("");
+//   const [selectedCity, setSelectedCity] = useState("");
+
+//   // Filtered location options
+//   const [filteredStates, setFilteredStates] = useState([]);
+//   const [filteredDistricts, setFilteredDistricts] = useState([]);
+//   const [filteredCities, setFilteredCities] = useState([]);
+
+//   // Classes and Subjects states
+//   const [classes, setClasses] = useState([]);
+//   const [subjects, setSubjects] = useState([]);
+//   const [selectedClasses, setSelectedClasses] = useState([]);
+//   const [selectedSubjects, setSelectedSubjects] = useState([]);
+//   const [totalCount, setTotalCount] = useState(0);
+
+//   // Fetch location data on component mount
 //   useEffect(() => {
-//     const fetchSchools = async () => {
+//     let isMounted = true;
+
+//     const fetchLocationData = async () => {
 //       try {
-//         const response = await fetch(`${API_BASE_URL}/api/get/student`);
-//         const data = await response.json();
-//         setSchools(data);
+//         const [countriesRes, statesRes, districtsRes, citiesRes] = await Promise.all([
+//           axios.get(`${API_BASE_URL}/api/countries`),
+//           axios.get(`${API_BASE_URL}/api/states`),
+//           axios.get(`${API_BASE_URL}/api/districts`),
+//           axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+//         ]);
+
+//         if (isMounted) {
+//           setCountries(Array.isArray(countriesRes?.data) ? countriesRes.data : []);
+//           setStates(Array.isArray(statesRes?.data) ? statesRes.data : []);
+//           setDistricts(Array.isArray(districtsRes?.data) ? districtsRes.data : []);
+//           setCities(Array.isArray(citiesRes?.data) ? citiesRes.data : []);
+//         }
 //       } catch (error) {
-//         console.error("Error fetching schools:", error);
+//         console.error("Error fetching location data:", error);
+//         if (isMounted) {
+//           setCountries([]);
+//           setStates([]);
+//           setDistricts([]);
+//           setCities([]);
+//         }
 //       }
 //     };
 
-//     fetchSchools();
+//     fetchLocationData();
 
+//     return () => {
+//       isMounted = false;
+//     };
 //   }, []);
 
-//   const handleChange = async (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-
-//     // Check conditions for fetching students
-//     if (
-//       name === "school_name" ||
-//       name === "class_from" ||
-//       name === "class_to"
-//     ) {
-//       // Only fetch students when all three fields are filled
-//       if (formData.school_name && formData.class_from && formData.class_to) {
-//         await fetchStudentDetails();
+//   // Fetch classes data
+//   useEffect(() => {
+//     const fetchClasses = async () => {
+//       try {
+//         const response = await axios.get(`${API_BASE_URL}/api/class`);
+//         if (response.data && Array.isArray(response.data)) {
+//           setClasses(response.data.map((cls) => ({
+//             value: cls.name,
+//             label: cls.name,
+//           })));
+//         }
+//       } catch (error) {
+//         console.error("Error fetching classes:", error);
+//         setClasses([]);
 //       }
+//     };
+
+//     fetchClasses();
+//   }, []);
+
+//   // Fetch subjects data
+//   useEffect(() => {
+//     const fetchSubjects = async () => {
+//       try {
+//         const response = await axios.get(`${API_BASE_URL}/api/subject`);
+//         if (response.data && Array.isArray(response.data)) {
+//           setSubjects(response.data.map((sub) => ({
+//             value: sub.name,
+//             label: sub.name,
+//           })));
+//         }
+//       } catch (error) {
+//         console.error("Error fetching subjects:", error);
+//         setSubjects([]);
+//       }
+//     };
+
+//     fetchSubjects();
+//   }, []);
+
+//   // Debounce fetchStudentCount
+//   useEffect(() => {
+//     const debounce = (func, delay) => {
+//       let timer;
+//       return function (...args) {
+//         clearTimeout(timer);
+//         timer = setTimeout(() => func.apply(this, args), delay);
+//       };
+//     };
+//     const debouncedFetch = debounce(fetchStudentCount, 500);
+//     debouncedFetch();
+//   }, [selectedSchool, selectedClasses, selectedSubjects]);
+
+//   // Fetch schools based on location filters
+//   const fetchSchoolsByLocation = async (filters) => {
+//     setIsLoading(true);
+//     try {
+//       const response = await axios.get(`${API_BASE_URL}/api/get/filter`, { params: filters });
+//       if (response.data.success) {
+//         const schoolList = response.data.data.flatMap((location) =>
+//           location.schools.map((school) => ({
+//             school_name: school,
+//             country_name: location.country,
+//             state_name: location.state,
+//             district_name: location.district,
+//             city_name: location.city,
+//           }))
+//         );
+//         setSchools(schoolList);
+//       } else {
+//         setSchools([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching schools:", error);
+//       setError("Failed to fetch schools. Please try again.");
+//       setSchools([]);
+//     } finally {
+//       setIsLoading(false);
 //     }
 //   };
 
+//   // Handle location changes
 //   useEffect(() => {
-//     const fetchStudentDetails = async () => {
-//       if (!formData.school_name || !formData.class_from || !formData.class_to)
+//     if (selectedCountry && Array.isArray(states)) {
+//       setFilteredStates(states.filter((state) => state.country_id === selectedCountry));
+//     } else {
+//       setFilteredStates([]);
+//     }
+//     setSelectedState("");
+//     setSelectedDistrict("");
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//     fetchSchoolsByLocation({ country: selectedCountry });
+//   }, [selectedCountry, states]);
+
+//   useEffect(() => {
+//     if (selectedState && Array.isArray(districts)) {
+//       setFilteredDistricts(districts.filter((district) => district.state_id === selectedState));
+//     } else {
+//       setFilteredDistricts([]);
+//     }
+//     setSelectedDistrict("");
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//     fetchSchoolsByLocation({ country: selectedCountry, state: selectedState });
+//   }, [selectedState, districts, selectedCountry]);
+
+//   useEffect(() => {
+//     if (selectedDistrict && Array.isArray(cities)) {
+//       setFilteredCities(cities.filter((city) => city.district_id === selectedDistrict));
+//     } else {
+//       setFilteredCities([]);
+//     }
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//     fetchSchoolsByLocation({ country: selectedCountry, state: selectedState, district: selectedDistrict });
+//   }, [selectedDistrict, cities, selectedCountry, selectedState]);
+
+//   useEffect(() => {
+//     if (selectedCity) {
+//       fetchSchoolsByLocation({ country: selectedCountry, state: selectedState, district: selectedDistrict, city: selectedCity });
+//     }
+//   }, [selectedCity, selectedCountry, selectedState, selectedDistrict]);
+
+//   // Handlers
+//   const handleSchoolChange = (e) => setSelectedSchool(e.target.value);
+//   const handleClassesChange = (e) => setSelectedClasses(e.target.value);
+//   const handleSubjectsChange = (e) => setSelectedSubjects(e.target.value);
+
+//   // Dropdown options
+//   const countryOptions = Array.isArray(countries) ? countries.map((c) => ({ value: c.id, label: c.name })) : [];
+//   const stateOptions = Array.isArray(filteredStates) ? filteredStates.map((s) => ({ value: s.id, label: s.name })) : [];
+//   const districtOptions = Array.isArray(filteredDistricts) ? filteredDistricts.map((d) => ({ value: d.id, label: d.name })) : [];
+//   const cityOptions = Array.isArray(filteredCities) ? filteredCities.map((c) => ({ value: c.id, label: c.name })) : [];
+
+//  // Fetch student count based on selections
+//  const fetchStudentCount = async () => {
+//   if (!selectedSchool || selectedClasses.length === 0 || selectedSubjects.length === 0) {
+//     setTotalCount(0);
+//     return;
+//   }
+
+//   try {
+//     const response = await axios.post(`${API_BASE_URL}/api/get/filter`, {
+//       school_name: selectedSchool,
+//       class_names: selectedClasses,
+//       subjects: selectedSubjects,
+//     });
+
+//     if (response.data.success) {
+//       const count = response.data.total_count || 0;
+//       setTotalCount(count);
+//     } else {
+//       console.warn("No success in response:", response.data);
+//       setTotalCount(0);
+//     }
+//   } catch (error) {
+//     console.error("Error fetching student count:", error.response?.data || error.message);
+//     setTotalCount(0);
+//   }
+// };
+
+//   // OMR Sheet selection
+//   const getOMRSheetComponent = (className) => {
+//     const lowerClasses = ["01", "02", "03", "1", "2", "3"];
+//     const classNumber = className.replace(/\D/g, "");
+//     return lowerClasses.includes(classNumber) ? OMRSheet50 : OMRSheet60;
+//   };
+
+//   // Handle Save
+//   const handleSave = async () => {
+//     setIsLoading(true);
+//     try {
+//       if (totalCount === 0) {
+//         Swal.fire({
+//           icon: "warning",
+//           title: "No Students Found",
+//           text: "No students match the selected criteria",
+//         });
 //         return;
-
-//       try {
-//         const response = await fetch(
-//           `${API_BASE_URL}/api/get/students-by-class`,
-//           {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({
-//               school_name: formData.school_name,
-//               class_from: formData.class_from,
-//               class_to: formData.class_to,
-//             }),
-//           }
-//         );
-//         const data = await response.json();
-//         setStudents(data);
-//       } catch (error) {
-//         console.error("Error fetching student details:", error);
 //       }
-//     };
 
-//     fetchStudentDetails();
-//   }, [formData.school_name, formData.class_from, formData.class_to]);
+//       const requestData = {
+//         school_name: selectedSchool,
+//         class_names: selectedClasses,
+//         subjects: selectedSubjects,
+//       };
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
+//       const response = await axios.post(`${API_BASE_URL}/api/get/filter`, requestData);
+//       if (!response.data.success || !response.data.data) {
+//         throw new Error("No students data received");
+//       }
+//       const students = response.data.data;
 
-//     // Check if students data is fetched and available
-//     if (students.length === 0) {
+//       await generatePDF(students, selectedSchool, selectedClasses, selectedSubjects, false);
+
+//       const selectedCountryName = countries.find((c) => c.id === selectedCountry)?.name || "";
+//       const selectedStateName = filteredStates.find((s) => s.id === selectedState)?.name || "";
+//       const selectedDistrictName = filteredDistricts.find((d) => d.id === selectedDistrict)?.name || "";
+//       const selectedCityName = filteredCities.find((c) => c.id === selectedCity)?.name || "";
+
+//       const saveResponse = await axios.post(`${API_BASE_URL}/api/omr/generator`, [{
+//         country: selectedCountryName,
+//         state: selectedStateName,
+//         district: selectedDistrictName,
+//         city: selectedCityName,
+//         school: selectedSchool,
+//         classes: selectedClasses,
+//         subjects: selectedSubjects,
+//         student_count: students.length,
+//         level: selectedLevel,
+//         mode: selectedModel,
+//         generation_date: new Date().toISOString(),
+//       }]);
+
+//       Swal.fire({
+//         icon: "success",
+//         title: "Success",
+//         text: `${students.length} OMR sheets generated and data stored successfully`,
+//       });
+//       navigate("/omr-list");
+//     } catch (error) {
+//       console.error("Error in handleSave:", error);
 //       Swal.fire({
 //         icon: "error",
 //         title: "Error",
-//         text: "No students found for the selected criteria.",
-//         timer: 2000,
+//         text: "Failed to complete the operation. Please try again.",
 //       });
-//       return;
+//     } finally {
+//       setIsLoading(false);
 //     }
+//   };
 
-//     try {
-//       // Show a loading Swal while generating the PDF
-//       const loadingSwal = Swal.fire({
-//         title: "Generating OMR PDFs...",
-//         text: "Please wait while we generate the PDFs.",
-//         allowOutsideClick: false,
-//         didOpen: () => {
-//           Swal.showLoading();
-//         },
-//       });
+//   // Generate PDF
+//   const generatePDF = async (students, school, classes, subjects, showSuccess = true) => {
+//     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-//       const doc = new jsPDF();
+//     for (let i = 0; i < students.length; i++) {
+//       if (i > 0) doc.addPage();
 
-//       //G       enerate pdf logic codes
-//       for (const [index, student] of students.entries()) {
-//         // Create a container element for the OMRSheet
-//         const container = document.createElement("div");
-//         container.style.width = "794px"; // Match A4 width at 96 DPI
-//         container.style.height = "1123px"; // Match A4 height at 96 DPI
-//         document.body.appendChild(container); // Attach to the DOM to render
+//       const OMRComponent = getOMRSheetComponent(students[i].class_name);
+//       const tempDiv = document.createElement("div");
+//       tempDiv.style.width = "210mm";
+//       tempDiv.style.height = "297mm";
+//       document.body.appendChild(tempDiv);
 
-//         const root = createRoot(container);
-//         root.render(
-//           <OMRSheet
-//             schoolName={formData.school_name}
-//             classFrom={formData.class_from}
-//             classTo={formData.class_to}
-//             level={formData.exam_level}
-//             date={formData.date}
-//             student={student}
-//           />
-//         );
-
-//         // Wait for rendering to complete
-//         await new Promise((resolve) => setTimeout(resolve, 0));
-
-//         // Get the PDF page dimensions
-//         const pdfWidth = doc.internal.pageSize.getWidth();
-//         const pdfHeight = doc.internal.pageSize.getHeight();
-
-//         // Capture the content as a canvas
-//         const canvas = await html2canvas(container, {
-//           width: 794, // A4 width in pixels
-//           height: 1123, // A4 height in pixels
-//           scale: 1, // Avoid additional scaling from html2canvas
-//         });
-
-//         // Convert canvas to an image and scale to fit PDF dimensions
-//         const imgData = canvas.toDataURL("image/png");
-
-//         // Use exact PDF page dimensions for the image
-//         doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
-//         // Clean up
-//         root.unmount();
-//         container.remove();
-
-//         if (index < students.length - 1) {
-//           doc.addPage(); // Add a new page for the next student
-//         }
-//       }
-
-//       // Save the generated PDF
-//       doc.save(
-//         `OMR_${formData.school_name}_${formData.class_from}_to_${formData.class_to}.pdf`
+//       ReactDOM.render(
+//         <OMRComponent
+//           schoolName={school}
+//           student={students[i].student_name}
+//           level={selectedLevel}
+//           subject={Array.isArray(students[i].student_subject) ? students[i].student_subject.join(", ") : students[i].student_subject}
+//           className={students[i].class_name}
+//           date={examDate || new Date().toLocaleDateString()}
+//           rollNumber={students[i].roll_no}
+//         />,
+//         tempDiv
 //       );
 
-//       // Close the loading Swal
-//       Swal.close();
-
-//       // Continue with the backend submission
-//       const response = await fetch(`${API_BASE_URL}/api/co/omr`, {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           ...formData,
-//           students,
-//           student_count: students.length,
-//         }),
+//       await html2canvas(tempDiv, { scale: 2 }).then((canvas) => {
+//         const imgData = canvas.toDataURL("image/png");
+//         const imgWidth = doc.internal.pageSize.getWidth() - 20;
+//         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//         doc.addImage(imgData, "JPG", 10, 10, imgWidth, imgHeight);
+//         document.body.removeChild(tempDiv);
 //       });
+//     }
 
-//       if (response.ok) {
-//         Swal.fire({
-//           position: "top-end",
-//           icon: "success",
-//           title: "Success!",
-//           text: `co-omr created successfully!`,
-//           showConfirmButton: false,
-//           timer: 1000,
-//           timerProgressBar: true,
-//           toast: true,
-//           background: "#fff",
-//           customClass: {
-//             popup: "small-swal",
-//           },
-//         });
-//         if (refreshData) refreshData();
-//         navigate("/omr-list");
+//     const fileName = `OMR_Sheets_${school.replace(/ /g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`;
+//     doc.save(fileName);
 
-//         // Reset form and students list
-//         setFormData({
-//           school_name: "",
-//           class_from: "",
-//           class_to: "",
-//           exam_level: "",
-//           omr: "",
-//           date: "",
-//         });
-//         setStudents([]);
-//       } else {
-//         throw new Error("Failed to create OMR entry");
-//       }
-//     } catch (error) {
+//     if (showSuccess) {
 //       Swal.fire({
-//         icon: "error",
-//         title: "Error",
-//         text: "Unable to create OMR entry. Please try again.",
-//         timer: 2000,
+//         icon: "success",
+//         title: "OMR Sheets Generated",
+//         text: `${students.length} OMR sheets have been successfully exported to PDF`,
 //       });
-//       console.error("Error creating OMR entry:", error);
 //     }
 //   };
 
 //   return (
 //     <Mainlayout>
 //       <div className="d-flex justify-content-between align-items-center mb-3">
-//         <div role="presentation">
-//           <Breadcrumb
-//             data={[{ name: "OMR", link: "/omr-list" }, { name: "CreateOMR" }]}
-//           />
-//         </div>
+//         <Breadcrumb data={[{ name: "OMR", link: "/omr-list" }, { name: "Create Omr" }]} />
 //       </div>
-//       <Container maxWidth="sm" style={{ marginTop: "7%" }}>
-//         <Card elevation={3}>
-//           <CardContent>
-//             <Typography
-//               variant="h5"
-//               component="div"
-//               align="center"
-//               gutterBottom
-//             >
-//               Create OMR Entry
-//             </Typography>
-//             <form onSubmit={handleSubmit}>
-//               <Box display="flex" flexDirection="column" gap={2}>
-//                 <TextField
-//                   select
-//                   fullWidth
-//                   label="School Name"
-//                   name="school_name"
-//                   value={formData.school_name}
-//                   onChange={handleChange}
-//                   variant="outlined"
-//                   required
-//                   size="small"
-//                   InputProps={{
-//                     style: { fontSize: "14px" }, // Adjust input text size
-//                   }}
-//                   InputLabelProps={{
-//                     style: { fontSize: "14px" }, // Adjust label size
-//                   }}
-//                 >
-//                   {schools.map((school) => (
-//                     <MenuItem key={school.id} value={school.school_name}>
-//                       {school.school_name}
-//                     </MenuItem>
-//                   ))}
-//                 </TextField>
+//       <Container component="main" maxWidth="">
+//         <Paper className={`${styles.main}`} elevation={3} style={{ padding: "20px", marginTop: "16px" }}>
+//           <Typography className={`${styles.formTitle} mb-4`}>Create OMR Schedule</Typography>
+//           <form noValidate autoComplete="off">
+//             <Grid container spacing={2}>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="Country" value={selectedCountry} options={countryOptions} onChange={(e) => setSelectedCountry(e.target.value)} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="State" value={selectedState} options={stateOptions} onChange={(e) => setSelectedState(e.target.value)} disabled={!selectedCountry} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="District" value={selectedDistrict} options={districtOptions} onChange={(e) => setSelectedDistrict(e.target.value)} disabled={!selectedState} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="City" value={selectedCity} options={cityOptions} onChange={(e) => setSelectedCity(e.target.value)} disabled={!selectedDistrict} />
+//               </Grid>
+//             </Grid>
 
-//                 <Grid container spacing={2}>
-//                   {/* Class From */}
-//                   <Grid item xs={6}>
-//                     <TextField
-//                       select
-//                       fullWidth
-//                       label="Class From"
-//                       name="class_from"
-//                       value={formData.class_from}
-//                       onChange={handleChange}
-//                       variant="outlined"
-//                       required
-//                       size="small"
-//                       InputProps={{
-//                         style: { fontSize: "14px" }, // Adjust input text size
-//                       }}
-//                       InputLabelProps={{
-//                         style: { fontSize: "14px" }, // Adjust label size
-//                       }}
-//                     >
-//                       {schools
-//                         .filter(
-//                           (school) =>
-//                             school.school_name === formData.school_name
-//                         )
-//                         .map((school) => (
-//                           <MenuItem key={school.id} value={school.class_name}>
-//                             {school.class_name}
-//                           </MenuItem>
-//                         ))}
-//                     </TextField>
-//                   </Grid>
+//             <Grid container spacing={2}>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="School" value={selectedSchool} options={schools.map((s) => ({ value: s.school_name, label: `${s.school_name} (${s.city_name || ""})` }))} onChange={handleSchoolChange} disabled={isLoading || !selectedCity} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <FormControl fullWidth margin="normal" size="small">
+//                   <InputLabel>Classes</InputLabel>
+//                   <Select multiple value={selectedClasses} onChange={handleClassesChange} label="Classes" renderValue={(selected) => (
+//                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+//                       {selected.map((value) => <Chip key={value} label={classes.find((c) => c.value === value)?.label || value} size="small" />)}
+//                     </Box>
+//                   )}>
+//                     {classes.map((cls) => <MenuItem key={cls.value} value={cls.value}>{cls.label}</MenuItem>)}
+//                   </Select>
+//                 </FormControl>
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <FormControl fullWidth margin="normal" size="small">
+//                   <InputLabel>Subjects</InputLabel>
+//                   <Select multiple value={selectedSubjects} onChange={handleSubjectsChange} label="Subjects" renderValue={(selected) => (
+//                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+//                       {selected.map((value) => <Chip key={value} label={subjects.find((s) => s.value === value)?.label || value} size="small" />)}
+//                     </Box>
+//                   )}>
+//                     {subjects.map((sub) => <MenuItem key={sub.value} value={sub.value}>{sub.label}</MenuItem>)}
+//                   </Select>
+//                 </FormControl>
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="Level" value={selectedLevel} options={[{ value: "Level 1", label: "Level 1" }, { value: "Level 2", label: "Level 2" }, { value: "Level 3", label: "Level 3" }, { value: "Level 4", label: "Level 4" }]} onChange={(e) => setSelectedLevel(e.target.value)} disabled={isLoading} />
+//               </Grid>
+//             </Grid>
+//             <Grid container spacing={2}>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="Mode" value={selectedModel} options={[{ value: "Online", label: "Online" }, { value: "Offline", label: "Offline" }]} onChange={(e) => setSelectedModel(e.target.value)} disabled={isLoading} />
+//               </Grid>
+//             </Grid>
 
-//                   {/* Class To */}
-//                   <Grid item xs={6}>
-//                     <TextField
-//                       select
-//                       fullWidth
-//                       label="Class To"
-//                       name="class_to"
-//                       value={formData.class_to}
-//                       onChange={handleChange}
-//                       variant="outlined"
-//                       required
-//                       size="small"
-//                       InputProps={{
-//                         style: { fontSize: "14px" }, // Adjust input text size
-//                       }}
-//                       InputLabelProps={{
-//                         style: { fontSize: "14px" }, // Adjust label size
-//                       }}
-//                     >
-//                       {schools
-//                         .filter(
-//                           (school) =>
-//                             school.school_name === formData.school_name
-//                         )
-//                         .map((school) => (
-//                           <MenuItem key={school.id} value={school.class_name}>
-//                             {school.class_name}
-//                           </MenuItem>
-//                         ))}
-//                     </TextField>
-//                   </Grid>
-//                 </Grid>
-//                 <Grid container spacing={2}>
-//                   {/* Exam Level Select */}
-//                   <Grid item xs={12} sm={6}>
-//                     <FormControl fullWidth>
-//                       {/* <InputLabel>Exam Level</InputLabel> */}
-//                       <TextField
-//                         select
-//                         name="exam_level"
-//                         value={formData.exam_level}
-//                         onChange={handleChange}
-//                         label="Exam Level"
-//                         required
-//                         size="small"
-//                         InputProps={{
-//                           style: { fontSize: "14px" }, // Adjust input text size
-//                         }}
-//                         InputLabelProps={{
-//                           style: { fontSize: "14px" }, // Adjust label size
-//                         }}
-//                       >
-//                         <MenuItem value="level1">Level 1</MenuItem>
-//                         <MenuItem value="level2">Level 2</MenuItem>
-//                         <MenuItem value="level3">Level 3</MenuItem>
-//                         <MenuItem value="level4">Level 4</MenuItem>
-//                       </TextField>
-//                     </FormControl>
-//                   </Grid>
+//             <div className="mt-3 mb-3">
+//               {totalCount > 0 ? (
+//                 <Typography variant="h6" color="primary">Total Students: {totalCount}</Typography>
+//               ) : (
+//                 selectedSchool && selectedClasses.length > 0 && selectedSubjects.length > 0 && (
+//                   <Typography variant="body2" color="textSecondary">No students found matching the criteria</Typography>
+//                 )
+//               )}
+//             </div>
+//           </form>
 
-//                   {/* OMR Details Select */}
-//                   <Grid item xs={12} sm={6}>
-//                     <TextField
-
-//                       fullWidth
-//                       label="OMR Details"
-//                       name="omr"
-//                       value={formData.omr}
-//                       onChange={handleChange}
-//                       variant="outlined"
-//                       required
-//                       size="small"
-//                       InputProps={{
-//                         style: { fontSize: "14px" }, // Adjust input text size
-//                       }}
-//                       InputLabelProps={{
-//                         style: { fontSize: "14px" }, // Adjust label size
-//                       }}
-//                     >
-//                     </TextField>
-//                   </Grid>
-//                 </Grid>
-//                 <TextField
-//                   fullWidth
-//                   label="Date"
-//                   name="date"
-//                   type="date"
-//                   value={formData.date}
-//                   onChange={handleChange}
-//                   variant="outlined"
-//                   required
-//                   size="small"
-//                   InputProps={{
-//                     style: { fontSize: "14px" }, // Adjust input text size
-//                   }}
-//                   InputLabelProps={{
-//                     style: { fontSize: "14px" }, // Adjust label size
-//                     shrink: true,
-//                   }}
-//                 />
-//                 {students.length > 0 && (
-//                   <Typography variant="body2" color="textSecondary">
-//                     Total Students: {students.length}
-//                   </Typography>
-//                 )}
-
-//                 <Box className={` gap-2 mt-2`} sx={{ display: "flex", gap: 2 }}>
-//                   <ButtonComp
-//                     text="Submit"
-//                     type="submit"
-//                     disabled={false}
-//                     sx={{ flexGrow: 1 }}
-//                   />
-//                   <ButtonComp
-//                     text="Cancel"
-//                     type="button"
-//                     sx={{ flexGrow: 1 }}
-//                     onClick={() => navigate("/omr-list")}
-//                   />
-//                 </Box>
-//               </Box>
-//             </form>
-//           </CardContent>
-//         </Card>
+//           <Box className={`${styles.buttonContainer} gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+//             <ButtonComp variant="contained" color="primary" style={{ marginTop: "20px" }} onClick={handleSave} disabled={!selectedSchool || selectedClasses.length === 0 || selectedSubjects.length === 0 || isLoading || totalCount === 0} text={isLoading ? "Processing..." : "Generate PDF"} sx={{ flexGrow: 1 }} />
+//             <ButtonComp text="Cancel" type="button" sx={{ flexGrow: 1 }} onClick={() => navigate("/examList")} disabled={isLoading} />
+//           </Box>
+//         </Paper>
 //       </Container>
 //     </Mainlayout>
 //   );
 // };
 
-// export default OmrcoForm;
+// export default ExaminationForm;
 
-import Mainlayout from "../../Layouts/Mainlayout";
-import React, { useEffect, useState } from "react";
+
+
+// import React, { useState, useEffect, useCallback } from "react";
+// import { useNavigate } from "react-router-dom";
+// import {
+//   Container,
+//   Paper,
+//   Typography,
+//   TextField,
+//   Grid,
+//   MenuItem,
+//   Box,
+//   Select,
+//   InputLabel,
+//   FormControl,
+//   Chip,
+// } from "@mui/material";
+// import Mainlayout from "../../Layouts/Mainlayout";
+// import Breadcrumb from "../../CommonButton/Breadcrumb";
+// import styles from "./OmrForm.module.css";
+// import axios from "axios";
+// import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+// import Swal from "sweetalert2";
+// import "../../Common-Css/Swallfire.css";
+// import ButtonComp from "../../School/CommonComp/ButtonComp";
+// import jsPDF from "jspdf";
+// import "jspdf-autotable";
+// import OMRSheet50 from "./OMRSheet50";
+// import OMRSheet60 from "./OMRSheet60";
+// import ReactDOM from "react-dom";
+// import html2canvas from "html2canvas";
+
+// // Reusable Dropdown Component
+// const Dropdown = ({ label, value, options, onChange, disabled }) => (
+//   <TextField
+//     select
+//     label={label}
+//     variant="outlined"
+//     fullWidth
+//     margin="normal"
+//     size="small"
+//     value={value}
+//     onChange={onChange}
+//     disabled={disabled}
+//   >
+//     {options.map((option) => (
+//       <MenuItem key={option.value} value={option.value}>
+//         {option.label}
+//       </MenuItem>
+//     ))}
+//   </TextField>
+// );
+
+// const ExaminationForm = () => {
+//   // State declarations
+//   const [schools, setSchools] = useState([]);
+//   const [selectedSchool, setSelectedSchool] = useState("");
+//   const [selectedLevel, setSelectedLevel] = useState("");
+//   const [selectedModel, setSelectedModel] = useState("");
+//   const [examDate, setExamDate] = useState("");
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [fetchError, setFetchError] = useState(null);
+//   const navigate = useNavigate();
+
+//   // Location states
+//   const [countries, setCountries] = useState([]);
+//   const [states, setStates] = useState([]);
+//   const [districts, setDistricts] = useState([]);
+//   const [cities, setCities] = useState([]);
+//   const [selectedCountry, setSelectedCountry] = useState("");
+//   const [selectedState, setSelectedState] = useState("");
+//   const [selectedDistrict, setSelectedDistrict] = useState("");
+//   const [selectedCity, setSelectedCity] = useState("");
+//   const [filteredStates, setFilteredStates] = useState([]);
+//   const [filteredDistricts, setFilteredDistricts] = useState([]);
+//   const [filteredCities, setFilteredCities] = useState([]);
+
+//   // Classes and Subjects states (now using IDs)
+//   const [classes, setClasses] = useState([]); // {id, name}
+//   const [subjects, setSubjects] = useState([]); // {id, name}
+//   const [selectedClassIds, setSelectedClassIds] = useState([]);
+//   const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
+//   const [totalCount, setTotalCount] = useState(0);
+
+//   // Fetch initial data
+//   useEffect(() => {
+//     let isMounted = true;
+
+//     const fetchInitialData = async () => {
+//       try {
+//         setIsLoading(true);
+//         const [
+//           countriesRes,
+//           statesRes,
+//           districtsRes,
+//           citiesRes,
+//           classesRes,
+//           subjectsRes,
+//         ] = await Promise.all([
+//           axios.get(`${API_BASE_URL}/api/countries`),
+//           axios.get(`${API_BASE_URL}/api/states`),
+//           axios.get(`${API_BASE_URL}/api/districts`),
+//           axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+//           axios.get(`${API_BASE_URL}/api/class`),
+//           axios.get(`${API_BASE_URL}/api/subject`),
+//         ]);
+
+//         if (isMounted) {
+//           setCountries(countriesRes.data || []);
+//           setStates(statesRes.data || []);
+//           setDistricts(districtsRes.data || []);
+//           setCities(citiesRes.data || []);
+//           // Store both ID and name for classes and subjects
+//           setClasses(
+//             (classesRes.data || []).map((cls) => ({
+//               id: cls.id,
+//               name: cls.name,
+//             }))
+//           );
+//           setSubjects(
+//             (subjectsRes.data || []).map((sub) => ({
+//               id: sub.id,
+//               name: sub.name,
+//             }))
+//           );
+//         }
+//       } catch (error) {
+//         console.error("Error fetching initial data:", error);
+//         setFetchError("Failed to load initial data");
+//       } finally {
+//         if (isMounted) setIsLoading(false);
+//       }
+//     };
+
+//     fetchInitialData();
+//     return () => {
+//       isMounted = false;
+//     };
+//   }, []);
+
+//   // Location filtering effects
+//   useEffect(() => {
+//     setFilteredStates(states.filter((s) => s.country_id === selectedCountry));
+//     setSelectedState("");
+//     setSelectedDistrict("");
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//   }, [selectedCountry, states]);
+
+//   useEffect(() => {
+//     setFilteredDistricts(districts.filter((d) => d.state_id === selectedState));
+//     setSelectedDistrict("");
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//   }, [selectedState, districts]);
+
+//   useEffect(() => {
+//     setFilteredCities(cities.filter((c) => c.district_id === selectedDistrict));
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//   }, [selectedDistrict, cities]);
+
+//   // Fetch schools
+//   const fetchSchoolsByLocation = useCallback(async (filters) => {
+//     try {
+//       setIsLoading(true);
+//       const response = await axios.get(`${API_BASE_URL}/api/get/filter`, {
+//         params: filters,
+//       });
+//       if (response.data.success) {
+//         const schoolList = response.data.data.flatMap((location) =>
+//           location.schools.map((school) => ({
+//             school_name: school,
+//             country_name: location.country,
+//             state_name: location.state,
+//             district_name: location.district,
+//             city_name: location.city,
+//           }))
+//         );
+//         setSchools(schoolList);
+//         setFetchError(null);
+//       } else {
+//         setSchools([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching schools:", error);
+//       setFetchError("Failed to fetch schools");
+//       setSchools([]);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     const filters = {
+//       country: selectedCountry,
+//       state: selectedState,
+//       district: selectedDistrict,
+//       city: selectedCity,
+//     };
+//     if (selectedCountry) fetchSchoolsByLocation(filters);
+//   }, [
+//     selectedCountry,
+//     selectedState,
+//     selectedDistrict,
+//     selectedCity,
+//     fetchSchoolsByLocation,
+//   ]);
+
+//   // Fetch student count
+//   const fetchStudentCount = useCallback(async () => {
+//     if (
+//       !selectedSchool ||
+//       !selectedClassIds.length ||
+//       !selectedSubjectIds.length
+//     ) {
+//       setTotalCount(0);
+//       setFetchError(null);
+//       return;
+//     }
+
+//     try {
+//       setIsLoading(true);
+//       const response = await axios.post(`${API_BASE_URL}/api/get/filter`, {
+//         schoolName: selectedSchool,
+//         classList: selectedClassIds, // Send IDs instead of names
+//         subjectList: selectedSubjectIds, // Send IDs instead of names
+//       });
+
+//       setTotalCount(response.data.totalCount || 0);
+//       setFetchError(null);
+//     } catch (error) {
+//       console.error("Error fetching student count:", error);
+//       setFetchError("Failed to fetch student count");
+//       setTotalCount(0);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, [selectedSchool, selectedClassIds, selectedSubjectIds]);
+
+//   useEffect(() => {
+//     const timeoutId = setTimeout(fetchStudentCount, 500);
+//     return () => clearTimeout(timeoutId);
+//   }, [fetchStudentCount]);
+
+//   // Handlers
+//   const handleSave = async () => {
+//     if (!totalCount) {
+//       Swal.fire({
+//         icon: "warning",
+//         title: "No Students",
+//         text: "Please select valid criteria with available students",
+//       });
+//       return;
+//     }
+
+//     setIsLoading(true);
+//     try {
+//       const response = await axios.post(`${API_BASE_URL}/api/get/filter`, {
+//         schoolName: selectedSchool,
+//         classList: selectedClassIds,
+//         subjectList: selectedSubjectIds,
+//       });
+
+//       if (!response.data.students?.length) {
+//         throw new Error("No student data received");
+//       }
+
+//       await generatePDF(response.data.students);
+
+//       await axios.post(`${API_BASE_URL}/api/omr/generator`, [
+//         {
+//           country: countries.find((c) => c.id === selectedCountry)?.name,
+//           state: filteredStates.find((s) => s.id === selectedState)?.name,
+//           district: filteredDistricts.find((d) => d.id === selectedDistrict)
+//             ?.name,
+//           city: filteredCities.find((c) => c.id === selectedCity)?.name,
+//           school: selectedSchool,
+//           classes: selectedClassIds.map(
+//             (id) => classes.find((c) => c.id === id)?.name
+//           ),
+//           subjects: selectedSubjectIds.map(
+//             (id) => subjects.find((s) => s.id === id)?.name
+//           ),
+//           student_count: response.data.students.length,
+//           level: selectedLevel,
+//           mode: selectedModel,
+//           generation_date: new Date().toISOString(),
+//         },
+//       ]);
+
+//       Swal.fire({
+//         icon: "success",
+//         title: "Success",
+//         text: `${response.data.students.length} OMR sheets generated successfully`,
+//       });
+//       navigate("/omr-list");
+//     } catch (error) {
+//       Swal.fire({
+//         icon: "error",
+//         title: "Error",
+//         text: error.message || "Failed to generate OMR sheets",
+//       });
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   // PDF Generation
+//   const generatePDF = async (students) => {
+//     const doc = new jsPDF({
+//       orientation: "portrait",
+//       unit: "mm",
+//       format: "a4",
+//     });
+
+//     for (let i = 0; i < students.length; i++) {
+//       if (i > 0) doc.addPage();
+//       const OMRComponent = getOMRSheetComponent(students[i].class_name);
+//       const tempDiv = document.createElement("div");
+//       tempDiv.style.width = "210mm";
+//       tempDiv.style.height = "297mm";
+//       document.body.appendChild(tempDiv);
+
+//       ReactDOM.render(
+//         <OMRComponent
+//           schoolName={selectedSchool}
+//           student={students[i].student_name}
+//           level={selectedLevel}
+//           subject={students[i].subject_names}
+//           className={students[i].class_name}
+//           date={examDate || new Date().toLocaleDateString()}
+//           rollNumber={students[i].roll_no}
+//         />,
+//         tempDiv
+//       );
+
+//       await html2canvas(tempDiv, { scale: 2 }).then((canvas) => {
+//         const imgData = canvas.toDataURL("image/png");
+//         const imgWidth = doc.internal.pageSize.getWidth() - 20;
+//         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//         doc.addImage(imgData, "JPG", 10, 10, imgWidth, imgHeight);
+//         document.body.removeChild(tempDiv);
+//       });
+//     }
+
+//     doc.save(
+//       `OMR_Sheets_${selectedSchool.replace(/ /g, "_")}_${new Date()
+//         .toISOString()
+//         .slice(0, 10)}.pdf`
+//     );
+//   };
+
+//   const getOMRSheetComponent = (className) => {
+//     const lowerClasses = ["01", "02", "03", "1", "2", "3"];
+//     const classNumber = className.replace(/\D/g, "");
+//     return lowerClasses.includes(classNumber) ? OMRSheet50 : OMRSheet60;
+//   };
+
+//   // Options
+//   const dropdownOptions = {
+//     countries: countries.map((c) => ({ value: c.id, label: c.name })),
+//     states: filteredStates.map((s) => ({ value: s.id, label: s.name })),
+//     districts: filteredDistricts.map((d) => ({ value: d.id, label: d.name })),
+//     cities: filteredCities.map((c) => ({ value: c.id, label: c.name })),
+//     schools: schools.map((s) => ({
+//       value: s.school_name,
+//       label: `${s.school_name} (${s.city_name || ""})`,
+//     })),
+//     classes: classes.map((c) => ({ value: c.id, label: c.name })),
+//     subjects: subjects.map((s) => ({ value: s.id, label: s.name })),
+//     levels: [
+//       { value: "Level 1", label: "Level 1" },
+//       { value: "Level 2", label: "Level 2" },
+//       { value: "Level 3", label: "Level 3" },
+//       { value: "Level 4", label: "Level 4" },
+//     ],
+//     modes: [
+//       { value: "Online", label: "Online" },
+//       { value: "Offline", label: "Offline" },
+//     ],
+//   };
+
+//   return (
+//     <Mainlayout>
+//       <div className="d-flex justify-content-between align-items-center mb-3">
+//         <Breadcrumb
+//           data={[{ name: "OMR", link: "/omr-list" }, { name: "Create OMR" }]}
+//         />
+//       </div>
+//       <Container component="main" maxWidth="">
+//         <Paper
+//           className={styles.main}
+//           elevation={3}
+//           style={{ padding: "20px", marginTop: "16px" }}
+//         >
+//           <Typography className={`${styles.formTitle} mb-4`}>
+//             Create OMR Schedule
+//           </Typography>
+//           {fetchError && (
+//             <Typography color="error" className="mb-3">
+//               {fetchError}
+//             </Typography>
+//           )}
+//           <form noValidate autoComplete="off">
+//             <Grid container spacing={2}>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="Country"
+//                   value={selectedCountry}
+//                   options={dropdownOptions.countries}
+//                   onChange={(e) => setSelectedCountry(e.target.value)}
+//                   disabled={isLoading}
+//                 />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="State"
+//                   value={selectedState}
+//                   options={dropdownOptions.states}
+//                   onChange={(e) => setSelectedState(e.target.value)}
+//                   disabled={!selectedCountry || isLoading}
+//                 />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="District"
+//                   value={selectedDistrict}
+//                   options={dropdownOptions.districts}
+//                   onChange={(e) => setSelectedDistrict(e.target.value)}
+//                   disabled={!selectedState || isLoading}
+//                 />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="City"
+//                   value={selectedCity}
+//                   options={dropdownOptions.cities}
+//                   onChange={(e) => setSelectedCity(e.target.value)}
+//                   disabled={!selectedDistrict || isLoading}
+//                 />
+//               </Grid>
+
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="School"
+//                   value={selectedSchool}
+//                   options={dropdownOptions.schools}
+//                   onChange={(e) => setSelectedSchool(e.target.value)}
+//                   disabled={isLoading || !selectedCity}
+//                 />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <FormControl
+//                   fullWidth
+//                   margin="normal"
+//                   size="small"
+//                   disabled={isLoading}
+//                 >
+//                   <InputLabel>Classes</InputLabel>
+//                   <Select
+//                     multiple
+//                     value={selectedClassIds}
+//                     onChange={(e) => setSelectedClassIds(e.target.value)}
+//                     label="Classes"
+//                     renderValue={(selected) => (
+//                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+//                         {selected.map((id) => (
+//                           <Chip
+//                             key={id}
+//                             label={classes.find((c) => c.id === id)?.name || id}
+//                             size="small"
+//                           />
+//                         ))}
+//                       </Box>
+//                     )}
+//                   >
+//                     {classes.map((cls) => (
+//                       <MenuItem key={cls.id} value={cls.id}>
+//                         {cls.name}
+//                       </MenuItem>
+//                     ))}
+//                   </Select>
+//                 </FormControl>
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <FormControl
+//                   fullWidth
+//                   margin="normal"
+//                   size="small"
+//                   disabled={isLoading}
+//                 >
+//                   <InputLabel>Subjects</InputLabel>
+//                   <Select
+//                     multiple
+//                     value={selectedSubjectIds}
+//                     onChange={(e) => setSelectedSubjectIds(e.target.value)}
+//                     label="Subjects"
+//                     renderValue={(selected) => (
+//                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+//                         {selected.map((id) => (
+//                           <Chip
+//                             key={id}
+//                             label={
+//                               subjects.find((s) => s.id === id)?.name || id
+//                             }
+//                             size="small"
+//                           />
+//                         ))}
+//                       </Box>
+//                     )}
+//                   >
+//                     {subjects.map((sub) => (
+//                       <MenuItem key={sub.id} value={sub.id}>
+//                         {sub.name}
+//                       </MenuItem>
+//                     ))}
+//                   </Select>
+//                 </FormControl>
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="Level"
+//                   value={selectedLevel}
+//                   options={dropdownOptions.levels}
+//                   onChange={(e) => setSelectedLevel(e.target.value)}
+//                   disabled={isLoading}
+//                 />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown
+//                   label="Mode"
+//                   value={selectedModel}
+//                   options={dropdownOptions.modes}
+//                   onChange={(e) => setSelectedModel(e.target.value)}
+//                   disabled={isLoading}
+//                 />
+//               </Grid>
+//             </Grid>
+
+//             <Box mt={3} mb={3}>
+//               {totalCount > 0 ? (
+//                 <Typography variant="h6" color="primary">
+//                   Total Students: {totalCount}
+//                 </Typography>
+//               ) : (
+//                 selectedSchool &&
+//                 selectedClassIds.length > 0 &&
+//                 selectedSubjectIds.length > 0 && (
+//                   <Typography variant="body2" color="textSecondary">
+//                     No students found matching the criteria
+//                   </Typography>
+//                 )
+//               )}
+//             </Box>
+
+//             <Box
+//               className={`${styles.buttonContainer} gap-2 mt-4`}
+//               sx={{ display: "flex", gap: 2 }}
+//             >
+//               <ButtonComp
+//                 variant="contained"
+//                 color="primary"
+//                 onClick={handleSave}
+//                 disabled={
+//                   !selectedSchool ||
+//                   !selectedClassIds.length ||
+//                   !selectedSubjectIds.length ||
+//                   isLoading ||
+//                   !totalCount
+//                 }
+//                 text={isLoading ? "Processing..." : "Generate PDF"}
+//                 sx={{ flexGrow: 1 }}
+//               />
+//               <ButtonComp
+//                 text="Cancel"
+//                 onClick={() => navigate("/examList")}
+//                 disabled={isLoading}
+//                 sx={{ flexGrow: 1 }}
+//               />
+//             </Box>
+//           </form>
+//         </Paper>
+//       </Container>
+//     </Mainlayout>
+//   );
+// };
+
+// export default ExaminationForm;
+
+
+
+// import React, { useState, useEffect, useCallback } from "react";
+// import { useNavigate } from "react-router-dom";
+// import {
+//   Container,
+//   Paper,
+//   Typography,
+//   TextField,
+//   Grid,
+//   MenuItem,
+//   Box,
+//   Select,
+//   InputLabel,
+//   FormControl,
+//   Chip,
+// } from "@mui/material";
+// import Mainlayout from "../../Layouts/Mainlayout";
+// import Breadcrumb from "../../CommonButton/Breadcrumb";
+// import styles from "./OmrForm.module.css";
+// import axios from "axios";
+// import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+// import Swal from "sweetalert2";
+// import "../../Common-Css/Swallfire.css";
+// import ButtonComp from "../../School/CommonComp/ButtonComp";
+// import jsPDF from "jspdf";
+// import "jspdf-autotable";
+// import OMRSheet50 from "./OMRSheet50";
+// import OMRSheet60 from "./OMRSheet60";
+// import ReactDOM from "react-dom";
+// import html2canvas from "html2canvas";
+
+// // Reusable Dropdown Component
+// const Dropdown = ({ label, value, options, onChange, disabled }) => (
+//   <TextField
+//     select
+//     label={label}
+//     variant="outlined"
+//     fullWidth
+//     margin="normal"
+//     size="small"
+//     value={value}
+//     onChange={onChange}
+//     disabled={disabled}
+//   >
+//     {options.map((option) => (
+//       <MenuItem key={option.value} value={option.value}>
+//         {option.label}
+//       </MenuItem>
+//     ))}
+//   </TextField>
+// );
+
+// const ExaminationForm = () => {
+//   // State declarations
+//   const [schools, setSchools] = useState([]);
+//   const [selectedSchool, setSelectedSchool] = useState("");
+//   const [selectedLevel, setSelectedLevel] = useState("");
+//   const [selectedModel, setSelectedModel] = useState("");
+//   const [examDate, setExamDate] = useState("");
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [fetchError, setFetchError] = useState(null);
+//   const navigate = useNavigate();
+
+//   // Location states
+//   const [countries, setCountries] = useState([]);
+//   const [states, setStates] = useState([]);
+//   const [districts, setDistricts] = useState([]);
+//   const [cities, setCities] = useState([]);
+//   const [selectedCountry, setSelectedCountry] = useState("");
+//   const [selectedState, setSelectedState] = useState("");
+//   const [selectedDistrict, setSelectedDistrict] = useState("");
+//   const [selectedCity, setSelectedCity] = useState("");
+//   const [filteredStates, setFilteredStates] = useState([]);
+//   const [filteredDistricts, setFilteredDistricts] = useState([]);
+//   const [filteredCities, setFilteredCities] = useState([]);
+
+//   // Classes and Subjects states (using IDs)
+//   const [classes, setClasses] = useState([]); // {id, name}
+//   const [subjects, setSubjects] = useState([]); // {id, name}
+//   const [selectedClassIds, setSelectedClassIds] = useState([]);
+//   const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
+//   const [totalCount, setTotalCount] = useState(0);
+
+//   // Fetch initial data
+//   useEffect(() => {
+//     let isMounted = true;
+
+//     const fetchInitialData = async () => {
+//       try {
+//         setIsLoading(true);
+//         const [countriesRes, statesRes, districtsRes, citiesRes, classesRes, subjectsRes] = await Promise.all([
+//           axios.get(`${API_BASE_URL}/api/countries`),
+//           axios.get(`${API_BASE_URL}/api/states`),
+//           axios.get(`${API_BASE_URL}/api/districts`),
+//           axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+//           axios.get(`${API_BASE_URL}/api/class`),
+//           axios.get(`${API_BASE_URL}/api/subject`),
+//         ]);
+
+//         if (isMounted) {
+//           setCountries(countriesRes.data || []);
+//           setStates(statesRes.data || []);
+//           setDistricts(districtsRes.data || []);
+//           setCities(citiesRes.data || []);
+//           setClasses((classesRes.data || []).map(cls => ({ id: cls.id, name: cls.name })));
+//           setSubjects((subjectsRes.data || []).map(sub => ({ id: sub.id, name: sub.name })));
+//         }
+//       } catch (error) {
+//         console.error("Error fetching initial data:", error);
+//         setFetchError("Failed to load initial data");
+//       } finally {
+//         if (isMounted) setIsLoading(false);
+//       }
+//     };
+
+//     fetchInitialData();
+//     return () => { isMounted = false; };
+//   }, []);
+
+//   // Location filtering effects
+//   useEffect(() => {
+//     setFilteredStates(states.filter(s => s.country_id === selectedCountry));
+//     setSelectedState("");
+//     setSelectedDistrict("");
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//   }, [selectedCountry, states]);
+
+//   useEffect(() => {
+//     setFilteredDistricts(districts.filter(d => d.state_id === selectedState));
+//     setSelectedDistrict("");
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//   }, [selectedState, districts]);
+
+//   useEffect(() => {
+//     setFilteredCities(cities.filter(c => c.district_id === selectedDistrict));
+//     setSelectedCity("");
+//     setSelectedSchool("");
+//   }, [selectedDistrict, cities]);
+
+//   // Fetch schools
+//   const fetchSchoolsByLocation = useCallback(async (filters) => {
+//     try {
+//       setIsLoading(true);
+//       const response = await axios.get(`${API_BASE_URL}/api/get/filter`, { params: filters });
+//       if (response.data.success) {
+//         const schoolList = response.data.data.flatMap(location => 
+//           location.schools.map(school => ({
+//             school_name: school,
+//             country_name: location.country,
+//             state_name: location.state,
+//             district_name: location.district,
+//             city_name: location.city,
+//           }))
+//         );
+//         setSchools(schoolList);
+//         setFetchError(null);
+//       } else {
+//         setSchools([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching schools:", error);
+//       setFetchError("Failed to fetch schools");
+//       setSchools([]);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     const filters = {
+//       country: selectedCountry,
+//       state: selectedState,
+//       district: selectedDistrict,
+//       city: selectedCity,
+//     };
+//     if (selectedCountry) fetchSchoolsByLocation(filters);
+//   }, [selectedCountry, selectedState, selectedDistrict, selectedCity, fetchSchoolsByLocation]);
+
+//   // Fetch student count
+//   const fetchStudentCount = useCallback(async () => {
+//     if (!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length) {
+//       setTotalCount(0);
+//       setFetchError(null);
+//       return;
+//     }
+
+//     try {
+//       setIsLoading(true);
+//       const response = await axios.post(`${API_BASE_URL}/api/get/filter`, {
+//         schoolName: selectedSchool,
+//         classList: selectedClassIds,
+//         subjectList: selectedSubjectIds,
+//       });
+      
+//       setTotalCount(response.data.totalCount || 0);
+//       setFetchError(null);
+//     } catch (error) {
+//       console.error("Error fetching student count:", error);
+//       setFetchError("Failed to fetch student count");
+//       setTotalCount(0);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, [selectedSchool, selectedClassIds, selectedSubjectIds]);
+
+//   useEffect(() => {
+//     const timeoutId = setTimeout(fetchStudentCount, 500);
+//     return () => clearTimeout(timeoutId);
+//   }, [fetchStudentCount]);
+
+//   // Handlers
+//   const handleSave = async () => {
+//     if (!totalCount) {
+//       Swal.fire({
+//         icon: "warning",
+//         title: "No Students",
+//         text: "Please select valid criteria with available students",
+//       });
+//       return;
+//     }
+
+//     setIsLoading(true);
+//     try {
+//       const response = await axios.post(`${API_BASE_URL}/api/get/filter`, {
+//         schoolName: selectedSchool,
+//         classList: selectedClassIds,
+//         subjectList: selectedSubjectIds,
+//       });
+
+//       if (!response.data.students?.length) {
+//         throw new Error("No student data received");
+//       }
+
+//       await generatePDF(response.data.students);
+
+//       await axios.post(`${API_BASE_URL}/api/omr/generator`, [{
+//         country: countries.find(c => c.id === selectedCountry)?.name,
+//         state: filteredStates.find(s => s.id === selectedState)?.name,
+//         district: filteredDistricts.find(d => d.id === selectedDistrict)?.name,
+//         city: filteredCities.find(c => c.id === selectedCity)?.name,
+//         school: selectedSchool,
+//         classes: selectedClassIds.map(id => classes.find(c => c.id === id)?.name),
+//         subjects: selectedSubjectIds.map(id => subjects.find(s => s.id === id)?.name),
+//         student_count: response.data.students.length,
+//         level: selectedLevel,
+//         mode: selectedModel,
+//         generation_date: new Date().toISOString(),
+//       }]);
+
+//       Swal.fire({
+//         icon: "success",
+//         title: "Success",
+//         text: `${response.data.students.length} OMR sheets generated successfully`,
+//       });
+//       navigate("/omr-list");
+//     } catch (error) {
+//       Swal.fire({
+//         icon: "error",
+//         title: "Error",
+//         text: error.message || "Failed to generate OMR sheets",
+//       });
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   // PDF Generation - Added subjectIds prop
+//   const generatePDF = async (students) => {
+//     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+//     for (let i = 0; i < students.length; i++) {
+//       if (i > 0) doc.addPage();
+//       const OMRComponent = getOMRSheetComponent(students[i].class_name);
+//       const tempDiv = document.createElement("div");
+//       tempDiv.style.width = "210mm";
+//       tempDiv.style.height = "297mm";
+//       document.body.appendChild(tempDiv);
+
+//       // Calculate subject IDs based on subject_names if available, otherwise use selectedSubjectIds
+//       const subjectIds = students[i].subject_names
+//         ? students[i].subject_names.split(',').map(name => {
+//             const subject = subjects.find(s => s.name === name.trim());
+//             return subject ? subject.id : name;
+//           }).join(", ")
+//         : selectedSubjectIds.join(", ");
+
+//       ReactDOM.render(
+//         <OMRComponent
+//           schoolName={selectedSchool}
+//           student={students[i].student_name}
+//           level={selectedLevel}
+//           subject={students[i].subject_names} // Keep as is
+//           subjectIds={subjectIds} // New prop with IDs
+//           className={students[i].class_name}
+//           date={examDate || new Date().toLocaleDateString()}
+//           rollNumber={students[i].roll_no}
+//         />,
+//         tempDiv
+//       );
+
+//       await html2canvas(tempDiv, { scale: 2 }).then(canvas => {
+//         const imgData = canvas.toDataURL("image/png");
+//         const imgWidth = doc.internal.pageSize.getWidth() - 20;
+//         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//         doc.addImage(imgData, "JPG", 10, 10, imgWidth, imgHeight);
+//         document.body.removeChild(tempDiv);
+//       });
+//     }
+
+//     doc.save(`OMR_Sheets_${selectedSchool.replace(/ /g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`);
+//   };
+
+//   const getOMRSheetComponent = (className) => {
+//     const lowerClasses = ["01", "02", "03", "1", "2", "3"];
+//     const classNumber = className.replace(/\D/g, "");
+//     return lowerClasses.includes(classNumber) ? OMRSheet50 : OMRSheet60;
+//   };
+
+//   // Options
+//   const dropdownOptions = {
+//     countries: countries.map(c => ({ value: c.id, label: c.name })),
+//     states: filteredStates.map(s => ({ value: s.id, label: s.name })),
+//     districts: filteredDistricts.map(d => ({ value: d.id, label: d.name })),
+//     cities: filteredCities.map(c => ({ value: c.id, label: c.name })),
+//     schools: schools.map(s => ({ value: s.school_name, label: `${s.school_name} (${s.city_name || ""})` })),
+//     classes: classes.map(c => ({ value: c.id, label: c.name })),
+//     subjects: subjects.map(s => ({ value: s.id, label: s.name })),
+//     levels: [
+//       { value: "Level 1", label: "Level 1" },
+//       { value: "Level 2", label: "Level 2" },
+//       { value: "Level 3", label: "Level 3" },
+//       { value: "Level 4", label: "Level 4" },
+//     ],
+//     modes: [
+//       { value: "Online", label: "Online" },
+//       { value: "Offline", label: "Offline" },
+//     ],
+//   };
+
+//   return (
+//     <Mainlayout>
+//       <div className="d-flex justify-content-between align-items-center mb-3">
+//         <Breadcrumb data={[{ name: "OMR", link: "/omr-list" }, { name: "Create OMR" }]} />
+//       </div>
+//       <Container component="main" maxWidth="">
+//         <Paper className={styles.main} elevation={3} style={{ padding: "20px", marginTop: "16px" }}>
+//           <Typography className={`${styles.formTitle} mb-4`}>Create OMR Schedule</Typography>
+//           {fetchError && (
+//             <Typography color="error" className="mb-3">{fetchError}</Typography>
+//           )}
+//           <form noValidate autoComplete="off">
+//             <Grid container spacing={2}>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="Country" value={selectedCountry} options={dropdownOptions.countries} onChange={e => setSelectedCountry(e.target.value)} disabled={isLoading} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="State" value={selectedState} options={dropdownOptions.states} onChange={e => setSelectedState(e.target.value)} disabled={!selectedCountry || isLoading} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="District" value={selectedDistrict} options={dropdownOptions.districts} onChange={e => setSelectedDistrict(e.target.value)} disabled={!selectedState || isLoading} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="City" value={selectedCity} options={dropdownOptions.cities} onChange={e => setSelectedCity(e.target.value)} disabled={!selectedDistrict || isLoading} />
+//               </Grid>
+
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="School" value={selectedSchool} options={dropdownOptions.schools} onChange={e => setSelectedSchool(e.target.value)} disabled={isLoading || !selectedCity} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <FormControl fullWidth margin="normal" size="small" disabled={isLoading}>
+//                   <InputLabel>Classes</InputLabel>
+//                   <Select
+//                     multiple
+//                     value={selectedClassIds}
+//                     onChange={e => setSelectedClassIds(e.target.value)}
+//                     label="Classes"
+//                     renderValue={selected => (
+//                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+//                         {selected.map(id => (
+//                           <Chip key={id} label={classes.find(c => c.id === id)?.name || id} size="small" />
+//                         ))}
+//                       </Box>
+//                     )}
+//                   >
+//                     {classes.map(cls => (
+//                       <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+//                     ))}
+//                   </Select>
+//                 </FormControl>
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <FormControl fullWidth margin="normal" size="small" disabled={isLoading}>
+//                   <InputLabel>Subjects</InputLabel>
+//                   <Select
+//                     multiple
+//                     value={selectedSubjectIds}
+//                     onChange={e => setSelectedSubjectIds(e.target.value)}
+//                     label="Subjects"
+//                     renderValue={selected => (
+//                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+//                         {selected.map(id => (
+//                           <Chip key={id} label={subjects.find(s => s.id === id)?.name || id} size="small" />
+//                         ))}
+//                       </Box>
+//                     )}
+//                   >
+//                     {subjects.map(sub => (
+//                       <MenuItem key={sub.id} value={sub.id}>{sub.name}</MenuItem>
+//                     ))}
+//                   </Select>
+//                 </FormControl>
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="Level" value={selectedLevel} options={dropdownOptions.levels} onChange={e => setSelectedLevel(e.target.value)} disabled={isLoading} />
+//               </Grid>
+//               <Grid item xs={12} sm={6} md={3}>
+//                 <Dropdown label="Mode" value={selectedModel} options={dropdownOptions.modes} onChange={e => setSelectedModel(e.target.value)} disabled={isLoading} />
+//               </Grid>
+//             </Grid>
+
+//             <Box mt={3} mb={3}>
+//               {totalCount > 0 ? (
+//                 <Typography variant="h6" color="primary">Total Students: {totalCount}</Typography>
+//               ) : (
+//                 selectedSchool && selectedClassIds.length > 0 && selectedSubjectIds.length > 0 && (
+//                   <Typography variant="body2" color="textSecondary">No students found matching the criteria</Typography>
+//                 )
+//               )}
+//             </Box>
+
+//             <Box className={`${styles.buttonContainer} gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+//               <ButtonComp
+//                 variant="contained"
+//                 color="primary"
+//                 onClick={handleSave}
+//                 disabled={!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length || isLoading || !totalCount}
+//                 text={isLoading ? "Processing..." : "Generate PDF"}
+//                 sx={{ flexGrow: 1 }}
+//               />
+//               <ButtonComp
+//                 text="Cancel"
+//                 onClick={() => navigate("/examList")}
+//                 disabled={isLoading}
+//                 sx={{ flexGrow: 1 }}
+//               />
+//             </Box>
+//           </form>
+//         </Paper>
+//       </Container>
+//     </Mainlayout>
+//   );
+// };
+
+// export default ExaminationForm;
+
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Box,
-  TextField,
-  MenuItem,
-  Typography,
   Container,
   Paper,
+  Typography,
+  TextField,
   Grid,
+  MenuItem,
+  Box,
+  Select,
+  InputLabel,
+  FormControl,
+  Chip,
 } from "@mui/material";
-import ButtonComp from "../../School/CommonComp/ButtonComp";
+import Mainlayout from "../../Layouts/Mainlayout";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
-import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import styles from "./OmrForm.module.css";
 import axios from "axios";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import "../../Common-Css/Swallfire.css";
+import ButtonComp from "../../School/CommonComp/ButtonComp";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import OMRSheet50 from "./OMRSheet50";
+import OMRSheet60 from "./OMRSheet60";
+import ReactDOM from "react-dom";
+import html2canvas from "html2canvas";
 
-const SchoolForm = () => {
-  const navigate = useNavigate();
-  // State to manage form inputs
-  const [formData, setFormData] = useState({
-    school_name: "",
-    total_student: "",
-    level: "",
-    status: "Active",
-  });
+// Reusable Dropdown Component
+const Dropdown = ({ label, value, options, onChange, disabled }) => (
+  <TextField
+    select
+    label={label}
+    variant="outlined"
+    fullWidth
+    margin="normal"
+    size="small"
+    value={value}
+    onChange={onChange}
+    disabled={disabled}
+  >
+    {options.map((option) => (
+      <MenuItem key={option.value} value={option.value}>
+        {option.label}
+      </MenuItem>
+    ))}
+  </TextField>
+);
 
-  // State to store the list of schools
+const ExaminationForm = () => {
+  // State declarations
   const [schools, setSchools] = useState([]);
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [selectedModel, setSelectedModel] = useState("");
+  const [examDate, setExamDate] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch schools when the component mounts
+  // Location states
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+
+  // Classes and Subjects states (using IDs)
+  const [classes, setClasses] = useState([]); // {id, name}
+  const [subjects, setSubjects] = useState([]); // {id, name}
+  const [selectedClassIds, setSelectedClassIds] = useState([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Fetch initial data
   useEffect(() => {
-    const fetchSchools = async () => {
+    let isMounted = true;
+
+    const fetchInitialData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/get/schools`);
-        setSchools(response.data);
+        setIsLoading(true);
+        const [countriesRes, statesRes, districtsRes, citiesRes, classesRes, subjectsRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/countries`),
+          axios.get(`${API_BASE_URL}/api/states`),
+          axios.get(`${API_BASE_URL}/api/districts`),
+          axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+          axios.get(`${API_BASE_URL}/api/class`),
+          axios.get(`${API_BASE_URL}/api/subject`),
+        ]);
+
+        if (isMounted) {
+          setCountries(countriesRes.data || []);
+          setStates(statesRes.data || []);
+          setDistricts(districtsRes.data || []);
+          setCities(citiesRes.data || []);
+          setClasses((classesRes.data || []).map(cls => ({ id: cls.id, name: cls.name })));
+          setSubjects((subjectsRes.data || []).map(sub => ({ id: sub.id, name: sub.name })));
+        }
       } catch (error) {
-        console.error("Error fetching schools:", error);
+        console.error("Error fetching initial data:", error);
+        setFetchError("Failed to load initial data");
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     };
 
-    fetchSchools();
+    fetchInitialData();
+    return () => { isMounted = false; };
   }, []);
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  // Location filtering effects
+  useEffect(() => {
+    setFilteredStates(states.filter(s => s.country_id === selectedCountry));
+    setSelectedState("");
+    setSelectedDistrict("");
+    setSelectedCity("");
+    setSelectedSchool("");
+  }, [selectedCountry, states]);
 
-    // Fetch student data when school name changes
-    if (name === "school_name") {
-      fetchStudentData(value);
-    }
-  };
+  useEffect(() => {
+    setFilteredDistricts(districts.filter(d => d.state_id === selectedState));
+    setSelectedDistrict("");
+    setSelectedCity("");
+    setSelectedSchool("");
+  }, [selectedState, districts]);
 
-  // Fetch student data from the backend
-  const fetchStudentData = async (school_name) => {
+  useEffect(() => {
+    setFilteredCities(cities.filter(c => c.district_id === selectedDistrict));
+    setSelectedCity("");
+    setSelectedSchool("");
+  }, [selectedDistrict, cities]);
+
+  // Fetch schools
+  const fetchSchoolsByLocation = useCallback(async (filters) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/api/e1/students/count`,
-        {
-          params: { school: school_name },
-        }
-      );
-
-      if (response.data && response.data.length > 0) {
-        const { total_students, level } = response.data[0];
-        setFormData((prevData) => ({
-          ...prevData,
-          total_student: total_students,
-          level: level,
-        }));
+      setIsLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/api/get/filter`, { params: filters });
+      if (response.data.success) {
+        const schoolList = response.data.data.flatMap(location => 
+          location.schools.map(school => ({
+            school_name: school,
+            country_name: location.country,
+            state_name: location.state,
+            district_name: location.district,
+            city_name: location.city,
+          }))
+        );
+        setSchools(schoolList);
+        setFetchError(null);
+      } else {
+        setSchools([]);
       }
     } catch (error) {
-      console.error("Error fetching student data:", error);
+      console.error("Error fetching schools:", error);
+      setFetchError("Failed to fetch schools");
+      setSchools([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const filters = {
+      country: selectedCountry,
+      state: selectedState,
+      district: selectedDistrict,
+      city: selectedCity,
+    };
+    if (selectedCountry) fetchSchoolsByLocation(filters);
+  }, [selectedCountry, selectedState, selectedDistrict, selectedCity, fetchSchoolsByLocation]);
+
+  // Fetch student count
+  const fetchStudentCount = useCallback(async () => {
+    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length) {
+      setTotalCount(0);
+      setFetchError(null);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await axios.post(`${API_BASE_URL}/api/get/filter`, { // Changed back to /api/filter to match previous backend
+        schoolName: selectedSchool,
+        classList: selectedClassIds,
+        subjectList: selectedSubjectIds,
+      });
+      
+      setTotalCount(response.data.totalCount || 0);
+      setFetchError(null);
+    } catch (error) {
+      console.error("Error fetching student count:", error);
+      setFetchError("Failed to fetch student count");
+      setTotalCount(0);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedSchool, selectedClassIds, selectedSubjectIds]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(fetchStudentCount, 500);
+    return () => clearTimeout(timeoutId);
+  }, [fetchStudentCount]);
+
+  // Handlers
+  const handleSave = async () => {
+    if (!totalCount) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Students",
+        text: "Please select valid criteria with available students",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/get/filter`, { // Changed back to /api/filter
+        schoolName: selectedSchool,
+        classList: selectedClassIds,
+        subjectList: selectedSubjectIds,
+      });
+
+      if (!response.data.students?.length) {
+        throw new Error("No student data received");
+      }
+
+      await generatePDF(response.data.students);
+
+      await axios.post(`${API_BASE_URL}/api/omr/generator`, [{
+        country: countries.find(c => c.id === selectedCountry)?.name,
+        state: filteredStates.find(s => s.id === selectedState)?.name,
+        district: filteredDistricts.find(d => d.id === selectedDistrict)?.name,
+        city: filteredCities.find(c => c.id === selectedCity)?.name,
+        school: selectedSchool,
+        classes: selectedClassIds.map(id => classes.find(c => c.id === id)?.name),
+        subjects: selectedSubjectIds.map(id => subjects.find(s => s.id === id)?.name),
+        student_count: response.data.students.length,
+        level: selectedLevel,
+        mode: selectedModel,
+        generation_date: new Date().toISOString(),
+      }]);
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: `${response.data.students.length} OMR sheets generated successfully`,
+      });
+      navigate("/omr-list");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Failed to generate OMR sheets",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/co/omr`, formData);
-      console.log("OMR created:", response.data);
+  // PDF Generation - Added subjectIds and classId props
+  const generatePDF = async (students) => {
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-      // Show success message using SweetAlert2
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Success!",
-        text: `Co-OMR created successfully!`,
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
-      });
+    for (let i = 0; i < students.length; i++) {
+      if (i > 0) doc.addPage();
+      const OMRComponent = getOMRSheetComponent(students[i].class_name);
+      const tempDiv = document.createElement("div");
+      tempDiv.style.width = "210mm";
+      tempDiv.style.height = "297mm";
+      document.body.appendChild(tempDiv);
 
-      // Redirect to /omr-list after the alert
-      navigate("/omr-list");
-    } catch (error) {
-      console.error("Error creating OMR:", error);
+      // Calculate subject IDs based on subject_names if available, otherwise use selectedSubjectIds
+      const subjectIds = students[i].subject_names
+        ? students[i].subject_names.split(',').map(name => {
+            const subject = subjects.find(s => s.name === name.trim());
+            return subject ? subject.id : name;
+          }).join(", ")
+        : selectedSubjectIds.join(", ");
 
-      // Show error message using SweetAlert2
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Error!",
-        text: `Failed to create Co-OMR. Please try again.`,
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+      // Calculate class ID based on class_name
+      const classId = students[i].class_name
+        ? (() => {
+            const cls = classes.find(c => c.name === students[i].class_name);
+            return cls ? cls.id : students[i].class_name;
+          })()
+        : selectedClassIds[0]; // Fallback to first selected class ID if multiple are selected
+
+      ReactDOM.render(
+        <OMRComponent
+          schoolName={selectedSchool}
+          student={students[i].student_name}
+          level={selectedLevel}
+          subject={students[i].subject_names} // Keep as is
+          subjectIds={subjectIds} // New prop with subject IDs
+          className={students[i].class_name} // Keep as is
+          classId={classId} // New prop with class ID
+          date={examDate || new Date().toLocaleDateString()}
+          rollNumber={students[i].roll_no}
+        />,
+        tempDiv
+      );
+
+      await html2canvas(tempDiv, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = doc.internal.pageSize.getWidth() - 20;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        doc.addImage(imgData, "JPG", 10, 10, imgWidth, imgHeight);
+        document.body.removeChild(tempDiv);
       });
     }
+
+    doc.save(`OMR_Sheets_${selectedSchool.replace(/ /g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  const getOMRSheetComponent = (className) => {
+    const lowerClasses = ["01", "02", "03", "1", "2", "3"];
+    const classNumber = className.replace(/\D/g, "");
+    return lowerClasses.includes(classNumber) ? OMRSheet50 : OMRSheet60;
+  };
+
+  // Options
+  const dropdownOptions = {
+    countries: countries.map(c => ({ value: c.id, label: c.name })),
+    states: filteredStates.map(s => ({ value: s.id, label: s.name })),
+    districts: filteredDistricts.map(d => ({ value: d.id, label: d.name })),
+    cities: filteredCities.map(c => ({ value: c.id, label: c.name })),
+    schools: schools.map(s => ({ value: s.school_name, label: `${s.school_name} (${s.city_name || ""})` })),
+    classes: classes.map(c => ({ value: c.id, label: c.name })),
+    subjects: subjects.map(s => ({ value: s.id, label: s.name })),
+    levels: [
+      { value: "Level 1", label: "Level 1" },
+      { value: "Level 2", label: "Level 2" },
+      { value: "Level 3", label: "Level 3" },
+      { value: "Level 4", label: "Level 4" },
+    ],
+    modes: [
+      { value: "Online", label: "Online" },
+      { value: "Offline", label: "Offline" },
+    ],
   };
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <div role="presentation">
-          <Breadcrumb
-            data={[{ name: "OMR", link: "/omr-list" }, { name: "CreateOMR" }]}
-          />
-        </div>
+        <Breadcrumb data={[{ name: "OMR", link: "/omr-list" }, { name: "Create OMR" }]} />
       </div>
-      <Container maxWidth="sm">
-        <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
-          <Typography variant="h4" align="center" gutterBottom>
-            Omr create
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
+      <Container component="main" maxWidth="">
+        <Paper className={styles.main} elevation={3} style={{ padding: "20px", marginTop: "16px" }}>
+          <Typography className={`${styles.formTitle} mb-4`}>Create OMR Schedule</Typography>
+          {fetchError && (
+            <Typography color="error" className="mb-3">{fetchError}</Typography>
+          )}
+          <form noValidate autoComplete="off">
             <Grid container spacing={2}>
-              {/* School Name Dropdown */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  select
-                  label="School Name"
-                  name="school_name"
-                  value={formData.school_name}
-                  onChange={handleChange}
-                  margin="normal"
-                  size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
-                  }}
-                  required
-                >
-                  {schools.map((school) => (
-                    <MenuItem key={school.id} value={school.school_name}>
-                      {school.school_name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="Country" value={selectedCountry} options={dropdownOptions.countries} onChange={e => setSelectedCountry(e.target.value)} disabled={isLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="State" value={selectedState} options={dropdownOptions.states} onChange={e => setSelectedState(e.target.value)} disabled={!selectedCountry || isLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="District" value={selectedDistrict} options={dropdownOptions.districts} onChange={e => setSelectedDistrict(e.target.value)} disabled={!selectedState || isLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="City" value={selectedCity} options={dropdownOptions.cities} onChange={e => setSelectedCity(e.target.value)} disabled={!selectedDistrict || isLoading} />
               </Grid>
 
-              {/* Total Students */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Total Students"
-                  name=" total_student"
-                  value={formData.total_student}
-                  onChange={handleChange}
-                  margin="normal"
-                  size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
-                  }}
-                  required
-                />
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="School" value={selectedSchool} options={dropdownOptions.schools} onChange={e => setSelectedSchool(e.target.value)} disabled={isLoading || !selectedCity} />
               </Grid>
-
-              {/* Level */}
-              <Grid item xs={12} sm={6} sx={{marginTop:"-10px"}}>
-                <TextField
-                  fullWidth
-                  label="Level"
-                  name="level"
-                  value={formData.level}
-                  onChange={handleChange}
-                  margin="normal"
-                  size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
-                  }}
-                  required
-                ></TextField>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth margin="normal" size="small" disabled={isLoading}>
+                  <InputLabel>Classes</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedClassIds}
+                    onChange={e => setSelectedClassIds(e.target.value)}
+                    label="Classes"
+                    renderValue={selected => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map(id => (
+                          <Chip key={id} label={classes.find(c => c.id === id)?.name || id} size="small" />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {classes.map(cls => (
+                      <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
-
-              {/* Status */}
-              <Grid item xs={12} sm={6}  sx={{marginTop:"-10px"}}>
-                <TextField
-                  fullWidth
-                  select
-                  label="Status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  margin="normal"
-                  size="small"
-                  InputProps={{
-                    style: { fontSize: "14px" }, // Adjust input text size
-                  }}
-                  InputLabelProps={{
-                    style: { fontSize: "14px" }, // Adjust label size
-                  }}
-                  required
-                >
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="Inactive">Inactive</MenuItem>
-                  <MenuItem value="Pending">Pending</MenuItem>
-                </TextField>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth margin="normal" size="small" disabled={isLoading}>
+                  <InputLabel>Subjects</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedSubjectIds}
+                    onChange={e => setSelectedSubjectIds(e.target.value)}
+                    label="Subjects"
+                    renderValue={selected => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map(id => (
+                          <Chip key={id} label={subjects.find(s => s.id === id)?.name || id} size="small" />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {subjects.map(sub => (
+                      <MenuItem key={sub.id} value={sub.id}>{sub.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="Level" value={selectedLevel} options={dropdownOptions.levels} onChange={e => setSelectedLevel(e.target.value)} disabled={isLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Dropdown label="Mode" value={selectedModel} options={dropdownOptions.modes} onChange={e => setSelectedModel(e.target.value)} disabled={isLoading} />
               </Grid>
             </Grid>
 
-            {/* Submit Button */}
-            <Box className={` gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+            <Box mt={3} mb={3}>
+              {totalCount > 0 ? (
+                <Typography variant="h6" color="primary">Total Students: {totalCount}</Typography>
+              ) : (
+                selectedSchool && selectedClassIds.length > 0 && selectedSubjectIds.length > 0 && (
+                  <Typography variant="body2" color="textSecondary">No students found matching the criteria</Typography>
+                )
+              )}
+            </Box>
+
+            <Box className={`${styles.buttonContainer} gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
               <ButtonComp
-                text="Submit"
-                type="submit"
-                disabled={false}
+                variant="contained"
+                color="primary"
+                onClick={handleSave}
+                disabled={!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length || isLoading || !totalCount}
+                text={isLoading ? "Processing..." : "Generate PDF"}
                 sx={{ flexGrow: 1 }}
               />
               <ButtonComp
                 text="Cancel"
-                type="button"
+                onClick={() => navigate("/examList")}
+                disabled={isLoading}
                 sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/omr-list")}
               />
             </Box>
-          </Box>
+          </form>
         </Paper>
       </Container>
     </Mainlayout>
   );
 };
 
-export default SchoolForm;
+export default ExaminationForm;

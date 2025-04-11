@@ -50,8 +50,6 @@
 //   // State variables
 //   const [schools, setSchools] = useState([]);
 //   const [selectedSchool, setSelectedSchool] = useState("");
-//   const [classes, setClasses] = useState([]);
-//   const [subjects, setSubjects] = useState([]);
 //   const [students, setStudents] = useState([]);
 //   const [selectedClass, setSelectedClass] = useState("");
 //   const [selectedSubject, setSelectedSubject] = useState("");
@@ -90,7 +88,6 @@
 //             axios.get(`${API_BASE_URL}/api/cities/all/c1`),
 //           ]);
 
-//         // Ensure we have arrays even if the API returns something else
 //         setCountries(
 //           Array.isArray(countriesRes?.data) ? countriesRes.data : []
 //         );
@@ -101,7 +98,6 @@
 //         setCities(Array.isArray(citiesRes?.data) ? citiesRes.data : []);
 //       } catch (error) {
 //         console.error("Error fetching location data:", error);
-//         // Set empty arrays if there's an error
 //         setCountries([]);
 //         setStates([]);
 //         setDistricts([]);
@@ -111,6 +107,37 @@
 
 //     fetchLocationData();
 //   }, []);
+
+//   // Function to fetch schools based on location filters
+//   const fetchSchoolsByLocation = async (filters) => {
+//     setIsLoading(true);
+//     try {
+//       const response = await axios.get(`${API_BASE_URL}/api/get/filter`, {
+//         params: filters,
+//       });
+
+//       if (response.data.success) {
+//         const schoolList = response.data.data.flatMap((location) =>
+//           location.schools.map((school) => ({
+//             school_name: school,
+//             country_name: location.country,
+//             state_name: location.state,
+//             district_name: location.district,
+//             city_name: location.city,
+//           }))
+//         );
+//         setSchools(schoolList);
+//       } else {
+//         setSchools([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching schools by location:", error);
+//       setError("Failed to fetch schools. Please try again.");
+//       setSchools([]);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
 
 //   // Handle country change
 //   useEffect(() => {
@@ -125,6 +152,15 @@
 //     setSelectedState("");
 //     setSelectedDistrict("");
 //     setSelectedCity("");
+
+//     // Fetch schools when country changes
+//     const filters = {
+//       country: selectedCountry,
+//       state: null,
+//       district: null,
+//       city: null,
+//     };
+//     fetchSchoolsByLocation(filters);
 //   }, [selectedCountry, states]);
 
 //   // Handle state change
@@ -139,6 +175,15 @@
 //     }
 //     setSelectedDistrict("");
 //     setSelectedCity("");
+
+//     // Fetch schools when state changes
+//     const filters = {
+//       country: selectedCountry,
+//       state: selectedState,
+//       district: null,
+//       city: null,
+//     };
+//     fetchSchoolsByLocation(filters);
 //   }, [selectedState, districts]);
 
 //   // Handle district change
@@ -152,7 +197,30 @@
 //       setFilteredCities([]);
 //     }
 //     setSelectedCity("");
+
+//     // Fetch schools when district changes
+//     const filters = {
+//       country: selectedCountry,
+//       state: selectedState,
+//       district: selectedDistrict,
+//       city: null,
+//     };
+//     fetchSchoolsByLocation(filters);
 //   }, [selectedDistrict, cities]);
+
+//   // Handle city change
+//   useEffect(() => {
+//     if (selectedCity) {
+//       // Fetch schools when city changes
+//       const filters = {
+//         country: selectedCountry,
+//         state: selectedState,
+//         district: selectedDistrict,
+//         city: selectedCity,
+//       };
+//       fetchSchoolsByLocation(filters);
+//     }
+//   }, [selectedCity]);
 
 //   // Prepare options for dropdowns with null checks
 //   const countryOptions = Array.isArray(countries)
@@ -183,106 +251,6 @@
 //       }))
 //     : [];
 
-//   // Fetch schools on component mount
-//   useEffect(() => {
-//     const fetchSchools = async () => {
-//       setIsLoading(true);
-//       try {
-//         const response = await axios.get(`${API_BASE_URL}/api/get/schools`);
-//         setSchools(response.data);
-//       } catch (error) {
-//         console.error("Error fetching schools:", error);
-//         setError("Failed to fetch schools. Please try again.");
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-//     fetchSchools();
-//   }, []);
-
-//   // Fetch classes when a school is selected
-//   useEffect(() => {
-//     const fetchClasses = async () => {
-//       if (selectedSchool) {
-//         setIsLoading(true);
-//         try {
-//           const response = await axios.get(
-//             `${API_BASE_URL}/api/get/students-by-classes?school_name=${selectedSchool}`
-//           );
-//           const classNames = response.data.map((item) => item.class_name);
-//           setClasses(classNames);
-//         } catch (error) {
-//           console.error("Error fetching classes:", error);
-//           setError("Failed to fetch classes. Please try again.");
-//         } finally {
-//           setIsLoading(false);
-//         }
-//       }
-//     };
-//     fetchClasses();
-//   }, [selectedSchool]);
-
-//   // Fetch subjects when the component mounts
-//   useEffect(() => {
-//     const fetchSubjects = async () => {
-//       setIsLoading(true);
-//       try {
-//         const response = await axios.get(`${API_BASE_URL}/api/subject`);
-//         const subjectNames = response.data.map((item) => item.name);
-//         setSubjects(subjectNames);
-//       } catch (error) {
-//         console.error("Error fetching subjects:", error);
-//         setError("Failed to fetch subjects. Please try again.");
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-//     fetchSubjects();
-//   }, []);
-
-//   // Fetch students when a subject is selected
-//   useEffect(() => {
-//     const fetchStudents = async () => {
-//       if (selectedSchool && selectedClass && selectedSubject) {
-//         setIsLoading(true);
-//         try {
-//           const response = await axios.get(
-//             `${API_BASE_URL}/api/get/students-by-all?school_name=${selectedSchool}&class_name=${selectedClass}&student_subject=${selectedSubject}`
-//           );
-//           setStudents(response.data);
-//         } catch (error) {
-//           console.error("Error fetching students:", error);
-//           setError("Failed to fetch students. Please try again.");
-//           setStudents([]); // Clear students on error
-//         } finally {
-//           setIsLoading(false);
-//         }
-//       } else {
-//         setStudents([]); // Clear students if any condition is not met
-//       }
-//     };
-//     fetchStudents();
-//   }, [selectedSchool, selectedClass, selectedSubject]);
-
-//   // Handle school selection
-//   const handleSchoolChange = (event) => {
-//     setSelectedSchool(event.target.value);
-//     setSelectedClass("");
-//     setSelectedSubject("");
-//     setStudents([]);
-//   };
-
-//   // Handle class selection
-//   const handleClassChange = (event) => {
-//     setSelectedClass(event.target.value);
-//     setSelectedSubject("");
-//     setStudents([]);
-//   };
-
-//   // Handle subject selection
-//   const handleSubjectChange = (event) => {
-//     setSelectedSubject(event.target.value);
-//   };
 
 //   // Handle exam date change
 //   const handleExamDateChange = (event) => {
@@ -296,7 +264,7 @@
 //       return;
 //     }
 
-//     const token = localStorage.getItem("token"); // Get token from localStorage
+//     const token = localStorage.getItem("token");
 
 //     if (!token) {
 //       Swal.fire({
@@ -317,7 +285,7 @@
 //     }
 
 //     const examData = {
-//       exam_code: `EXAM-${Date.now()}`, // Generate a unique exam code
+//       exam_code: `EXAM-${Date.now()}`,
 //       school: selectedSchool,
 //       class_name: selectedClass,
 //       subject: selectedSubject,
@@ -327,7 +295,7 @@
 //         student_name: student.student_name,
 //         roll_number: student.roll_no,
 //         class: student.class_name,
-//         full_mark: 100, // Assuming full marks are 100
+//         full_mark: 100,
 //         subject: student.student_subject,
 //       })),
 //     };
@@ -338,7 +306,7 @@
 
 //       await axios.post(`${API_BASE_URL}/api/e1/create-exam`, examData, {
 //         headers: {
-//           Authorization: `Bearer ${token}`, // Send token in headers
+//           Authorization: `Bearer ${token}`,
 //         },
 //       });
 
@@ -359,7 +327,7 @@
 
 //       navigate("/examList");
 
-//       // Reset form after successful submission
+//       // Reset form
 //       setSelectedSchool("");
 //       setSelectedClass("");
 //       setSelectedSubject("");
@@ -456,10 +424,12 @@
 //                   value={selectedSchool}
 //                   options={schools.map((school) => ({
 //                     value: school.school_name,
-//                     label: school.school_name,
+//                     label: `${school.school_name} ${
+//                       school.city_name ? `(${school.city_name})` : ""
+//                     }`,
 //                   }))}
 //                   onChange={handleSchoolChange}
-//                   disabled={false}
+//                   disabled={isLoading}
 //                 />
 //               </Grid>
 
@@ -473,7 +443,7 @@
 //                     label: cls,
 //                   }))}
 //                   onChange={handleClassChange}
-//                   disabled={!selectedSchool}
+//                   disabled={!selectedSchool || isLoading}
 //                 />
 //               </Grid>
 
@@ -487,7 +457,7 @@
 //                     label: subject,
 //                   }))}
 //                   onChange={handleSubjectChange}
-//                   disabled={false}
+//                   disabled={isLoading}
 //                 />
 //               </Grid>
 
@@ -503,7 +473,7 @@
 //                     { value: "Level 4", label: "Level 4" },
 //                   ]}
 //                   onChange={(e) => setSelectedLevel(e.target.value)}
-//                   disabled={false}
+//                   disabled={isLoading}
 //                 />
 //               </Grid>
 //             </Grid>
@@ -521,52 +491,12 @@
 //                   InputLabelProps={{ shrink: true }}
 //                   value={examDate}
 //                   onChange={handleExamDateChange}
+//                   disabled={isLoading}
 //                 />
 //               </Grid>
 //             </Grid>
 //           </form>
 
-//           {/* Student Table */}
-//           {isLoading ? (
-//             <CircularProgress
-//               style={{ margin: "20px auto", display: "block" }}
-//             />
-//           ) : selectedSchool &&
-//             selectedClass &&
-//             selectedSubject &&
-//             students.length > 0 ? (
-//             <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-//               <Table>
-//                 <TableHead>
-//                   <TableRow>
-//                     <TableCell>Student Name</TableCell>
-//                     <TableCell>Class</TableCell>
-//                     <TableCell>Roll No</TableCell>
-//                     <TableCell>Full Mark</TableCell>
-//                     <TableCell>Subject</TableCell>
-//                   </TableRow>
-//                 </TableHead>
-//                 <TableBody>
-//                   {students.map((student) => (
-//                     <TableRow key={student.roll_no}>
-//                       <TableCell>{student.student_name}</TableCell>
-//                       <TableCell>{student.class_name}</TableCell>
-//                       <TableCell>{student.roll_no}</TableCell>
-//                       <TableCell>100</TableCell>
-//                       <TableCell>{student.student_subject}</TableCell>
-//                     </TableRow>
-//                   ))}
-//                 </TableBody>
-//               </Table>
-//             </TableContainer>
-//           ) : (
-//             <Typography
-//               variant="body1"
-//               style={{ marginTop: "20px", textAlign: "center" }}
-//             >
-//               No students found for the selected criteria.
-//             </Typography>
-//           )}
 
 //           {/* Save Button */}
 //           <Box
@@ -582,9 +512,10 @@
 //                 !selectedSchool ||
 //                 !selectedClass ||
 //                 !selectedSubject ||
-//                 !examDate
+//                 !examDate ||
+//                 isLoading
 //               }
-//               text="Submit"
+//               text={isLoading ? "Processing..." : "Submit"}
 //               sx={{ flexGrow: 1 }}
 //             />
 //             <ButtonComp
@@ -592,6 +523,7 @@
 //               type="button"
 //               sx={{ flexGrow: 1 }}
 //               onClick={() => navigate("/examList")}
+//               disabled={isLoading}
 //             />
 //           </Box>
 //         </Paper>
@@ -605,6 +537,7 @@
 
 
 
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -612,16 +545,13 @@ import {
   Paper,
   Typography,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Grid,
   MenuItem,
-  CircularProgress,
   Box,
+  Select,
+  InputLabel,
+  FormControl,
+  Chip,
 } from "@mui/material";
 import Mainlayout from "../../Layouts/Mainlayout";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
@@ -657,11 +587,6 @@ const ExaminationForm = () => {
   // State variables
   const [schools, setSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState("");
-  const [classes, setClasses] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
   const [examDate, setExamDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -685,6 +610,12 @@ const ExaminationForm = () => {
   const [filteredDistricts, setFilteredDistricts] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
 
+  // Classes and Subjects states
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedClasses, setSelectedClasses] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+
   // Fetch location data on component mount
   useEffect(() => {
     const fetchLocationData = async () => {
@@ -697,9 +628,13 @@ const ExaminationForm = () => {
             axios.get(`${API_BASE_URL}/api/cities/all/c1`),
           ]);
 
-        setCountries(Array.isArray(countriesRes?.data) ? countriesRes.data : []);
+        setCountries(
+          Array.isArray(countriesRes?.data) ? countriesRes.data : []
+        );
         setStates(Array.isArray(statesRes?.data) ? statesRes.data : []);
-        setDistricts(Array.isArray(districtsRes?.data) ? districtsRes.data : []);
+        setDistricts(
+          Array.isArray(districtsRes?.data) ? districtsRes.data : []
+        );
         setCities(Array.isArray(citiesRes?.data) ? citiesRes.data : []);
       } catch (error) {
         console.error("Error fetching location data:", error);
@@ -713,22 +648,62 @@ const ExaminationForm = () => {
     fetchLocationData();
   }, []);
 
+  // Fetch classes data
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/class`);
+        if (response.data && Array.isArray(response.data)) {
+          setClasses(response.data.map(cls => ({
+            value: cls.name,
+            label: cls.name
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+        setClasses([]);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+
+  // Fetch subjects data
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/subject`);
+        if (response.data && Array.isArray(response.data)) {
+          setSubjects(response.data.map(sub => ({
+            value: sub.name,
+            label: sub.name
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching subjects:", error);
+        setSubjects([]);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
+
   // Function to fetch schools based on location filters
   const fetchSchoolsByLocation = async (filters) => {
     setIsLoading(true);
     try {
       const response = await axios.get(`${API_BASE_URL}/api/get/filter`, {
-        params: filters
+        params: filters,
       });
-      
+
       if (response.data.success) {
-        const schoolList = response.data.data.flatMap(location => 
-          location.schools.map(school => ({
+        const schoolList = response.data.data.flatMap((location) =>
+          location.schools.map((school) => ({
             school_name: school,
             country_name: location.country,
             state_name: location.state,
             district_name: location.district,
-            city_name: location.city
+            city_name: location.city,
           }))
         );
         setSchools(schoolList);
@@ -757,13 +732,14 @@ const ExaminationForm = () => {
     setSelectedState("");
     setSelectedDistrict("");
     setSelectedCity("");
-    
+    setSelectedSchool("");
+
     // Fetch schools when country changes
     const filters = {
       country: selectedCountry,
       state: null,
       district: null,
-      city: null
+      city: null,
     };
     fetchSchoolsByLocation(filters);
   }, [selectedCountry, states]);
@@ -780,13 +756,14 @@ const ExaminationForm = () => {
     }
     setSelectedDistrict("");
     setSelectedCity("");
-    
+    setSelectedSchool("");
+
     // Fetch schools when state changes
     const filters = {
       country: selectedCountry,
       state: selectedState,
       district: null,
-      city: null
+      city: null,
     };
     fetchSchoolsByLocation(filters);
   }, [selectedState, districts]);
@@ -802,13 +779,14 @@ const ExaminationForm = () => {
       setFilteredCities([]);
     }
     setSelectedCity("");
-    
+    setSelectedSchool("");
+
     // Fetch schools when district changes
     const filters = {
       country: selectedCountry,
       state: selectedState,
       district: selectedDistrict,
-      city: null
+      city: null,
     };
     fetchSchoolsByLocation(filters);
   }, [selectedDistrict, cities]);
@@ -821,11 +799,26 @@ const ExaminationForm = () => {
         country: selectedCountry,
         state: selectedState,
         district: selectedDistrict,
-        city: selectedCity
+        city: selectedCity,
       };
       fetchSchoolsByLocation(filters);
     }
   }, [selectedCity]);
+
+  // Handle school change
+  const handleSchoolChange = (e) => {
+    setSelectedSchool(e.target.value);
+  };
+
+  // Handle classes change
+  const handleClassesChange = (event) => {
+    setSelectedClasses(event.target.value);
+  };
+
+  // Handle subjects change
+  const handleSubjectsChange = (event) => {
+    setSelectedSubjects(event.target.value);
+  };
 
   // Prepare options for dropdowns with null checks
   const countryOptions = Array.isArray(countries)
@@ -856,90 +849,6 @@ const ExaminationForm = () => {
       }))
     : [];
 
-  // Fetch classes when a school is selected
-  useEffect(() => {
-    const fetchClasses = async () => {
-      if (selectedSchool) {
-        setIsLoading(true);
-        try {
-          const response = await axios.get(
-            `${API_BASE_URL}/api/get/students-by-classes?school_name=${selectedSchool}`
-          );
-          const classNames = response.data.map((item) => item.class_name);
-          setClasses(classNames);
-        } catch (error) {
-          console.error("Error fetching classes:", error);
-          setError("Failed to fetch classes. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchClasses();
-  }, [selectedSchool]);
-
-  // Fetch subjects when the component mounts
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/subject`);
-        const subjectNames = response.data.map((item) => item.name);
-        setSubjects(subjectNames);
-      } catch (error) {
-        console.error("Error fetching subjects:", error);
-        setError("Failed to fetch subjects. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchSubjects();
-  }, []);
-
-  // Fetch students when a subject is selected
-  useEffect(() => {
-    const fetchStudents = async () => {
-      if (selectedSchool && selectedClass && selectedSubject) {
-        setIsLoading(true);
-        try {
-          const response = await axios.get(
-            `${API_BASE_URL}/api/get/students-by-all?school_name=${selectedSchool}&class_name=${selectedClass}&student_subject=${selectedSubject}`
-          );
-          setStudents(response.data);
-        } catch (error) {
-          console.error("Error fetching students:", error);
-          setError("Failed to fetch students. Please try again.");
-          setStudents([]);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setStudents([]);
-      }
-    };
-    fetchStudents();
-  }, [selectedSchool, selectedClass, selectedSubject]);
-
-  // Handle school selection
-  const handleSchoolChange = (event) => {
-    setSelectedSchool(event.target.value);
-    setSelectedClass("");
-    setSelectedSubject("");
-    setStudents([]);
-  };
-
-  // Handle class selection
-  const handleClassChange = (event) => {
-    setSelectedClass(event.target.value);
-    setSelectedSubject("");
-    setStudents([]);
-  };
-
-  // Handle subject selection
-  const handleSubjectChange = (event) => {
-    setSelectedSubject(event.target.value);
-  };
-
   // Handle exam date change
   const handleExamDateChange = (event) => {
     setExamDate(event.target.value);
@@ -947,8 +856,8 @@ const ExaminationForm = () => {
 
   // Handle save button click
   const handleSave = async () => {
-    if (!selectedSchool || !selectedClass || !selectedSubject || !examDate) {
-      setError("Please select school, class, subject, and exam date.");
+    if (!selectedSchool || !examDate || selectedClasses.length === 0 || selectedSubjects.length === 0) {
+      setError("Please fill all required fields.");
       return;
     }
 
@@ -973,19 +882,15 @@ const ExaminationForm = () => {
     }
 
     const examData = {
-      exam_code: `EXAM-${Date.now()}`,
       school: selectedSchool,
-      class_name: selectedClass,
-      subject: selectedSubject,
       level: selectedLevel,
       exam_date: examDate,
-      students: students.map((student) => ({
-        student_name: student.student_name,
-        roll_number: student.roll_no,
-        class: student.class_name,
-        full_mark: 100,
-        subject: student.student_subject,
-      })),
+      classes: selectedClasses,
+      subjects: selectedSubjects,
+      country: selectedCountry,
+      state: selectedState,
+      district: selectedDistrict,
+      city: selectedCity
     };
 
     try {
@@ -1017,11 +922,10 @@ const ExaminationForm = () => {
 
       // Reset form
       setSelectedSchool("");
-      setSelectedClass("");
-      setSelectedSubject("");
       setSelectedLevel("");
       setExamDate("");
-      setStudents([]);
+      setSelectedClasses([]);
+      setSelectedSubjects([]);
     } catch (error) {
       Swal.fire({
         position: "top-end",
@@ -1113,40 +1017,82 @@ const ExaminationForm = () => {
                   options={schools.map((school) => ({
                     value: school.school_name,
                     label: `${school.school_name} ${
-                      school.city_name ? `(${school.city_name})` : ''
-                    }`
+                      school.city_name ? `(${school.city_name})` : ""
+                    }`,
                   }))}
                   onChange={handleSchoolChange}
-                  disabled={isLoading}
+                  disabled={isLoading || !selectedCity}
                 />
               </Grid>
-
-              {/* Class Dropdown */}
+              
+              {/* Classes Multi-Select Dropdown */}
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown
-                  label="Class"
-                  value={selectedClass}
-                  options={classes.map((cls) => ({
-                    value: cls,
-                    label: cls,
-                  }))}
-                  onChange={handleClassChange}
-                  disabled={!selectedSchool || isLoading}
-                />
+                <FormControl fullWidth margin="normal" size="small">
+                  <InputLabel id="classes-label">Classes</InputLabel>
+                  <Select
+                    labelId="classes-label"
+                    id="classes-select"
+                    multiple
+                    value={selectedClasses}
+                    onChange={handleClassesChange}
+                    label="Classes"
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value) => {
+                          const selectedClass = classes.find(c => c.value === value);
+                          return (
+                            <Chip 
+                              key={value} 
+                              label={selectedClass ? selectedClass.label : value} 
+                              size="small" 
+                            />
+                          );
+                        })}
+                      </Box>
+                    )}
+                  >
+                    {classes.map((cls) => (
+                      <MenuItem key={cls.value} value={cls.value}>
+                        {cls.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
-
-              {/* Subject Dropdown */}
+              
+              {/* Subjects Multi-Select Dropdown */}
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown
-                  label="Subject"
-                  value={selectedSubject}
-                  options={subjects.map((subject) => ({
-                    value: subject,
-                    label: subject,
-                  }))}
-                  onChange={handleSubjectChange}
-                  disabled={isLoading}
-                />
+                <FormControl fullWidth margin="normal" size="small">
+                  <InputLabel id="subjects-label">Subjects</InputLabel>
+                  <Select
+                    labelId="subjects-label"
+                    id="subjects-select"
+                    multiple
+                    value={selectedSubjects}
+                    onChange={handleSubjectsChange}
+                    label="Subjects"
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value) => {
+                          const selectedSubject = subjects.find(s => s.value === value);
+                          return (
+                            <Chip 
+                              key={value} 
+                              label={selectedSubject ? selectedSubject.label : value} 
+                              size="small" 
+                            />
+                          );
+                        })}
+                      </Box>
+                    )}
+                  >
+                    {subjects.map((sub) => (
+                      <MenuItem key={sub.value} value={sub.value}>
+                        {sub.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
 
               {/* Level Dropdown */}
@@ -1164,9 +1110,7 @@ const ExaminationForm = () => {
                   disabled={isLoading}
                 />
               </Grid>
-            </Grid>
 
-            <Grid container spacing={2}>
               {/* Exam Date Input */}
               <Grid item xs={12} sm={6} md={3}>
                 <TextField
@@ -1185,47 +1129,10 @@ const ExaminationForm = () => {
             </Grid>
           </form>
 
-          {/* Student Table */}
-          {isLoading ? (
-            <CircularProgress
-              style={{ margin: "20px auto", display: "block" }}
-            />
-          ) : selectedSchool &&
-            selectedClass &&
-            selectedSubject &&
-            students.length > 0 ? (
-            <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Student Name</TableCell>
-                    <TableCell>Class</TableCell>
-                    <TableCell>Roll No</TableCell>
-                    <TableCell>Full Mark</TableCell>
-                    <TableCell>Subject</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {students.map((student) => (
-                    <TableRow key={student.roll_no}>
-                      <TableCell>{student.student_name}</TableCell>
-                      <TableCell>{student.class_name}</TableCell>
-                      <TableCell>{student.roll_no}</TableCell>
-                      <TableCell>100</TableCell>
-                      <TableCell>{student.student_subject}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography
-              variant="body1"
-              style={{ marginTop: "20px", textAlign: "center" }}
-            >
-              {selectedSchool && selectedClass && selectedSubject
-                ? "No students found for the selected criteria."
-                : "Please select school, class, and subject to view students."}
+          {/* Error message */}
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+              {error}
             </Typography>
           )}
 
@@ -1241,9 +1148,9 @@ const ExaminationForm = () => {
               onClick={handleSave}
               disabled={
                 !selectedSchool ||
-                !selectedClass ||
-                !selectedSubject ||
                 !examDate ||
+                selectedClasses.length === 0 ||
+                selectedSubjects.length === 0 ||
                 isLoading
               }
               text={isLoading ? "Processing..." : "Submit"}

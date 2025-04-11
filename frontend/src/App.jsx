@@ -61,6 +61,8 @@ import StudentUpdate from "./Components/Student/StudentUpdate";
 import OmrcoList from "./Components/Exam/omrco/OmrcoList";
 import OmrcoFrom from "./Components/Exam/omrco/OmrcoForm";
 
+
+
 //conginment
 import Create from "./Components/Consignment/create/Create";
 import List from "./Components/Consignment/create/List";
@@ -69,11 +71,6 @@ import Update from "./Components/Consignment/create/Update";
 import ListPacking from "./Components/Consignment/packing/ListPacking";
 import CreatePacking from "./Components/Consignment/packing/CreatePacking";
 import UpdatePacking from "./Components/Consignment/packing/UpadatePacking";
-
-
-import QuestionCoCreate from "./Components/Exam/question/QuestionCoCreate";
-import QuestionCoList from "./Components/Exam/question/QuestionCoList";
-import QuestionCoUpdate from "./Components/Exam/question/QuestionCoUpdate";
 
 import StudentReport from "./Components/Reports/StudentReport";
 import SchoolReport from "./Components/Reports/SchoolReport";
@@ -91,6 +88,8 @@ import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
 
 import Result from "./Components/Exam/Result/Result";
+
+import OMRreceipt from "./Components/Exam/omrReceipt/OMRreceipt";
 
 //menu
 import Menu from "./Components/configuration/Menu/Menu";
@@ -162,15 +161,15 @@ function App() {
           />
           {/*  City  route */}
           <Route
-            path="/city"
+            path="/region"
             element={<ProtectedRoute element={<CityList />} />}
           />
           <Route
-            path="/city/create"
+            path="/region/create"
             element={<ProtectedRoute element={<CityForm />} />}
           />
           <Route
-            path="/city/update/:id"
+            path="/region/update/:id"
             element={<ProtectedRoute element={<UpdateCity />} />}
           />
           {/* Area route */}
@@ -238,6 +237,7 @@ function App() {
             path="/inventory/:id"
             element={<ProtectedRoute element={<Updateinventory />} />}
           />
+
           {/* School route */}
           <Route
             path="/school-create"
@@ -251,6 +251,7 @@ function App() {
             path="/school/update/:id"
             element={<ProtectedRoute element={<SchoolUpdate />} />}
           />
+
           {/* incharge route */}
           <Route
             path="/incharge-create"
@@ -282,30 +283,22 @@ function App() {
             element={<ProtectedRoute element={<OmrcoList />} />}
           />
           <Route
-            path="/omr-generate"
+            path="/omr-create"
             element={<ProtectedRoute element={<OmrcoFrom />} />}
           />
-          {/* qustions*/}
+
+          {/* //omr receipt */}
           <Route
-            path="/question-list"
-            element={<ProtectedRoute element={<QuestionCoList />} />}
-          />
-          <Route
-            path="/co-question"
-            element={<ProtectedRoute element={<QuestionCoCreate />} />}
-          />
-          <Route
-            path="/co-question/update/:id"
-            element={<ProtectedRoute element={<QuestionCoUpdate />} />}
+            path="/omr-receipt"
+            element={<ProtectedRoute element={<OMRreceipt/>} />}
           />
 
           {/* //result */}
-         
+
           <Route
             path="/result-list"
-            element={<ProtectedRoute element={<Result/>} />}
+            element={<ProtectedRoute element={<Result />} />}
           />
-
 
           {/* //conginments */}
           <Route
@@ -324,17 +317,16 @@ function App() {
           {/* //packing list */}
           <Route
             path="/packing-create"
-            element={<ProtectedRoute element={<CreatePacking/>} />}
+            element={<ProtectedRoute element={<CreatePacking />} />}
           />
           <Route
             path="/packing-list"
-            element={<ProtectedRoute element={<ListPacking/>} />}
+            element={<ProtectedRoute element={<ListPacking />} />}
           />
           <Route
             path="/packing/update/:id"
-            element={<ProtectedRoute element={< UpdatePacking/>} />}
+            element={<ProtectedRoute element={<UpdatePacking />} />}
           />
-
 
           {/* report*/}
           <Route
@@ -377,6 +369,7 @@ function App() {
             path="/menu/update/:id"
             element={<ProtectedRoute element={<MenuUpdate />} />}
           />
+
           {/* //clientsmenu */}
           <Route
             path="/menu-permissions"
@@ -386,6 +379,7 @@ function App() {
             path="/permissions-list"
             element={<ProtectedRoute element={<Listpermission />} />}
           />
+
           {/* <Route
             path="/menu/update/:id"
             element={<ProtectedRoute element={<MenuUpdate />} />}
