@@ -8,7 +8,7 @@ const School = {
     s.*, 
     c1.name AS country_name,
     s1.name AS state_name, 
-    d.name AS district_name, 
+    d.name AS district_name,   
     c2.name AS city_name
 FROM school s
 LEFT JOIN countries c1 ON s.country = c1.id

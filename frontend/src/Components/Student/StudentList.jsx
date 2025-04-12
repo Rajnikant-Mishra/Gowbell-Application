@@ -45,7 +45,6 @@ export default function DataTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [students, setStudents] = useState([]);
 
-
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-US", {
       year: "numeric",
@@ -57,6 +56,55 @@ export default function DataTable() {
       hour12: true,
     });
   };
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(`${API_BASE_URL}/api/get/student`, {
+  //         params: { page: currentPage, limit: pageSize },
+  //       });
+
+  //       const { students, totalRecords, totalPages } = response.data;
+
+  //       //  Fetch user details for each student based on created_by
+  //       const formattedData = await Promise.all(
+  //         students.map(async (record) => {
+  //           try {
+  //             const userResponse = await axios.get(
+  //               `${API_BASE_URL}/api/u1/users/${record.created_by}`
+  //             );
+  //             const userName = userResponse.data.username;
+  //             return {
+  //               ...record,
+  //               created_by: userName,
+  //               updated_by: userName, // Replace created_by ID with username
+  //               created_at: formatTimestamp(record.created_at),
+  //               updated_at: formatTimestamp(record.updated_at),
+  //             };
+  //           } catch (error) {
+  //             console.error(
+  //               `Failed to fetch user details for created_by: ${record.created_by}`,
+  //               error
+  //             );
+  //             return {
+  //               ...record,
+  //               created_by: "Unknown User", // Fallback in case of error
+  //             };
+  //           }
+  //         })
+  //       );
+
+  //       setStudents(formattedData);
+  //       setTotalRecords(totalRecords);
+  //       setTotalPages(totalPages);
+  //     } catch (error) {
+  //       console.error("Error fetching student data:", error);
+  //       Swal.fire("Error", "Failed to fetch student data.", "error");
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [currentPage, pageSize]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,18 +114,82 @@ export default function DataTable() {
 
         const { students, totalRecords, totalPages } = response.data;
 
-        //  Fetch user details for each student based on created_by
+        // Fetch user, class, and subject details for each student
         const formattedData = await Promise.all(
           students.map(async (record) => {
             try {
+              // Fetch user details for created_by
               const userResponse = await axios.get(
                 `${API_BASE_URL}/api/u1/users/${record.created_by}`
               );
               const userName = userResponse.data.username;
+
+              // Fetch class details for class_id
+              let className = "Unknown Class"; // Fallback for class name
+              if (record.class_name) {
+                try {
+                  const classResponse = await axios.get(
+                    `${API_BASE_URL}/api/class/${record.class_name}`
+                  );
+                  className = classResponse.data.name || "Unknown Class";
+                } catch (error) {
+                  console.error(
+                    `Failed to fetch class details for class_id: ${record.class_id}`,
+                    error
+                  );
+                }
+              }
+
+              // Fetch subject details for student_subject
+              let subjectNames = ["Unknown Subject"]; // Fallback for subject names
+              try {
+                // Handle student_subject as array or JSON string
+                let subjectIds = [];
+                if (typeof record.student_subject === "string") {
+                  try {
+                    subjectIds = JSON.parse(record.student_subject || "[]");
+                  } catch (e) {
+                    console.error(
+                      `Invalid JSON for student_subject: ${record.student_subject}`,
+                      e
+                    );
+                  }
+                } else if (Array.isArray(record.student_subject)) {
+                  subjectIds = record.student_subject;
+                }
+
+                // Fetch subject details for each ID
+                if (subjectIds.length > 0) {
+                  subjectNames = await Promise.all(
+                    subjectIds.map(async (subjectId) => {
+                      try {
+                        const subjectResponse = await axios.get(
+                          `${API_BASE_URL}/api/subject/${subjectId}`
+                        );
+                        return subjectResponse.data.name || "Unknown Subject";
+                      } catch (error) {
+                        console.error(
+                          `Failed to fetch subject details for subject_id: ${subjectId}`,
+                          error
+                        );
+                        return "Unknown Subject";
+                      }
+                    })
+                  );
+                }
+              } catch (error) {
+                console.error(
+                  `Error processing student_subject for record: ${record.id}`,
+                  error
+                );
+              }
+
               return {
                 ...record,
-                created_by: userName,
-                updated_by: userName, // Replace created_by ID with username
+                student_subject: subjectNames, // Store as array of subject names
+                class_name: className, // Replace class_id with class_name
+                created_by: userName, // Replace created_by ID with username
+                updated_by: userName, // Replace updated_by ID with username
                 created_at: formatTimestamp(record.created_at),
                 updated_at: formatTimestamp(record.updated_at),
               };
@@ -88,7 +200,9 @@ export default function DataTable() {
               );
               return {
                 ...record,
-                created_by: "Unknown User", // Fallback in case of error
+                student_subject: ["Unknown Subject"], // Fallback for subjects
+                class_name: "Unknown Class", // Fallback for class
+                created_by: "Unknown User", // Fallback for user
               };
             }
           })
@@ -691,7 +805,7 @@ export default function DataTable() {
                 <td>{row.class_name}</td>
                 <td>{row.student_section}</td>
                 <td>{row.mobile_number}</td>
-                {/* <td>{row.student_subject.join(", ")}</td> */}
+                {/* <td>{row.student_subject}</td> */}
                 <td>
                   {Array.isArray(row.student_subject)
                     ? row.student_subject.join(", ")

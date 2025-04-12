@@ -226,7 +226,6 @@ export const updateStudent = (req, res) => {
   });
 };
 
-
 // Delete a student by ID
 export const deleteStudent = (req, res) => {
   const { id } = req.params;
@@ -238,56 +237,401 @@ export const deleteStudent = (req, res) => {
   });
 };
 
-// Get students by class and school
-export const getStudentsByClassController = (req, res) => {
-  const { school_name, class_from, class_to } = req.body;
+//omr issues
+// export const getFilteredStudents = (req, res) => {
+//   const { school_name, class_names, subjects } = req.body;
 
-  Student.getStudentsByClass(
-    school_name,
-    class_from,
-    class_to,
-    (err, result) => {
-      if (err) return res.status(500).send(err);
-      res.status(200).json(result);
-    }
-  );
-};
+//   if (!school_name || !class_names || !subjects) {
+//     return res.status(400).json({ error: "Missing required fields" });
+//   }
 
-// Fetch classes by school
-export const getClassesBySchool = (req, res) => {
-  const { school_name } = req.query;
+//   const classList = Array.isArray(class_names) ? class_names : class_names.split(",");
+//   const subjectList = Array.isArray(subjects) ? subjects : subjects.split(",");
 
-  if (!school_name) {
-    return res.status(400).json({ error: "School name is required" });
+//   Student.getStudentsByFilters(school_name, classList, subjectList, (err, results) => {
+//     if (err) {
+//       return res.status(500).json({ 
+//         success: false, 
+//         error: "Database query failed", 
+//         details: err 
+//       });
+//     }
+
+//     // ✅ Filter individual subjects per selected subject list
+//     const modifiedStudents = results.students.flatMap(student => {
+//       const subjectsArray = Array.isArray(student.student_subject)
+//         ? student.student_subject
+//         : JSON.parse(student.student_subject || "[]");
+
+//       // ✅ Only include subjects that were selected
+//       return subjectsArray
+//         .filter(subject => subjectList.includes(subject))
+//         .map(subject => ({
+//           ...student,
+//           student_subject: subject, // ✅ single subject per entry
+//           student_id: student.id,
+//         }));
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       data: modifiedStudents,
+//       total_count: results.total_count
+//     });
+//   });
+// };
+// export const getFilteredStudents = (req, res) => {
+//   const { schoolName, classList, subjectList } = req.body;
+
+//   // Basic validation
+//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+//     return res.status(400).json({ error: 'Invalid input data' });
+//   }
+
+//   Student.getStudentsByFilters(schoolName, classList, subjectList, (err, result) => {
+//     if (err) {
+//       console.error('Error fetching students:', err);
+//       return res.status(500).json({ error: 'Failed to fetch students' });
+//     }
+
+//     const { students, total_count } = result;
+
+//     // Fetch class names
+//     Student.getClassNames(classList, (err, classNames) => {
+//       if (err) {
+//         console.error('Error fetching class names:', err);
+//         return res.status(500).json({ error: 'Failed to fetch class names' });
+//       }
+
+//       // Fetch subject names
+//       Student.getSubjectNames(subjectList, (err, subjectNames) => {
+//         if (err) {
+//           console.error('Error fetching subject names:', err);
+//           return res.status(500).json({ error: 'Failed to fetch subject names' });
+//         }
+
+//         // Final response
+//         res.json({
+//           students,
+//           total_count,
+//           classNames,
+//           subjectNames
+//         });
+//       });
+//     });
+//   });
+// };
+// export const getFilteredStudents = (req, res) => {
+//   const { schoolName, classList, subjectList } = req.body;
+
+//   // Basic validation
+//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+//     return res.status(400).json({ error: 'Invalid input data' });
+//   }
+
+//   Student.getStudentsByFilters(schoolName, classList, subjectList, (err, result) => {
+//     if (err) {
+//       console.error('Error fetching students:', err);
+//       return res.status(500).json({ error: 'Failed to fetch students' });
+//     }
+
+//     const { students, total_count } = result;
+
+//     // Fetch class names
+//     Student.getClassNames(classList, (err, classNames) => {
+//       if (err) {
+//         console.error('Error fetching class names:', err);
+//         return res.status(500).json({ error: 'Failed to fetch class names' });
+//       }
+
+//       // Fetch subject names
+//       Student.getSubjectNames(subjectList, (err, subjectNames) => {
+//         if (err) {
+//           console.error('Error fetching subject names:', err);
+//           return res.status(500).json({ error: 'Failed to fetch subject names' });
+//         }
+
+//         // Final response
+//         res.json({
+//           students,
+//           total_count,
+//           classNames,
+//           subjectNames
+//         });
+//       });
+//     });
+//   });
+// };
+export const getFilteredStudents = (req, res) => {
+  const { schoolName, classList, subjectList } = req.body;
+
+  if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({ error: 'Invalid input data' });
   }
 
-  Student.getClassesBySchool(school_name, (err, results) => {
+  
+    Student.getStudentsByFilters(schoolName, classList, subjectList, (err, result) => {
+
     if (err) {
-      return res.status(500).json({ error: err.message });
+      console.error('Error fetching students:', err);
+      return res.status(500).json({ error: 'Failed to fetch students' });
     }
-    res.status(200).json(results);
+
+    const { students, totalCount } = result; // ✅ fixed here
+
+    Student.getClassNames(classList, (err, classNames) => {
+      if (err) {
+        console.error('Error fetching class names:', err);
+        return res.status(500).json({ error: 'Failed to fetch class names' });
+      }
+
+      Student.getSubjectNames(subjectList, (err, subjectNames) => {
+        if (err) {
+          console.error('Error fetching subject names:', err);
+          return res.status(500).json({ error: 'Failed to fetch subject names' });
+        }
+
+        res.json({
+          students,
+          totalCount, // ✅ make sure it's correct here too
+          classNames,
+          subjectNames
+        });
+      });
+    });
   });
 };
 
-// // Fetch subjects by class and school
-export const getStudentsBySubjectClassAndSchool = (req, res) => {
-  const { school_name, class_name, student_subject } = req.query;
 
-  if (!school_name || !class_name || !student_subject) {
-    return res
-      .status(400)
-      .json({ error: "School name, class name, and subject are required" });
+
+
+
+
+//omr receipt
+// export const getFilteredStudentsomrreceipt = (req, res) => {
+//   const { school_name, class_names, subjects, roll_no } = req.body;
+
+//   if (!school_name || !class_names || !subjects) {
+//     return res.status(400).json({ error: "Missing required fields" });
+//   }
+
+//   const classList = Array.isArray(class_names)
+//     ? class_names
+//     : class_names.split(",");
+//   const subjectList = Array.isArray(subjects) ? subjects : subjects.split(",");
+
+//   Student.getStudentsByFiltersomrreceipt(
+//     school_name,
+//     classList,
+//     subjectList,
+//     roll_no,
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({
+//           success: false,
+//           error: "Database query failed",
+//           details: err,
+//         });
+//       }
+
+//       // Flatten students by individual subjects
+//       const modifiedStudents = results.students.flatMap(student => {
+//         const subjectsArray = Array.isArray(student.student_subject)
+//           ? student.student_subject
+//           : JSON.parse(student.student_subject || "[]");
+
+//         return subjectsArray.map(subject => ({
+//           ...student,
+//           student_subject: subject,
+//           student_id: student.id,
+//         }));
+//       });
+
+//       res.status(200).json({
+//         success: true,
+//         data: modifiedStudents,
+//         total_count: results.total_count,
+//       });
+//     }
+//   );
+// };
+// export const getFilteredStudentsomrreceipt = (req, res) => {
+//   const { school_name, class_names, subjects, roll_no } = req.body;
+
+//   if (!school_name || !class_names || !subjects) {
+//     return res.status(400).json({ error: "Missing required fields" });
+//   }
+
+//   const classList = Array.isArray(class_names)
+//     ? class_names
+//     : class_names.split(",");
+//   const subjectList = Array.isArray(subjects) ? subjects : subjects.split(",");
+
+//   Student.getStudentsByFiltersomrreceipt(
+//     school_name,
+//     classList,
+//     subjectList,
+//     roll_no,
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({
+//           success: false,
+//           error: "Database query failed",
+//           details: err,
+//         });
+//       }
+
+//       // ✅ Only show selected subjects individually
+//       const modifiedStudents = results.students.flatMap(student => {
+//         const subjectsArray = Array.isArray(student.student_subject)
+//           ? student.student_subject
+//           : JSON.parse(student.student_subject || "[]");
+
+//         // ✅ Filter only selected subjects
+//         return subjectsArray
+//           .filter(subject => subjectList.includes(subject))
+//           .map(subject => ({
+//             ...student,
+//             student_subject: subject,
+//             student_id: student.id,
+//           }));
+//       });
+
+//       res.status(200).json({
+//         success: true,
+//         data: modifiedStudents,
+//         total_count: results.total_count,
+//       });
+//     }
+//   );
+// };
+// export const getFilteredStudentsomrreceipt = (req, res) => {
+//   const { school_name, class_names, subjects, roll_no } = req.body;
+
+//   if (!school_name || !class_names || !subjects) {
+//     return res.status(400).json({ error: "Missing required fields" });
+//   }
+
+//   const classList = Array.isArray(class_names)
+//     ? class_names
+//     : class_names.split(",");
+//   const subjectList = Array.isArray(subjects) ? subjects : subjects.split(",");
+
+//   Student.getStudentsByFiltersomrreceipt(
+//     school_name,
+//     classList,
+//     subjectList,
+//     roll_no,
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({
+//           success: false,
+//           error: "Database query failed",
+//           details: err,
+//         });
+//       }
+
+//       // ✅ Only show selected subjects individually
+//       const modifiedStudents = results.students.flatMap(student => {
+//         const subjectsArray = Array.isArray(student.student_subject)
+//           ? student.student_subject
+//           : JSON.parse(student.student_subject || "[]");
+
+//         // ✅ Filter only selected subjects
+//         return subjectsArray
+//           .filter(subject => subjectList.includes(subject))
+//           .map(subject => ({
+//             ...student,
+//             student_subject: subject,
+//             student_id: student.id,
+//           }));
+//       });
+
+//       res.status(200).json({
+//         success: true,
+//         data: modifiedStudents,
+//         total_count: results.total_count,
+//         total_subject_count: results.total_subject_count || 0, // ✅ Add this line
+//       });
+//     }
+//   );
+// };
+// export const getFilteredStudentsomrreceipt = (req, res) => {
+//   const { schoolName, classList, subjectList } = req.body;
+
+//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+//     return res.status(400).json({ error: 'Invalid input data' });
+//   }
+
+//   Student.getStudentsByFilters(schoolName, classList, subjectList, (err, result) => {
+//     if (err) {
+//       console.error('Error fetching students:', err);
+//       return res.status(500).json({ error: 'Failed to fetch students' });
+//     }
+
+//     const { students, totalCount } = result; // ✅ fixed here
+
+//     Student.getClassNames(classList, (err, classNames) => {
+//       if (err) {
+//         console.error('Error fetching class names:', err);
+//         return res.status(500).json({ error: 'Failed to fetch class names' });
+//       }
+
+//       Student.getSubjectNames(subjectList, (err, subjectNames) => {
+//         if (err) {
+//           console.error('Error fetching subject names:', err);
+//           return res.status(500).json({ error: 'Failed to fetch subject names' });
+//         }
+
+//         res.json({
+//           students,
+//           totalCount, // ✅ make sure it's correct here too
+//           classNames,
+//           subjectNames
+//         });
+//       });
+//     });
+//   });
+// };
+export const getFilteredStudentsomrreceipt = (req, res) => {
+  const { schoolName, classList, subjectList, rollnoclasssubject } = req.body;
+
+  if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({ error: 'Invalid input data' });
   }
 
-  Student.getStudentsBySubjectClassAndSchool(
-    school_name,
-    class_name,
-    student_subject,
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json(results);
+  Student.getStudentsByFilters(schoolName, classList, subjectList, rollnoclasssubject, (err, result) => {
+    if (err) {
+      console.error('Error fetching students:', err);
+      return res.status(500).json({ error: 'Failed to fetch students' });
     }
-  );
+
+    const { students, totalCount } = result;
+
+    Student.getClassNames(classList, (err, classNames) => {
+      if (err) {
+        console.error('Error fetching class names:', err);
+        return res.status(500).json({ error: 'Failed to fetch class names' });
+      }
+
+      Student.getSubjectNames(subjectList, (err, subjectNames) => {
+        if (err) {
+          console.error('Error fetching subject names:', err);
+          return res.status(500).json({ error: 'Failed to fetch subject names' });
+        }
+
+        res.json({
+          students,
+          totalCount,
+          classNames,
+          subjectNames
+        });
+      });
+    });
+  });
 };
+
+
+
+
+

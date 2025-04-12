@@ -6,9 +6,9 @@ import {
   getStudentById,
   updateStudent,
   deleteStudent,
-  getStudentsByClassController,
-  getClassesBySchool,
-  getStudentsBySubjectClassAndSchool,getAllstudentserach ,
+  getAllstudentserach ,
+  getFilteredStudents,
+  getFilteredStudentsomrreceipt,
 } from "../../controllers/Student/studentController.js";
 import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
@@ -31,18 +31,11 @@ router.put("/student/:id", updateStudent);
 // Delete a student by ID
 router.delete("/student/:id", deleteStudent);
 
-// Define route for fetching students by class and school
-router.post("/students-by-class", getStudentsByClassController);
-
-// Fetch classes by school
-router.get("/students-by-classes", getClassesBySchool);
-
-// // Fetch subjects by class and school
-// router.get('/students-by-subjects', getSubjectsByClassAndSchool);
-
-// Fetch students by subject, class, and school
-router.get("/students-by-all", getStudentsBySubjectClassAndSchool);
-
 router.get("/allstudents", getAllstudentserach );
+
+  router.post('/filter', getFilteredStudents);
+
+  //omr receipt
+  router.post('/filter/omr-receipt', getFilteredStudentsomrreceipt);
 
 export default router;

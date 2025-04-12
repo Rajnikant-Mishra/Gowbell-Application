@@ -6,7 +6,6 @@ import cors from "cors";
 
 
 //routes import
-
 import countryRoutes from './routes/Region/countryRoutes.js';
 import stateRoutes from './routes/Region/stateRoutes.js';
 import districtRoutes from './routes/Region/districtRoutes.js';
@@ -31,9 +30,10 @@ import studentRoutes from './routes/Student/studentRoutes.js';
 
 //exam
 import omrRoutes from './routes/Exam/omrRoutes.js';
-import questionCoRoutes from './routes/Exam/questionCoRoutes.js';
 import examRoutes from './routes/Exam/examRoutes.js';
 import ResultRoutes from './routes/Exam/ResultRoutes.js';
+
+import omrReceiptRoutes from './routes/Exam/omrReceiptRoutes.js';
 
 //users
 import userRoutes from "./routes/User/userRoutes.js";
@@ -108,9 +108,9 @@ app.use('/api/u1', userRoutes);
 
 //exam
 app.use('/api/omr',omrRoutes);
-app.use('/api/co',questionCoRoutes);
 app.use('/api/e1',examRoutes);
 app.use('/api',ResultRoutes);
+app.use('/api',omrReceiptRoutes);
 
 
 //menu
@@ -118,7 +118,7 @@ app.use('/api/m1',menuRoutes);
 app.use('/api/permission',role_menuRoutes)
 
 //attribute
-app.use('/api',attributeRoutes);
+app.use('/api/a1',attributeRoutes);
 
 
 const PORT = process.env.PORT || 5000;

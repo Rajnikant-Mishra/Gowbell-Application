@@ -52,6 +52,7 @@ export default function DataTable() {
   //       console.error("There was an error fetching the records!", error);
   //     });
   // }, []);
+
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-US", {
       year: "numeric",
@@ -333,7 +334,6 @@ export default function DataTable() {
                 </td>
                 <td>{row.id}</td>
                 <td>{row.role_name}</td>
-
                 <td>{row.created_at}</td>
 
                 <td>

@@ -1,32 +1,68 @@
-import OmrData from '../../models/Exam/omrModel.js';
+import OmrData from "../../models/Exam/omrModel.js";
 
 // Create a new record
-
 export const createOmr = (req, res) => {
-    const omrRecords = req.body; // Expecting an array of OMR records
-  
-    if (!Array.isArray(omrRecords) || omrRecords.length === 0) {
-      return res.status(400).json({ error: "Invalid OMR data" });
-    }
-  
-    // Insert each OMR record into the database
-    const promises = omrRecords.map(
-      (data) =>
-        new Promise((resolve, reject) => {
-          OmrData.create(data, (err, result) => {
-            if (err) reject(err);
-            else resolve(result.insertId);
-          });
-        })
-    );
-  
-    Promise.all(promises)
-      .then((ids) =>
-        res.status(201).json({
-          message: "OMR data created successfully",
-          insertedIds: ids,
-        })
-      )
-      .catch((err) => res.status(500).json({ error: err.message }));
-  };
+  const omrRecords = req.body; // Expecting an array of OMR records
 
+  if (!Array.isArray(omrRecords) || omrRecords.length === 0) {
+    return res.status(400).json({ error: "Invalid OMR data" });
+  }
+
+  const userId = req.user?.id || "system";
+
+  const promises = omrRecords.map(
+    (data) =>
+      new Promise((resolve, reject) => {
+        const recordWithAudit = {
+          ...data,
+          classes: data.classes || [], // default empty array if not present
+          subjects: data.subjects || [],
+          created_by: userId,
+          updated_by: userId
+        };
+
+        OmrData.create(recordWithAudit, (err, result) => {
+          if (err) reject(err);
+          else resolve(result.insertId);
+        });
+      })
+  );
+
+  Promise.all(promises)
+    .then((ids) =>
+      res.status(201).json({
+        message: "OMR data created successfully",
+        insertedIds: ids,
+      })
+    )
+    .catch((err) => res.status(500).json({ error: err.message }));
+};
+
+// Get all data
+export const getAllOmrData = (req, res) => {
+  OmrData.getAll((err, results) => {
+    if (err) {
+      console.error('Error fetching OMR data:', err);
+      return res.status(500).json({ success: false, message: 'Database error', error: err });
+    }
+    return res.status(200).json({ success: true, data: results });
+  });
+};
+
+// Delete OMR data by ID
+export const deleteOmrData = (req, res) => {
+  const id = req.params.id;
+
+  OmrData.delete(id, (err, results) => {
+    if (err) {
+      console.error("Error deleting OMR data:", err);
+      return res.status(500).json({ success: 0, message: "Database error", error: err });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ success: 0, message: "OMR data not found" });
+    }
+
+    return res.status(200).json({ success: 1, message: "OMR data deleted successfully" });
+  });
+};
