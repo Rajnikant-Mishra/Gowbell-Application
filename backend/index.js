@@ -115,7 +115,7 @@ app.use('/api',omrReceiptRoutes);
 
 //menu
 app.use('/api/m1',menuRoutes);
-app.use('/api/permission',role_menuRoutes)
+app.use('/api',role_menuRoutes)
 
 //attribute
 app.use('/api/a1',attributeRoutes);

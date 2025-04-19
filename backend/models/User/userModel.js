@@ -36,8 +36,8 @@ const User = {
   },
 
   updateUser: (id, user, callback) => {
-    const query = `UPDATE users SET role = ?, username = ?, email = ?, phone = ?, status = ?, password = ? WHERE id = ?`;
-    db.query(query, [user.role, user.username, user.email, user.phone, user.status, user.password, id], callback);
+    const query = `UPDATE users SET role = ?, username = ?, email = ?, phone = ?, status = ?, password = ?, confirm_password= ? WHERE id = ?`;
+    db.query(query, [user.role, user.username, user.email, user.phone, user.status, user.password, user.confirm_password, id], callback);
   },
 
   deleteUser: (id, callback) => {

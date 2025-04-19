@@ -35,6 +35,28 @@ const RoleMenu = {
     db.query(query, [role_id], callback);
   },
 
+  // getAllRoleMenuWithNames: (callback) => {
+  //   const query = `
+  //     SELECT 
+  //     rm.id, 
+  //     m.title AS menu_title, 
+  //     GROUP_CONCAT(r.role_name) AS role_names,
+  //     rm.created_at 
+  //     FROM role_menu rm
+  //     JOIN menu m ON rm.menu_id = m.id
+  //     JOIN roles r ON FIND_IN_SET(r.id, rm.role_ids)
+  //     GROUP BY rm.id
+  //     ORDER BY created_at DESC
+  // `;
+
+  //   db.query(query, (err, results) => {
+  //     if (err) {
+  //       console.error("Error fetching role menu data with names:", err);
+  //       return callback(err, null);
+  //     }
+  //     callback(null, results);
+  //   });
+  // },
   getAllRoleMenuWithNames: (callback) => {
     const query = `
       SELECT 
@@ -62,6 +84,10 @@ const RoleMenu = {
     const query = `DELETE FROM role_menu WHERE id = ?`;
     db.query(query, [id], callback);
   },
+
+
+  
+  
 };
 
 export default RoleMenu;

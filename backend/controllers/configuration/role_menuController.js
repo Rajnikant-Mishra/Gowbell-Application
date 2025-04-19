@@ -33,14 +33,23 @@ export const getMenusByRole = (req, res) => {
 
 
 //getall rolesmenus
+// export const getAllRoleMenu = (req, res) => {
+//     RoleMenu.getAllRoleMenuWithNames((err, results) => {
+//         if (err) {
+//             return res.status(500).json({ error: 'Failed to fetch role-menu data with names', details: err.message });
+//         }
+//         res.status(200).json({ message: 'Data fetched successfully', data: results });
+//     });
+// };
 export const getAllRoleMenu = (req, res) => {
     RoleMenu.getAllRoleMenuWithNames((err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to fetch role-menu data with names', details: err.message });
-        }
-        res.status(200).json({ message: 'Data fetched successfully', data: results });
+      if (err) {
+        return res.status(500).json({ error: 'Failed to fetch role-menu data with names', details: err.message });
+      }
+      res.status(200).json({ message: 'Data fetched successfully', data: results });
     });
-};
+  };
+  
 
 
 export const deleteRoleMenu = (req, res) => {
@@ -51,3 +60,4 @@ export const deleteRoleMenu = (req, res) => {
     });
 
 };
+

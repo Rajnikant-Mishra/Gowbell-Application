@@ -150,6 +150,7 @@ dotenv.config(); // Load environment variables
         phone,
         status,
         password: hashedPassword,
+        confirm_password: hashedPassword,
       };
 
       User.updateUser(id, updatedUser, (dbErr, result) => {
