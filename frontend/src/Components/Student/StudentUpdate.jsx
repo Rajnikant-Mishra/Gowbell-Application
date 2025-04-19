@@ -1289,14 +1289,14 @@ export default function StudentUpdateForm() {
 
         setClassOptions(
           classesData.map((item) => ({
-            value: item.name,
+            value: item.id,
             label: item.name,
           }))
         );
 
         setSubjectOptions(
           subjectsData.map((subject) => ({
-            value: subject.name,
+            value: subject.id,
             label: subject.name,
           }))
         );

@@ -73,8 +73,8 @@ const Menu = () => {
     fetchData();
   }, [id]);
 
-   // Handle change in input fields
-   const handleChange = (e) => {
+  // Handle change in input fields
+  const handleChange = (e) => {
     const { name, value } = e.target;
 
     setMenu({
@@ -83,7 +83,6 @@ const Menu = () => {
         name === "enable" || name === "visible" ? value === "true" : value,
     });
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,11 +102,15 @@ const Menu = () => {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: id
-            ? "Menu updated successfully!"
-            : "Menu created successfully!",
+          title: "Menu updated successfully!",
           showConfirmButton: false,
           timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
         });
         navigate("/menu-list");
       }

@@ -499,7 +499,7 @@ export default function InventoryForm() {
   useEffect(() => {
     // Fetch items from API
     axios
-      .get(`${API_BASE_URL}/api/attributes/item/cvalues`)
+      .get(`${API_BASE_URL}/api/a1/attributes/item/cvalues`)
       .then((response) => {
         setItems(response.data);
       })

@@ -367,7 +367,7 @@ export default function SchoolForm() {
           />
         </div>
       </div>
-      <Box className={`${styles.formContainer} container-fluid pt-5`}>
+      <Box className={`${styles.formContainer} container-fluid pt-3`}>
         <div className={styles.formBox}>
           <div>
             <Typography className={`${styles.formTitle} mb-4`}>
@@ -377,7 +377,7 @@ export default function SchoolForm() {
           <form onSubmit={formik.handleSubmit} className={styles.formContent}>
             <Grid container spacing={2}>
               {/* Board Name */}
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={2}>
                 <SelectDrop
                   label="Board Name"
                   name="board"
@@ -390,39 +390,6 @@ export default function SchoolForm() {
                   onBlur={formik.handleBlur}
                   error={formik.touched.board && Boolean(formik.errors.board)}
                   helperText={formik.touched.board && formik.errors.board}
-                  fullWidth
-                />
-              </Grid>
-
-              {/* School Name */}
-              <Grid item xs={12} sm={6} md={2}>
-                <TextField
-                  label="School Name"
-                  name="school_name"
-                  value={formik.values.school_name}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_name &&
-                    Boolean(formik.errors.school_name)
-                  }
-                  helperText={
-                    formik.touched.school_name && formik.errors.school_name
-                  }
                   fullWidth
                 />
               </Grid>
@@ -471,6 +438,41 @@ export default function SchoolForm() {
                   fullWidth
                 />
               </Grid>
+
+              {/* School Name */}
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  label="School Name"
+                  name="school_name"
+                  value={formik.values.school_name}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_name &&
+                    Boolean(formik.errors.school_name)
+                  }
+                  helperText={
+                    formik.touched.school_name && formik.errors.school_name
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              
 
               {/* School Email */}
               <Grid item xs={12} sm={6} md={4}>

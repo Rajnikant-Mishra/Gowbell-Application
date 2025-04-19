@@ -61,8 +61,6 @@ import StudentUpdate from "./Components/Student/StudentUpdate";
 import OmrcoList from "./Components/Exam/omrco/OmrcoList";
 import OmrcoFrom from "./Components/Exam/omrco/OmrcoForm";
 
-
-
 //conginment
 import Create from "./Components/Consignment/create/Create";
 import List from "./Components/Consignment/create/List";
@@ -74,6 +72,7 @@ import UpdatePacking from "./Components/Consignment/packing/UpadatePacking";
 
 import StudentReport from "./Components/Reports/StudentReport";
 import SchoolReport from "./Components/Reports/SchoolReport";
+import ExamReport from "./Components/Reports/ExamReport";
 
 import AdminProfile from "./Components/Pages/AdminProfile";
 
@@ -290,7 +289,7 @@ function App() {
           {/* //omr receipt */}
           <Route
             path="/omr-receipt"
-            element={<ProtectedRoute element={<OMRreceipt/>} />}
+            element={<ProtectedRoute element={<OMRreceipt />} />}
           />
 
           {/* //result */}
@@ -337,6 +336,11 @@ function App() {
             path="/schools-report"
             element={<ProtectedRoute element={<SchoolReport />} />}
           />
+          <Route
+            path="/exams-report"
+            element={<ProtectedRoute element={<ExamReport />} />}
+          />
+
           {/* //user & role */}
           <Route path="/user" element={<ProtectedRoute element={<User />} />} />
           <Route

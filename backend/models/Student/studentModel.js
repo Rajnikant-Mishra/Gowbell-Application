@@ -230,6 +230,10 @@ export const Student = {
     });
   },
 
+ 
+  
+
+
   getById: (id, callback) => {
     const query = "SELECT * FROM student WHERE id = ?";
     db.query(query, [id], callback);
@@ -289,130 +293,6 @@ export const Student = {
   },
 
   //for omr issues student data by school class subject
-
-  //  getStudentsByFilters: (schoolName, classList, subjectList, callback)=> {
-  //     const dataQuery = `
-  //       SELECT * FROM student
-  //       WHERE school_name = ?
-  //       AND class_name IN (${classList.map(() => '?').join(',')})
-  //       AND JSON_CONTAINS(student_subject, ?)
-  //     `;
-
-  //     const countQuery = `
-  //       SELECT COUNT(*) as total_count FROM student
-  //       WHERE school_name = ?
-  //       AND class_name IN (${classList.map(() => '?').join(',')})
-  //       AND JSON_CONTAINS(student_subject, ?)
-  //     `;
-
-  //     db.query(dataQuery, [schoolName, ...classList, JSON.stringify(subjectList)], (err, students) => {
-  //       if (err) return callback(err);
-
-  //       db.query(countQuery, [schoolName, ...classList, JSON.stringify(subjectList)], (err, countResult) => {
-  //         if (err) return callback(err);
-
-  //         callback(null, {
-  //           students: students || [], // Ensure students is always an array
-  //           total_count: countResult[0]?.total_count || 0
-  //         });
-  //       });
-  //     });
-  //   },
-  // getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
-  //   const placeholders = classList.map(() => "?").join(",");
-
-  //   const dataQuery = `
-  //   SELECT
-  //     s.id,
-  //     s.roll_no,
-  //     s.student_name,
-  //     s.school_name,
-  //     c.name AS class_name,
-  //     sub.name AS subject_names
-  //   FROM student s
-  //   LEFT JOIN class c ON s.class_name = c.id
-  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //     ON TRUE
-  //   LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-  //   WHERE s.school_name = ?
-  //     AND s.class_name IN (${placeholders})
-  //     AND JSON_CONTAINS(s.student_subject, ?)
-  //     AND sub.name IS NOT NULL
-  // `;
-
-  //   const countQuery = `
-  //   SELECT COUNT(*) as total_count
-  //   FROM student s
-  //   WHERE s.school_name = ?
-  //     AND s.class_name IN (${placeholders})
-  //     AND JSON_CONTAINS(s.student_subject, ?)
-  // `;
-
-  //   const params = [schoolName, ...classList, JSON.stringify(subjectList)];
-
-  //   db.query(dataQuery, params, (err, students) => {
-  //     if (err) {
-  //       return callback(err);
-  //     }
-
-  //     db.query(countQuery, params, (countErr, countResult) => {
-  //       if (countErr) {
-  //         return callback(countErr);
-  //       }
-
-  //       const totalCount = countResult[0].total_count;
-  //       callback(null, { students, totalCount });
-  //     });
-  //   });
-  // },
-  // getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
-  //   const placeholders = classList.map(() => "?").join(",");
-  //   const subjectPlaceholders = subjectList.map(() => "?").join(",");
-
-  //   const dataQuery = `
-  //     SELECT
-  //       s.id,
-  //       s.roll_no,
-  //       s.student_name,
-  //       s.school_name,
-  //       c.name AS class_name,
-  //       sub.name AS subject_names
-  //     FROM student s
-  //     LEFT JOIN class c ON s.class_name = c.id
-  //     LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //       ON TRUE
-  //     LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-  //     WHERE s.school_name = ?
-  //       AND s.class_name IN (${placeholders})
-  //       AND JSON_CONTAINS(s.student_subject, ?)
-  //       AND sub.id IN (${subjectPlaceholders})
-  //   `;
-
-  //   const countQuery = `
-  //     SELECT COUNT(*) as total_count
-  //     FROM student s
-  //     WHERE s.school_name = ?
-  //       AND s.class_name IN (${placeholders})
-  //       AND JSON_CONTAINS(s.student_subject, ?)
-  //   `;
-
-  //   const params = [schoolName, ...classList, JSON.stringify(subjectList), ...subjectList];
-
-  //   db.query(dataQuery, params, (err, students) => {
-  //     if (err) {
-  //       return callback(err);
-  //     }
-
-  //     db.query(countQuery, [schoolName, ...classList, JSON.stringify(subjectList)], (countErr, countResult) => {
-  //       if (countErr) {
-  //         return callback(countErr);
-  //       }
-
-  //       const totalCount = countResult[0].total_count;
-  //       callback(null, { students, totalCount });
-  //     });
-  //   });
-  // },
   getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
     const placeholders = classList.map(() => "?").join(",");
     const subjectPlaceholders = subjectList.map(() => "?").join(",");
@@ -494,170 +374,12 @@ export const Student = {
   `;
     db.query(query, subjectIds, callback);
   },
+  
+
+
 
   //omr receipt
-  // getStudentsByFiltersomrreceipt: (
-  //   schoolName,
-  //   classList,
-  //   subjectList,
-  //   rollNo,
-  //   callback
-  // ) => {
-  //   let baseQuery = `
-  //     SELECT * FROM student
-  //     WHERE school_name = ?
-  //     AND class_name IN (${classList.map(() => "?").join(",")})
-  //     AND JSON_CONTAINS(student_subject, ?)
-  //   `;
-
-  //   let countQuery = `
-  //     SELECT COUNT(*) as total_count FROM student
-  //     WHERE school_name = ?
-  //     AND class_name IN (${classList.map(() => "?").join(",")})
-  //     AND JSON_CONTAINS(student_subject, ?)
-  //   `;
-
-  //   let queryParams = [schoolName, ...classList, JSON.stringify(subjectList)];
-
-  //   if (rollNo) {
-  //     baseQuery += ` AND roll_no = ?`;
-  //     countQuery += ` AND roll_no = ?`;
-  //     queryParams.push(rollNo);
-  //   }
-
-  //   db.query(baseQuery, queryParams, (err, students) => {
-  //     if (err) return callback(err);
-
-  //     db.query(countQuery, queryParams, (err, countResult) => {
-  //       if (err) return callback(err);
-
-  //       callback(null, {
-  //         students,
-  //         total_count: countResult[0].total_count,
-  //       });
-  //     });
-  //   });
-  // },
-
-  // getStudentsByFiltersomrreceipt: (
-  //   schoolName,
-  //   classList,
-  //   subjectList,
-  //   rollNo,
-  //   callback
-  // ) => {
-  //   let baseQuery = `
-  //     SELECT * FROM student
-  //     WHERE school_name = ?
-  //     AND class_name IN (${classList.map(() => "?").join(",")})
-  //     AND JSON_CONTAINS(student_subject, ?)
-  //   `;
-
-  //   let countQuery = `
-  //     SELECT COUNT(*) as total_count FROM student
-  //     WHERE school_name = ?
-  //     AND class_name IN (${classList.map(() => "?").join(",")})
-  //     AND JSON_CONTAINS(student_subject, ?)
-  //   `;
-
-  //   let subjectCountQuery = `
-  //     SELECT SUM(JSON_LENGTH(student_subject)) as total_subject_count
-  //     FROM student
-  //     WHERE school_name = ?
-  //     AND class_name IN (${classList.map(() => "?").join(",")})
-  //     AND JSON_CONTAINS(student_subject, ?)
-  //   `;
-
-  //   let queryParams = [schoolName, ...classList, JSON.stringify(subjectList)];
-
-  //   if (rollNo) {
-  //     baseQuery += ` AND roll_no = ?`;
-  //     countQuery += ` AND roll_no = ?`;
-  //     subjectCountQuery += ` AND roll_no = ?`;
-  //     queryParams.push(rollNo);
-  //   }
-
-  //   db.query(baseQuery, queryParams, (err, students) => {
-  //     if (err) return callback(err);
-
-  //     db.query(countQuery, queryParams, (err, countResult) => {
-  //       if (err) return callback(err);
-
-  //       db.query(subjectCountQuery, queryParams, (err, subjectCountResult) => {
-  //         if (err) return callback(err);
-
-  //         callback(null, {
-  //           students,
-  //           total_count: countResult[0].total_count,
-  //           total_subject_count: subjectCountResult[0].total_subject_count || 0,
-  //         });
-  //       });
-  //     });
-  //   });
-  // },
-  // Modified getStudentsByFiltersomrreceipt with original logic
-  // getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
-  //   const placeholders = classList.map(() => "?").join(",");
-  //   const subjectPlaceholders = subjectList.map(() => "?").join(",");
-
-  //   const subjectJsonConditions = subjectList
-  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
-  //     .join(" OR ");
-
-  //   const dataQuery = `
-  //     SELECT
-  //       s.id,
-  //       s.roll_no,
-  //       s.student_name,
-  //       s.school_name,
-  //       s.student_section,
-  //       s.mobile_number,
-  //       c.name AS class_name,
-  //       sub.name AS subject_names
-  //     FROM student s
-  //     LEFT JOIN class c ON s.class_name = c.id
-  //     LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //       ON TRUE
-  //     LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-  //     WHERE s.school_name = ?
-  //       AND s.class_name IN (${placeholders})
-  //       AND (${subjectJsonConditions})
-  //       AND sub.id IN (${subjectPlaceholders})
-  //   `;
-
-  //   const countQuery = `
-  //     SELECT COUNT(*) as total_count
-  //     FROM student s
-  //     WHERE s.school_name = ?
-  //       AND s.class_name IN (${placeholders})
-  //       AND (${subjectJsonConditions})
-  //   `;
-
-  //   const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
-  //   const dataParams = [
-  //     schoolName,
-  //     ...classList,
-  //     ...jsonSubjectParams,
-  //     ...subjectList,
-  //   ];
-  //   const countParams = [schoolName, ...classList, ...jsonSubjectParams];
-
-  //   db.query(dataQuery, dataParams, (err, students) => {
-  //     if (err) {
-  //       return callback(err);
-  //     }
-
-  //     db.query(countQuery, countParams, (countErr, countResult) => {
-  //       if (countErr) {
-  //         return callback(countErr);
-  //       }
-
-  //       const totalCount = countResult[0].total_count;
-  //       callback(null, { students, totalCount });
-  //     });
-  //   });
-  // },
-  getStudentsByFilters:(schoolName, classList, subjectList, rollnoclasssubject, callback) => {
+  getStudents:(schoolName, classList, subjectList, rollnoclasssubject, callback) => {
     const placeholders = classList.map(() => "?").join(",");
     const subjectPlaceholders = subjectList.map(() => "?").join(",");
 
@@ -733,7 +455,6 @@ export const Student = {
       });
     });
 },
-  
 
   getClassNames: (classIds, callback) => {
     if (!classIds.length) return callback(null, []);
