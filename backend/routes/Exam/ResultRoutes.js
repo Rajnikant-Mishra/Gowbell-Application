@@ -1,7 +1,16 @@
 import express from "express";
-import { bulkUploadResults, getAllResults,deleteResultById, updatePendingPercentages} from "../../controllers/Exam/ResultController.js";
+import {createResult,updateResult,getResultById,  bulkUploadResults, getAllResults, deleteResultById, updatePendingPercentages, getFilteredStudentsomrreceipt} from "../../controllers/Exam/ResultController.js";
 
 const router = express.Router();
+
+// Create a single result
+router.post('/create', createResult);
+
+// Update a result
+router.put('/result/update/:id', updateResult);
+
+// Get a single result by ID
+router.get('/get/:id', getResultById);
 
 // Bulk upload student results
 router.post("/upload-results", bulkUploadResults);
@@ -12,6 +21,11 @@ router.get("/all-results", getAllResults);
 
 // Delete by ID
 router.delete("/result/:id", deleteResultById);
+
+
+// POST API to get students by single class and subject
+router.post('/getFilteredStudentreceipt', getFilteredStudentsomrreceipt);
+
 
 // New route for updating percentages of pending records
 router.post("/update-pending-percentages", updatePendingPercentages);

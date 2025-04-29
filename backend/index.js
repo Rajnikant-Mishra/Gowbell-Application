@@ -53,6 +53,10 @@ import role_menuRoutes from "./routes/configuration/role_menuRoutes.js";
 //attribute
 import attributeRoutes from "./routes/attribute/attributeRoutes.js";
 
+//items
+import itemRoutes from "./routes/configuration/itemRoutes.js";
+import subitem from "./routes/configuration/subitemRoutes.js";
+
 const app = express();
 
 
@@ -115,10 +119,14 @@ app.use('/api',omrReceiptRoutes);
 
 //menu
 app.use('/api/m1',menuRoutes);
-app.use('/api',role_menuRoutes)
+app.use('/api/permission',role_menuRoutes)
 
 //attribute
 app.use('/api/a1',attributeRoutes);
+
+//items
+app.use('/api/t1', itemRoutes );
+app.use('/api/s1',subitem );
 
 
 const PORT = process.env.PORT || 5000;

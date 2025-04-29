@@ -11,10 +11,10 @@ import {
 const router = express.Router();
 
 
-router.post('/permission/assign', assignMenu);
-router.get('/permission/:role_id', getMenusByRole);
-router.get('/permission/menu/raw', getAllRoleMenu); 
+router.post('/assign', assignMenu);
+router.get('/:role_id', getMenusByRole);
+router.get('/menus/all', getAllRoleMenu); 
 // Delete a consignment by ID
-router.delete('/permission/assign/:id', deleteRoleMenu);
+router.delete('/assign/:id', deleteRoleMenu);
 
 export default router;

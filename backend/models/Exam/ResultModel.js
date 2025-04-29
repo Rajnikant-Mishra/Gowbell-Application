@@ -2,46 +2,240 @@
 import { db } from "../../config/db.js";
 
 const ResultModel = {
+  // Create a single result
+  create: (data, callback) => {
+    const {
+      school_name,
+      student_name,
+      class_id,
+      roll_no,
+      full_mark,
+      mark_secured,
+      level,
+      subject_id,
+    } = data;
+
+    const query = `
+      INSERT INTO result 
+      (school_name, student_name, class_id, roll_no, full_mark, mark_secured, percentage, level, subject_id, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const percentage = (mark_secured / full_mark) * 100 || 0;
+
+    db.query(
+      query,
+      [
+        school_name,
+        student_name,
+        class_id,
+        roll_no,
+        full_mark,
+        mark_secured,
+        percentage,
+        level,
+        subject_id,
+        "pending",
+      ],
+      (err, result) => {
+        if (err) return callback(err);
+        callback(null, {
+          message: "Result created successfully",
+          id: result.insertId,
+        });
+      }
+    );
+  },
+
+  // Update Result
+// In your ResultModel
+update: (id, data, callback) => {
+  const {
+    school_name,
+    student_name,
+    class_id,
+    roll_no,
+    full_mark,
+    mark_secured,
+    level,
+    subject_id,
+  } = data;
+
+  const query = `
+    UPDATE result 
+    SET school_name = ?, student_name = ?, class_id = ?, roll_no = ?, full_mark = ?, mark_secured = ?, level = ?, subject_id = ?
+    WHERE id = ?
+  `;
+
+  db.query(
+    query,
+    [
+      school_name,
+      student_name,
+      class_id,
+      roll_no,
+      full_mark,
+      mark_secured,
+      level,
+      subject_id,
+      id,
+    ],
+    (err, result) => {
+      if (err) return callback(err);
+
+      if (result.affectedRows === 0) {
+        // No rows were updated
+        return callback(new Error("No result found with the provided ID."));
+      }
+
+      callback(null, {
+        message: "Result updated successfully",
+      });
+    }
+  );
+},
+
+
+  // Get Result by ID
+  getById: (id, callback) => {
+    const query = `SELECT * FROM result WHERE id = ?`;
+
+    db.query(query, [id], (err, results) => {
+      if (err) return callback(err);
+      if (results.length === 0) return callback(new Error("Result not found"));
+      callback(null, results[0]);
+    });
+  },
+
   // Bulk Upload Results
   bulkUpload: (students, callback) => {
     if (!Array.isArray(students) || students.length === 0) {
       return callback("No student data provided");
     }
 
-    const values = students.map((student) => [
-      student.student_name,
-      student.class,
-      student.roll_no,
-      student.full_mark,
-      student.mark_secured,
-      student.percentage,
-      student.level,
-      student.subject,
-      student.medals || "None",
-      student.certificate || null,
-      student.remarks || null,
-      student.status || "pending",
-    ]);
+    // Process each student to fetch or insert the subject_id and class_id
+    const processStudents = (students, cb) => {
+      const classMap = new Map(); // Cache class_name -> id mapping
+      const subjectMap = new Map(); // Cache subject_name -> id mapping
+      const promises = students.map((student) => {
+        return new Promise((resolve, reject) => {
+          // Process class_name
+          const processClass = () =>
+            new Promise((resolveClass, rejectClass) => {
+              if (classMap.has(student.class_name)) {
+                student.class_id = classMap.get(student.class_name);
+                resolveClass();
+              } else {
+                const classQuery = `SELECT id FROM class WHERE name = ?`;
+                db.query(classQuery, [student.class_name], (err, results) => {
+                  if (err) return rejectClass(err);
+                  if (results.length > 0) {
+                    const classId = results[0].id;
+                    classMap.set(student.class_name, classId);
+                    student.class_id = classId;
+                    resolveClass();
+                  } else {
+                    const insertClassQuery = `INSERT INTO class (name, status, created_by) VALUES (?, ?, ?)`;
+                    db.query(
+                      insertClassQuery,
+                      [student.class_name, "active", "system"],
+                      (insertErr, insertResult) => {
+                        if (insertErr) return rejectClass(insertErr);
+                        const classId = insertResult.insertId;
+                        classMap.set(student.class_name, classId);
+                        student.class_id = classId;
+                        resolveClass();
+                      }
+                    );
+                  }
+                });
+              }
+            });
 
-    const query = `
-      INSERT INTO result 
-      (student_name, class, roll_no, full_mark, mark_secured, percentage, level, subject, medals, certificate, remarks, status) 
-      VALUES ? 
-      ON DUPLICATE KEY UPDATE 
-        full_mark = VALUES(full_mark), 
-        mark_secured = VALUES(mark_secured), 
-        percentage = VALUES(percentage), 
-        medals = VALUES(medals), 
-        certificate = VALUES(certificate), 
-        remarks = VALUES(remarks), 
-        status = VALUES(status),
-        updated_at = CURRENT_TIMESTAMP
-    `;
+          // Process subject_name
+          const processSubject = () =>
+            new Promise((resolveSubject, rejectSubject) => {
+              if (subjectMap.has(student.subject)) {
+                student.subject_id = subjectMap.get(student.subject);
+                resolveSubject();
+              } else {
+                const subjectQuery = `SELECT id FROM subject_master WHERE name = ?`;
+                db.query(subjectQuery, [student.subject], (err, results) => {
+                  if (err) return rejectSubject(err);
+                  if (results.length > 0) {
+                    const subjectId = results[0].id;
+                    subjectMap.set(student.subject, subjectId);
+                    student.subject_id = subjectId;
+                    resolveSubject();
+                  } else {
+                    const insertSubjectQuery = `INSERT INTO subject_master (name, status, created_by) VALUES (?, ?, ?)`;
+                    db.query(
+                      insertSubjectQuery,
+                      [student.subject, "active", "system"],
+                      (insertErr, insertResult) => {
+                        if (insertErr) return rejectSubject(insertErr);
+                        const subjectId = insertResult.insertId;
+                        subjectMap.set(student.subject, subjectId);
+                        student.subject_id = subjectId;
+                        resolveSubject();
+                      }
+                    );
+                  }
+                });
+              }
+            });
 
-    db.query(query, [values], (err, result) => {
+          // Process both class and subject
+          Promise.all([processClass(), processSubject()])
+            .then(resolve)
+            .catch(reject);
+        });
+      });
+
+      // Wait for all promises to resolve
+      Promise.all(promises)
+        .then(() => cb(null, students))
+        .catch(cb);
+    };
+
+    processStudents(students, (err, processedStudents) => {
       if (err) return callback(err);
-      callback(null, {
-        message: `${result.affectedRows} records inserted/updated successfully`,
+
+      const values = processedStudents.map((student) => [
+        student.school_name,
+        student.student_name,
+        student.class_id, // Use class_id instead of class_name
+        student.roll_no,
+        student.full_mark,
+        student.mark_secured,
+        null, // percentage
+        student.level,
+        student.subject_id, // Use subject_id instead of subject_name
+        null, // rank
+        null, // medals
+        null, // certificate
+        null, // remarks
+        "pending", // default status
+      ]);
+
+      const query = `
+        INSERT INTO result 
+        (school_name, student_name, class_id, roll_no, full_mark, mark_secured, percentage, level, subject_id, ranking, medals, certificate, remarks, status) 
+        VALUES ? 
+        ON DUPLICATE KEY UPDATE 
+          full_mark = VALUES(full_mark), 
+          mark_secured = VALUES(mark_secured), 
+          percentage = VALUES(percentage), 
+          level = VALUES(level),
+          subject_id = VALUES(subject_id),
+          updated_at = CURRENT_TIMESTAMP
+      `;
+
+      db.query(query, [values], (err, result) => {
+        if (err) return callback(err);
+        callback(null, {
+          message: `${result.affectedRows} records inserted/updated successfully`,
+        });
       });
     });
   },
@@ -79,10 +273,76 @@ const ResultModel = {
     db.query(query, [id], (err, result) => {
       if (err) return callback(err);
       if (result.affectedRows === 0) {
-        return callback(null, { message: "No record found with the provided ID" });
+        return callback(null, {
+          message: "No record found with the provided ID",
+        });
       }
       callback(null, { message: "Record deleted successfully" });
     });
+  },
+
+  //get all result by select school class subject
+  getStudents: (schoolName, classId, subjectId, callback) => {
+    const dataQuery = `
+    SELECT
+      r.id,
+      r.roll_no,
+      r.student_name,
+      r.school_name,
+      r.roll_no,
+      r.full_mark,
+      r.mark_secured,
+      r.percentage,
+      r.medals,
+      r.certificate,
+      r.remarks,
+      r.ranking,
+      r.status,
+      c.name AS class_name,
+      sub.name AS subject_name
+    FROM result r
+    LEFT JOIN class c ON r.class_id = c.id
+    LEFT JOIN subject_master sub ON r.subject_id = sub.id
+    WHERE r.school_name = ?
+      AND r.class_id = ?
+      AND r.subject_id = ?
+  `;
+
+    const countQuery = `
+    SELECT COUNT(*) as total_count
+    FROM result r
+    WHERE r.school_name = ?
+      AND r.class_id = ?
+      AND r.subject_id = ?
+  `;
+
+    const dataParams = [schoolName, classId, subjectId];
+    const countParams = [schoolName, classId, subjectId];
+
+    db.query(dataQuery, dataParams, (err, students) => {
+      if (err) return callback(err);
+
+      db.query(countQuery, countParams, (countErr, countResult) => {
+        if (countErr) return callback(countErr);
+
+        const totalCount = countResult[0].total_count;
+        callback(null, { students, totalCount });
+      });
+    });
+  },
+
+  getClassNames: (classIds, callback) => {
+    if (!classIds.length) return callback(null, []);
+    const placeholders = classIds.map(() => "?").join(",");
+    const query = `SELECT id, name AS class_id FROM class WHERE id IN (${placeholders})`;
+    db.query(query, classIds, callback);
+  },
+
+  getSubjectNames: (subjectIds, callback) => {
+    if (!subjectIds.length) return callback(null, []);
+    const placeholders = subjectIds.map(() => "?").join(",");
+    const query = `SELECT id, name AS subject_name FROM subject_master WHERE id IN (${placeholders})`;
+    db.query(query, subjectIds, callback);
   },
 
   // Calculate and update percentages for rows with status "pending"
@@ -91,7 +351,7 @@ const ResultModel = {
       WITH RankedResults AS (
         SELECT 
           id,
-          ROW_NUMBER() OVER (PARTITION BY class, subject ORDER BY mark_secured DESC) AS student_rank
+          ROW_NUMBER() OVER (PARTITION BY class_id, subject_id ORDER BY mark_secured DESC) AS student_rank
         FROM result
         WHERE status = 'pending' AND full_mark > 0
       )
@@ -110,7 +370,7 @@ const ResultModel = {
                     WHEN (r.mark_secured / r.full_mark) * 100 >= 80 AND (r.mark_secured / r.full_mark) * 100 < 90 THEN 'Good Performance'
                     ELSE NULL
                   END,
-                   r.level = CASE 
+                   r.ranking = CASE 
                      WHEN rr.student_rank = 1 THEN '1'
                      WHEN rr.student_rank = 2 THEN '2'
                      WHEN rr.student_rank = 3 THEN '3'

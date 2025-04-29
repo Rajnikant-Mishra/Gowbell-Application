@@ -10,7 +10,7 @@ router.put('/schools/:id', updateSchool);       // Update school
 router.delete('/schools/:id', deleteSchool);    // Delete school
 
 //BULK ROUTE
-router.post('/school/bulk-upload',  bulkUploadSchools); // Bulk student upload
+router.post('/school/bulk-upload',authenticateToken ,  bulkUploadSchools); // Bulk student upload
 
 //getschool from country...
 router.get('/filter', filterByLocation);

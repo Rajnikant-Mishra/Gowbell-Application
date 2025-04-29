@@ -21,7 +21,7 @@ import inventoryModel from "../../models/Inventory/inventoryModel.js";
 // };
 
 export const createInventory = (req, res) => {
-  const { date, invoice_no, item, quantity, unit, price, remarks, manufacturer_details } = req.body;
+  const { date, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details } = req.body;
   
   // Ensure the request contains a valid user ID from the token
   const created_by = req.user.id; 
@@ -30,7 +30,7 @@ export const createInventory = (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const inventoryData = { date, created_by, invoice_no, item, quantity, unit, price, remarks, manufacturer_details };
+  const inventoryData = { date, created_by, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details };
 
   inventoryModel.createInventory(inventoryData, (error, results) => {
     if (error) {

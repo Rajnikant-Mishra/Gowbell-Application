@@ -76,46 +76,29 @@ export const createSchool = async (req, res) => {
   }
 };
 
-// Bulk Upload Schools
+
+
+
 // export const bulkUploadSchools = async (req, res) => {
+//   const { id } = req.user; // User ID from authenticated request
 //   const schools = req.body; // Expecting an array of school objects
 
-//   if (!Array.isArray(schools) || schools.length === 0) {
-//     return res.status(400).json({ message: "No school data provided" });
-//   }
-
-//   // Validate each school entry
-//   const validationErrors = [];
-//   const validSchools = schools.filter((school, index) => {
-//     const { error } = schoolValidationSchema.validate(school, {
-//       abortEarly: false,
-//     });
-//     if (error) {
-//       validationErrors.push({
-//         index,
-//         errors: error.details.map((detail) => detail.message),
-//       });
-//       return false;
-//     }
-//     return true;
-//   });
-
-//   if (validationErrors.length > 0) {
-//     return res.status(400).json({
-//       message: "Validation errors in some schools",
-//       errors: validationErrors,
-//     });
-//   }
-
 //   try {
-//     const results = await School.bulkCreate(validSchools);
+//     // Add created_by and updated_by to each school object
+//     const schoolsWithUserData = schools.map((school) => ({
+//       ...school,
+//       created_by: id,
+//       updated_by: id,
+//     }));
+
+//     const results = await School.bulkCreate(schoolsWithUserData);
 
 //     if (!results || results.affectedRows === 0) {
 //       return res.status(500).json({ message: "Failed to insert schools" });
 //     }
 
 //     // Generate school codes and send confirmation emails/SMS
-//     const schoolsWithCodes = validSchools.map((school, index) => {
+//     const schoolsWithCodes = schoolsWithUserData.map((school, index) => {
 //       const { state, city } = school; // Extract state and city
 
 //       const schoolCode = `${state}${city}${String(index + 1).padStart(2, "0")}`;
@@ -148,50 +131,58 @@ export const createSchool = async (req, res) => {
 //     res.status(500).json({ message: "An error occurred", error: err.message });
 //   }
 // };
+
 export const bulkUploadSchools = async (req, res) => {
-  const schools = req.body; // Expecting an array of school objects
+  const { id } = req.user; // Authenticated user ID
+  const schools = req.body; // Array of school objects
 
   try {
-    const results = await School.bulkCreate(schools);
+    // Add created_by and updated_by to each school object
+    const schoolsWithUserData = schools.map((school) => ({
+      ...school,
+      created_by: id,
+      updated_by: id,
+    }));
+
+    const results = await School.bulkCreate(schoolsWithUserData);
 
     if (!results || results.affectedRows === 0) {
       return res.status(500).json({ message: "Failed to insert schools" });
     }
 
-    // Generate school codes and send confirmation emails/SMS
-    const schoolsWithCodes = schools.map((school, index) => {
-      const { state, city } = school; // Extract state and city
+    // Combine school data with generated codes (assuming School.bulkCreate returns them)
+    const insertedSchools = results.schools || schoolsWithUserData; // Fallback if no returned school list
 
-      const schoolCode = `${state}${city}${String(index + 1).padStart(2, "0")}`;
+    // Loop through and send notifications only if both email and phone are present
+    insertedSchools.forEach((school) => {
+      if (school.school_email && school.principal_contact_number) {
+        const emailSubject = `School Registration Successful: ${school.school_name}`;
+        const emailText = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. Your School Code: ${school.school_code}`;
+        const emailHtml = `
+          <p>Dear <strong>${school.school_name}</strong>,</p>
+          <p>Your registration with Gowbell Foundation was successful.</p>
+          <p>Your School Code: <strong>${school.school_code}</strong>.</p>
+        `;
 
-      // Send confirmation email
-      const emailSubject = `School Registration Successful: ${school.school_name}`;
-      const emailText = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
-      const emailHtml = `<p>Dear <strong>${school.school_name}</strong>,</p>
-                         <p>Your registration with Gowbell Foundation was successful.</p>
-                         <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
-      sendEmail(school.school_email, emailSubject, emailText, emailHtml);
+        sendEmail(school.school_email, emailSubject, emailText, emailHtml);
 
-      // Send confirmation SMS
-      const smsMessage = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
-      sendSms(school.principal_contact_number, smsMessage);
-
-      return {
-        ...school,
-        school_code: schoolCode,
-      };
+        const smsMessage = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful! Your School Code: ${school.school_code}`;
+        sendSms(school.principal_contact_number, smsMessage);
+      }
     });
 
     res.status(201).json({
       message: "Schools uploaded successfully",
       insertedCount: results.affectedRows,
-      schools: schoolsWithCodes,
+      schools: insertedSchools,
     });
   } catch (err) {
     console.error("Error during bulk upload of schools:", err);
     res.status(500).json({ message: "An error occurred", error: err.message });
   }
 };
+
+
 
 // Get all schools
 export const getAllSchools = (req, res) => {

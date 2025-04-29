@@ -22,16 +22,16 @@ const inventoryModel = {
   // },
 
   createInventory: (inventoryData, callback) => {
-    const { date, created_by, invoice_no, item, quantity, unit, price, remarks, manufacturer_details } = inventoryData;
+    const { date, created_by, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details } = inventoryData;
   
     if (!date || !invoice_no || !item || !quantity || !unit || !price) {
       return callback(new Error('Missing required fields'), null);
     }
   
-    const query = `INSERT INTO inventory (date, created_by, invoice_no, item, quantity, unit, price, remarks, manufacturer_details) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO inventory (date, created_by, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
-    db.query(query, [date, created_by, invoice_no, item, quantity, unit, price, remarks, manufacturer_details], (error, results) => {
+    db.query(query, [date, created_by, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details], (error, results) => {
       if (error) {
         callback(error, null);
       } else {

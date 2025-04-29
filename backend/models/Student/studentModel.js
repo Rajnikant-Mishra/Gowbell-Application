@@ -231,8 +231,6 @@ export const Student = {
   },
 
  
-  
-
 
   getById: (id, callback) => {
     const query = "SELECT * FROM student WHERE id = ?";
@@ -375,8 +373,6 @@ export const Student = {
     db.query(query, subjectIds, callback);
   },
   
-
-
 
   //omr receipt
   getStudents:(schoolName, classList, subjectList, rollnoclasssubject, callback) => {
