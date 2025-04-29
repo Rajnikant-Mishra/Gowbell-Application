@@ -45,19 +45,6 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-  // useEffect(() => {
-  //   // Fetch data from the API when the component mounts
-  //   axios
-  //     .get(`${API_BASE_URL}/api/get/schools`) // Your API URL here
-  //     .then((response) => {
-  //       setRecords(response.data);
-  //       setFilteredRecords(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("There was an error fetching the records!", error);
-  //     });
-  // }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -303,40 +290,157 @@ export default function DataTable() {
     }
   };
 
-  // Parse CSV data and map to school objects
+  // // Parse CSV data and map to school objects
   const parseCSVData = (csvData) => {
     Papa.parse(csvData, {
       header: true,
       skipEmptyLines: true,
       complete: (result) => {
         console.log("Parsed CSV Data:", result.data);
-        // Map CSV rows to school objects as expected by your backend
+        // Map CSV rows to school objects as expected by the backend
         const schools = result.data.map((row) => ({
-          board: row.board,
-          school_name: row.school_name,
-          school_email: row.school_email,
-          school_contact_number: row.school_contact_number,
-          school_landline_number: row.school_landline_number,
-          state: row.state,
-          district: row.district,
-          city: row.city,
-          pincode: row.pincode,
-          principal_name: row.principal_name,
-          principal_contact_number: row.principal_contact_number,
-          principal_whatsapp: row.principal_whatsapp,
-          vice_principal_name: row.vice_principal_name,
-          vice_principal_contact_number: row.vice_principal_contact_number,
-          vice_principal_whatsapp: row.vice_principal_whatsapp,
-          student_strength: row.student_strength,
-          classes: row.classes,
-          status: row.status,
+          board: row.board?.trim() || undefined,
+          school_name: row.school_name?.trim() || undefined,
+          pincode: row.pincode?.trim() || undefined,
+          school_address: row.school_address?.trim() || undefined,
+          country: row.country?.trim() || undefined,
+          state: row.state?.trim() || undefined,
+          district: row.district?.trim() || undefined,
+          city: row.city?.trim() || undefined,
+          school_email: row.school_email?.trim() || null,
+          principal_contact_number:
+            row.principal_contact_number?.trim() || null,
+          principal_name: row.principal_name?.trim() || null,
+          principal_whatsapp: row.principal_whatsapp?.trim() || null,
+          school_contact_number: row.school_contact_number?.trim() || null,
+          school_landline_number: row.school_landline_number?.trim() || null,
+          vice_principal_name: row.vice_principal_name?.trim() || null,
+          vice_principal_contact_number:
+            row.vice_principal_contact_number?.trim() || null,
+          vice_principal_whatsapp: row.vice_principal_whatsapp?.trim() || null,
+          manager_name: row.manager_name?.trim() || null,
+          manager_contact_number: row.manager_contact_number?.trim() || null,
+          manager_whatsapp_number: row.manager_whatsapp_number?.trim() || null,
+          first_incharge_name: row.first_incharge_name?.trim() || null,
+          first_incharge_number: row.first_incharge_number?.trim() || null,
+          first_incharge_whatsapp: row.first_incharge_whatsapp?.trim() || null,
+          second_incharge_name: row.second_incharge_name?.trim() || null,
+          second_incharge_number: row.second_incharge_number?.trim() || null,
+          second_incharge_whatsapp:
+            row.second_incharge_whatsapp?.trim() || null,
+          junior_student_strength: row.junior_student_strength?.trim() || null,
+          senior_student_strength: row.senior_student_strength?.trim() || null,
+          classes: row.classes?.trim()
+            ? row.classes.split(",").map((c) => c.trim())
+            : null,
+          status: row.status?.trim() || null,
+          created_by: row.created_by?.trim() || "admin", // Default to 'admin' if not provided
+          updated_by: row.updated_by?.trim() || "admin", // Default to 'admin' if not provided
         }));
         uploadSchoolsData(schools);
+      },
+      error: (error) => {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: `Failed to parse CSV: ${error.message}`,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: { popup: "small-swal" },
+        });
       },
     });
   };
 
   // Upload the schools data to backend
+  // const uploadSchoolsData = async (schools) => {
+  //   if (!Array.isArray(schools) || schools.length === 0) {
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "warning",
+  //       title: "No Data",
+  //       text: "Please upload a valid CSV file with school data.",
+  //       showConfirmButton: false,
+  //       timer: 3000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     const token = localStorage.getItem("token"); // Or however you are storing the token
+  //     const response = await axios.post(
+  //       `${API_BASE_URL}/api/get/school/bulk-upload`,
+  //       schools,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     setLoading(false);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "success",
+  //       title: "Success!",
+  //       text: `Successfully uploaded ${response.data.affectedRows} schools.`,
+  //       showConfirmButton: false,
+  //       timer: 1000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     }).then(() => {
+  //       // Refresh the page or navigate to your school list view
+  //       navigate(0);
+  //     });
+  //   } catch (error) {
+  //     setLoading(false);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "error",
+  //       title: "Error!",
+  //       text: error.response?.data?.message || "An error occurred during upload.",
+  //       showConfirmButton: false,
+  //       timer: 3000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //   }
+  // };
+  const validateSchoolData = (schools) => {
+    const mandatoryFields = [
+      "board",
+      "school_name",
+      "pincode",
+      "school_address",
+      "country",
+      "state",
+      "district",
+      "city",
+    ];
+
+    const invalidSchools = schools.filter((school) =>
+      mandatoryFields.some(
+        (field) => !school[field] || school[field].trim() === ""
+      )
+    );
+
+    return invalidSchools;
+  };
+
   const uploadSchoolsData = async (schools) => {
     if (!Array.isArray(schools) || schools.length === 0) {
       Swal.fire({
@@ -354,19 +458,44 @@ export default function DataTable() {
       return;
     }
 
+    // Validate schools data for mandatory fields
+    const invalidSchools = validateSchoolData(schools);
+    if (invalidSchools.length > 0) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Invalid Data",
+        text: `Some mandatory fields are missing in ${invalidSchools.length} row(s). Please correct and try again.`,
+        showConfirmButton: false,
+        timer: 6000,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: { popup: "small-swal" },
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token"); // Or however you are storing the token
       const response = await axios.post(
         `${API_BASE_URL}/api/get/school/bulk-upload`,
-        schools
+        schools,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setLoading(false);
       Swal.fire({
         position: "top-end",
         icon: "success",
         title: "Success!",
-        text: `Successfully uploaded ${response.data.insertedCount} schools.`,
+        text: `Successfully uploaded ${response.data.affectedRows} schools.`,
         showConfirmButton: false,
         timer: 1000,
         timerProgressBar: true,
@@ -401,45 +530,68 @@ export default function DataTable() {
     const headers = [
       "board",
       "school_name",
-      "school_email",
-      "school_contact_number",
-      "school_landline_number",
-      
+      "school_address",
+      "pincode",
+      "country",
       "state",
       "district",
       "city",
-      "pincode",
-      "principal_name",
+      "school_email",
       "principal_contact_number",
+      "principal_name",
       "principal_whatsapp",
+      "school_contact_number",
+      "school_landline_number",
       "vice_principal_name",
       "vice_principal_contact_number",
       "vice_principal_whatsapp",
-      "student_strength",
+      "manager_name",
+      "manager_contact_number",
+      "manager_whatsapp_number",
+      "first_incharge_name",
+      "first_incharge_number",
+      "first_incharge_whatsapp",
+      "second_incharge_name",
+      "second_incharge_number",
+      "second_incharge_whatsapp",
+      "junior_student_strength",
+      "senior_student_strength",
       "classes",
       "status",
     ];
 
-    // Sample row for template purposes (update values as needed)
+    // Sample row for template purposes
     const rows = [
       [
         "CBSE",
         "ABC School",
+        "BBSR Tankapani",
+        "411001",
+        "India",
+        "Odisha",
+        "Cuttack",
+        "Aliabad",
         "abc@example.com",
         "7991048546",
+        "Dr. Anil Kumar",
         "7991048546",
-        "Odisha",
-        "Kendrapara",
-        "Bhitarkanika National Park",
-        "411001",
-        "John Doe",
-        "7991048546",
-        "7991048546",
-        "Jane Roe",
-        "6476734353",
-        "9876543213",
-        "1000",
-        ["class-1"],
+        "08012345678",
+        "Priya Sharma",
+        "Ravi Patel",
+        "9123456789",
+        "9876543210",
+        "susant",
+        "9898789078",
+        "9898789078",
+        "prasant",
+        "9898789078",
+        "9898789078",
+        "srikant",
+        "9898789078",
+        "9898789078",
+        "400",
+        "500",
+        "1",
         "active",
       ],
     ];
@@ -452,7 +604,7 @@ export default function DataTable() {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "schools_data.csv";
+    link.download = "schools_data_template.csv";
     link.click();
 
     handleClose();
@@ -628,7 +780,7 @@ export default function DataTable() {
                 "city",
                 "pincode",
                 "status",
-                "created_by",
+                "created by",
               ].map((col) => (
                 <th
                   key={col}
@@ -637,7 +789,7 @@ export default function DataTable() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    <span>{col.toUpperCase()}</span>
                     {getSortIcon(col)}
                   </div>
                 </th>
@@ -662,7 +814,7 @@ export default function DataTable() {
               "city",
               "pincode",
               "status",
-              "created_by",
+              "created by",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -692,9 +844,21 @@ export default function DataTable() {
                   />
                 </td>
 
-                <td>{row.board}</td>
-                <td>{row.school_name}</td>
-                <td>{row.school_code}</td>
+                <td>
+                  {typeof row.board === "string"
+                    ? row.board.toUpperCase()
+                    : row.board}
+                </td>
+                <td>
+                  {typeof row.school_name === "string"
+                    ? row.school_name.toUpperCase()
+                    : row.school_name}
+                </td>
+                <td>
+                  {typeof row.school_code === "string"
+                    ? row.school_code.toUpperCase()
+                    : row.school_code}
+                </td>
                 <td>{row.school_email}</td>
                 <td>{row.school_contact_number}</td>
                 <td>{row.country_name}</td>

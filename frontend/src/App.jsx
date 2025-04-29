@@ -86,7 +86,13 @@ import Rolelist from "./Components/Role/RoleList";
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
 
+//result
 import Result from "./Components/Exam/Result/Result";
+import ResultForm from "./Components/Exam/Result/ResultForm";
+import UpdateResult from "./Components/Exam/Result/UpdateResult";
+import ProcessResult from "./Components/Exam/Result/ProcessResult";
+
+
 
 import OMRreceipt from "./Components/Exam/omrReceipt/OMRreceipt";
 
@@ -102,6 +108,14 @@ import Listpermission from "./Components/configuration/permissionmenus/Listpermi
 //attributes
 import CreateAttribute from "./Components/configuration/Attribute/CreateAttribute";
 import ListAttribute from "./Components/configuration/Attribute/ListAttribute";
+
+//items
+import Itemform from "./Components/configuration/Item/Itemform";
+import ItemList from "./Components/configuration/Item/ItemList";
+
+//sub-items
+import SubItemForm from "./Components/configuration/subitems/SubItemForm";
+import SubItemList from "./Components/configuration/subitems/SubItemList";
 
 function App() {
   return (
@@ -236,7 +250,6 @@ function App() {
             path="/inventory/:id"
             element={<ProtectedRoute element={<Updateinventory />} />}
           />
-
           {/* School route */}
           <Route
             path="/school-create"
@@ -250,7 +263,6 @@ function App() {
             path="/school/update/:id"
             element={<ProtectedRoute element={<SchoolUpdate />} />}
           />
-
           {/* incharge route */}
           <Route
             path="/incharge-create"
@@ -285,20 +297,29 @@ function App() {
             path="/omr-create"
             element={<ProtectedRoute element={<OmrcoFrom />} />}
           />
-
           {/* //omr receipt */}
           <Route
             path="/omr-receipt"
             element={<ProtectedRoute element={<OMRreceipt />} />}
           />
-
           {/* //result */}
-
           <Route
             path="/result-list"
             element={<ProtectedRoute element={<Result />} />}
           />
-
+          <Route
+            path="/result-create"
+            element={<ProtectedRoute element={<ResultForm/>} />}
+          />
+           <Route
+            path="/result/update/:id"
+            element={<ProtectedRoute element={<UpdateResult/>} />}
+          />
+        
+          <Route
+            path="/resultprocess-list"
+            element={<ProtectedRoute element={<ProcessResult/>} />}
+          />
           {/* //conginments */}
           <Route
             path="/consignment-list"
@@ -312,7 +333,6 @@ function App() {
             path="/consignment/update/:id"
             element={<ProtectedRoute element={<Update />} />}
           />
-
           {/* //packing list */}
           <Route
             path="/packing-create"
@@ -326,7 +346,6 @@ function App() {
             path="/packing/update/:id"
             element={<ProtectedRoute element={<UpdatePacking />} />}
           />
-
           {/* report*/}
           <Route
             path="/students-report"
@@ -340,7 +359,6 @@ function App() {
             path="/exams-report"
             element={<ProtectedRoute element={<ExamReport />} />}
           />
-
           {/* //user & role */}
           <Route path="/user" element={<ProtectedRoute element={<User />} />} />
           <Route
@@ -373,7 +391,6 @@ function App() {
             path="/menu/update/:id"
             element={<ProtectedRoute element={<MenuUpdate />} />}
           />
-
           {/* //clientsmenu */}
           <Route
             path="/menu-permissions"
@@ -383,7 +400,6 @@ function App() {
             path="/permissions-list"
             element={<ProtectedRoute element={<Listpermission />} />}
           />
-
           {/* <Route
             path="/menu/update/:id"
             element={<ProtectedRoute element={<MenuUpdate />} />}
@@ -396,6 +412,24 @@ function App() {
           <Route
             path="/list-attribute"
             element={<ProtectedRoute element={<ListAttribute />} />}
+          />
+          {/* //items */}
+          <Route
+            path="/create-item"
+            element={<ProtectedRoute element={<Itemform />} />}
+          />
+          <Route
+            path="/item-list"
+            element={<ProtectedRoute element={<ItemList />} />}
+          />
+          {/* //sub-items */}
+          <Route
+            path="/create-subitem"
+            element={<ProtectedRoute element={<SubItemForm />} />}
+          />
+          <Route
+            path="/subitem-list"
+            element={<ProtectedRoute element={<SubItemList />} />}
           />
         </Routes>
       </Router>

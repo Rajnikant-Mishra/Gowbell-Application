@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -16,7 +16,6 @@ import * as Yup from "yup";
 import styles from "./School.module.css";
 import Swal from "sweetalert2";
 import TextInput from "../CommonComp/TextInput";
-// import SelectDrop from "../CommonComp/SelectDrop";
 import Mainlayout from "../../Layouts/Mainlayout";
 import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
@@ -27,14 +26,13 @@ import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 import SelectDrop from "./SelectDrop";
 
-// Validation Schema using Yup
+// Validation Schema using Yup (unchanged)
 const validationSchema = Yup.object({
   board: Yup.string().required("Board is required"),
-
   school_name: Yup.string()
     .required("School name is required")
     .test("unique-name", "School name already exists.", async (value) => {
-      if (!value) return true; // Skip validation if field is empty
+      if (!value) return true;
       try {
         const { data: existingSchools } = await axios.get(
           `${API_BASE_URL}/api/get/schools`
@@ -44,103 +42,78 @@ const validationSchema = Yup.object({
         );
       } catch (error) {
         console.error("Error checking duplicate school name:", error);
-        return false; // Assume duplicate if there's an error
+        return false;
       }
     }),
-
   school_email: Yup.string().email("Invalid email format"),
-
   school_contact_number: Yup.string()
-    .required("Contact number is required")
+    // .required("Contact number is required")
     .matches(/^\d{10}$/, "Invalid contact number"),
-
   school_landline_number: Yup.string().nullable(),
-
   school_address: Yup.string()
     .required("School address is required")
     .min(5, "Address must be at least 5 characters"),
-
   country: Yup.string().required("Country is required"),
   state: Yup.string().required("State is required"),
   district: Yup.string().required("District is required"),
   city: Yup.string().required("City is required"),
-
   pincode: Yup.string()
     .required("Pincode is required")
     .matches(/^[0-9]{6}$/, "Invalid pincode"),
-
   principal_name: Yup.string()
-    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
-    .required("Principal Name is required"),
-
+    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed"),
+    // .required("Principal Name is required"),
   principal_contact_number: Yup.string()
-    .required("Principal Contact Number is required")
+    // .required("Principal Contact Number is required")
     .matches(/^\d{10}$/, "Invalid contact number"),
-
   principal_whatsapp: Yup.string()
-    .required("Principal WhatsApp Number is required")
+    // .required("Principal WhatsApp Number is required")
     .matches(/^\d{10}$/, "Invalid WhatsApp number"),
-
   vice_principal_name: Yup.string()
     .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
     .nullable(),
-
   vice_principal_contact_number: Yup.string()
     .matches(/^\d{10}$/, "Invalid contact number")
     .nullable(),
-
   vice_principal_whatsapp: Yup.string()
     .matches(/^\d{10}$/, "Invalid WhatsApp number")
     .nullable(),
-
   manager_name: Yup.string()
     .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
     .nullable(),
-
   manager_contact_number: Yup.string()
     .matches(/^\d{10}$/, "Invalid contact number")
     .nullable(),
-
   manager_whatsapp_number: Yup.string()
     .matches(/^\d{10}$/, "Invalid WhatsApp number")
     .nullable(),
-
   first_incharge_name: Yup.string()
     .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
     .nullable(),
-
   first_incharge_number: Yup.string()
     .matches(/^\d{10}$/, "Invalid contact number")
     .nullable(),
-
   first_incharge_whatsapp: Yup.string()
     .matches(/^\d{10}$/, "Invalid WhatsApp number")
     .nullable(),
-
   second_incharge_name: Yup.string()
     .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
     .nullable(),
-
   second_incharge_number: Yup.string()
     .matches(/^\d{10}$/, "Invalid contact number")
     .nullable(),
-
   second_incharge_whatsapp: Yup.string()
     .matches(/^\d{10}$/, "Invalid WhatsApp number")
     .nullable(),
-
   junior_student_strength: Yup.number()
-    .required("Junior Student Strength is required")
+    // .required("Junior Student Strength is required")
     .positive("Must be a positive number")
     .integer("Must be a whole number"),
-
   senior_student_strength: Yup.number()
-    .required("Senior Student Strength is required")
+    // .required("Senior Student Strength is required")
     .positive("Must be a positive number")
     .integer("Must be a whole number"),
-
-  classes: Yup.array().min(1, "At least one class is required"),
-
+  // classes: Yup.array().min(1, "At least one class is required"),
   status: Yup.string().required("Status is required"),
 });
 
@@ -153,6 +126,7 @@ export default function SchoolForm() {
   const [filteredStates, setFilteredStates] = useState([]);
   const [filteredDistricts, setFilteredDistricts] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
+  const [classes, setClasses] = useState([]); // New state for dynamic classes
 
   // Formik initialization
   const formik = useFormik({
@@ -162,7 +136,7 @@ export default function SchoolForm() {
       school_email: "",
       school_contact_number: "",
       school_landline_number: "",
-      school_address: "", // ✅ Added school address field (textarea)
+      school_address: "",
       country: "",
       state: "",
       district: "",
@@ -174,25 +148,24 @@ export default function SchoolForm() {
       vice_principal_name: "",
       vice_principal_contact_number: "",
       vice_principal_whatsapp: "",
-      manager_name: "", // ✅ Added Manager fields
+      manager_name: "",
       manager_contact_number: "",
       manager_whatsapp_number: "",
-      first_incharge_name: "", // ✅ Added First Incharge fields
+      first_incharge_name: "",
       first_incharge_number: "",
       first_incharge_whatsapp: "",
-      second_incharge_name: "", // ✅ Added Second Incharge fields
+      second_incharge_name: "",
       second_incharge_number: "",
       second_incharge_whatsapp: "",
-      junior_student_strength: "", // ✅ Replaced student_strength with junior/senior
+      junior_student_strength: "",
       senior_student_strength: "",
-      classes: [], // ✅ Stored as an array (Will be converted to JSON in the backend)
+      classes: [],
       status: "active",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        const token = localStorage.getItem("token"); // Or sessionStorage.getItem("token")
-
+        const token = localStorage.getItem("token");
         if (!token) {
           Swal.fire({
             icon: "error",
@@ -219,11 +192,10 @@ export default function SchoolForm() {
           {
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Add token here
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log(response.values);
 
         Swal.close();
 
@@ -241,13 +213,6 @@ export default function SchoolForm() {
         });
       } catch (error) {
         Swal.close();
-
-        console.error(
-          "Error details:",
-          error.response?.status,
-          error.response?.data || error.message
-        );
-
         Swal.fire({
           position: "top-end",
           icon: "error",
@@ -262,7 +227,7 @@ export default function SchoolForm() {
     },
   });
 
-  // Fetch countries, states, districts, and cities
+  // Fetch countries, states, districts, cities, and classes
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -311,7 +276,33 @@ export default function SchoolForm() {
     fetchCities();
   }, []);
 
-  // Filter states based on selected country
+  // Fetch classes from API
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/class`);
+        // Map to the format expected by Autocomplete: [{ value, label }]
+        const formattedClasses = response.data.map((cls) => ({
+          value: cls.name, // Adjust based on actual API response
+          label: cls.name, // Adjust based on actual API response
+        }));
+        setClasses(formattedClasses);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load classes. Please try again.",
+          toast: true,
+          position: "top-end",
+          timer: 2000,
+        });
+      }
+    };
+    fetchClasses();
+  }, []);
+
+  // Filter states, districts, and cities (unchanged)
   useEffect(() => {
     if (formik.values.country) {
       const filtered = states.filter(
@@ -321,13 +312,11 @@ export default function SchoolForm() {
     } else {
       setFilteredStates([]);
     }
-    // Reset dependent fields
     formik.setFieldValue("state", "");
     formik.setFieldValue("district", "");
     formik.setFieldValue("city", "");
   }, [formik.values.country, states]);
 
-  // Filter districts based on selected state
   useEffect(() => {
     if (formik.values.state) {
       const filtered = districts.filter(
@@ -337,12 +326,10 @@ export default function SchoolForm() {
     } else {
       setFilteredDistricts([]);
     }
-    // Reset dependent fields
     formik.setFieldValue("district", "");
     formik.setFieldValue("city", "");
   }, [formik.values.state, districts]);
 
-  // Filter cities based on selected district
   useEffect(() => {
     if (formik.values.district) {
       const filtered = cities.filter(
@@ -376,184 +363,8 @@ export default function SchoolForm() {
           </div>
           <form onSubmit={formik.handleSubmit} className={styles.formContent}>
             <Grid container spacing={2}>
-              {/* Board Name */}
-              <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
-                  label="Board Name"
-                  name="board"
-                  options={[
-                    { value: "CBSE", label: "CBSE" },
-                    { value: "ICSE", label: "ICSE" },
-                  ]}
-                  value={formik.values.board}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.board && Boolean(formik.errors.board)}
-                  helperText={formik.touched.board && formik.errors.board}
-                  fullWidth
-                />
-              </Grid>
-
-              {/* School Contact Number */}
-              <Grid item xs={12} sm={6} md={2}>
-                <TextField
-                  label="School mobile Number"
-                  name="school_contact_number"
-                  type="tel" // Ensures numeric keyboard on mobile
-                  value={formik.values.school_contact_number}
-                  onChange={formik.handleChange}
-                  onKeyDown={(e) => {
-                    if (
-                      !/^\d$/.test(e.key) &&
-                      e.key !== "Backspace" &&
-                      e.key !== "Delete"
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    inputMode: "numeric", // Helps on mobile devices
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_contact_number &&
-                    Boolean(formik.errors.school_contact_number)
-                  }
-                  helperText={
-                    formik.touched.school_contact_number &&
-                    formik.errors.school_contact_number
-                  }
-                  fullWidth
-                />
-              </Grid>
-
-              {/* School Name */}
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  label="School Name"
-                  name="school_name"
-                  value={formik.values.school_name}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_name &&
-                    Boolean(formik.errors.school_name)
-                  }
-                  helperText={
-                    formik.touched.school_name && formik.errors.school_name
-                  }
-                  fullWidth
-                />
-              </Grid>
-
-              
-
-              {/* School Email */}
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  label="School Email"
-                  name="school_email"
-                  value={formik.values.school_email}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_email &&
-                    Boolean(formik.errors.school_email)
-                  }
-                  helperText={
-                    formik.touched.school_email && formik.errors.school_email
-                  }
-                  fullWidth
-                />
-              </Grid>
-
-              {/* School Landline Number */}
-              <Grid item xs={12} sm={6} md={2}>
-                <TextField
-                  label="Landline Number"
-                  name="school_landline_number"
-                  type="tel" // Ensures numeric keyboard on mobile
-                  value={formik.values.school_landline_number}
-                  onChange={formik.handleChange}
-                  onKeyDown={(e) => {
-                    if (
-                      !/^\d$/.test(e.key) &&
-                      e.key !== "Backspace" &&
-                      e.key !== "Delete"
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    inputMode: "numeric", // Helps on mobile devices
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_landline_number &&
-                    Boolean(formik.errors.school_landline_number)
-                  }
-                  helperText={
-                    formik.touched.school_landline_number &&
-                    formik.errors.school_landline_number
-                  }
-                  fullWidth
-                />
-              </Grid>
-
-              {/* country Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
+              {/* Country Dropdown */}
+              <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
                   label="Country"
                   name="country"
@@ -587,7 +398,7 @@ export default function SchoolForm() {
               </Grid>
 
               {/* State Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
                   label="State"
                   name="state"
@@ -619,7 +430,7 @@ export default function SchoolForm() {
               </Grid>
 
               {/* District Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
                   label="District"
                   name="district"
@@ -654,7 +465,7 @@ export default function SchoolForm() {
               </Grid>
 
               {/* City Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
                   label="City"
                   name="city"
@@ -686,8 +497,219 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* Pincode */}
+              {/* Board Name */}
               <Grid item xs={12} sm={6} md={2}>
+                <SelectDrop
+                  label="Board Name"
+                  name="board"
+                  options={[
+                    { value: "CBSE", label: "CBSE" },
+                    { value: "ICSE", label: "ICSE" },
+                  ]}
+                  value={formik.values.board}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.board && Boolean(formik.errors.board)}
+                  helperText={formik.touched.board && formik.errors.board}
+                  fullWidth
+                />
+              </Grid>
+
+
+              {/* School Name */}
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  label="School Name"
+                  name="school_name"
+                  value={formik.values.school_name}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_name &&
+                    Boolean(formik.errors.school_name)
+                  }
+                  helperText={
+                    formik.touched.school_name && formik.errors.school_name
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* School Email */}
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  label="School Email"
+                  name="school_email"
+                  value={formik.values.school_email}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_email &&
+                    Boolean(formik.errors.school_email)
+                  }
+                  helperText={
+                    formik.touched.school_email && formik.errors.school_email
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* School Contact Number */}
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  label="Mobile Number"
+                  name="school_contact_number"
+                  type="tel"
+                  value={formik.values.school_contact_number}
+                  onChange={formik.handleChange}
+                  onKeyDown={(e) => {
+                    if (
+                      !/^\d$/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "Delete"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    inputMode: "numeric",
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_contact_number &&
+                    Boolean(formik.errors.school_contact_number)
+                  }
+                  helperText={
+                    formik.touched.school_contact_number &&
+                    formik.errors.school_contact_number
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* School Landline Number */}
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  label="Landline Number"
+                  name="school_landline_number"
+                  type="tel"
+                  value={formik.values.school_landline_number}
+                  onChange={formik.handleChange}
+                  onKeyDown={(e) => {
+                    if (
+                      !/^\d$/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "Delete"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    inputMode: "numeric",
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_landline_number &&
+                    Boolean(formik.errors.school_landline_number)
+                  }
+                  helperText={
+                    formik.touched.school_landline_number &&
+                    formik.errors.school_landline_number
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* School Address */}
+              <Grid item xs={12} sm={6} md={6}>
+                <TextField
+                  label="School Address"
+                  name="school_address"
+                  value={formik.values.school_address}
+                  onChange={formik.handleChange}
+                  size="small"
+                  multiline
+                  minRows={1}
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_address &&
+                    Boolean(formik.errors.school_address)
+                  }
+                  helperText={
+                    formik.touched.school_address &&
+                    formik.errors.school_address
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* Pincode */}
+              <Grid item xs={12} sm={6} md={6}>
                 <TextField
                   label="Pincode"
                   name="pincode"
@@ -753,18 +775,17 @@ export default function SchoolForm() {
               {/* Principal Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="principal_contact_number"
                   value={formik.values.principal_contact_number}
                   onChange={(e) => {
                     const value = e.target.value;
                     if (/^\d*$/.test(value)) {
-                      // Allow only numbers
                       formik.setFieldValue("principal_contact_number", value);
                     }
                   }}
                   size="small"
-                  inputMode="numeric" // Optimized for mobile keyboards
+                  inputMode="numeric"
                   InputProps={{
                     className: styles.inputField,
                     style: {
@@ -800,12 +821,11 @@ export default function SchoolForm() {
                   onChange={(e) => {
                     const value = e.target.value;
                     if (/^\d*$/.test(value)) {
-                      // Allow only numbers
                       formik.setFieldValue("principal_whatsapp", value);
                     }
                   }}
                   size="small"
-                  inputMode="numeric" // Shows numeric keyboard on mobile
+                  inputMode="numeric"
                   InputProps={{
                     className: styles.inputField,
                     style: {
@@ -869,7 +889,7 @@ export default function SchoolForm() {
               {/* Vice Principal Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="vice_principal_contact_number"
                   value={formik.values.vice_principal_contact_number}
                   onChange={formik.handleChange}
@@ -934,9 +954,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* /=====================================================================================/ */}
-
-              {/*manager  Name */}
+              {/* Manager Name */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   label="Manager Name"
@@ -969,10 +987,10 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/*manager Contact Number */}
+              {/* Manager Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="manager_contact_number"
                   value={formik.values.manager_contact_number}
                   onChange={formik.handleChange}
@@ -1003,7 +1021,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* maanager Whatsapp Number */}
+              {/* Manager Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   label="Whatsapp Number"
@@ -1037,8 +1055,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* //-------------------------------------------------------------------- */}
-              {/*ist olympiad Name */}
+              {/* First Incharge Name */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   label="1st Olympiad Incharge Name"
@@ -1072,10 +1089,10 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/*ist olympiad Contact Number */}
+              {/* First Incharge Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="first_incharge_number"
                   value={formik.values.first_incharge_number}
                   onChange={formik.handleChange}
@@ -1106,7 +1123,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* ist olympiad Whatsapp Number */}
+              {/* First Incharge Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   label="Whatsapp Number"
@@ -1140,8 +1157,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* ============================================ *{/* //-------------------------------------------------------------------- */}
-              {/*2st olympiad Name */}
+              {/* Second Incharge Name */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   label="2nd Olympiad Incharge Name"
@@ -1175,10 +1191,10 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* 2nd  olympiad Contact Number */}
+              {/* Second Incharge Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="second_incharge_number"
                   value={formik.values.second_incharge_number}
                   onChange={formik.handleChange}
@@ -1209,7 +1225,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* 2nd olympiad Whatsapp Number */}
+              {/* Second Incharge Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   label="Whatsapp Number"
@@ -1243,8 +1259,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* //==================================================================== */}
-              {/* Student Strength */}
+              {/* Junior Student Strength */}
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
                   label="(Jr.)Student Strength"
@@ -1278,6 +1293,7 @@ export default function SchoolForm() {
                 />
               </Grid>
 
+              {/* Senior Student Strength */}
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
                   label="(Sr.)Student Strength"
@@ -1311,19 +1327,12 @@ export default function SchoolForm() {
                 />
               </Grid>
 
-              {/* Select Classes */}
+              {/* Select Classes (Updated to use dynamic classes) */}
               <Grid item xs={12} sm={6} md={4}>
                 <Autocomplete
                   multiple
                   id="classes"
-                  options={[
-                    { value: "NURSERY-UKG", label: "NURSERY-UKG" },
-                    { value: "NURSERY-CLASS-12 ", label: "NURSERY-CLASS-12 " },
-                    { value: " NURSERY-CLASS-8 ", label: " NURSERY-CLASS-8 " },
-                    { value: "LKG-CLASS-10  ", label: "LKG-CLASS-10  " },
-                    { value: "LKG-CLASS-12", label: "LKG-CLASS-12" },
-                    { value: "LKG-CLASS-8", label: "LKG-CLASS-8" },
-                  ]}
+                  options={classes} // Use dynamic classes from API
                   value={formik.values.classes.map((classItem) => ({
                     value: classItem,
                     label: classItem,
@@ -1434,42 +1443,6 @@ export default function SchoolForm() {
                     <MenuItem value="inactive">Inactive</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-
-              {/* testarea */}
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  label="School Address "
-                  name="school_address"
-                  value={formik.values.school_address}
-                  onChange={formik.handleChange}
-                  size="small"
-                  multiline // Enables textarea mode
-                  minRows={3} // Adjust the number of visible rows
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_address &&
-                    Boolean(formik.errors.school_address)
-                  }
-                  helperText={
-                    formik.touched.school_address &&
-                    formik.errors.school_address
-                  }
-                  fullWidth
-                />
               </Grid>
             </Grid>
 

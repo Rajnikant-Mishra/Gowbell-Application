@@ -223,58 +223,6 @@
 //     },
 //   });
 
-//   // Fetch school data based on ID
-//   // useEffect(() => {
-//   //   const fetchSchoolData = async () => {
-//   //     try {
-//   //       const token = localStorage.getItem("token");
-//   //       if (!token) {
-//   //         Swal.fire({
-//   //           icon: "error",
-//   //           title: "Unauthorized",
-//   //           text: "Please log in again.",
-//   //         });
-//   //         navigate("/login");
-//   //         return;
-//   //       }
-
-//   //       const response = await axios.get(
-//   //         `${API_BASE_URL}/api/get/schools/${id}`,
-//   //         {
-//   //           headers: {
-//   //             Authorization: `Bearer ${token}`,
-//   //           },
-//   //         }
-//   //       );
-
-//   //       const schoolData = response.data;
-
-//   //       // Transform classes array if it's stored as a string in the database
-//   //       const classesArray = Array.isArray(schoolData.classes)
-//   //         ? schoolData.classes
-//   //         : schoolData.classes
-//   //         ? JSON.parse(schoolData.classes)
-//   //         : [];
-
-//   //       setInitialValues({
-//   //         ...schoolData,
-//   //         classes: classesArray,
-//   //       });
-
-//   //       setLoading(false);
-//   //     } catch (error) {
-//   //       console.error("Error fetching school data:", error);
-//   //       Swal.fire({
-//   //         icon: "error",
-//   //         title: "Error",
-//   //         text: "Failed to fetch school data. Please try again.",
-//   //       });
-//   //       navigate("/schoolList");
-//   //     }
-//   //   };
-
-//   //   fetchSchoolData();
-//   // }, [id, navigate]);
 
 //   // Update the useEffect for fetching school data
 //   useEffect(() => {
@@ -372,97 +320,6 @@
 //     }
 //   }, [initialValues?.district, cities]);
 
-//   // useEffect(() => {
-//   //   const fetchCountries = async () => {
-//   //     try {
-//   //       const response = await axios.get(`${API_BASE_URL}/api/countries/`);
-//   //       setCountries(response.data);
-//   //     } catch (error) {
-//   //       console.error("Error fetching countries:", error);
-//   //     }
-//   //   };
-//   //   fetchCountries();
-//   // }, []);
-
-//   // useEffect(() => {
-//   //   const fetchStates = async () => {
-//   //     try {
-//   //       const response = await axios.get(`${API_BASE_URL}/api/states/`);
-//   //       setStates(response.data);
-//   //     } catch (error) {
-//   //       console.error("Error fetching states:", error);
-//   //     }
-//   //   };
-//   //   fetchStates();
-//   // }, []);
-
-//   // useEffect(() => {
-//   //   const fetchDistricts = async () => {
-//   //     try {
-//   //       const response = await axios.get(`${API_BASE_URL}/api/districts/`);
-//   //       setDistricts(response.data);
-//   //     } catch (error) {
-//   //       console.error("Error fetching districts:", error);
-//   //     }
-//   //   };
-//   //   fetchDistricts();
-//   // }, []);
-
-//   // useEffect(() => {
-//   //   const fetchCities = async () => {
-//   //     try {
-//   //       const response = await axios.get(`${API_BASE_URL}/api/cities/all/c1`);
-//   //       setCities(response.data);
-//   //     } catch (error) {
-//   //       console.error("Error fetching cities:", error);
-//   //     }
-//   //   };
-//   //   fetchCities();
-//   // }, []);
-
-//   // // Filter states based on selected country
-//   // useEffect(() => {
-//   //   if (formik.values.country) {
-//   //     const filtered = states.filter(
-//   //       (state) => state.country_id === formik.values.country
-//   //     );
-//   //     setFilteredStates(filtered);
-//   //   } else {
-//   //     setFilteredStates([]);
-//   //   }
-//   //   // Reset dependent fields
-//   //   formik.setFieldValue("state", "");
-//   //   formik.setFieldValue("district", "");
-//   //   formik.setFieldValue("city", "");
-//   // }, [formik.values.country, states]);
-
-//   // Filter districts based on selected state
-//   // useEffect(() => {
-//   //   if (formik.values.state) {
-//   //     const filtered = districts.filter(
-//   //       (district) => district.state_id === formik.values.state
-//   //     );
-//   //     setFilteredDistricts(filtered);
-//   //   } else {
-//   //     setFilteredDistricts([]);
-//   //   }
-//   //   // Reset dependent fields
-//   //   formik.setFieldValue("district", "");
-//   //   formik.setFieldValue("city", "");
-//   // }, [formik.values.state, districts]);
-
-//   // // Filter cities based on selected district
-//   // useEffect(() => {
-//   //   if (formik.values.district) {
-//   //     const filtered = cities.filter(
-//   //       (city) => city.district_id === formik.values.district
-//   //     );
-//   //     setFilteredCities(filtered);
-//   //   } else {
-//   //     setFilteredCities([]);
-//   //   }
-//   //   formik.setFieldValue("city", "");
-//   // }, [formik.values.district, cities]);
 
 //   if (loading || !initialValues) {
 //     return (
@@ -548,6 +405,8 @@
 //                   fullWidth
 //                 />
 //               </Grid>
+
+              
 //               {/* School mobile Number */}
 //               <Grid item xs={12} sm={6} md={2}>
 //                 <TextField
@@ -1623,6 +1482,7 @@
 //   );
 // }
 
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -1631,10 +1491,6 @@ import {
   Grid,
   Autocomplete,
   Checkbox,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -1650,35 +1506,36 @@ import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 import SelectDrop from "./SelectDrop";
 
-// Validation Schema using Yup (same as create form)
+// Validation Schema using Yup
 const validationSchema = Yup.object({
   board: Yup.string().required("Board is required"),
   school_name: Yup.string().required("School name is required"),
-  school_email: Yup.string()
-    .email("Invalid email format")
-    .required("School email is required"),
-  school_contact_number: Yup.string()
-    .required("Contact number is required")
-    .matches(/^\d{10}$/, "Invalid contact number"),
+  // school_email: Yup.string()
+  //   .email("Invalid email format"),
+  //   .required("School email is required"),
+  // school_contact_number: Yup.string()
+  //   .required("Contact number is required")
+  //   .matches(/^\d{10}$/, "Invalid contact number"),
   school_landline_number: Yup.string().nullable(),
   school_address: Yup.string()
     .required("School address is required")
     .min(5, "Address must be at least 5 characters"),
+  country: Yup.string().required("Country is required"),
   state: Yup.string().required("State is required"),
   district: Yup.string().required("District is required"),
   city: Yup.string().required("City is required"),
   pincode: Yup.string()
     .required("Pincode is required")
     .matches(/^[0-9]{6}$/, "Invalid pincode"),
-  principal_name: Yup.string()
-    .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
-    .required("Principal Name is required"),
-  principal_contact_number: Yup.string()
-    .required("Principal Contact Number is required")
-    .matches(/^\d{10}$/, "Invalid contact number"),
-  principal_whatsapp: Yup.string()
-    .required("Principal WhatsApp Number is required")
-    .matches(/^\d{10}$/, "Invalid WhatsApp number"),
+  // principal_name: Yup.string()
+  //   .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
+  //   .required("Principal Name is required"),
+  // principal_contact_number: Yup.string()
+  //   .required("Principal Contact Number is required")
+  //   .matches(/^\d{10}$/, "Invalid contact number"),
+  // principal_whatsapp: Yup.string()
+  //   .required("Principal WhatsApp Number is required")
+  //   .matches(/^\d{10}$/, "Invalid WhatsApp number"),
   vice_principal_name: Yup.string()
     .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
     .nullable(),
@@ -1715,16 +1572,16 @@ const validationSchema = Yup.object({
   second_incharge_whatsapp: Yup.string()
     .matches(/^\d{10}$/, "Invalid WhatsApp number")
     .nullable(),
-  junior_student_strength: Yup.number()
-    .required("Junior Student Strength is required")
-    .positive("Must be a positive number")
-    .integer("Must be a whole number"),
-  senior_student_strength: Yup.number()
-    .required("Senior Student Strength is required")
-    .positive("Must be a positive number")
-    .integer("Must be a whole number"),
-  classes: Yup.array().min(1, "At least one class is required"),
-  status: Yup.string().required("Status is required"),
+  // junior_student_strength: Yup.number()
+  //   .required("Junior Student Strength is required")
+  //   .positive("Must be a positive number")
+  //   .integer("Must be a whole number"),
+  // senior_student_strength: Yup.number()
+  //   .required("Senior Student Strength is required")
+  //   .positive("Must be a positive number")
+  //   .integer("Must be a whole number"),
+  // classes: Yup.array().min(1, "At least one class is required"),
+  // status: Yup.string().required("Status is required"),
 });
 
 export default function SchoolUpdateForm() {
@@ -1735,13 +1592,14 @@ export default function SchoolUpdateForm() {
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
+  const [classes, setClasses] = useState([]); // New state for dynamic classes
   const [filteredStates, setFilteredStates] = useState([]);
   const [filteredDistricts, setFilteredDistricts] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialValues, setInitialValues] = useState(null);
 
-  // Formik initialization (will be called after initialValues are set)
+  // Formik initialization
   const formik = useFormik({
     enableReinitialize: true, // Important for updating form when initialValues change
     initialValues: initialValues || {
@@ -1806,16 +1664,12 @@ export default function SchoolUpdateForm() {
           classes: JSON.stringify(values.classes),
         };
 
-        const response = await axios.put(
-          `${API_BASE_URL}/api/get/schools/${id}`,
-          payload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await axios.put(`${API_BASE_URL}/api/get/schools/${id}`, payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         Swal.close();
         Swal.fire({
@@ -1832,8 +1686,6 @@ export default function SchoolUpdateForm() {
         });
       } catch (error) {
         Swal.close();
-        console.error("Error updating school:", error);
-
         Swal.fire({
           position: "top-end",
           icon: "error",
@@ -1848,8 +1700,7 @@ export default function SchoolUpdateForm() {
     },
   });
 
-
-  // Update the useEffect for fetching school data
+  // Fetch school data, location data, and classes
   useEffect(() => {
     const fetchSchoolData = async () => {
       try {
@@ -1864,25 +1715,43 @@ export default function SchoolUpdateForm() {
           return;
         }
 
-        // Fetch all location data first
-        const [schoolRes, countriesRes, statesRes, districtsRes, citiesRes] =
+        // Fetch all data concurrently
+        const [schoolRes, countriesRes, statesRes, districtsRes, citiesRes, classesRes] =
           await Promise.all([
             axios.get(`${API_BASE_URL}/api/get/schools/${id}`, {
               headers: { Authorization: `Bearer ${token}` },
             }),
-            axios.get(`${API_BASE_URL}/api/countries/`),
-            axios.get(`${API_BASE_URL}/api/states/`),
-            axios.get(`${API_BASE_URL}/api/districts/`),
-            axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+            axios.get(`${API_BASE_URL}/api/countries/`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`${API_BASE_URL}/api/states/`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`${API_BASE_URL}/api/districts/`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`${API_BASE_URL}/api/cities/all/c1`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`${API_BASE_URL}/api/class`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
           ]);
 
         const schoolData = schoolRes.data;
 
-        // Set all location data
+        // Set location data
         setCountries(countriesRes.data);
         setStates(statesRes.data);
         setDistricts(districtsRes.data);
         setCities(citiesRes.data);
+
+        // Set classes
+        const formattedClasses = classesRes.data.map((cls) => ({
+          value: cls.name,
+          label: cls.name,
+        }));
+        setClasses(formattedClasses);
 
         // Transform classes array
         const classesArray = Array.isArray(schoolData.classes)
@@ -1891,15 +1760,16 @@ export default function SchoolUpdateForm() {
           ? JSON.parse(schoolData.classes)
           : [];
 
-        // Set initial values after all data is loaded
+        // Set initial values
         setInitialValues({
           ...schoolData,
           classes: classesArray,
-          // Ensure these are strings if your backend returns numbers
-          country: String(schoolData.country),
-          state: String(schoolData.state),
-          district: String(schoolData.district),
-          city: String(schoolData.city),
+          country: String(schoolData.country || ""),
+          state: String(schoolData.state || ""),
+          district: String(schoolData.district || ""),
+          city: String(schoolData.city || ""),
+          junior_student_strength: String(schoolData.junior_student_strength || ""),
+          senior_student_strength: String(schoolData.senior_student_strength || ""),
         });
 
         setLoading(false);
@@ -1909,6 +1779,9 @@ export default function SchoolUpdateForm() {
           icon: "error",
           title: "Error",
           text: "Failed to fetch data. Please try again.",
+          toast: true,
+          position: "top-end",
+          timer: 2000,
         });
         navigate("/schoolList");
       }
@@ -1917,34 +1790,39 @@ export default function SchoolUpdateForm() {
     fetchSchoolData();
   }, [id, navigate]);
 
-  // Update the filtering effects to handle string/number conversion
+  // Filter states, districts, and cities
   useEffect(() => {
-    if (initialValues?.country) {
+    if (formik.values.country) {
       const filtered = states.filter(
-        (state) => String(state.country_id) === String(initialValues.country)
+        (state) => String(state.country_id) === String(formik.values.country)
       );
       setFilteredStates(filtered);
+    } else {
+      setFilteredStates([]);
     }
-  }, [initialValues?.country, states]);
+  }, [formik.values.country, states]);
 
   useEffect(() => {
-    if (initialValues?.state) {
+    if (formik.values.state) {
       const filtered = districts.filter(
-        (district) => String(district.state_id) === String(initialValues.state)
+        (district) => String(district.state_id) === String(formik.values.state)
       );
       setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]);
     }
-  }, [initialValues?.state, districts]);
+  }, [formik.values.state, districts]);
 
   useEffect(() => {
-    if (initialValues?.district) {
+    if (formik.values.district) {
       const filtered = cities.filter(
-        (city) => String(city.district_id) === String(initialValues.district)
+        (city) => String(city.district_id) === String(formik.values.district)
       );
       setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
     }
-  }, [initialValues?.district, cities]);
-
+  }, [formik.values.district, cities]);
 
   if (loading || !initialValues) {
     return (
@@ -1980,8 +1858,145 @@ export default function SchoolUpdateForm() {
           </div>
           <form onSubmit={formik.handleSubmit} className={styles.formContent}>
             <Grid container spacing={2}>
+              
+
+              {/* Country Dropdown */}
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="Country"
+                  name="country"
+                  options={countries.map((country) => ({
+                    value: String(country.id),
+                    label: country.name,
+                  }))}
+                  value={formik.values.country}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.country && Boolean(formik.errors.country)
+                  }
+                  helperText={formik.touched.country && formik.errors.country}
+                  fullWidth
+                />
+              </Grid>
+
+              {/* State Dropdown */}
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="State"
+                  name="state"
+                  options={filteredStates.map((state) => ({
+                    value: String(state.id),
+                    label: state.name,
+                  }))}
+                  value={formik.values.state}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={formik.touched.state && Boolean(formik.errors.state)}
+                  helperText={formik.touched.state && formik.errors.state}
+                  fullWidth
+                />
+              </Grid>
+
+              {/* District Dropdown */}
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="District"
+                  name="district"
+                  options={filteredDistricts.map((district) => ({
+                    value: String(district.id),
+                    label: district.name,
+                  }))}
+                  value={formik.values.district}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.district && Boolean(formik.errors.district)
+                  }
+                  helperText={formik.touched.district && formik.errors.district}
+                  fullWidth
+                  disabled={!formik.values.state}
+                />
+              </Grid>
+
+              {/* City Dropdown */}
+              <Grid item xs={12} sm={6} md={3}>
+                <SelectDrop
+                  label="City"
+                  name="city"
+                  options={filteredCities.map((city) => ({
+                    value: String(city.id),
+                    label: city.name,
+                  }))}
+                  value={formik.values.city}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={formik.touched.city && Boolean(formik.errors.city)}
+                  helperText={formik.touched.city && formik.errors.city}
+                  fullWidth
+                  disabled={!formik.values.district}
+                />
+              </Grid>
+
+
               {/* Board Name */}
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={2}>
                 <SelectDrop
                   label="Board Name"
                   name="board"
@@ -1999,7 +2014,7 @@ export default function SchoolUpdateForm() {
               </Grid>
 
               {/* School Name */}
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   label="School Name"
                   name="school_name"
@@ -2032,7 +2047,40 @@ export default function SchoolUpdateForm() {
               </Grid>
 
               
-              {/* School mobile Number */}
+              {/* School Email */}
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  label="School Email"
+                  name="school_email"
+                  value={formik.values.school_email}
+                  onChange={formik.handleChange}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.school_email &&
+                    Boolean(formik.errors.school_email)
+                  }
+                  helperText={
+                    formik.touched.school_email && formik.errors.school_email
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              {/* School Mobile Number */}
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
                   label="School Mobile Number"
@@ -2077,38 +2125,6 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-              {/* School Email */}
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  label="School Email"
-                  name="school_email"
-                  value={formik.values.school_email}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_email &&
-                    Boolean(formik.errors.school_email)
-                  }
-                  helperText={
-                    formik.touched.school_email && formik.errors.school_email
-                  }
-                  fullWidth
-                />
-              </Grid>
 
               {/* School Landline Number */}
               <Grid item xs={12} sm={6} md={2}>
@@ -2155,18 +2171,16 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-              {/* country Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
-                  label="Country"
-                  name="country"
-                  options={countries.map((country) => ({
-                    value: country.id,
-                    label: country.name,
-                  }))}
-                  value={formik.values.country}
+               {/* School Address */}
+               <Grid item xs={12} sm={6} md={6}>
+                <TextField
+                  label="School Address"
+                  name="school_address"
+                  value={formik.values.school_address}
                   onChange={formik.handleChange}
                   size="small"
+                  multiline
+                  minRows={1}
                   InputProps={{
                     className: styles.inputField,
                     style: {
@@ -2182,115 +2196,19 @@ export default function SchoolUpdateForm() {
                     },
                   }}
                   error={
-                    formik.touched.country && Boolean(formik.errors.country)
+                    formik.touched.school_address &&
+                    Boolean(formik.errors.school_address)
                   }
-                  helperText={formik.touched.country && formik.errors.country}
-                  fullWidth
-                />
-              </Grid>
-
-              {/* State Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
-                  label="State"
-                  name="state"
-                  options={filteredStates.map((state) => ({
-                    value: String(state.id), // Ensure string value
-                    label: state.name,
-                  }))}
-                  value={formik.values.state}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={formik.touched.state && Boolean(formik.errors.state)}
-                  helperText={formik.touched.state && formik.errors.state}
-                  fullWidth
-                />
-              </Grid>
-
-              {/* District Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
-                  label="District"
-                  name="district"
-                  options={filteredDistricts.map((district) => ({
-                    value: district.id,
-                    label: district.name,
-                  }))}
-                  value={formik.values.district}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.district && Boolean(formik.errors.district)
+                  helperText={
+                    formik.touched.school_address &&
+                    formik.errors.school_address
                   }
-                  helperText={formik.touched.district && formik.errors.district}
                   fullWidth
-                  disabled={!formik.values.state}
-                />
-              </Grid>
-
-              {/* City Dropdown */}
-              <Grid item xs={12} sm={6} md={2}>
-                <SelectDrop
-                  label="City"
-                  name="city"
-                  options={filteredCities.map((city) => ({
-                    value: city.id,
-                    label: city.name,
-                  }))}
-                  value={formik.values.city}
-                  onChange={formik.handleChange}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={formik.touched.city && Boolean(formik.errors.city)}
-                  helperText={formik.touched.city && formik.errors.city}
-                  fullWidth
-                  disabled={!formik.values.district}
                 />
               </Grid>
 
               {/* Pincode */}
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item xs={12} sm={6} md={6}>
                 <TextField
                   label="Pincode"
                   name="pincode"
@@ -2356,7 +2274,7 @@ export default function SchoolUpdateForm() {
               {/* Principal Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="principal_contact_number"
                   value={formik.values.principal_contact_number}
                   onChange={(e) => {
@@ -2470,7 +2388,7 @@ export default function SchoolUpdateForm() {
               {/* Vice Principal Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="vice_principal_contact_number"
                   value={formik.values.vice_principal_contact_number}
                   onChange={formik.handleChange}
@@ -2571,7 +2489,7 @@ export default function SchoolUpdateForm() {
               {/* Manager Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="manager_contact_number"
                   value={formik.values.manager_contact_number}
                   onChange={formik.handleChange}
@@ -2673,7 +2591,7 @@ export default function SchoolUpdateForm() {
               {/* 1st Olympiad Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="first_incharge_number"
                   value={formik.values.first_incharge_number}
                   onChange={formik.handleChange}
@@ -2775,7 +2693,7 @@ export default function SchoolUpdateForm() {
               {/* 2nd Olympiad Contact Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Contact Number"
+                  label="Mobile Number"
                   name="second_incharge_number"
                   value={formik.values.second_incharge_number}
                   onChange={formik.handleChange}
@@ -2913,14 +2831,7 @@ export default function SchoolUpdateForm() {
                 <Autocomplete
                   multiple
                   id="classes"
-                  options={[
-                    { value: "NURSERY-UKG", label: "NURSERY-UKG" },
-                    { value: "NURSERY-CLASS-12 ", label: "NURSERY-CLASS-12 " },
-                    { value: " NURSERY-CLASS-8 ", label: " NURSERY-CLASS-8 " },
-                    { value: "LKG-CLASS-10  ", label: "LKG-CLASS-10  " },
-                    { value: "LKG-CLASS-12", label: "LKG-CLASS-12" },
-                    { value: "LKG-CLASS-8", label: "LKG-CLASS-8" },
-                  ]}
+                  options={classes}
                   value={formik.values.classes.map((classItem) => ({
                     value: classItem,
                     label: classItem,
@@ -3046,41 +2957,7 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-              {/* testarea */}
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  label="School Address "
-                  name="school_address"
-                  value={formik.values.school_address}
-                  onChange={formik.handleChange}
-                  size="small"
-                  multiline // Enables textarea mode
-                  minRows={3} // Adjust the number of visible rows
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.school_address &&
-                    Boolean(formik.errors.school_address)
-                  }
-                  helperText={
-                    formik.touched.school_address &&
-                    formik.errors.school_address
-                  }
-                  fullWidth
-                />
-              </Grid>
+             
             </Grid>
 
             <Box

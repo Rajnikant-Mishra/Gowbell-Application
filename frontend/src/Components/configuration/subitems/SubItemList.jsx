@@ -1,189 +1,134 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaCaretDown,
-  FaCaretUp,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaHome,
-  FaPlus,
-} from "react-icons/fa";
+import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
 import {
   UilTrashAlt,
-  UilEditAlt,
   UilAngleRightB,
   UilAngleLeftB,
-  UilDownloadAlt,
-  UilInfoCircle,
 } from "@iconscout/react-unicons";
-import Button from "@mui/material/Button";
-
-import Mainlayout from "../Layouts/Mainlayout";
-import styles from "../CommonTable/DataTable.module.css";
+import Mainlayout from "../../Layouts/Mainlayout";
+import styles from "../../CommonTable/DataTable.module.css";
+import "../../Common-Css/Swallfire.css";
 import Checkbox from "@mui/material/Checkbox";
-import ButtonComp from "../CommonButton/ButtonComp";
-
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link, useNavigate } from "react-router-dom";
-import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
-import { API_BASE_URL } from "../ApiConfig/APIConfig";
-import "../Common-Css/DeleteSwal.css";
-import "../Common-Css/Swallfire.css";
-import CreateButton from "../../Components/CommonButton/CreateButton";
-import { Menu, MenuItem } from "@mui/material";
-// import excelImg from "../../../public/excell-img.png";
-// import Papa from "papaparse"; // Import Papaparse for CSV parsing
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import CreateButton from "../../CommonButton/CreateButton";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
+  const [items, setItems] = useState({}); // State to store item id to name mapping
   const [sortConfig, setSortConfig] = useState({
     column: "",
     direction: "asc",
   });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
+  const [isAllChecked, setIsAllChecked] = useState(false);
+  const [checkedRows, setCheckedRows] = useState({});
   const pageSizes = [10, 20, 50, 100];
 
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       // Fetch inventory records
-  //       const inventoryResponse = await axios.get(
-  //         `${API_BASE_URL}/api/v1/inventory`
-  //       );
-  //       const inventoryData = inventoryResponse.data;
-
-  //       // Fetch user details for each record
-  //       const formattedData = await Promise.all(
-  //         inventoryData.map(async (record) => {
-  //           const userResponse = await axios.get(
-  //             `${API_BASE_URL}/api/u1/users/${record.created_by}`
-  //           );
-  //           const userName = userResponse.data.username; 
-  //           return {
-  //             ...record,
-  //             date: record.date.split("T")[0], // Format date
-  //             created_by: userName, // Add the user's name
-  //           };
-  //         })
-  //       );
-  //       setRecords(formattedData);
-  //       setFilteredRecords(formattedData);
-  //     } catch (error) {
-  //       console.error("There was an error fetching the records!", error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch inventory records
-        const inventoryResponse = await axios.get(`${API_BASE_URL}/api/v1/inventory`);
-        const inventoryData = inventoryResponse.data;
-  
-        // Fetch all items and sub-items once
-        const itemsResponse = await axios.get(`${API_BASE_URL}/api/t1/items`);
-        const subItemsResponse = await axios.get(`${API_BASE_URL}/api/s1/all`);
-  
-        const itemsData = itemsResponse.data;
-        const subItemsData = subItemsResponse.data;
-  
-        // Create maps for faster lookup
-        const itemsMap = {};
-        itemsData.forEach(item => {
-          itemsMap[item.id] = item.name; // Assuming your item object has { id, name }
-        });
-  
-        const subItemsMap = {};
-        subItemsData.forEach(subItem => {
-          subItemsMap[subItem.id] = subItem.name; // Assuming subItem has { id, name }
-        });
-  
-        // Now format inventory data
-        const formattedData = await Promise.all(
-          inventoryData.map(async (record) => {
-            // Fetch username
-            const userResponse = await axios.get(`${API_BASE_URL}/api/u1/users/${record.created_by}`);
-            const userName = userResponse.data.username;
-  
-            return {
-              ...record,
-              date: record.date.split("T")[0], // Format date
-              created_by: userName, // Replace user ID with username
-              item: itemsMap[record.item] || "Unknown Item", // Map item id to item name
-              sub_item: subItemsMap[record.sub_item] || "Unknown Sub Item", // Map sub item id to sub item name
-            };
-          })
-        );
-  
+    // Fetch subitems
+    axios
+      .get(`${API_BASE_URL}/api/s1/all`)
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : [];
+
+        // Format timestamps
+        const formattedData = data.map((record) => ({
+          ...record,
+          created_at: formatTimestamp(record.created_at),
+          updated_at: formatTimestamp(record.updated_at),
+        }));
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
-  
-      } catch (error) {
-        console.error("There was an error fetching the records!", error);
-      }
-    };
-  
-    fetchData();
-  }, []);
-  
+      })
+      .catch((error) => {
+        console.error("Error fetching subitems!", error);
+        setRecords([]);
+        setFilteredRecords([]);
+      });
 
+    // Fetch items to map item_id to item name
+    axios
+      .get(`${API_BASE_URL}/api/t1/items`)
+      .then((response) => {
+        const itemData = Array.isArray(response.data) ? response.data : [];
+        const itemMap = itemData.reduce((acc, item) => {
+          acc[item.id] = item.name; // Assuming item has 'id' and 'name' fields
+          return acc;
+        }, {});
+        setItems(itemMap);
+      })
+      .catch((error) => {
+        console.error("Error fetching items!", error);
+        setItems({});
+      });
+  }, []);
+
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+  useEffect(() => {
+    if (Array.isArray(filteredRecords) && filteredRecords.length > 0) {
+      if (filteredRecords.every((row) => checkedRows[row.id])) {
+        setIsAllChecked(true);
+      } else {
+        setIsAllChecked(false);
+      }
+    } else {
+      setIsAllChecked(false);
+    }
+  }, [checkedRows, filteredRecords]);
 
   const handleDelete = (id) => {
-    // Show SweetAlert confirmation dialog
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      customClass: {
-        popup: "custom-swal-popup", // Add custom class to the popup
-      },
+      customClass: { popup: "custom-swal-popup" },
     }).then((result) => {
       if (result.isConfirmed) {
-        // Proceed with the delete request
         axios
-          .delete(`${API_BASE_URL}/api/v1/inventory/${id}`)
-          .then((response) => {
-            // Update the state after successful deletion
-            setRecords((prevCountries) =>
-              prevCountries.filter((country) => country.id !== id)
+          .delete(`${API_BASE_URL}/api/subitem/${id}`)
+          .then(() => {
+            setRecords((prev) => prev.filter((record) => record.id !== id));
+            setFilteredRecords((prev) =>
+              prev.filter((record) => record.id !== id)
             );
-            setFilteredRecords((prevFiltered) =>
-              prevFiltered.filter((country) => country.id !== id)
-            );
-
-            // delete Show a success alert
             Swal.fire({
               position: "top-end",
               icon: "success",
               title: "Success!",
-              text: `The inventory has been deleted.`,
+              text: "The item has been deleted.",
               showConfirmButton: false,
               timer: 1000,
               timerProgressBar: true,
               toast: true,
               background: "#fff",
-              customClass: {
-                popup: "small-swal",
-              },
+              customClass: { popup: "small-swal" },
             });
           })
           .catch((error) => {
-            console.error("Error deleting inventory:", error);
-            // Show an error alert if deletion fails
+            console.error("Error deleting:", error);
             Swal.fire(
               "Error!",
-              "There was an issue deleting the inventory.",
+              "There was an issue deleting the item.",
               "error"
             );
           });
@@ -193,24 +138,28 @@ export default function DataTable() {
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
-    const filtered = records.filter((row) =>
-      (row[column] || "").toString().toLowerCase().includes(value)
-    );
+    const filtered = records.filter((row) => {
+      if (column === "Item") {
+        // Filter by item name
+        const itemName = items[row.item_id] || "";
+        return itemName.toLowerCase().includes(value);
+      }
+      return (row[column] || "").toString().toLowerCase().includes(value);
+    });
     setFilteredRecords(filtered);
     setPage(1);
   };
 
   const handleSort = (column) => {
-    let direction = "asc";
-
-    if (sortConfig.column === column) {
-      direction = sortConfig.direction === "asc" ? "desc" : "asc";
-    }
-
+    let direction =
+      sortConfig.column === column && sortConfig.direction === "asc"
+        ? "desc"
+        : "asc";
     let sortedData = [...filteredRecords];
     sortedData.sort((a, b) => {
-      const aValue = a[column];
-      const bValue = b[column];
+      let aValue = column === "Item" ? items[a.item_id] || "" : a[column];
+      let bValue = column === "Item" ? items[b.item_id] || "" : b[column];
+
       if (typeof aValue === "string" && typeof bValue === "string") {
         return direction === "asc"
           ? aValue.localeCompare(bValue)
@@ -219,7 +168,6 @@ export default function DataTable() {
         return direction === "asc" ? aValue - bValue : bValue - aValue;
       }
     });
-
     setFilteredRecords(sortedData);
     setSortConfig({ column, direction });
   };
@@ -259,66 +207,49 @@ export default function DataTable() {
     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
   };
 
-  // const currentRecords = filteredRecords.slice(
-  //   (page - 1) * pageSize,
-  //   page * pageSize
-  // );
   const currentRecords = Array.isArray(filteredRecords)
     ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
     : [];
 
-  const [isAllChecked, setIsAllChecked] = useState(false);
-
-  const [checkedRows, setCheckedRows] = useState({});
-
   const handleRowCheck = (id) => {
-    setCheckedRows((prevCheckedRows) => {
-      const newCheckedRows = { ...prevCheckedRows };
+    setCheckedRows((prev) => {
+      const newCheckedRows = { ...prev };
       if (newCheckedRows[id]) {
-        delete newCheckedRows[id]; // Uncheck
+        delete newCheckedRows[id];
       } else {
-        newCheckedRows[id] = true; // Check
+        newCheckedRows[id] = true;
       }
       return newCheckedRows;
     });
   };
 
-  //breadcrumb codes
-
   const handleSelectAll = () => {
     if (isAllChecked) {
-      setCheckedRows({}); // Uncheck all rows
+      setCheckedRows({});
     } else {
       const allChecked = filteredRecords.reduce((acc, row) => {
-        acc[row.id] = true; // Check all rows
+        acc[row.id] = true;
         return acc;
       }, {});
       setCheckedRows(allChecked);
     }
     setIsAllChecked(!isAllChecked);
   };
-  useEffect(() => {
-    if (filteredRecords.every((row) => checkedRows[row.id])) {
-      setIsAllChecked(true);
-    } else {
-      setIsAllChecked(false);
-    }
-  }, [checkedRows, filteredRecords]);
 
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
-          <Breadcrumb data={[{ name: "Inventory" }]} />
+          <Breadcrumb data={[{ name: "SubItem" }]} />
         </div>
         <div>
-          <CreateButton link={"/create-inventory"} />
+          <CreateButton link={"/create-subitem"} />
         </div>
       </div>
 
       <div className={`${styles.tablecont} mt-0`}>
         <table
-          className={`${styles.table} `}
+          className={`${styles.table}`}
           style={{ fontFamily: "Nunito, sans-serif" }}
         >
           <thead>
@@ -326,9 +257,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {[
-               "Date", "Invoice No" , "Items", "Sub Item", "Quantity", "Unit", "Price", "Supplier" ,"created_by"
-              ].map((col) => (
+              {["Item", "Sub Item", "created at", "updated at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -343,14 +272,12 @@ export default function DataTable() {
               ))}
               <th>Action</th>
             </tr>
-          </thead>
-          <tr
-            className={styles.filterRow}
-            style={{ fontFamily: "Nunito, sans-serif" }}
-          >
-            <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["Date", "Invoice No" , "Items", "Sub Item", "Quantity", "Unit", "Price", "Supplier" ,"created_by"].map(
-              (col) => (
+            <tr
+              className={styles.filterRow}
+              style={{ fontFamily: "Nunito, sans-serif" }}
+            >
+              <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
+              {["Item", "Sub Item", "created at", "updated at"].map((col) => (
                 <th key={col}>
                   <div className={styles.inputContainer}>
                     <FaSearch className={styles.searchIcon} />
@@ -362,10 +289,10 @@ export default function DataTable() {
                     />
                   </div>
                 </th>
-              )
-            )}
-            <th></th>
-          </tr>
+              ))}
+              <th></th>
+            </tr>
+          </thead>
           <tbody>
             {currentRecords.map((row) => (
               <tr
@@ -379,21 +306,13 @@ export default function DataTable() {
                     onChange={() => handleRowCheck(row.id)}
                   />
                 </td>
-                <td>{row.date}</td>
-                <td>{row.invoice_no}</td>
-                <td>{row.item}</td>
-                <td>{row.sub_item}</td>
-                <td>{row.quantity}</td>
-                <td>{row.unit}</td>
-                <td>{row.price}</td>
-                <td>{row.manufacturer_details}</td>
-                <td>{row.created_by}</td>
-
+                <td>{items[row.item_id] || row.item_id}</td>{" "}
+                {/* Display item name */}
+                <td>{row.name}</td>
+                <td>{row.created_at}</td>
+                <td>{row.updated_at}</td>
                 <td>
                   <div className={styles.actionButtons}>
-                    <Link to={`/inventory/${row.id}`}>
-                      <UilEditAlt className={styles.FaEdit} />
-                    </Link>
                     <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
@@ -423,21 +342,19 @@ export default function DataTable() {
                 </option>
               ))}
             </select>
-            <p className={`  my-auto text-secondary`}>data per Page</p>
+            <p className={`my-auto text-secondary`}>data per Page</p>
           </div>
-
           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
             <label
               htmlFor="pageSize"
               style={{ fontFamily: "Nunito, sans-serif" }}
             >
-              <p className={`  my-auto text-secondary`}>
+              <p className={`my-auto text-secondary`}>
                 {filteredRecords.length} of {page}-
                 {Math.ceil(filteredRecords.length / pageSize)}
               </p>
             </label>
           </div>
-
           <div className={`${styles.pagination} my-auto`}>
             <button
               onClick={handlePreviousPage}
@@ -446,7 +363,6 @@ export default function DataTable() {
             >
               <UilAngleLeftB />
             </button>
-
             {Array.from(
               { length: Math.ceil(filteredRecords.length / pageSize) },
               (_, i) => i + 1
@@ -472,7 +388,6 @@ export default function DataTable() {
                   </button>
                 </React.Fragment>
               ))}
-
             <button
               onClick={handleNextPage}
               disabled={page === Math.ceil(filteredRecords.length / pageSize)}

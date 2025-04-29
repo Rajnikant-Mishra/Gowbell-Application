@@ -1,8 +1,10 @@
+
+//this code is items 
+
 // import React, { useState, useEffect } from "react";
 // import { Box, Typography, TextField, Grid } from "@mui/material";
 // import styles from "./inventory.module.css";
 // import Swal from "sweetalert2";
-// import TextInput from "../School/CommonComp/TextInput";
 // import Mainlayout from "../Layouts/Mainlayout";
 // import { useNavigate } from "react-router-dom";
 // import Breadcrumb from "../CommonButton/Breadcrumb";
@@ -14,38 +16,36 @@
 // import "../Common-Css/Swallfire.css";
 
 // export default function InventoryForm() {
-//   // Validation schema using Yup
 //   const validationSchema = Yup.object({
-//     invoice_no: Yup.string().required("invoice_no is required"),
+//     invoice_no: Yup.string().required("Invoice No is required"),
 //     date: Yup.date().required("Date is required"),
-//     created_by: Yup.string().required("Created By is required"),
 //     item: Yup.string().required("Item Name is required"),
 //     quantity: Yup.number()
 //       .positive()
 //       .integer()
 //       .required("Item Quantity is required"),
 //     unit: Yup.string().required("Unit is required"),
-//     price: Yup.string().required("price is required"),
+//     price: Yup.number().positive().required("Price is required"),
 //     remarks: Yup.string().optional(),
+//     sub_item: Yup.string().when("item", {
+//       is: (item) => item && subItems.length > 0,
+//       then: Yup.string().required("Sub-item is required"),
+//       otherwise: Yup.string().optional(),
+//     }),
 //   });
 
-//   //message css
 //   const helperTextStyle = {
-//     fontSize: "0.7rem", // Custom font size
-//     color: "red", // Custom color for error messages
+//     fontSize: "0.7rem",
+//     color: "red",
 //   };
 
 //   const [items, setItems] = useState([]);
-//   const [selectedItem, setSelectedItem] = useState("");
+//   const [subItems, setSubItems] = useState([]);
 //   const navigate = useNavigate();
-//   const [profileData, setProfileData] = useState({});
-
-//   // Get today's date in YYYY-MM-DD format
 //   const todayDate = new Date().toISOString().split("T")[0];
 
 //   const [formData, setFormData] = useState({
 //     date: todayDate,
-//     created_by: "",
 //     invoice_no: "",
 //     item: "",
 //     quantity: "",
@@ -53,20 +53,8 @@
 //     price: "",
 //     remarks: "",
 //     manufacturer_details: "",
+//     sub_item: "",
 //   });
-
-
-//   useEffect(() => {
-//     // Fetch data from API
-//     axios
-//       .get(`${API_BASE_URL}/api/attributes/item/cvalues`)
-//       .then((response) => {
-//         setItems(response.data);
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching data:", error);
-//       });
-//   }, []);
 
 //   const units = [
 //     { value: "", name: "--Unit--" },
@@ -75,20 +63,72 @@
 //     { value: "packs", name: "Packs" },
 //   ];
 
-//   // Handle form submission
+//   // Fetch items on component mount
+//   useEffect(() => {
+//     axios
+//       .get(`${API_BASE_URL}/api/t1/items`)
+//       .then((response) => {
+//         setItems(response.data);
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching items:", error);
+//       });
+//   }, []);
+
+//   // Fetch sub-items when item changes
+//   useEffect(() => {
+//     if (formData.item) {
+//       axios
+//         .get(`${API_BASE_URL}/api/s1/item/${formData.item}`, {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         })
+//         .then((response) => {
+//           const subItemsData = response.data || [];
+//           setSubItems(subItemsData);
+//           // Reset sub_item when new sub-items are fetched
+//           setFormData((prev) => ({ ...prev, sub_item: "" }));
+//           if (subItemsData.length === 0) {
+//             Swal.fire({
+//               position: "top-end",
+//               icon: "info",
+//               title: "No Subitems",
+//               text: "No subitems available for this item.",
+//               showConfirmButton: false,
+//               timer: 1000,
+//               toast: true,
+//             });
+//           }
+//         })
+//         .catch((error) => {
+//           console.error("Error fetching subitems:", error);
+//           setSubItems([]);
+//           setFormData((prev) => ({ ...prev, sub_item: "" }));
+//           Swal.fire({
+//             position: "top-end",
+//             icon: "error",
+//             title: "Error",
+//             text: "Failed to load subitems.",
+//             showConfirmButton: false,
+//             timer: 1000,
+//             toast: true,
+//           });
+//         });
+//     } else {
+//       setSubItems([]);
+//       setFormData((prev) => ({ ...prev, sub_item: "" }));
+//     }
+//   }, [formData.item]);
+
 //   const handleSubmit = async (values) => {
 //     try {
-//       const token = localStorage.getItem("token"); // Get token from localStorage
-
-//       const response = await axios.post(
-//         `${API_BASE_URL}/api/v1/inventory`,
-//         values,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`, // Add Authorization header
-//           },
-//         }
-//       );
+//       const token = localStorage.getItem("token");
+//       await axios.post(`${API_BASE_URL}/api/v1/inventory`, values, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
 
 //       Swal.fire({
 //         position: "top-end",
@@ -105,13 +145,17 @@
 //         },
 //       });
 
-//       navigate("/list-inventory"); // Redirect after successful submission
+//       navigate("/list-inventory");
 //     } catch (error) {
+//       let errorMessage = "There was an error creating the inventory item.";
+//       if (error.response && error.response.data && error.response.data.message) {
+//         errorMessage = error.response.data.message;
+//       }
 //       Swal.fire({
 //         position: "top-end",
 //         icon: "error",
 //         title: "Error",
-//         text: `There was an error creating the inventory item.`,
+//         text: errorMessage,
 //         showConfirmButton: false,
 //         timer: 1000,
 //         timerProgressBar: true,
@@ -145,9 +189,9 @@
 //             initialValues={formData}
 //             validationSchema={validationSchema}
 //             onSubmit={handleSubmit}
-//             enableReinitialize // This ensures Formik reinitializes when formData changes
+//             enableReinitialize
 //           >
-//             {({ values, handleChange, errors, touched, setFieldValue }) => (
+//             {({ values, handleChange, errors, touched }) => (
 //               <Form className={styles.formContent}>
 //                 <Grid container spacing={3}>
 //                   <Grid item xs={12} sm={6} md={3}>
@@ -179,38 +223,6 @@
 //                       }}
 //                     />
 //                   </Grid>
-
-//                   {/* <Grid item xs={12} sm={6} md={3}>
-//                     <TextField
-//                       label="Created By"
-//                       name="created_by"
-//                       size="small"
-//                       value={values.created_by}
-//                       onChange={handleChange}
-//                       type="text"
-//                       fullWidth
-//                       InputProps={{
-//                         className: styles.inputField,
-//                         style: {
-//                           fontFamily: "Nunito, sans-serif",
-//                           fontSize: "0.8rem",
-//                         },
-//                       }}
-//                       InputLabelProps={{
-//                         style: {
-//                           fontFamily: "Nunito, sans-serif",
-//                           fontSize: "0.85rem",
-//                           fontWeight: "bolder",
-//                         },
-//                       }}
-//                       error={touched.created_by && errors.created_by}
-//                       helperText={touched.created_by && errors.created_by}
-//                       FormHelperTextProps={{
-//                         style: helperTextStyle,
-//                       }}
-//                     />
-//                   </Grid> */}
-
 //                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       label="Invoice No"
@@ -240,48 +252,7 @@
 //                       }}
 //                     />
 //                   </Grid>
-//                   <Grid item xs={12} sm={6} md={3}>
-//                     <TextField
-//                       select
-//                       name="item"
-//                       size="small"
-//                       value={selectedItem}
-//                       onChange={(e) => {
-//                         setSelectedItem(e.target.value);
-//                         handleChange(e);
-//                       }}
-//                       fullWidth
-//                       InputProps={{
-//                         className: styles.inputField,
-//                         style: {
-//                           fontFamily: "Nunito, sans-serif",
-//                           fontSize: "0.8rem",
-//                         },
-//                       }}
-//                       InputLabelProps={{
-//                         style: {
-//                           fontFamily: "Nunito, sans-serif",
-//                           fontSize: "0.85rem",
-//                           fontWeight: "bolder",
-//                         },
-//                       }}
-//                       SelectProps={{ native: true }}
-//                       error={touched.item && Boolean(errors.item)}
-//                       helperText={touched.item && errors.item}
-//                       FormHelperTextProps={{ style: helperTextStyle }}
-//                     >
-//                       <option value="">Select an item</option>
-//                       {items.map((option) => (
-//                         <option
-//                           key={option.value || option.id}
-//                           value={option.value || option.id}
-//                         >
-//                           {option.cvalue || option.name}
-//                         </option>
-//                       ))}
-//                     </TextField>
-//                   </Grid>
-//                   {/* //second */}
+                 
 //                   <Grid item xs={12} sm={6} md={3}>
 //                     <TextField
 //                       label="Quantity"
@@ -318,6 +289,8 @@
 //                       name="unit"
 //                       size="small"
 //                       value={values.unit}
+//                       onChange={handleChange}
+//                       fullWidth
 //                       InputProps={{
 //                         className: styles.inputField,
 //                         style: {
@@ -332,8 +305,6 @@
 //                           fontWeight: "bolder",
 //                         },
 //                       }}
-//                       onChange={handleChange}
-//                       fullWidth
 //                       SelectProps={{ native: true }}
 //                       error={touched.unit && errors.unit}
 //                       helperText={touched.unit && errors.unit}
@@ -378,7 +349,7 @@
 //                     />
 //                   </Grid>
 //                   <Grid item xs={12} sm={6} md={3}>
-//                     <TextInput
+//                     <TextField
 //                       label="Remarks"
 //                       name="remarks"
 //                       value={values.remarks}
@@ -386,6 +357,21 @@
 //                       fullWidth
 //                       multiline
 //                       rows={1}
+//                       size="small"
+//                       InputProps={{
+//                         className: styles.inputField,
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.8rem",
+//                         },
+//                       }}
+//                       InputLabelProps={{
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.85rem",
+//                           fontWeight: "bolder",
+//                         },
+//                       }}
 //                     />
 //                   </Grid>
 //                   <Grid item xs={12} sm={6} md={3}>
@@ -412,16 +398,91 @@
 //                       }}
 //                     />
 //                   </Grid>
+//                   <Grid item xs={12} sm={6} md={3}>
+//                     <TextField
+//                       select
+//                       name="item"
+//                       size="small"
+//                       value={values.item}
+//                       onChange={(e) => {
+//                         handleChange(e);
+//                         setFormData({ ...formData, item: e.target.value });
+//                       }}
+//                       fullWidth
+//                       InputProps={{
+//                         className: styles.inputField,
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.8rem",
+//                         },
+//                       }}
+//                       InputLabelProps={{
+//                         style: {
+//                           fontFamily: "Nunito, sans-serif",
+//                           fontSize: "0.85rem",
+//                           fontWeight: "bolder",
+//                         },
+//                       }}
+//                       SelectProps={{ native: true }}
+//                       error={touched.item && Boolean(errors.item)}
+//                       helperText={touched.item && errors.item}
+//                       FormHelperTextProps={{ style: helperTextStyle }}
+//                     >
+//                       <option value="">Select an item</option>
+//                       {items.map((option) => (
+//                         <option key={option.id} value={option.id}>
+//                           {option.name}
+//                         </option>
+//                       ))}
+//                     </TextField>
+//                   </Grid>
+//                   {/* Dynamic sub-item dropdown */}
+//                   {subItems.length > 0 && (
+//                     <Grid item xs={12} sm={6} md={3}>
+//                       <TextField
+//                         select
+//                         // label="Sub-item"
+//                         name="sub_item"
+//                         value={values.sub_item}
+//                         onChange={handleChange}
+//                         fullWidth
+//                         size="small"
+//                         InputProps={{
+//                           className: styles.inputField,
+//                           style: {
+//                             fontFamily: "Nunito, sans-serif",
+//                             fontSize: "0.8rem",
+//                           },
+//                         }}
+//                         InputLabelProps={{
+//                           style: {
+//                             fontFamily: "Nunito, sans-serif",
+//                             fontSize: "0.85rem",
+//                             fontWeight: "bolder",
+//                           },
+//                         }}
+//                         SelectProps={{ native: true }}
+//                         error={touched.sub_item && errors.sub_item}
+//                         helperText={touched.sub_item && errors.sub_item}
+//                         FormHelperTextProps={{
+//                           style: helperTextStyle,
+//                         }}
+//                       >
+//                         <option value="">Select Sub-item</option>
+//                         {subItems.map((subItem) => (
+//                           <option key={subItem.id} value={subItem.id}>
+//                             {subItem.name || subItem.cvalue}
+//                           </option>
+//                         ))}
+//                       </TextField>
+//                     </Grid>
+//                   )}
 //                 </Grid>
 //                 <Box
 //                   className={`${styles.buttonContainer} gap-2 mt-4`}
 //                   sx={{ display: "flex", gap: 2 }}
 //                 >
-//                   <ButtonComp
-//                     text="Submit"
-//                     type="submit"
-//                     sx={{ flexGrow: 1 }}
-//                   />
+//                   <ButtonComp text="Submit" type="submit" sx={{ flexGrow: 1 }} />
 //                   <ButtonComp
 //                     text="Cancel"
 //                     type="button"
@@ -438,6 +499,7 @@
 //   );
 // }
 
+
 import React, { useState, useEffect } from "react";
 import { Box, Typography, TextField, Grid } from "@mui/material";
 import styles from "./inventory.module.css";
@@ -453,20 +515,25 @@ import axios from "axios";
 import "../Common-Css/Swallfire.css";
 
 export default function InventoryForm() {
-  const validationSchema = Yup.object({
-    invoice_no: Yup.string().required("invoice_no is required"),
-    date: Yup.date().required("Date is required"),
-    item: Yup.string().required("Item Name is required"),
-    quantity: Yup.number()
-      .positive()
-      .integer()
-      .required("Item Quantity is required"),
-    unit: Yup.string().required("Unit is required"),
-    price: Yup.number()
-      .positive()
-      .required("Price is required"),
-    remarks: Yup.string().optional(),
-  });
+  // Validation schema with subItems as context
+  const validationSchema = (subItems) =>
+    Yup.object({
+      invoice_no: Yup.string().required("Invoice No is required"),
+      date: Yup.date().required("Date is required"),
+      item: Yup.string().required("Item Name is required"),
+      quantity: Yup.number()
+        .positive()
+        .integer()
+        .required("Item Quantity is required"),
+      unit: Yup.string().required("Unit is required"),
+      price: Yup.number().positive().required("Price is required"),
+      remarks: Yup.string().optional(),
+      sub_item: Yup.string().when("item", {
+        is: (item) => item && subItems.length > 0, // Simplified condition
+        then: (schema) => schema.required("Sub-item is required"), // Use schema for Yup >= 0.32
+        otherwise: (schema) => schema.optional(),
+      }),
+    });
 
   const helperTextStyle = {
     fontSize: "0.7rem",
@@ -474,6 +541,7 @@ export default function InventoryForm() {
   };
 
   const [items, setItems] = useState([]);
+  const [subItems, setSubItems] = useState([]);
   const navigate = useNavigate();
   const todayDate = new Date().toISOString().split("T")[0];
 
@@ -486,9 +554,9 @@ export default function InventoryForm() {
     price: "",
     remarks: "",
     manufacturer_details: "",
+    sub_item: "",
   });
 
-  // Static units array
   const units = [
     { value: "", name: "--Unit--" },
     { value: "numbers", name: "Numbers" },
@@ -496,17 +564,63 @@ export default function InventoryForm() {
     { value: "packs", name: "Packs" },
   ];
 
+  // Fetch items on component mount
   useEffect(() => {
-    // Fetch items from API
     axios
-      .get(`${API_BASE_URL}/api/a1/attributes/item/cvalues`)
+      .get(`${API_BASE_URL}/api/t1/items`)
       .then((response) => {
-        setItems(response.data);
+        setItems(response.data || []);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching items:", error);
       });
   }, []);
+
+  // Fetch sub-items when item changes
+  useEffect(() => {
+    if (formData.item) {
+      axios
+        .get(`${API_BASE_URL}/api/s1/item/${formData.item}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+        .then((response) => {
+          const subItemsData = Array.isArray(response.data) ? response.data : [];
+          console.log("Sub-items fetched:", subItemsData); // Debug
+          setSubItems(subItemsData);
+          setFormData((prev) => ({ ...prev, sub_item: "" }));
+          if (subItemsData.length === 0) {
+            Swal.fire({
+              position: "top-end",
+              icon: "info",
+              title: "No Subitems",
+              text: "No subitems available for this item.",
+              showConfirmButton: false,
+              timer: 1000,
+              toast: true,
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching subitems:", error);
+          setSubItems([]);
+          setFormData((prev) => ({ ...prev, sub_item: "" }));
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Error",
+            text: "Failed to load subitems.",
+            showConfirmButton: false,
+            timer: 1000,
+            toast: true,
+          });
+        });
+    } else {
+      setSubItems([]);
+      setFormData((prev) => ({ ...prev, sub_item: "" }));
+    }
+  }, [formData.item]);
 
   const handleSubmit = async (values) => {
     try {
@@ -574,7 +688,7 @@ export default function InventoryForm() {
           </Typography>
           <Formik
             initialValues={formData}
-            validationSchema={validationSchema}
+            validationSchema={validationSchema(subItems)}
             onSubmit={handleSubmit}
             enableReinitialize
           >
@@ -638,44 +752,6 @@ export default function InventoryForm() {
                         style: helperTextStyle,
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <TextField
-                      select
-                      name="item"
-                      size="small"
-                      value={values.item}
-                      onChange={handleChange}
-                      fullWidth
-                      InputProps={{
-                        className: styles.inputField,
-                        style: {
-                          fontFamily: "Nunito, sans-serif",
-                          fontSize: "0.8rem",
-                        },
-                      }}
-                      InputLabelProps={{
-                        style: {
-                          fontFamily: "Nunito, sans-serif",
-                          fontSize: "0.85rem",
-                          fontWeight: "bolder",
-                        },
-                      }}
-                      SelectProps={{ native: true }}
-                      error={touched.item && Boolean(errors.item)}
-                      helperText={touched.item && errors.item}
-                      FormHelperTextProps={{ style: helperTextStyle }}
-                    >
-                      <option value="">Select an item</option>
-                      {items.map((option) => (
-                        <option
-                          key={option.value || option.id}
-                          value={option.value || option.id}
-                        >
-                          {option.cvalue || option.name}
-                        </option>
-                      ))}
-                    </TextField>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
                     <TextField
@@ -822,16 +898,89 @@ export default function InventoryForm() {
                       }}
                     />
                   </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      select
+                      name="item"
+                      size="small"
+                      value={values.item}
+                      onChange={(e) => {
+                        handleChange(e);
+                        setFormData({ ...formData, item: e.target.value });
+                      }}
+                      fullWidth
+                      InputProps={{
+                        className: styles.inputField,
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.8rem",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontFamily: "Nunito, sans-serif",
+                          fontSize: "0.85rem",
+                          fontWeight: "bolder",
+                        },
+                      }}
+                      SelectProps={{ native: true }}
+                      error={touched.item && Boolean(errors.item)}
+                      helperText={touched.item && errors.item}
+                      FormHelperTextProps={{ style: helperTextStyle }}
+                    >
+                      <option value="">Select an item</option>
+                      {items.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  {subItems.length > 0 && (
+                    <Grid item xs={12} sm={6} md={3}>
+                      <TextField
+                        select
+                        name="sub_item"
+                        value={values.sub_item}
+                        onChange={handleChange}
+                        fullWidth
+                        size="small"
+                        InputProps={{
+                          className: styles.inputField,
+                          style: {
+                            fontFamily: "Nunito, sans-serif",
+                            fontSize: "0.8rem",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontFamily: "Nunito, sans-serif",
+                            fontSize: "0.85rem",
+                            fontWeight: "bolder",
+                          },
+                        }}
+                        SelectProps={{ native: true }}
+                        error={touched.sub_item && errors.sub_item}
+                        helperText={touched.sub_item && errors.sub_item}
+                        FormHelperTextProps={{
+                          style: helperTextStyle,
+                        }}
+                      >
+                        <option value="">Select Sub-item</option>
+                        {subItems.map((subItem) => (
+                          <option key={subItem.id} value={subItem.id}>
+                            {subItem.name || subItem.cvalue}
+                          </option>
+                        ))}
+                      </TextField>
+                    </Grid>
+                  )}
                 </Grid>
                 <Box
                   className={`${styles.buttonContainer} gap-2 mt-4`}
                   sx={{ display: "flex", gap: 2 }}
                 >
-                  <ButtonComp
-                    text="Submit"
-                    type="submit"
-                    sx={{ flexGrow: 1 }}
-                  />
+                  <ButtonComp text="Submit" type="submit" sx={{ flexGrow: 1 }} />
                   <ButtonComp
                     text="Cancel"
                     type="button"

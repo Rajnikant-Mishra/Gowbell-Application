@@ -55,7 +55,7 @@ export default function DataTable() {
 
 useEffect(() => {
   axios
-      .get(`${API_BASE_URL}/api/permission/menu/raw`)
+      .get(`${API_BASE_URL}/api/permission/menus/all`)
       .then((response) => {
           const formattedData = response.data.data.map(item => ({
               ...item,

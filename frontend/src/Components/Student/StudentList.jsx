@@ -726,17 +726,17 @@ export default function DataTable() {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                "school",
-                "student",
-                "roll_number",
-                "class",
-                "section",
-                "mobile number",
-                "subject",
-                "created_by",
-                "updated_by",
-                "created_at",
-                "updated_at",
+                "School",
+                "Student",
+                "roll Number",
+                "Class",
+                "Section",
+                "Mobile Number",
+                "Subject",
+                "Created by",
+                "Updated by",
+                "Created at",
+                "Updated at",
               ].map((col) => (
                 <th
                   key={col}
@@ -745,7 +745,7 @@ export default function DataTable() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    <span>{col.toUpperCase()}</span>
                     {getSortIcon(col)}
                   </div>
                 </th>
@@ -759,17 +759,17 @@ export default function DataTable() {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
-              "school",
-              "student",
-              "roll_number",
-              "class",
-              "section",
-              "mobile number",
-              "subject",
-              "created_by",
-              "updated_by",
-              "created_at",
-              "updated_at",
+              "School",
+              "Student",
+              "roll Number",
+              "Class",
+              "Section",
+              "Mobile Number",
+              "Subject",
+              "Created by",
+              "Updated by",
+              "Created at",
+              "Updated at",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -799,19 +799,21 @@ export default function DataTable() {
                   />
                 </td>
 
-                <td>{row.school_name}</td>
-                <td>{row.student_name}</td>
+                <td>{row.school_name?.toUpperCase()}</td>
+                <td>{row.student_name?.toUpperCase()}</td>
                 <td>{row.roll_no}</td>
                 <td>{row.class_name}</td>
                 <td>{row.student_section}</td>
                 <td>{row.mobile_number}</td>
-                {/* <td>{row.student_subject}</td> */}
                 <td>
                   {Array.isArray(row.student_subject)
-                    ? row.student_subject.join(", ")
-                    : JSON.parse(row.student_subject || "[]").join(", ")}
+                    ? row.student_subject
+                        .map((subject) => subject)
+                        .join(", ")
+                    : JSON.parse(row.student_subject || "[]")
+                        .map((subject) => subject)
+                        .join(", ")}
                 </td>
-
                 <td>{row.created_by}</td>
                 <td>{row.updated_by}</td>
                 <td>{row.created_at}</td>

@@ -29,10 +29,12 @@
   font-weight: bold;
   margin-bottom: 0px;
 }
+
 .card p {
   font-size: 2rem;
   margin: 10px 0;
 }
+
 .card h1 {
   font-size: 30px;
   letter-spacing: 1.06px;
@@ -44,6 +46,7 @@
   gap: 15px;
   height: 270px;
 }
+
 .midSectionSecondDiv {
   display: flex;
   gap: 15px;
@@ -107,6 +110,7 @@
   padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
+
 .card hr {
   border-radius: 16px;
   opacity: 1.25;
@@ -117,15 +121,19 @@
 .card:first-child h1 {
   color: #ed9023;
 }
+
 .card:first-child hr {
   border-top: 2px solid #ed9023;
 }
+
 .card:nth-child(2) hr {
   border-top: 2px solid #2c9ad9;
 }
+
 .card:nth-child(3) hr {
   border-top: 2px solid #6563ff;
 }
+
 .card:last-child hr {
   border-top: 2px solid #8cc17c;
 }
@@ -134,45 +142,51 @@
 .card:nth-child(2) h1 {
   color: #2c9ad9;
 }
+
 .card:nth-child(3) h3,
 .card:nth-child(3) h1 {
   color: #6563ff;
 }
+
 .card:last-child h3,
 .card:last-child h1 {
   color: #8cc17c;
 }
+
 .card div img {
   width: 40px;
 }
+
 .midSection {
   font-family: "Poppins", sans-serif !important;
 }
+
 .midSection h3 {
   font-size: 17px;
   color: #525252;
   font-weight: 800;
 }
-.midSection {
-  display: flex;
-  gap: 15px;
-}
+
 .chartContainer,
 .midSectionSecondDiv {
   width: 50%;
 }
+
 .chartContainer {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   width: 50%;
 }
+
 .midSectionSecondDiv {
-  width: 49%;
+  width: 49.3%;
 }
+
 .prizeContainer,
 .activityLog {
   width: 49%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 .prizeContainer {
   padding: 16px;
 }
@@ -182,17 +196,18 @@
   align-items: center;
   margin-bottom: 20px;
 }
+
 .prizeItem p,
 .prizeItem span {
   color: #525252;
   font-family: "Poppins";
   font-weight: bold;
 }
+
 .progress {
   flex-grow: 1;
   height: 8px;
   background-color: #e0e0e0;
-
   position: relative;
   overflow: hidden;
   border-radius: 4px;
@@ -202,13 +217,16 @@
   height: 100%;
   border-radius: 4px;
 }
+
 .activityLog li {
   font-size: 10px;
 }
+
 .calender {
   height: 9px;
   width: 10px;
 }
+
 .customlist li::before {
   content: "";
   width: 5px;
@@ -225,6 +243,7 @@
   padding-left: 10px;
   color: #0660fd;
 }
+
 .customlist li p {
   color: #525252;
 }
@@ -251,6 +270,7 @@
   height: 100%;
   border-radius: 5px;
 }
+
 .activityLog {
   padding: 15px;
   background: #ffffff;
@@ -302,16 +322,270 @@
   font-size: 20px;
   color: #666;
 }
+
 .notificationButtonDiv {
   height: 22%;
   margin-top: -15%;
 }
+
 .scrollButton {
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
 .card > div {
   gap: 1rem;
+}
+
+.tablesection {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  overflow: visible; 
+  
+}
+
+.tablesection h3 {
+  font-size: 17px;
+  color: #525252;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.test-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  font-size: 13px;
+  margin-bottom: 1rem;
+}
+
+.test-header > div {
+  vertical-align: middle;
+  align-content: center;
+}
+
+.test-header button {
+  margin-right: 5px;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.test-header input {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.test-header #floating-rows {
+  vertical-align: bottom;
+}
+
+.ag-floating-top .ag-row-pinned.ag-row {
+  background-color: #2244cc44;
+}
+
+.ag-floating-bottom .ag-row-pinned.ag-row {
+  background-color: #2244cc44;
+}
+
+.ag-theme-alpine {
+  --ag-grid-size: 8px;
+  --ag-border-color: #d9d9d9;
+  height: 100% !important; 
+}
+
+.ag-theme-alpine .ag-root-wrapper {
+  height: 100% !important; 
+}
+
+
+.tablesection {
+  width: 100%;
+  padding-bottom: 30px; 
+}
+
+
+.ag-theme-alpine {
+  overflow: visible !important;
+}
+
+
+.ag-theme-alpine .ag-paging-panel {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #dde2eb;
+  background-color: #fff;
+  position: relative;
+  bottom: 0;
+}
+
+
+.ag-theme-alpine .ag-paging-button,
+.ag-theme-alpine .ag-paging-row-summary-panel,
+.ag-theme-alpine .ag-paging-page-size {
+  display: inline-block !important;
+  margin: 0 5px;
+}
+
+
+.ag-theme-alpine .ag-paging-page-size select {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.leaderboard {
+  width: 49%;
+  height: 270px;
+  padding: 16px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.leaderboard h3 {
+  font-size: 17px;
+  color: #525252;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.subjectSelector {
+  margin-bottom: 10px;
+}
+
+.subjectSelector label {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #525252;
+  font-family: "Poppins", sans-serif;
+}
+
+.subjectSelector select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+}
+
+.sliderContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slider {
+  width: 100%;
+  height: 170px;
+  overflow: hidden;
+}
+
+.slide {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.activeSlide {
+  display: flex;
+  opacity: 1;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.studentImage {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1e88e5;
+}
+
+.rankBadge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #1e88e5;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.sliderDots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.activeDot {
+  background-color: #1e88e5;
+}
+
+.studentDetails {
+  flex: 1;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: left;
+  font-size: 11px;
+  overflow-y: auto;
+  max-height: 250px;
+}
+
+.studentDetails h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+}
+
+.studentDetails p {
+  margin: 2px 0;
+  font-size: 11px;
+  color: #666;
+  font-family: "Poppins", sans-serif;
+}
+
+.studentDetails ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.studentDetails li {
+  font-size: 10px;
+  color: #666;
+  font-family: "Poppins", sans-serif;
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -354,6 +628,16 @@
   .card div img {
     width: 40px;
   }
+  .leaderboard {
+    width: 100%;
+    height: 250px;
+  }
+  .slider {
+    height: 150px;
+  }
+  .studentDetails {
+    max-height: 130px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -371,31 +655,21 @@
     height: 250px;
   }
   .card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 20px;
     height: 145px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   }
-
-  .card h3 {
-    font-size: 1.1rem;
-    font-family: "Poppins", sans-serif;
-    letter-spacing: 0.75px;
-    font-weight: bold;
-    margin-bottom: 0px;
+  .leaderboard {
+    width: 100%;
+    height: 250px;
   }
-  .card p {
-    font-size: 2rem;
-    margin: 10px 0;
+  .prizeContainer,
+  .activityLog {
+    width: 100%;
   }
-  .card h1 {
-    font-size: 30px;
-    letter-spacing: 1.06px;
-    font-weight: 500;
+  .slider {
+    height: 150px;
+  }
+  .studentDetails {
+    max-height: 130px;
   }
 }
 
@@ -414,4 +688,48 @@
     width: 100%;
     height: 200px;
   }
+  .test-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .leaderboard {
+    width: 100%;
+    height: 300px;
+  }
+  .slider {
+    height: 200px;
+  }
+  .studentDetails {
+    max-height: 180px;
+  }
+  .imageContainer,
+  .studentImage {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+.tablesection {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  min-height: 560px;
+}
+
+.ag-theme-alpine {
+  --ag-grid-size: 8px;
+  --ag-list-item-height: 40px;
+}
+
+.ag-theme-alpine .ag-paging-panel {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+}
+
+.ag-theme-alpine .ag-root-wrapper {
+  overflow: visible;
 }
