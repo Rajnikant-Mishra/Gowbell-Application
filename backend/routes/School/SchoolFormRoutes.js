@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllSchools, getSchoolById, createSchool, updateSchool, deleteSchool, bulkUploadSchools, filterByLocation } from '../../controllers/School/SchoolFormController.js';
+import { getAllSchools, getSchoolById, createSchool, updateSchool, deleteSchool, bulkUploadSchools, filterByLocation, updateStatusApproved } from '../../controllers/School/SchoolFormController.js';
 import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
@@ -14,5 +14,9 @@ router.post('/school/bulk-upload',authenticateToken ,  bulkUploadSchools); // Bu
 
 //getschool from country...
 router.get('/filter', filterByLocation);
+
+
+// PUT route for updating status_approved by id
+router.put('/school/:id/status-approved' ,authenticateToken , updateStatusApproved);
 
 export default router;

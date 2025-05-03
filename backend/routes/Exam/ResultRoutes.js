@@ -4,7 +4,7 @@ import {createResult,updateResult,getResultById,  bulkUploadResults, getAllResul
 const router = express.Router();
 
 // Create a single result
-router.post('/create', createResult);
+router.post('/result/create', createResult);
 
 // Update a result
 router.put('/result/update/:id', updateResult);

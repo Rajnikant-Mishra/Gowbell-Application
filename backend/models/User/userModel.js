@@ -43,6 +43,27 @@ const User = {
   deleteUser: (id, callback) => {
     const query = 'DELETE FROM users WHERE id = ?';
     db.query(query, [id], callback);
+  },
+
+
+
+  findById: (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+        SELECT id, username, role
+        FROM users
+        WHERE id = ?
+      `;
+      db.query(sql, [id], (err, results) => {
+        if (err) {
+          reject(err);
+        } else if (results.length === 0) {
+          resolve(null); // user not found
+        } else {
+          resolve(results[0]);
+        }
+      });
+    });
   }
 };
 
