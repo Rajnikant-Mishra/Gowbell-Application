@@ -16,7 +16,7 @@ import {
   UilDownloadAlt,
   UilInfoCircle,
 } from "@iconscout/react-unicons";
-
+import { Menu, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import Mainlayout from "../../Layouts/Mainlayout";
 import styles from "./../../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
@@ -28,7 +28,6 @@ import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import "../../Common-Css/DeleteSwal.css";
 import "../../Common-Css/Swallfire.css";
-import { Menu, MenuItem } from "@mui/material";
 import CreateButton from "../../../Components/CommonButton/CreateButton";
 import excelImg from "../../../../public/excell-img.png";
 import Papa from "papaparse"; // Import Papaparse for CSV parsing
@@ -356,7 +355,28 @@ export default function DataTable() {
     });
   };
 
-  // Upload the schools data to backend
+  // // Upload the schools data to backend
+  // const validateSchoolData = (schools) => {
+  //   const mandatoryFields = [
+  //     "board",
+  //     "school_name",
+  //     "pincode",
+  //     "school_address",
+  //     "country",
+  //     "state",
+  //     "district",
+  //     "city",
+  //   ];
+
+  //   const invalidSchools = schools.filter((school) =>
+  //     mandatoryFields.some(
+  //       (field) => !school[field] || school[field].trim() === ""
+  //     )
+  //   );
+
+  //   return invalidSchools;
+  // };
+
   // const uploadSchoolsData = async (schools) => {
   //   if (!Array.isArray(schools) || schools.length === 0) {
   //     Swal.fire({
@@ -366,6 +386,24 @@ export default function DataTable() {
   //       text: "Please upload a valid CSV file with school data.",
   //       showConfirmButton: false,
   //       timer: 3000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //     return;
+  //   }
+
+  //   // Validate schools data for mandatory fields
+  //   const invalidSchools = validateSchoolData(schools);
+  //   if (invalidSchools.length > 0) {
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "error",
+  //       title: "Invalid Data",
+  //       text: `Some mandatory fields are missing in ${invalidSchools.length} row(s). Please correct and try again.`,
+  //       showConfirmButton: false,
+  //       timer: 6000,
   //       timerProgressBar: true,
   //       toast: true,
   //       background: "#fff",
@@ -410,7 +448,8 @@ export default function DataTable() {
   //       position: "top-end",
   //       icon: "error",
   //       title: "Error!",
-  //       text: error.response?.data?.message || "An error occurred during upload.",
+  //       text:
+  //         error.response?.data?.message || "An error occurred during upload.",
   //       showConfirmButton: false,
   //       timer: 3000,
   //       timerProgressBar: true,
@@ -420,6 +459,8 @@ export default function DataTable() {
   //     });
   //   }
   // };
+
+  // Validate mandatory fields for each school
   const validateSchoolData = (schools) => {
     const mandatoryFields = [
       "board",
@@ -432,18 +473,35 @@ export default function DataTable() {
       "city",
     ];
 
-    const invalidSchools = schools.filter((school) =>
-      mandatoryFields.some(
-        (field) => !school[field] || school[field].trim() === ""
-      )
-    );
+    const invalidSchools = [];
+
+    schools.forEach((school, index) => {
+      const fieldMessages = [];
+
+      mandatoryFields.forEach((field) => {
+        if (!school[field] || school[field].toString().trim() === "") {
+          if (["country", "state", "district", "city"].includes(field)) {
+            fieldMessages.push(`Invalid ${field}: ${school[field] || "empty"}`);
+          } else {
+            fieldMessages.push(`Missing ${field}`);
+          }
+        }
+      });
+
+      if (fieldMessages.length > 0) {
+        invalidSchools.push({
+          index: index + 1, // For user-friendly row numbers
+          messages: fieldMessages,
+        });
+      }
+    });
 
     return invalidSchools;
   };
 
   const uploadSchoolsData = async (schools) => {
     if (!Array.isArray(schools) || schools.length === 0) {
-      Swal.fire({
+      return Swal.fire({
         position: "top-end",
         icon: "warning",
         title: "No Data",
@@ -455,31 +513,41 @@ export default function DataTable() {
         background: "#fff",
         customClass: { popup: "small-swal" },
       });
-      return;
     }
 
-    // Validate schools data for mandatory fields
     const invalidSchools = validateSchoolData(schools);
+
     if (invalidSchools.length > 0) {
-      Swal.fire({
+      const details = invalidSchools.slice(0, 3).map((school) => {
+        const errorList = school.messages
+          .map((msg) => `<li>${msg}</li>`)
+          .join("");
+        return `<li><strong>Row ${school.index}:</strong><ul>${errorList}</ul></li>`;
+      });
+
+      if (invalidSchools.length > 3) {
+        details.push(`<li>...and ${invalidSchools.length - 3} more rows</li>`);
+      }
+
+      return Swal.fire({
         position: "top-end",
         icon: "error",
         title: "Invalid Data",
-        text: `Some mandatory fields are missing in ${invalidSchools.length} row(s). Please correct and try again.`,
-        showConfirmButton: false,
-        timer: 6000,
-        timerProgressBar: true,
-        toast: true,
+        html: `<div style="text-align: left;">
+                 <p>Issues found in ${invalidSchools.length} row(s):</p>
+                 <ul style="padding-left: 20px;">${details.join("")}</ul>
+               </div>`,
+        showConfirmButton: true,
         background: "#fff",
         customClass: { popup: "small-swal" },
+        width: 500,
       });
-      return;
     }
 
+    // Proceed with upload if valid
     setLoading(true);
-
     try {
-      const token = localStorage.getItem("token"); // Or however you are storing the token
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${API_BASE_URL}/api/get/school/bulk-upload`,
         schools,
@@ -490,12 +558,15 @@ export default function DataTable() {
           },
         }
       );
+
       setLoading(false);
       Swal.fire({
         position: "top-end",
         icon: "success",
         title: "Success!",
-        text: `Successfully uploaded ${response.data.affectedRows} schools.`,
+        text: `Successfully uploaded ${
+          response.data.affectedRows || schools.length
+        } schools.`,
         showConfirmButton: false,
         timer: 1000,
         timerProgressBar: true,
@@ -503,7 +574,6 @@ export default function DataTable() {
         background: "#fff",
         customClass: { popup: "small-swal" },
       }).then(() => {
-        // Refresh the page or navigate to your school list view
         navigate(0);
       });
     } catch (error) {
@@ -537,8 +607,8 @@ export default function DataTable() {
       "district",
       "city",
       "school_email",
-      "principal_contact_number",
       "principal_name",
+      "principal_contact_number",
       "principal_whatsapp",
       "school_contact_number",
       "school_landline_number",
@@ -572,8 +642,8 @@ export default function DataTable() {
         "Cuttack",
         "Aliabad",
         "abc@example.com",
-        "7991048546",
         "Dr. Anil Kumar",
+        "7991048546",
         "7991048546",
         "08012345678",
         "Priya Sharma",
@@ -608,6 +678,115 @@ export default function DataTable() {
     link.click();
 
     handleClose();
+  };
+
+  // Function to update status_approved
+  // const handleStatusApprovedChange = async (id, newStatus) => {
+  //   try {
+  //     const token = localStorage.getItem("token"); // Assuming you store the token in localStorage
+  //     const response = await axios.put(
+  //       `${API_BASE_URL}/api/get/school/${id}/status-approved`,
+  //       { status_approved: newStatus },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     // Update the specific record in state
+  //     setRecords((prevRecords) =>
+  //       prevRecords.map((record) =>
+  //         record.id === id ? { ...record, status_approved: newStatus } : record
+  //       )
+  //     );
+  //     setFilteredRecords((prevFiltered) =>
+  //       prevFiltered.map((record) =>
+  //         record.id === id ? { ...record, status_approved: newStatus } : record
+  //       )
+  //     );
+
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "success",
+  //       title: "Success!",
+  //       text: "Approval status updated successfully.",
+  //       showConfirmButton: false,
+  //       timer: 1000,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error updating status_approved:", error);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "error",
+  //       title: "Error!",
+  //       text:
+  //         error.response?.data?.message || "Failed to update approval status.",
+  //       showConfirmButton: false,
+  //       timer: 2000,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //   }
+  // };
+  
+  const handleStatusApprovedChange = async (id, newStatus) => {
+    try {
+      const token = localStorage.getItem("token"); // Assuming you store the token in localStorage
+      const response = await axios.put(
+        `${API_BASE_URL}/api/get/school/${id}/status-approved`,
+        { status_approved: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      // Update the specific record in state
+      setRecords((prevRecords) =>
+        prevRecords.map((record) =>
+          record.id === id ? { ...record, status_approved: newStatus } : record
+        )
+      );
+      setFilteredRecords((prevFiltered) =>
+        prevFiltered.map((record) =>
+          record.id === id ? { ...record, status_approved: newStatus } : record
+        )
+      );
+  
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Success!",
+        text: "Approval status updated successfully.",
+        showConfirmButton: false,
+        timer: 1000,
+        toast: true,
+        background: "#fff",
+        customClass: { popup: "small-swal" },
+      });
+    } catch (error) {
+      console.error("Error updating Approved:", error);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text:
+          error.response?.data?.message || "Failed to update approval status.",
+        showConfirmButton: false,
+        timer: 2000,
+        toast: true,
+        background: "#fff",
+        customClass: { popup: "small-swal" },
+      });
+    }
   };
 
   return (
@@ -781,6 +960,7 @@ export default function DataTable() {
                 "pincode",
                 "status",
                 "created by",
+                "Approval",
               ].map((col) => (
                 <th
                   key={col}
@@ -794,7 +974,7 @@ export default function DataTable() {
                   </div>
                 </th>
               ))}
-              <th>Action</th>
+              <th>ACTION</th>
             </tr>
           </thead>
           <tr
@@ -815,6 +995,7 @@ export default function DataTable() {
               "pincode",
               "status",
               "created by",
+              "Approval",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -868,6 +1049,37 @@ export default function DataTable() {
                 <td>{row.pincode}</td>
                 <td>{row.status}</td>
                 <td>{row.created_by}</td>
+                {/* <td
+                  style={{
+                    color: row.status_approved === "approved" ? "green" : "red",
+                  }}
+                >
+                  {row.status_approved}
+                </td> */}
+                <td>
+                  <span
+                    onClick={() => {
+                      if (row.status_approved !== "approved") {
+                        handleStatusApprovedChange(row.id, "approved");
+                      }
+                    }}
+                    style={{
+                      color:
+                        row.status_approved === "approved" ? "green" : "red",
+                      cursor:
+                        row.status_approved !== "approved"
+                          ? "pointer"
+                          : "default",
+                      border: "none", 
+                      padding: "4px 8px",
+                      display: "inline-block",
+                    }}
+                  >
+                    {row.status_approved === "approved"
+                      ? "Approved"
+                      : "Pending"}
+                  </span>
+                </td>
 
                 <td>
                   <div className={styles.actionButtons}>

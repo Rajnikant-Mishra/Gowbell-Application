@@ -327,7 +327,7 @@ const ResultForm = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/create`, formData);
+      const response = await axios.post(`${API_BASE_URL}/api/result/create`, formData);
       Swal.fire({
         position: "top-end",
         icon: "success",

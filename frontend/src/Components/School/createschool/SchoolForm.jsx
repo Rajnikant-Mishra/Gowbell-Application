@@ -161,6 +161,7 @@ export default function SchoolForm() {
       senior_student_strength: "",
       classes: [],
       status: "active",
+      status_approved: "pending",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
