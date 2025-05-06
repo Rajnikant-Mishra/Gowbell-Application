@@ -44,38 +44,76 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       // Fetch school records
+  //       const schoolResponse = await axios.get(
+  //         `${API_BASE_URL}/api/get/schools`
+  //       );
+  //       const schoolData = schoolResponse.data;
+
+  //       // Fetch user details for each school based on created_by
+  //       const formattedData = await Promise.all(
+  //         schoolData.map(async (record) => {
+  //           const userResponse = await axios.get(
+  //             `${API_BASE_URL}/api/u1/users/${record.created_by}`
+  //           );
+  //           const userName = userResponse.data.username;
+  //           return {
+  //             ...record,
+  //             created_by: userName, // Replace created_by ID with username
+  //           };
+  //         })
+  //       );
+
+  //       setRecords(formattedData);
+  //       setFilteredRecords(formattedData);
+  //     } catch (error) {
+  //       console.error("There was an error fetching the records!", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch school records
-        const schoolResponse = await axios.get(
-          `${API_BASE_URL}/api/get/schools`
-        );
+        const schoolResponse = await axios.get(`${API_BASE_URL}/api/get/schools`);
         const schoolData = schoolResponse.data;
-
-        // Fetch user details for each school based on created_by
+  
         const formattedData = await Promise.all(
           schoolData.map(async (record) => {
+            // Fetch user by created_by
             const userResponse = await axios.get(
               `${API_BASE_URL}/api/u1/users/${record.created_by}`
             );
-            const userName = userResponse.data.username;
+            const { username, role } = userResponse.data; // role is id
+  
+            // Fetch role name using role id
+            const roleResponse = await axios.get(
+              `${API_BASE_URL}/api/r1/role/${role}`
+            );
+            const { role_name } = roleResponse.data;
+  
             return {
               ...record,
-              created_by: userName, // Replace created_by ID with username
+              created_by: `${username} (${role_name})`,
             };
           })
         );
-
+  
         setRecords(formattedData);
         setFilteredRecords(formattedData);
       } catch (error) {
         console.error("There was an error fetching the records!", error);
       }
     };
-
+  
     fetchData();
   }, []);
+  
+  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -734,7 +772,7 @@ export default function DataTable() {
   //     });
   //   }
   // };
-  
+
   const handleStatusApprovedChange = async (id, newStatus) => {
     try {
       const token = localStorage.getItem("token"); // Assuming you store the token in localStorage
@@ -748,7 +786,7 @@ export default function DataTable() {
           },
         }
       );
-  
+
       // Update the specific record in state
       setRecords((prevRecords) =>
         prevRecords.map((record) =>
@@ -760,7 +798,7 @@ export default function DataTable() {
           record.id === id ? { ...record, status_approved: newStatus } : record
         )
       );
-  
+
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -961,6 +999,7 @@ export default function DataTable() {
                 "status",
                 "created by",
                 "Approval",
+                "Approved by",
               ].map((col) => (
                 <th
                   key={col}
@@ -996,6 +1035,7 @@ export default function DataTable() {
               "status",
               "created by",
               "Approval",
+              "Approved by",
             ].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
@@ -1049,14 +1089,8 @@ export default function DataTable() {
                 <td>{row.pincode}</td>
                 <td>{row.status}</td>
                 <td>{row.created_by}</td>
-                {/* <td
-                  style={{
-                    color: row.status_approved === "approved" ? "green" : "red",
-                  }}
-                >
-                  {row.status_approved}
-                </td> */}
-                <td>
+
+                {/* <td>
                   <span
                     onClick={() => {
                       if (row.status_approved !== "approved") {
@@ -1070,7 +1104,7 @@ export default function DataTable() {
                         row.status_approved !== "approved"
                           ? "pointer"
                           : "default",
-                      border: "none", 
+                      border: "none",
                       padding: "4px 8px",
                       display: "inline-block",
                     }}
@@ -1079,7 +1113,58 @@ export default function DataTable() {
                       ? "Approved"
                       : "Pending"}
                   </span>
+                </td> */}
+                <td>
+                  {localStorage.getItem("role") === "admin" ? (
+                    <span
+                      onClick={() => {
+                        if (row.status_approved !== "rejected") {
+                          handleStatusApprovedChange(row.id, "rejected");
+                        }
+                      }}
+                      style={{
+                        color:
+                          row.status_approved === "rejected" ? "red" : "green",
+                        cursor:
+                          row.status_approved !== "rejected"
+                            ? "pointer"
+                            : "default",
+                        border: "none",
+                        padding: "4px 8px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {row.status_approved === "rejected"
+                        ? "Rejected"
+                        : "Reject"}
+                    </span>
+                  ) : (
+                    <span
+                      onClick={() => {
+                        if (row.status_approved !== "approved") {
+                          handleStatusApprovedChange(row.id, "approved");
+                        }
+                      }}
+                      style={{
+                        color:
+                          row.status_approved === "approved" ? "green" : "red",
+                        cursor:
+                          row.status_approved !== "approved"
+                            ? "pointer"
+                            : "default",
+                        border: "none",
+                        padding: "4px 8px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {row.status_approved === "approved"
+                        ? "Approved"
+                        : "Pending"}
+                    </span>
+                  )}
                 </td>
+
+                <td style={{ fontWeight: "bold" }}>{row.approved_by}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
