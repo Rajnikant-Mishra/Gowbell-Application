@@ -54,6 +54,14 @@ export default function DataTable() {
   //       console.error("There was an error fetching the records!", error);
   //     });
   // }, []);
+  const [Role, setRoleDetails] = useState({});
+  // Fetch roleDetails from localStorage
+  useEffect(() => {
+    const storedroleDetails = JSON.parse(localStorage.getItem("roleDetails"));
+    if (storedroleDetails) {
+      setRoleDetails(storedroleDetails);
+    }
+  }, []);
 
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-US", {
@@ -78,7 +86,7 @@ export default function DataTable() {
                 `${API_BASE_URL}/api/u1/users/${record.created_by}`
               );
               const userName = userResponse.data.username;
-  
+
               return {
                 ...record,
                 created_at: formatTimestamp(record.created_at),
@@ -86,7 +94,10 @@ export default function DataTable() {
                 created_by: userName, // Adding username to the record
               };
             } catch (error) {
-              console.error(`Error fetching user data for ID ${record.created_by}`, error);
+              console.error(
+                `Error fetching user data for ID ${record.created_by}`,
+                error
+              );
               return {
                 ...record,
                 created_at: formatTimestamp(record.created_at),
@@ -96,7 +107,7 @@ export default function DataTable() {
             }
           })
         );
-  
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
       })
@@ -104,26 +115,25 @@ export default function DataTable() {
         console.error("There was an error fetching the records!", error);
       });
   }, []);
-  
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
     Swal.fire({
-          title: "Are you sure?",
-          text: "You won't be able to revert this!",
-          // icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, delete it!",
-          customClass: {
-            popup: "custom-swal-popup", // Add custom class to the popup
-          },
-        }).then((result) => {
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      // icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup", // Add custom class to the popup
+      },
+    }).then((result) => {
       if (result.isConfirmed) {
         // Proceed with the delete request
         axios
-          .delete(`${ API_BASE_URL }/api/affiliated/${id}`)
+          .delete(`${API_BASE_URL}/api/affiliated/${id}`)
           .then((response) => {
             // Update the state after successful deletion
             setRecords((prevCountries) =>
@@ -133,21 +143,21 @@ export default function DataTable() {
               prevFiltered.filter((country) => country.id !== id)
             );
 
-              // delete Show a success alert
-                        Swal.fire({
-                          position: "top-end",
-                          icon: "success",
-                          title: "Success!",
-                          text: `The affiliated has been deleted.`,
-                          showConfirmButton: false,
-                          timer: 1000,
-                          timerProgressBar: true,
-                          toast: true,
-                          background: "#fff",
-                          customClass: {
-                            popup: "small-swal",
-                          },
-                        });
+            // delete Show a success alert
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Success!",
+              text: `The affiliated has been deleted.`,
+              showConfirmButton: false,
+              timer: 1000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: {
+                popup: "small-swal",
+              },
+            });
           })
           .catch((error) => {
             console.error("Error deleting country:", error);
@@ -251,8 +261,6 @@ export default function DataTable() {
     });
   };
 
-
-
   const handleSelectAll = () => {
     if (isAllChecked) {
       setCheckedRows({}); // Uncheck all rows
@@ -275,7 +283,7 @@ export default function DataTable() {
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <div role="presentation" >
+        <div role="presentation">
           <Breadcrumb data={[{ name: "Affiliated " }]} />
         </div>
         <div>
@@ -285,7 +293,7 @@ export default function DataTable() {
             type={"button"}
             disabled={false}
           /> */}
-         <CreateButton link={"/affiliated/create"} />
+          <CreateButton link={"/affiliated/create"} />
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>
@@ -298,19 +306,21 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name","status","created_by","created_at", "updated_at"].map((col) => (
-                <th
-                  key={col}
-                  className={styles.sortableHeader}
-                  onClick={() => handleSort(col)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-                    {getSortIcon(col)}
-                  </div>
-                </th>
-              ))}
+              {["name", "status", "created_by", "created_at", "updated_at"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className={styles.sortableHeader}
+                    onClick={() => handleSort(col)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                      {getSortIcon(col)}
+                    </div>
+                  </th>
+                )
+              )}
               <th>Action</th>
             </tr>
           </thead>
@@ -319,19 +329,21 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["name","status", "created_by", "created_at", "updated_at"].map((col) => (
-              <th key={col}>
-                <div className={styles.inputContainer}>
-                  <FaSearch className={styles.searchIcon} />
-                  <input
-                    type="text"
-                    placeholder={`Search ${col}`}
-                    onChange={(e) => handleFilter(e, col)}
-                    className={styles.filterInput}
-                  />
-                </div>
-              </th>
-            ))}
+            {["name", "status", "created_by", "created_at", "updated_at"].map(
+              (col) => (
+                <th key={col}>
+                  <div className={styles.inputContainer}>
+                    <FaSearch className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      placeholder={`Search ${col}`}
+                      onChange={(e) => handleFilter(e, col)}
+                      className={styles.filterInput}
+                    />
+                  </div>
+                </th>
+              )
+            )}
             <th></th>
           </tr>
           <tbody>
@@ -353,16 +365,20 @@ export default function DataTable() {
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 
+                
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/affiliated/update/${row.id}`}>
-                      <UilEditAlt className={styles.FaEdit} />
-                    </Link>
-                    <UilTrashAlt
-                      onClick={() => handleDelete(row.id)}
-                      className={`${styles.FaTrash}`}
-                    />
+                    {Role.permissions?.includes("UilEditAlt") && (
+                      <Link to={`/affiliated/update/${row.id}`}>
+                        <UilEditAlt className={styles.FaEdit} />
+                      </Link>
+                    )}
+                    {Role.permissions?.includes("UilTrashAlt") && (
+                      <UilTrashAlt
+                        onClick={() => handleDelete(row.id)}
+                        className={`${styles.FaTrash}`}
+                      />
+                    )}
                   </div>
                 </td>
               </tr>

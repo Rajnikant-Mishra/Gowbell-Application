@@ -1,4 +1,4 @@
-.hamburgerIcon {
+/* .hamburgerIcon {
   font-size: 1.3rem;
   color: #6c757d;
   cursor: pointer;
@@ -91,6 +91,59 @@
 }
 .notificationIcon{
   font-size: 20px;
-    /* gap: 7px; */
     margin-right: 8px;
+} */
+
+.hamburgerIcon {
+  font-size: 1.3rem;
+  color: #6C757D;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.hamburgerIcon:hover {
+  color: #007BFF;
+}
+.para {
+  color: black;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.dropdowndiv {
+  background-color: #fff;
+  padding: 10px;
+}
+.dropdown {
+  box-shadow: 10px 10px 20px rgba(36, 64, 129, 0.14);
+  border: 1px solid #F5F5F5;
+  width: 200px;
+  border-radius: 0 0 12px 12px;
+  position: absolute;
+  margin: 5px;
+  transition: opacity 0.3s ease;
+}
+.notificationIcon {
+  font-size: 20px;
+  margin-right: 8px;
+  color: #6C757D;
+  transition: color 0.2s ease;
+}
+.notificationIcon:hover {
+  color: #007BFF;
+}
+@media (max-width: 768px) {
+  .para {
+    font-size: 11px;
+  }
+  .notificationIcon {
+    font-size: 18px;
+  }
+}
+@media (max-width: 480px) {
+  .para {
+    font-size: 10px;
+  }
+  .notificationIcon {
+    font-size: 16px;
+  }
 }

@@ -616,7 +616,7 @@ export default function DataTable() {
             limit: pagination.limit,
           },
         });
-  
+
         const {
           cities,
           currentPage,
@@ -625,24 +625,33 @@ export default function DataTable() {
           totalPages,
           totalRecords,
         } = response.data;
-  
+
         const formattedData = await Promise.all(
           cities.map(async (record) => {
             const district = districts.find((d) => d.id === record.district_id);
-            const state = district ? states.find((s) => s.id === district.state_id) : null;
-            const country = state ? countries.find((c) => c.id === state.country_id) : null;
-  
+            const state = district
+              ? states.find((s) => s.id === district.state_id)
+              : null;
+            const country = state
+              ? countries.find((c) => c.id === state.country_id)
+              : null;
+
             // Fetch username for created_by
             let userName = "Unknown";
             if (record.created_by) {
               try {
-                const { data } = await axios.get(`${API_BASE_URL}/api/u1/users/${record.created_by}`);
+                const { data } = await axios.get(
+                  `${API_BASE_URL}/api/u1/users/${record.created_by}`
+                );
                 userName = data.username || "Unknown";
               } catch (error) {
-                console.error(`Error fetching user ${record.created_by}`, error);
+                console.error(
+                  `Error fetching user ${record.created_by}`,
+                  error
+                );
               }
             }
-  
+
             return {
               ...record,
               district_id: district?.name || "Unknown",
@@ -654,7 +663,7 @@ export default function DataTable() {
             };
           })
         );
-  
+
         // **Update state correctly**
         setCities(formattedData);
         setRecords(formattedData);
@@ -668,12 +677,11 @@ export default function DataTable() {
         console.error("Error fetching cities!", error);
       }
     };
-  
+
     if (districts.length > 0 && states.length > 0 && countries.length > 0) {
       fetchCities();
     }
   }, [districts, states, countries, pagination.page, pagination.limit]);
-  
 
   const handleNextPage = () => {
     if (nextPage) {
@@ -928,8 +936,14 @@ export default function DataTable() {
                 <td>{row.district_id}</td>
                 <td>{row.name}</td>
 
-                <td>{row.status}</td>
-                <td>{row.created_by}</td>
+                {/* <td>{row.status}</td> */}
+                <td>
+                  {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+                </td>
+                {/* <td>{row.created_by}</td> */}
+                <td>
+                  {row.created_by.charAt(0).toUpperCase() + row.created_by.slice(1)}
+                </td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 

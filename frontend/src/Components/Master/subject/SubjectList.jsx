@@ -53,6 +53,15 @@ export default function DataTable() {
   //     });
   // }, []);
 
+    const [Role,  setRoleDetails] = useState({});
+    // Fetch roleDetails from localStorage
+    useEffect(() => {
+      const storedroleDetails = JSON.parse(localStorage.getItem("roleDetails"));
+      if (storedroleDetails) {
+        setRoleDetails(storedroleDetails);
+      }
+    }, []);
+
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-US", {
       year: "numeric",
@@ -264,6 +273,7 @@ export default function DataTable() {
     }
     setIsAllChecked(!isAllChecked);
   };
+
   useEffect(() => {
     if (filteredRecords.every((row) => checkedRows[row.id])) {
       setIsAllChecked(true);
@@ -351,16 +361,20 @@ export default function DataTable() {
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
 
+                
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <FaEdit Link to={`/update/${row.id}`} className={`${styles.FaEdit}`} /> */}
-                    <Link to={`/subject/update/${row.id}`}>
-                      <UilEditAlt className={styles.FaEdit} />
-                    </Link>
-                    <UilTrashAlt
-                      onClick={() => handleDelete(row.id)}
-                      className={`${styles.FaTrash}`}
-                    />
+                    {Role.permissions?.includes("UilEditAlt") && (
+                      <Link to={`/subject/update/${row.id}`}>
+                        <UilEditAlt className={styles.FaEdit} />
+                      </Link>
+                    )}
+                    {Role.permissions?.includes("UilTrashAlt") && (
+                      <UilTrashAlt
+                        onClick={() => handleDelete(row.id)}
+                        className={`${styles.FaTrash}`}
+                      />
+                    )}
                   </div>
                 </td>
               </tr>

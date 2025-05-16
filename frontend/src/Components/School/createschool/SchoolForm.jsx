@@ -35,7 +35,7 @@ const validationSchema = Yup.object({
       if (!value) return true;
       try {
         const { data: existingSchools } = await axios.get(
-          `${API_BASE_URL}/api/get/schools`
+          `${API_BASE_URL}/api/get/all-schools`
         );
         return !existingSchools.some(
           (school) => school.school_name.toLowerCase() === value.toLowerCase()

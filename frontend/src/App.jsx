@@ -82,6 +82,8 @@ import UserUpdate from "./Components/User/UserUpdate";
 
 import Role from "./Components/Role/Role";
 import Rolelist from "./Components/Role/RoleList";
+import UpdateRole from "./Components/Role/UpdateRole";
+
 
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
@@ -91,8 +93,6 @@ import Result from "./Components/Exam/Result/Result";
 import ResultForm from "./Components/Exam/Result/ResultForm";
 import UpdateResult from "./Components/Exam/Result/UpdateResult";
 import ProcessResult from "./Components/Exam/Result/ProcessResult";
-
-
 
 import OMRreceipt from "./Components/Exam/omrReceipt/OMRreceipt";
 
@@ -309,16 +309,15 @@ function App() {
           />
           <Route
             path="/result-create"
-            element={<ProtectedRoute element={<ResultForm/>} />}
+            element={<ProtectedRoute element={<ResultForm />} />}
           />
-           <Route
+          <Route
             path="/result/update/:id"
-            element={<ProtectedRoute element={<UpdateResult/>} />}
+            element={<ProtectedRoute element={<UpdateResult />} />}
           />
-        
           <Route
             path="/resultprocess-list"
-            element={<ProtectedRoute element={<ProcessResult/>} />}
+            element={<ProtectedRoute element={<ProcessResult />} />}
           />
           {/* //conginments */}
           <Route
@@ -375,6 +374,12 @@ function App() {
             path="/role-list"
             element={<ProtectedRoute element={<Rolelist />} />}
           />
+         
+          <Route
+            path="/role/update/:id"
+            element={<ProtectedRoute element={<UpdateRole/>} />}
+          />
+
           {/* //Exam */}
           <Route path="/exam" element={<ProtectedRoute element={<Exam />} />} />
           <Route

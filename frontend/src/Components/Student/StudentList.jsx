@@ -229,33 +229,78 @@ export default function DataTable() {
   };
 
   // Handle row deletion
+  // const handleDelete = (id) => {
+
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, delete it!",
+  //     customClass: {
+  //       popup: "custom-swal-popup",
+  //     },
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       axios
+  //         .delete(`${API_BASE_URL}/api/get/student/${id}`)
+  //         .then((response) => {
+  //           setRecords((prevCountries) =>
+  //             prevCountries.filter((country) => country.id !== id)
+  //           );
+  //           setFilteredRecords((prevFiltered) =>
+  //             prevFiltered.filter((country) => country.id !== id)
+  //           );
+  //           Swal.fire({
+  //             position: "top-end",
+  //             icon: "success",
+  //             title: "Success!",
+  //             text: `The student has been deleted.`,
+  //             showConfirmButton: false,
+  //             timer: 1000,
+  //             timerProgressBar: true,
+  //             toast: true,
+  //             background: "#fff",
+  //             customClass: {
+  //               popup: "small-swal",
+  //             },
+  //           });
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error deleting country:", error);
+  //           // Show an error alert if deletion fails
+  //           Swal.fire(
+  //             "Error!",
+  //             "There was an issue deleting the country.",
+  //             "error"
+  //           );
+  //         });
+  //     }
+  //   });
+  // };
   const handleDelete = (id) => {
-    // Show SweetAlert confirmation dialog
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      // icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
       customClass: {
-        popup: "custom-swal-popup", // Add custom class to the popup
+        popup: "custom-swal-popup",
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        // Proceed with the delete request
         axios
           .delete(`${API_BASE_URL}/api/get/student/${id}`)
           .then((response) => {
-            // Update the state after successful deletion
             setRecords((prevCountries) =>
               prevCountries.filter((country) => country.id !== id)
             );
             setFilteredRecords((prevFiltered) =>
               prevFiltered.filter((country) => country.id !== id)
             );
-            // delete Show a success alert
             Swal.fire({
               position: "top-end",
               icon: "success",
@@ -269,11 +314,12 @@ export default function DataTable() {
               customClass: {
                 popup: "small-swal",
               },
+            }).then(() => {
+              navigate(0); // 👈 Reloads the current page
             });
           })
           .catch((error) => {
             console.error("Error deleting country:", error);
-            // Show an error alert if deletion fails
             Swal.fire(
               "Error!",
               "There was an issue deleting the country.",
@@ -441,7 +487,8 @@ export default function DataTable() {
         const students = result.data.map((row) => ({
           school_name: row.school_name?.trim() || "",
           student_name: row.student_name?.trim() || "",
-          class_name: row.class_name?.trim() || "",
+          class_name: formatClassName(row.class_name?.trim() || ""),
+          // class_name: row.class_name?.trim() || "",
           student_section: row.student_section?.trim() || "",
           mobile_number: row.mobile_number?.trim() || "",
           whatsapp_number: row.whatsapp_number?.trim() || "",
@@ -462,6 +509,69 @@ export default function DataTable() {
     });
   };
 
+  // Helper function to format class name with leading zero for single digits
+  const formatClassName = (className) => {
+    // Check if className is a single digit number
+    if (/^\d$/.test(className)) {
+      return `0${className}`;
+    }
+    return className;
+  };
+
+  // Function to upload students data to backend
+  // const uploadStudentsData = async (students) => {
+  //   if (!Array.isArray(students) || students.length === 0) {
+  //     Swal.fire("Error", "No student data to upload.", "error");
+  //     return;
+  //   }
+  //   setLoading(true);
+
+  //   try {
+  //     const token = localStorage.getItem("token");
+
+  //     if (!token) {
+  //       setLoading(false);
+  //       Swal.fire("Error", "Unauthorized. Please log in again.", "error");
+  //       return;
+  //     }
+
+  //     const response = await axios.post(
+  //       `${API_BASE_URL}/api/get/student/bulk-upload`,
+  //       students,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     setLoading(false);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "success",
+  //       title: "Upload Successful",
+  //       text: `Successfully uploaded ${response.data.insertedCount} students.`,
+  //       showConfirmButton: false,
+  //       timer: 1000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: {
+  //         popup: "small-swal",
+  //       },
+  //     }).then(() => {
+  //       window.location.reload(); // ✅ Reload after success
+  //     });
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.error("Upload Error:", error);
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Upload Failed",
+  //       text: error.response?.data?.message || "An error occurred.",
+  //     });
+  //   }
+  // };
   // Function to upload students data to backend
   const uploadStudentsData = async (students) => {
     if (!Array.isArray(students) || students.length === 0) {
@@ -504,15 +614,38 @@ export default function DataTable() {
           popup: "small-swal",
         },
       }).then(() => {
-        window.location.reload(); // ✅ Reload after success
+        window.location.reload(); // Reload after success
       });
     } catch (error) {
       setLoading(false);
       console.error("Upload Error:", error);
+
+      // Handle specific backend errors
+      let errorMessage = "An error occurred.";
+      if (error.response?.data) {
+        const { message, errors } = error.response.data;
+
+        if (errors) {
+          // Handle inconsistency errors (e.g., different school_name, class_name)
+          if (typeof errors === "object" && !Array.isArray(errors)) {
+            // Inconsistency errors (e.g., { school_name: "All students must have..." })
+            errorMessage = Object.values(errors).join("\n");
+          } else if (Array.isArray(errors)) {
+            // Other errors (e.g., [{ group: "...", message: "School not found" }])
+            errorMessage = errors
+              .map((err) => err.message || "Unknown error")
+              .join("\n");
+          }
+        } else {
+          errorMessage = message || errorMessage;
+        }
+      }
+
       Swal.fire({
         icon: "error",
         title: "Upload Failed",
-        text: error.response?.data?.message || "An error occurred.",
+        text: errorMessage,
+        confirmButtonText: "OK",
       });
     }
   };
@@ -537,17 +670,17 @@ export default function DataTable() {
     ];
     const rows = [
       [
-        "DM school",
+        "ABC School",
         "Alice Johnson",
         "01",
         "A",
         "1234567890",
         "1234567890",
-        "python",
-        "india",
-        "odisha",
-        "cuttack",
-        "cuttack",
+        "math",
+        "India",
+        "Odisha",
+        "Cuttack",
+        "Aliabad",
         "false",
         "null",
       ],
@@ -807,9 +940,7 @@ export default function DataTable() {
                 <td>{row.mobile_number}</td>
                 <td>
                   {Array.isArray(row.student_subject)
-                    ? row.student_subject
-                        .map((subject) => subject)
-                        .join(", ")
+                    ? row.student_subject.map((subject) => subject).join(", ")
                     : JSON.parse(row.student_subject || "[]")
                         .map((subject) => subject)
                         .join(", ")}

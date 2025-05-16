@@ -65,7 +65,6 @@ export default function DataTable() {
     });
   };
 
-
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/r1/role`)
@@ -283,7 +282,7 @@ export default function DataTable() {
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["id", "name", "created_at"].map((col) => (
+              {["id", "name", "Crud Permission", "created_at"].map((col) => (
                 <th
                   key={col}
                   className={styles.sortableHeader}
@@ -304,7 +303,7 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["id", "name", "created_at"].map((col) => (
+            {["id", "name", "Crud Permission", "created_at"].map((col) => (
               <th key={col}>
                 <div className={styles.inputContainer}>
                   <FaSearch className={styles.searchIcon} />
@@ -334,17 +333,29 @@ export default function DataTable() {
                 </td>
                 <td>{row.id}</td>
                 <td>{row.role_name}</td>
+                <td>
+                  {row.permissions.includes("UilEditAlt") && (
+                    <span style={{ color: "blue" }}>Edit</span>
+                  )}
+                  {row.permissions.includes("UilEditAlt") &&
+                    row.permissions.includes("UilTrashAlt") &&
+                    ", "}
+                  {row.permissions.includes("UilTrashAlt") && (
+                    <span style={{ color: "red" }}>Delete</span>
+                  )}
+                </td>
+
                 <td>{row.created_at}</td>
 
                 <td>
                   <div className={styles.actionButtons}>
-                    {/* <Link to={`/role/${row.id}`}>
+                    <Link to={`/role/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
-                    </Link> */}
-                    <UilTrashAlt
+                    </Link>
+                    {/* <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
-                    />
+                    /> */}
                   </div>
                 </td>
               </tr>
