@@ -78,7 +78,7 @@ dotenv.config(); // Load environment variables
             }
 
             res.status(200).json({
-              message: "Login successful",
+              message: "Login successful",         
               token,
               user: {
                 id: user.id,

@@ -347,7 +347,7 @@ const ResultModel = {
   // updatePendingPercentages: (callback) => {
   //   const query = `
   //     WITH RankedResults AS (
-  //       SELECT 
+  //       SELECT
   //         id,
   //         ROW_NUMBER() OVER (PARTITION BY class_id, subject_id ORDER BY mark_secured DESC) AS student_rank
   //       FROM result
@@ -355,26 +355,26 @@ const ResultModel = {
   //     )
   //     UPDATE result r
   //     JOIN RankedResults rr ON r.id = rr.id
-  //     SET 
+  //     SET
   //       r.percentage = (r.mark_secured / r.full_mark) * 100,
   //       r.status = 'success',
-  //       r.certificate = CASE 
+  //       r.certificate = CASE
   //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 90 AND (r.mark_secured / r.full_mark) * 100 <= 100 THEN 'Excellence'
   //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 80 AND (r.mark_secured / r.full_mark) * 100 < 90 THEN 'Merit'
   //                   ELSE NULL
   //                 END,
-  //                 r.remarks = CASE 
+  //                 r.remarks = CASE
   //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 90 AND (r.mark_secured / r.full_mark) * 100 <= 100 THEN 'Outstanding Performance'
   //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 80 AND (r.mark_secured / r.full_mark) * 100 < 90 THEN 'Good Performance'
   //                   ELSE NULL
   //                 END,
-  //                  r.ranking = CASE 
+  //                  r.ranking = CASE
   //                    WHEN rr.student_rank = 1 THEN '1'
   //                    WHEN rr.student_rank = 2 THEN '2'
   //                    WHEN rr.student_rank = 3 THEN '3'
   //                    ELSE NULL
   //                  END,
-  //       r.medals = CASE 
+  //       r.medals = CASE
   //                    WHEN rr.student_rank = 1 THEN 'Gold'
   //                    WHEN rr.student_rank = 2 THEN 'Silver'
   //                    WHEN rr.student_rank = 3 THEN 'Bronze'

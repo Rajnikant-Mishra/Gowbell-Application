@@ -90,33 +90,92 @@ export const createStudent = (req, res) => {
 };
 
 // Bulk upload students
-export const bulkUploadStudents = (req, res) => {
-  const students = req.body; // Expecting an array of student objects
+// export const bulkUploadStudents = (req, res) => {
+//   const students = req.body; // Expecting an array of student objects
+
+//   if (!Array.isArray(students) || students.length === 0) {
+//     return res.status(400).send({ message: "No student data provided" });
+//   }
+
+//   // Extract logged-in user ID from request
+//   const userId = req.user?.id;
+
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized. Please log in." });
+//   }
+
+//   // Call bulkCreate method from the model
+//   Student.bulkCreate(students, userId, (err, result) => {
+//     if (err) {
+//       console.error("Error inserting students:", err);
+//       return res
+//         .status(500)
+//         .send({ message: "Error uploading students", error: err });
+//     }
+//     res.status(201).send({
+//       message: "Students uploaded successfully",
+//       insertedCount: result.affectedRows,
+//     });
+//   });
+// };
+
+
+// export const bulkUploadStudents = async (req, res) => {
+//   const students = req.body;
+
+//   if (!Array.isArray(students) || students.length === 0) {
+//     return res.status(400).json({ message: "No student data provided" });
+//   }
+
+//   const userId = req.user?.id;
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized. Please log in." });
+//   }
+
+//   try {
+//     const result = await Student.bulkCreate(students, userId);
+//     res.status(201).json({
+//       message: "Students uploaded successfully",
+//       insertedCount: result.affectedRows,
+//       errors: result.errors,
+//     });
+//   } catch (err) {
+//     console.error("Error inserting students:", err);
+//     res.status(500).json({
+//       message: "Error uploading students",
+//       error: err.message,
+//       errors: err.cause,
+//     });
+//   }
+// };
+
+export const bulkUploadStudents = async (req, res) => {
+  const students = req.body;
 
   if (!Array.isArray(students) || students.length === 0) {
-    return res.status(400).send({ message: "No student data provided" });
+    return res.status(400).json({ message: "No student data provided" });
   }
 
-  // Extract logged-in user ID from request
   const userId = req.user?.id;
-
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized. Please log in." });
   }
 
-  // Call bulkCreate method from the model
-  Student.bulkCreate(students, userId, (err, result) => {
-    if (err) {
-      console.error("Error inserting students:", err);
-      return res
-        .status(500)
-        .send({ message: "Error uploading students", error: err });
-    }
-    res.status(201).send({
+  try {
+    const result = await Student.bulkCreate(students, userId);
+    res.status(201).json({
       message: "Students uploaded successfully",
       insertedCount: result.affectedRows,
+      errors: result.errors,
     });
-  });
+  } catch (err) {
+    console.error("Error inserting students:", err);
+    res.status(400).json({
+      message: "Error uploading students",
+      error: err.message,
+      errors: err.cause, // Include detailed errors (e.g., inconsistencies)
+    });
+  }
 };
 
 // Get all students
@@ -280,12 +339,7 @@ export const getFilteredStudents = (req, res) => {
 };
 
 
-
-
-
-
 //omr receipt
-
 export const getFilteredStudentsomrreceipt = (req, res) => {
   const { schoolName, classList, subjectList, rollnoclasssubject } = req.body;
 

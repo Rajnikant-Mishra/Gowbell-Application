@@ -79,6 +79,116 @@ import User from "../../models/User/userModel.js";
 //   }
 // };
 
+// export const createSchool = async (req, res) => {
+//   const { id } = req.user; // Only id is guaranteed from req.user
+//   const data = req.body;
+
+//   try {
+//     // Query to fetch username and role from the database using user id
+//     const sqlGetUser = `SELECT username, role FROM users WHERE id = ?`;
+//     const [user] = await new Promise((resolve, reject) => {
+//       db.query(sqlGetUser, [id], (err, results) => {
+//         if (err) return reject(err);
+//         resolve(results);
+//       });
+//     });
+
+//     // Determine status_approved based on user role or username
+//     let statusApproved;
+//     if (user) {
+//       const roleLower = user.role ? user.role.toLowerCase() : "";
+//       const isAdmin =
+//         (user.username && user.username.toLowerCase().includes("admin")) ||
+//         roleLower === "admin";
+
+//       if (isAdmin) {
+//         statusApproved = "approved";
+//       } else if (roleLower === "maker") {
+//         statusApproved = "pending";
+//       } else if (roleLower === "checker") {
+//         statusApproved = "approved";
+//       } else {
+//         statusApproved = "pending"; // Default for other roles
+//       }
+//     } else {
+//       statusApproved = "pending"; // Default if no user found
+//     }
+
+//     // Ensure created_by and updated_by are set to the logged-in user's ID
+//     const schoolData = {
+//       ...data,
+//       created_by: id,
+//       updated_by: id,
+//       status_approved: statusApproved,
+//     };
+
+//     // Create school in the database
+//     const results = await School.create(schoolData);
+
+//     if (!results || !results.insertId) {
+//       return res
+//         .status(500)
+//         .json({ message: "School creation failed, no ID returned" });
+//     }
+
+//     const schoolId = results.insertId;
+//     const schoolCode = results.school_code;
+//     const schoolName = data.school_name;
+//     const schoolEmail = data.school_email;
+//     const principalPhoneNumber = data.principal_contact_number;
+
+//     // Check if both email and phone are present
+//     if (
+//       schoolEmail &&
+//       principalPhoneNumber &&
+//       /^[+]?\d{10,15}$/.test(principalPhoneNumber)
+//     ) {
+//       // Prepare details for email and SMS
+//       const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
+
+//       const emailSubject = `School Registration Successful: ${schoolName}`;
+//       const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
+//       const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
+//                         <p>Your registration with Gowbell Foundation was successful.</p>
+//                         <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
+
+//       // Send notifications
+//       await Promise.all([
+//         sendEmail(schoolEmail, emailSubject, emailText, emailHtml),
+//         sendSms(principalPhoneNumber, smsMessage),
+//       ]);
+
+//       // Success response with notifications sent
+//       return res.status(201).json({
+//         message: "School created, email and SMS sent successfully!",
+//         id: schoolId,
+//         school_code: schoolCode,
+//         status_approved: schoolData.status_approved,
+//       });
+//     } else {
+//       // Success response without notifications
+//       return res.status(201).json({
+//         message:
+//           "School created successfully, notifications not sent due to missing or invalid contact information",
+//         id: schoolId,
+//         school_code: schoolCode,
+//         status_approved: schoolData.status_approved,
+//       });
+//     }
+//   } catch (err) {
+//     console.error("Error during school creation:", err);
+
+//     if (err.response) {
+//       return res.status(500).json({
+//         message: "Error in external service",
+//         error: err.response.data,
+//       });
+//     }
+
+//     res.status(500).json({ message: "An error occurred", error: err.message });
+//   }
+// };
+
 export const createSchool = async (req, res) => {
   const { id } = req.user; // Only id is guaranteed from req.user
   const data = req.body;
@@ -93,8 +203,9 @@ export const createSchool = async (req, res) => {
       });
     });
 
-    // Determine status_approved based on user role or username
+    // Determine status_approved and approved_by based on user role or username
     let statusApproved;
+    let approvedBy = null; // Default to null for non-admins
     if (user) {
       const roleLower = user.role ? user.role.toLowerCase() : "";
       const isAdmin =
@@ -103,6 +214,7 @@ export const createSchool = async (req, res) => {
 
       if (isAdmin) {
         statusApproved = "approved";
+        approvedBy = user.username; // Store admin's username in approved_by
       } else if (roleLower === "maker") {
         statusApproved = "pending";
       } else if (roleLower === "checker") {
@@ -114,12 +226,13 @@ export const createSchool = async (req, res) => {
       statusApproved = "pending"; // Default if no user found
     }
 
-    // Ensure created_by and updated_by are set to the logged-in user's ID
+    // Ensure created_by, updated_by, and approved_by are set appropriately
     const schoolData = {
       ...data,
       created_by: id,
       updated_by: id,
       status_approved: statusApproved,
+      approved_by: approvedBy, // Add approved_by to schoolData
     };
 
     // Create school in the database
@@ -164,6 +277,7 @@ export const createSchool = async (req, res) => {
         id: schoolId,
         school_code: schoolCode,
         status_approved: schoolData.status_approved,
+        approved_by: schoolData.approved_by, // Include approved_by in response
       });
     } else {
       // Success response without notifications
@@ -173,6 +287,7 @@ export const createSchool = async (req, res) => {
         id: schoolId,
         school_code: schoolCode,
         status_approved: schoolData.status_approved,
+        approved_by: schoolData.approved_by, // Include approved_by in response
       });
     }
   } catch (err) {
@@ -337,12 +452,26 @@ export const bulkUploadSchools = async (req, res) => {
 };
 
 // Get all schools
-export const getAllSchools = (req, res) => {
-  School.getAll((err, results) => {
+export const getAll = (req, res) => {
+  School.getAllSchool((err, results) => {
     if (err) return res.status(500).send(err);
     res.status(200).json(results);
   });
 };
+
+//pagibnation school get
+export const getAllSchools = (req, res) => {
+  let { page = 1, limit = 10 } = req.query;
+  page = parseInt(page);
+  limit = parseInt(limit);
+
+  School.getAll(page, limit, (err, data) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    res.status(200).json(data);
+  });
+};
+
 
 // Get school by ID
 export const getSchoolById = (req, res) => {
@@ -488,6 +617,72 @@ export const filterByLocation = (req, res) => {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
+// export const updateStatusApproved = async (req, res) => {
+//   try {
+//     const { id: userId } = req.user; // logged-in user's ID
+//     if (!userId) {
+//       return res.status(401).json({ error: "User ID is missing from token" });
+//     }
+
+//     const { id: schoolId } = req.params;
+//     const { status_approved } = req.body;
+
+//     if (!status_approved) {
+//       return res.status(400).json({ message: "status_approved is required" });
+//     }
+
+//     // ✅ Fetch the user and role_name from DB using JOIN
+//     const sql = `
+//       SELECT users.*, roles.role_name
+//       FROM users
+//       JOIN roles ON users.role = roles.id
+//       WHERE users.id = ?
+//     `;
+
+//     db.query(sql, [userId], async (err, results) => {
+//       if (err) {
+//         console.error("Error querying user and role:", err);
+//         return res.status(500).json({ error: "Database error" });
+//       }
+
+//       const user = results[0];
+
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+
+//       const { role_name, username } = user;
+
+//       // ✅ Role-based access control
+//       if (role_name !== "admin" && role_name !== "checker") {
+//         return res.status(403).json({
+//           message: "Only admin or checker can approve",
+//         });
+//       }
+
+//       // ✅ Call your existing model function to update status
+//       try {
+//         const result = await School.updateStatusApprovedById(
+//           schoolId,
+//           status_approved,
+//           user.username
+//         );
+
+//         if (result.affectedRows === 0) {
+//           return res.status(404).json({ message: "School not found" });
+//         }
+
+//         return res.json({ message: "Approved updated successfully" });
+//       } catch (updateError) {
+//         console.error("Error updating status:", updateError);
+//         return res.status(500).json({ error: updateError.message });
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error in updateStatusApproved:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 export const updateStatusApproved = async (req, res) => {
   try {
     const { id: userId } = req.user; // logged-in user's ID
@@ -502,7 +697,7 @@ export const updateStatusApproved = async (req, res) => {
       return res.status(400).json({ message: "status_approved is required" });
     }
 
-    // ✅ Fetch the user and role_name from DB using JOIN
+    // ✅ Fetch user and role
     const sql = `
       SELECT users.*, roles.role_name
       FROM users
@@ -522,27 +717,46 @@ export const updateStatusApproved = async (req, res) => {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const { role_name } = user;
+      const { role_name, username } = user;
 
       // ✅ Role-based access control
-      if (role_name !== "admin" && role_name !== "checker") {
-        return res.status(403).json({
-          message: "Only admin or checker can approve",
+      if (status_approved === "approved") {
+        if (role_name !== "admin" && role_name !== "checker") {
+          return res.status(403).json({
+            message: "Only admin or checker can approve",
+          });
+        }
+      } else if (status_approved === "rejected") {
+        if (role_name !== "admin") {
+          return res.status(403).json({
+            message: "Only admin can rejected",
+          });
+        }
+      } else if (status_approved === "pending") {
+        if (role_name !== "admin") {
+          return res.status(403).json({
+            message: "Only admin can pending",
+          });
+        }
+      } else {
+        return res.status(400).json({
+          message: "Invalid status_approved value",
         });
       }
 
-      // ✅ Call your existing model function to update status
+      // ✅ Call your existing model function
       try {
         const result = await School.updateStatusApprovedById(
           schoolId,
-          status_approved
+          status_approved,
+          username
         );
 
         if (result.affectedRows === 0) {
           return res.status(404).json({ message: "School not found" });
         }
 
-        return res.json({ message: "Approved updated successfully" });
+        return res.json({ message: `Status updated to ${status_approved} successfully` });
       } catch (updateError) {
         console.error("Error updating status:", updateError);
         return res.status(500).json({ error: updateError.message });
@@ -553,6 +767,4 @@ export const updateStatusApproved = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
