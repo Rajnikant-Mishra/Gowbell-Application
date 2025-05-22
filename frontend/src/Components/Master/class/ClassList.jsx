@@ -432,9 +432,6 @@
 //   );
 // }
 
-
-
-
 // import React, { useEffect, useState } from "react";
 // import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
 // import {
@@ -911,14 +908,13 @@
 //     });
 //   };
 
-
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       try {
 //         // Fetch class data
 //         const classResponse = await axios.get(`${API_BASE_URL}/api/class`);
 //         const classData = classResponse.data;
-  
+
 //         // Format data with user details, role, and timestamps
 //         const formattedData = await Promise.all(
 //           classData.map(async (record) => {
@@ -928,7 +924,7 @@
 //                 `${API_BASE_URL}/api/u1/users/${record.created_by}`
 //               );
 //               const { username, role } = userResponse.data; // Extract username and role ID
-  
+
 //               // Fetch role data using the role ID
 //               const roleResponse = await axios.get(
 //                 `${API_BASE_URL}/api/r1/role/${role}`
@@ -941,8 +937,7 @@
 //                 created_at: formatTimestamp(record.created_at),
 //                 updated_at: formatTimestamp(record.updated_at),
 //                 created_by: `${username} (${role_name})`, // Combine username and role name
-              
-          
+
 //               };
 //             } catch (userRoleError) {
 //               console.error("Error fetching user/role data:", userRoleError);
@@ -952,12 +947,12 @@
 //                 created_at: formatTimestamp(record.created_at),
 //                 updated_at: formatTimestamp(record.updated_at),
 //                 created_by: "Unknown User (Unknown Role)", // Fallback value
-                
+
 //               };
 //             }
 //           })
 //         );
-  
+
 //         // Set the formatted data to state
 //         setRecords(formattedData);
 //         setFilteredRecords(formattedData);
@@ -965,10 +960,9 @@
 //         console.error("Error fetching class records:", error);
 //       }
 //     };
-  
+
 //     fetchData();
 //   }, []);
-  
 
 //   const handleDelete = (id) => {
 //     Swal.fire({
@@ -1222,7 +1216,7 @@
 //                     checked={!!checkedRows[row.id]}
 //                     onChange={() => handleRowCheck(row.id)}
 //                   />
-//                 </td> 
+//                 </td>
 //                 <td>{row.name}</td>
 //                 <td>{row.status}</td>
 //                 <td>{row.created_by}</td>
@@ -1326,9 +1320,8 @@
 //   );
 // }
 
-
 import React, { useEffect, useState } from "react";
-import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa"; 
+import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
 import {
   UilTrashAlt,
   UilEditAlt,
@@ -1350,7 +1343,10 @@ import Swal from "sweetalert2";
 export default function DataTable() {
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ column: "", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState({
+    column: "",
+    direction: "asc",
+  });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [Role, setRoleDetails] = useState({}); // State for role-based permissions
@@ -1462,7 +1458,11 @@ export default function DataTable() {
           })
           .catch((error) => {
             console.error("Error deleting class:", error);
-            Swal.fire("Error!", "There was an issue deleting the class.", "error");
+            Swal.fire(
+              "Error!",
+              "There was an issue deleting the class.",
+              "error"
+            );
           });
       }
     });
@@ -1478,7 +1478,10 @@ export default function DataTable() {
   };
 
   const handleSort = (column) => {
-    let direction = sortConfig.column === column && sortConfig.direction === "asc" ? "desc" : "asc";
+    let direction =
+      sortConfig.column === column && sortConfig.direction === "asc"
+        ? "desc"
+        : "asc";
 
     const sortedData = [...filteredRecords].sort((a, b) => {
       let aValue = a[column] ?? "";
@@ -1511,11 +1514,15 @@ export default function DataTable() {
     return (
       <div className={styles.sortIconsContainer}>
         <FaCaretUp
-          className={`${styles.sortIcon} ${isActive && isAsc ? styles.activeSortIcon : ""}`}
+          className={`${styles.sortIcon} ${
+            isActive && isAsc ? styles.activeSortIcon : ""
+          }`}
           onClick={() => handleSort(column)}
         />
         <FaCaretDown
-          className={`${styles.sortIcon} ${isActive && !isAsc ? styles.activeSortIcon : ""}`}
+          className={`${styles.sortIcon} ${
+            isActive && !isAsc ? styles.activeSortIcon : ""
+          }`}
           onClick={() => handleSort(column)}
         />
       </div>
@@ -1573,48 +1580,62 @@ export default function DataTable() {
         </div>
       </div>
       <div className={`${styles.tablecont} mt-0`}>
-        <table className={`${styles.table}`} style={{ fontFamily: "Nunito, sans-serif" }}>
+        <table
+          className={`${styles.table}`}
+          style={{ fontFamily: "Nunito, sans-serif" }}
+        >
           <thead>
             <tr className={`${styles.headerRow} pt-0 pb-0`}>
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
-              {["name", "status", "created_by", "created_at", "updated_at"].map((col) => (
-                <th
-                  key={col}
-                  className={styles.sortableHeader}
-                  onClick={() => handleSort(col)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.toUpperCase()}</span>
-                    {getSortIcon(col)}
-                  </div>
-                </th>
-              ))}
+              {["name", "status", "created_by", "created_at", "updated_at"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className={styles.sortableHeader}
+                    onClick={() => handleSort(col)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>{col.toUpperCase()}</span>
+                      {getSortIcon(col)}
+                    </div>
+                  </th>
+                )
+              )}
               <th>Action</th>
             </tr>
-            <tr className={styles.filterRow} style={{ fontFamily: "Nunito, sans-serif" }}>
+            <tr
+              className={styles.filterRow}
+              style={{ fontFamily: "Nunito, sans-serif" }}
+            >
               <th></th>
-              {["name", "status", "created_by", "created_at", "updated_at"].map((col) => (
-                <th key={col}>
-                  <div className={styles.inputContainer}>
-                    <FaSearch className={styles.searchIcon} />
-                    <input
-                      type="text"
-                      placeholder={`Search ${col}`}
-                      onChange={(e) => handleFilter(e, col)}
-                      className={styles.filterInput}
-                    />
-                  </div>
-                </th>
-              ))}
+              {["name", "status", "created_by", "created_at", "updated_at"].map(
+                (col) => (
+                  <th key={col}>
+                    <div className={styles.inputContainer}>
+                      <FaSearch className={styles.searchIcon} />
+                      <input
+                        type="text"
+                        placeholder={`Search ${col}`}
+                        onChange={(e) => handleFilter(e, col)}
+                        className={styles.filterInput}
+                      />
+                    </div>
+                  </th>
+                )
+              )}
               <th></th>
             </tr>
           </thead>
           <tbody>
             {currentRecords.map((row) => (
-              <tr key={row.id} className={styles.dataRow} style={{ fontFamily: "Nunito, sans-serif" }}>
+              <tr
+                key={row.id}
+                className={styles.dataRow}
+                style={{ fontFamily: "Nunito, sans-serif" }}
+              >
                 <td>
                   <Checkbox
                     checked={!!checkedRows[row.id]}
@@ -1623,7 +1644,11 @@ export default function DataTable() {
                 </td>
                 <td>{row.name}</td>
                 <td>{row.status}</td>
-                <td>{row.created_by}</td>
+                {/* <td>{row.created_by}</td> */}
+                <td>
+                  {row.created_by.charAt(0).toUpperCase() +
+                    row.created_by.slice(1)}
+                </td>
                 <td>{row.created_at}</td>
                 <td>{row.updated_at}</td>
                 <td>
@@ -1646,7 +1671,9 @@ export default function DataTable() {
           </tbody>
         </table>
         <div className="d-flex justify-content-between flex-wrap mt-2">
-          <div className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}>
+          <div
+            className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
+          >
             <select
               value={pageSize}
               onChange={(e) => {

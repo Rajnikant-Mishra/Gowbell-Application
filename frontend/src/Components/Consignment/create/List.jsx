@@ -237,6 +237,8 @@ export default function DataTable() {
       setIsAllChecked(false);
     }
   }, [checkedRows, filteredRecords]);
+
+
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -256,9 +258,9 @@ export default function DataTable() {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-                "Consignment_Id",
+                "Consignment Id",
                 "Date",
-                "Created_By",
+                "Created By",
                 "School",
                 "Via",
                 "Remarks",
@@ -270,7 +272,7 @@ export default function DataTable() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    <span>{col.toUpperCase()}</span>
                     {getSortIcon(col)}
                   </div>
                 </th>
@@ -284,9 +286,9 @@ export default function DataTable() {
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
             {[
-              "Consignment_Id",
+              "Consignment Id",
               "Date",
-              "Created_By",
+              "Created By",
               "School",
               "Via",
               "Remarks",

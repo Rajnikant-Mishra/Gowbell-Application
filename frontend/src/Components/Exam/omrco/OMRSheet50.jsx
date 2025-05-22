@@ -3,6 +3,8 @@ import OMRGenerator from "./OMRGenerator";
 import styles from "./OMRSheet.module.css";
 import sheetlogo from "../../../../public/logo GOWBELL.png";
 import Barcode from "react-barcode";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function OMRSheet({
   schoolName,
@@ -45,7 +47,7 @@ export default function OMRSheet({
         )}
       </div>
 
-      <div>
+      <div className={styles.mainContent}>
         <div className={`mx-auto text-center ${styles.header}`}>
           <h5 className={styles.title}>ANSWER SHEET</h5>
           <p className={styles.subtitle}>
@@ -62,7 +64,7 @@ export default function OMRSheet({
                   htmlFor="student-name"
                   className={`${styles.label} fw-bold`}
                 >
-                  CANDIDATE NAME: {student}
+                  CANDIDATE NAME: <span className={`${styles.studentName}`}>{student}</span>
                 </label>
               </div>
               <div className={styles.inputContainer}>
@@ -74,14 +76,13 @@ export default function OMRSheet({
               </div>
             </div>
 
-            {/* {/ School Name /} */}
             <div className={styles.inputGroup}>
               <div className={styles.labelContainer}>
                 <label
                   htmlFor="school-name"
                   className={`${styles.label} text-start fw-bold`}
                 >
-                  SCHOOL NAME: {schoolName}
+                  SCHOOL NAME: <span className={`${styles.studentName}`}>{schoolName}</span>
                 </label>
               </div>
               <div className={styles.inputContainer}>
@@ -132,51 +133,17 @@ export default function OMRSheet({
                   <label htmlFor="standard" className="text-center fw-bold">
                     STANDARD
                   </label>
-                  <p style={{ fontWeight: "bold", color: "black" }}>
-                    {className}
-                  </p>
+                  <p style={{ fontWeight: "bold", color: "black" }}>{className}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className={styles.instructionDetails}>
+
+        <div className={`${styles.instructionDetails}`}>
           <div className={styles.row}>
-            {/* <div className={styles.column}>
-              <div className={`${styles.detailBox} ${styles.rolldiv}`}>
-                <div
-                  id="rollNum"
-                  className={`${styles.textBox1} textBox d-flex flex-column P-0`}
-                >
-                  <label
-                    htmlFor="rollNum"
-                    className={`${styles.rollno} text-center`}
-                  >
-                    ROLL NO.
-                  </label>
-           
-                  <div className={styles.barcodeContainer}>
-                    {rollNumber && (
-                      <div className={styles.barcodeWrapper}>
-                        <Barcode
-                          value={rollNumber.toString()}
-                          width={1}
-                          height={30}
-                          fontSize={12}
-                          margin={0}
-                          displayValue={true} // We'll handle the text separately
-                        />
-                        <div className={styles.rollNumberText}>
-                          {rollNumber}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div> */}
             <div className={styles.column}>
-              <div className={`${styles.detailBox} ${styles.rolldiv}`}>
+              <div className={` ${styles.rolldiv}`}>
                 <div
                   id="rollNum"
                   className={`${styles.textBox1} textBox d-flex flex-column P-0`}
@@ -187,21 +154,20 @@ export default function OMRSheet({
                   >
                     ROLL NO.
                   </label>
-                  {/* Barcode with roll number + className + subject display */}
-                  <div className={styles.barcodeContainer}>
+                  <div className={`${styles.barcodeContainer} my-auto`}>
                     {rollNumber && className && subject && (
-                      <div className={styles.barcodeWrapper}>
+                      <div className={`${styles.barcodeWrapper}`}>
                         <Barcode
-                          value={`${rollNumber}-${classId}-${subjectIds}`} // 👈 combined value
+                          value={`${rollNumber}-${classId}-${subjectIds}`}
                           width={0.6}
                           height={30}
                           fontSize={12}
                           margin={0}
-                          displayValue={true} // shows the text below barcode
+                          displayValue={true}
+                          className="mt-4"
                         />
                         <div className={styles.rollNumberText}>
-                          {`${rollNumber}-${classId}-${subjectIds}`}{" "}
-                          {/* 👈 display text */}
+                          {`${rollNumber}-${classId}-${subjectIds}`}
                         </div>
                       </div>
                     )}
@@ -210,13 +176,13 @@ export default function OMRSheet({
               </div>
             </div>
 
-            <div className={`${styles.column} ${styles.middleColumn}`}>
+            <div className={` ${styles.middleColumn}`}>
               <div className={styles.detailBox}>
                 <div
                   id="level"
                   className={`${styles.textBox1} textBox d-flex flex-column`}
                 >
-                  <ol className={styles.ruleBox}>
+                  <ol className={`${styles.ruleBox} my-2`}>
                     <li>
                       Write Your <b>Roll Number</b> on the left side of the OMR
                       sheet in the box specified and darken the appropriate
@@ -255,7 +221,7 @@ export default function OMRSheet({
                   className={`${styles.textBox1} textBox d-flex flex-column p-0`}
                 >
                   <div
-                    className={`${styles.instructionBox} d-flex justify-content-center  `}
+                    className={`${styles.instructionBox} d-flex justify-content-center`}
                   >
                     <label
                       htmlFor="standard"
@@ -267,7 +233,7 @@ export default function OMRSheet({
                   <div className={styles.instructionBox1}>
                     <label
                       htmlFor="standard"
-                      className={`${styles.instructionBoxLabel}`}
+                      className={`${styles.instructionBoxLabel} `}
                     >
                       CORRECT
                     </label>
@@ -324,6 +290,7 @@ export default function OMRSheet({
             </div>
           </div>
         </div>
+
         <div
           className={`${styles.answerSectionTitle} my-2 d-flex justify-content-center`}
         >
@@ -331,6 +298,7 @@ export default function OMRSheet({
             MARK YOUR ANSWERS WITH HB PENCIL/BALL POINT PEN (BLUE/BLACK)
           </p>
         </div>
+
         <div className="row mb-2">
           <div className="col-3">
             <div className={`${styles.detailBox} ${styles.rolldiv}`}>
@@ -349,6 +317,7 @@ export default function OMRSheet({
                     color: "black",
                     textAlign: "center",
                   }}
+                  className="my-auto"
                 >
                   {subject}
                 </p>
@@ -448,14 +417,14 @@ export default function OMRSheet({
                 <div className="my-auto">
                   <h5 className="fw-bold">Gowbell Olympiads</h5>
                   <p style={{ fontSize: "12px" }} className="fw-bold">
-                    Plot No-18,Matalia Dwaraka, Sector-3,New Delhi, India -
-                    110059
+                    Plot No-18, Matalia Dwaraka, Sector-3, New Delhi, India - 110059
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
         <div className="row">
           <div className="col-6">
             <div
@@ -463,7 +432,7 @@ export default function OMRSheet({
             >
               <input
                 type="text"
-                className={`${styles.inputUnderline} mt-5`}
+                className={`${styles.inputUnderline}`}
                 id="student-name"
               />
               <label htmlFor="student-name" className="fw-bold">
@@ -477,7 +446,7 @@ export default function OMRSheet({
             >
               <input
                 type="text"
-                className={`${styles.inputUnderline} mt-5`}
+                className={`${styles.inputUnderline}`}
                 id="invigilator-signature"
               />
               <label htmlFor="invigilator-signature" className="fw-bold">
@@ -487,6 +456,7 @@ export default function OMRSheet({
           </div>
         </div>
       </div>
+
       <div className={`${styles.bars1}`}>
         {Array.from({ length: 134 }).map((_, index) =>
           index === 0 || index === 133 ? (

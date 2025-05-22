@@ -1918,13 +1918,26 @@ export default function DataTable() {
         filter: "agTextColumnFilter",
         width: 120,
       },
+      // {
+      //   headerName: "CREATED BY",
+      //   field: "created_by",
+      //   sortable: true,
+      //   filter: "agTextColumnFilter",
+      //   width: 150,
+      // },
       {
         headerName: "CREATED BY",
         field: "created_by",
         sortable: true,
         filter: "agTextColumnFilter",
         width: 150,
+        valueFormatter: (params) => {
+          const value = params.value;
+          if (!value) return "";
+          return value.charAt(0).toUpperCase() + value.slice(1);
+        },
       },
+
       {
         headerName: "APPROVAL",
         field: "status_approved",
@@ -1976,6 +1989,11 @@ export default function DataTable() {
         filter: "agTextColumnFilter",
         width: 160,
         cellStyle: { fontWeight: "bold" },
+        valueFormatter: (params) => {
+          const value = params.value;
+          if (!value) return "";
+          return value.charAt(0).toUpperCase() + value.slice(1);
+        },
       },
       {
         headerName: "ACTION",

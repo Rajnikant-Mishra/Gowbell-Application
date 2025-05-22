@@ -537,7 +537,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           {!isCollapsed ? (
             <>
               <img src={pathlogo} alt="Logo" className={styles.sqichedicon} />
-              <h1 className="my-auto text-white mt-3">Gowbell</h1>
+              {/* <h1 className="my-auto text-white mt-3">Gowbell</h1> */}
+              <h1 className={`${styles.headtitle} my-auto text-white mt-3`}>Gowbell</h1>
             </>
           ) : (
             <img src={pathlogo} alt="Logo" className={styles.sqichedicon} />

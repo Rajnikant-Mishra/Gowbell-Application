@@ -467,3 +467,7 @@ img .sqichedicon {
     width: 25px;
   }
 }
+
+.headtitle {
+  font-family: "Goutami", sans-serif !important;
+}

@@ -486,8 +486,6 @@
 
 // export default ExaminationForm;
 
-
-
 // import React, { useState, useEffect, useCallback } from "react";
 // import { useNavigate } from "react-router-dom";
 // import {
@@ -1076,8 +1074,6 @@
 
 // export default ExaminationForm;
 
-
-
 // import React, { useState, useEffect, useCallback } from "react";
 // import { useNavigate } from "react-router-dom";
 // import {
@@ -1224,7 +1220,7 @@
 //       setIsLoading(true);
 //       const response = await axios.get(`${API_BASE_URL}/api/get/filter`, { params: filters });
 //       if (response.data.success) {
-//         const schoolList = response.data.data.flatMap(location => 
+//         const schoolList = response.data.data.flatMap(location =>
 //           location.schools.map(school => ({
 //             school_name: school,
 //             country_name: location.country,
@@ -1272,7 +1268,7 @@
 //         classList: selectedClassIds,
 //         subjectList: selectedSubjectIds,
 //       });
-      
+
 //       setTotalCount(response.data.totalCount || 0);
 //       setFetchError(null);
 //     } catch (error) {
@@ -1623,7 +1619,14 @@ const ExaminationForm = () => {
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-        const [countriesRes, statesRes, districtsRes, citiesRes, classesRes, subjectsRes] = await Promise.all([
+        const [
+          countriesRes,
+          statesRes,
+          districtsRes,
+          citiesRes,
+          classesRes,
+          subjectsRes,
+        ] = await Promise.all([
           axios.get(`${API_BASE_URL}/api/countries`),
           axios.get(`${API_BASE_URL}/api/states`),
           axios.get(`${API_BASE_URL}/api/districts`),
@@ -1637,8 +1640,18 @@ const ExaminationForm = () => {
           setStates(statesRes.data || []);
           setDistricts(districtsRes.data || []);
           setCities(citiesRes.data || []);
-          setClasses((classesRes.data || []).map(cls => ({ id: cls.id, name: cls.name })));
-          setSubjects((subjectsRes.data || []).map(sub => ({ id: sub.id, name: sub.name })));
+          setClasses(
+            (classesRes.data || []).map((cls) => ({
+              id: cls.id,
+              name: cls.name,
+            }))
+          );
+          setSubjects(
+            (subjectsRes.data || []).map((sub) => ({
+              id: sub.id,
+              name: sub.name,
+            }))
+          );
         }
       } catch (error) {
         console.error("Error fetching initial data:", error);
@@ -1649,12 +1662,14 @@ const ExaminationForm = () => {
     };
 
     fetchInitialData();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Location filtering effects
   useEffect(() => {
-    setFilteredStates(states.filter(s => s.country_id === selectedCountry));
+    setFilteredStates(states.filter((s) => s.country_id === selectedCountry));
     setSelectedState("");
     setSelectedDistrict("");
     setSelectedCity("");
@@ -1662,14 +1677,14 @@ const ExaminationForm = () => {
   }, [selectedCountry, states]);
 
   useEffect(() => {
-    setFilteredDistricts(districts.filter(d => d.state_id === selectedState));
+    setFilteredDistricts(districts.filter((d) => d.state_id === selectedState));
     setSelectedDistrict("");
     setSelectedCity("");
     setSelectedSchool("");
   }, [selectedState, districts]);
 
   useEffect(() => {
-    setFilteredCities(cities.filter(c => c.district_id === selectedDistrict));
+    setFilteredCities(cities.filter((c) => c.district_id === selectedDistrict));
     setSelectedCity("");
     setSelectedSchool("");
   }, [selectedDistrict, cities]);
@@ -1678,10 +1693,12 @@ const ExaminationForm = () => {
   const fetchSchoolsByLocation = useCallback(async (filters) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/get/filter`, { params: filters });
+      const response = await axios.get(`${API_BASE_URL}/api/get/filter`, {
+        params: filters,
+      });
       if (response.data.success) {
-        const schoolList = response.data.data.flatMap(location => 
-          location.schools.map(school => ({
+        const schoolList = response.data.data.flatMap((location) =>
+          location.schools.map((school) => ({
             school_name: school,
             country_name: location.country,
             state_name: location.state,
@@ -1711,11 +1728,21 @@ const ExaminationForm = () => {
       city: selectedCity,
     };
     if (selectedCountry) fetchSchoolsByLocation(filters);
-  }, [selectedCountry, selectedState, selectedDistrict, selectedCity, fetchSchoolsByLocation]);
+  }, [
+    selectedCountry,
+    selectedState,
+    selectedDistrict,
+    selectedCity,
+    fetchSchoolsByLocation,
+  ]);
 
   // Fetch student count
   const fetchStudentCount = useCallback(async () => {
-    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length) {
+    if (
+      !selectedSchool ||
+      !selectedClassIds.length ||
+      !selectedSubjectIds.length
+    ) {
       setTotalCount(0);
       setFetchError(null);
       return;
@@ -1723,12 +1750,16 @@ const ExaminationForm = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/get/filter`, { // Changed back to /api/filter to match previous backend
-        schoolName: selectedSchool,
-        classList: selectedClassIds,
-        subjectList: selectedSubjectIds,
-      });
-      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/get/student/filter`,
+        {
+          // Changed back to /api/filter to match previous backend
+          schoolName: selectedSchool,
+          classList: selectedClassIds,
+          subjectList: selectedSubjectIds,
+        }
+      );
+
       setTotalCount(response.data.totalCount || 0);
       setFetchError(null);
     } catch (error) {
@@ -1758,11 +1789,15 @@ const ExaminationForm = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/get/filter`, { // Changed back to /api/filter
-        schoolName: selectedSchool,
-        classList: selectedClassIds,
-        subjectList: selectedSubjectIds,
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/get/student/filter`,
+        {
+          // Changed back to /api/filter
+          schoolName: selectedSchool,
+          classList: selectedClassIds,
+          subjectList: selectedSubjectIds,
+        }
+      );
 
       if (!response.data.students?.length) {
         throw new Error("No student data received");
@@ -1770,19 +1805,26 @@ const ExaminationForm = () => {
 
       await generatePDF(response.data.students);
 
-      await axios.post(`${API_BASE_URL}/api/omr/generator`, [{
-        country: countries.find(c => c.id === selectedCountry)?.name,
-        state: filteredStates.find(s => s.id === selectedState)?.name,
-        district: filteredDistricts.find(d => d.id === selectedDistrict)?.name,
-        city: filteredCities.find(c => c.id === selectedCity)?.name,
-        school: selectedSchool,
-        classes: selectedClassIds.map(id => classes.find(c => c.id === id)?.name),
-        subjects: selectedSubjectIds.map(id => subjects.find(s => s.id === id)?.name),
-        student_count: response.data.students.length,
-        level: selectedLevel,
-        mode: selectedModel,
-        generation_date: new Date().toISOString(),
-      }]);
+      await axios.post(`${API_BASE_URL}/api/omr/generator`, [
+        {
+          country: countries.find((c) => c.id === selectedCountry)?.name,
+          state: filteredStates.find((s) => s.id === selectedState)?.name,
+          district: filteredDistricts.find((d) => d.id === selectedDistrict)
+            ?.name,
+          city: filteredCities.find((c) => c.id === selectedCity)?.name,
+          school: selectedSchool,
+          classes: selectedClassIds.map(
+            (id) => classes.find((c) => c.id === id)?.name
+          ),
+          subjects: selectedSubjectIds.map(
+            (id) => subjects.find((s) => s.id === id)?.name
+          ),
+          student_count: response.data.students.length,
+          level: selectedLevel,
+          mode: selectedModel,
+          generation_date: new Date().toISOString(),
+        },
+      ]);
 
       Swal.fire({
         icon: "success",
@@ -1803,7 +1845,11 @@ const ExaminationForm = () => {
 
   // PDF Generation - Added subjectIds and classId props
   const generatePDF = async (students) => {
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
 
     for (let i = 0; i < students.length; i++) {
       if (i > 0) doc.addPage();
@@ -1815,16 +1861,19 @@ const ExaminationForm = () => {
 
       // Calculate subject IDs based on subject_names if available, otherwise use selectedSubjectIds
       const subjectIds = students[i].subject_names
-        ? students[i].subject_names.split(',').map(name => {
-            const subject = subjects.find(s => s.name === name.trim());
-            return subject ? subject.id : name;
-          }).join(", ")
+        ? students[i].subject_names
+            .split(",")
+            .map((name) => {
+              const subject = subjects.find((s) => s.name === name.trim());
+              return subject ? subject.id : name;
+            })
+            .join(", ")
         : selectedSubjectIds.join(", ");
 
       // Calculate class ID based on class_name
       const classId = students[i].class_name
         ? (() => {
-            const cls = classes.find(c => c.name === students[i].class_name);
+            const cls = classes.find((c) => c.name === students[i].class_name);
             return cls ? cls.id : students[i].class_name;
           })()
         : selectedClassIds[0]; // Fallback to first selected class ID if multiple are selected
@@ -1844,16 +1893,20 @@ const ExaminationForm = () => {
         tempDiv
       );
 
-      await html2canvas(tempDiv, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
+      await html2canvas(tempDiv, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/jpeg", 0.1); // optimized for size
         const imgWidth = doc.internal.pageSize.getWidth() - 20;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        doc.addImage(imgData, "JPG", 10, 10, imgWidth, imgHeight);
+        doc.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
         document.body.removeChild(tempDiv);
       });
     }
 
-    doc.save(`OMR_Sheets_${selectedSchool.replace(/ /g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    doc.save(
+      `OMR_Sheets_${selectedSchool.replace(/ /g, "_")}_${new Date()
+        .toISOString()
+        .slice(0, 10)}.pdf`
+    );
   };
 
   const getOMRSheetComponent = (className) => {
@@ -1864,13 +1917,16 @@ const ExaminationForm = () => {
 
   // Options
   const dropdownOptions = {
-    countries: countries.map(c => ({ value: c.id, label: c.name })),
-    states: filteredStates.map(s => ({ value: s.id, label: s.name })),
-    districts: filteredDistricts.map(d => ({ value: d.id, label: d.name })),
-    cities: filteredCities.map(c => ({ value: c.id, label: c.name })),
-    schools: schools.map(s => ({ value: s.school_name, label: `${s.school_name} (${s.city_name || ""})` })),
-    classes: classes.map(c => ({ value: c.id, label: c.name })),
-    subjects: subjects.map(s => ({ value: s.id, label: s.name })),
+    countries: countries.map((c) => ({ value: c.id, label: c.name })),
+    states: filteredStates.map((s) => ({ value: s.id, label: s.name })),
+    districts: filteredDistricts.map((d) => ({ value: d.id, label: d.name })),
+    cities: filteredCities.map((c) => ({ value: c.id, label: c.name })),
+    schools: schools.map((s) => ({
+      value: s.school_name,
+      label: `${s.school_name} (${s.city_name || ""})`,
+    })),
+    classes: classes.map((c) => ({ value: c.id, label: c.name })),
+    subjects: subjects.map((s) => ({ value: s.id, label: s.name })),
     levels: [
       { value: "Level 1", label: "Level 1" },
       { value: "Level 2", label: "Level 2" },
@@ -1886,100 +1942,191 @@ const ExaminationForm = () => {
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <Breadcrumb data={[{ name: "OMR", link: "/omr-list" }, { name: "Create OMR" }]} />
+        <Breadcrumb
+          data={[{ name: "OMR", link: "/omr-list" }, { name: "Create OMR" }]}
+        />
       </div>
       <Container component="main" maxWidth="">
-        <Paper className={styles.main} elevation={3} style={{ padding: "20px", marginTop: "16px" }}>
-          <Typography className={`${styles.formTitle} mb-4`}>Create OMR Schedule</Typography>
+        <Paper
+          className={styles.main}
+          elevation={3}
+          style={{ padding: "20px", marginTop: "16px" }}
+        >
+          <Typography className={`${styles.formTitle} mb-4`}>
+            Create OMR Schedule
+          </Typography>
           {fetchError && (
-            <Typography color="error" className="mb-3">{fetchError}</Typography>
+            <Typography color="error" className="mb-3">
+              {fetchError}
+            </Typography>
           )}
           <form noValidate autoComplete="off">
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="Country" value={selectedCountry} options={dropdownOptions.countries} onChange={e => setSelectedCountry(e.target.value)} disabled={isLoading} />
+                <Dropdown
+                  label="Country"
+                  value={selectedCountry}
+                  options={dropdownOptions.countries}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  disabled={isLoading}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="State" value={selectedState} options={dropdownOptions.states} onChange={e => setSelectedState(e.target.value)} disabled={!selectedCountry || isLoading} />
+                <Dropdown
+                  label="State"
+                  value={selectedState}
+                  options={dropdownOptions.states}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  disabled={!selectedCountry || isLoading}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="District" value={selectedDistrict} options={dropdownOptions.districts} onChange={e => setSelectedDistrict(e.target.value)} disabled={!selectedState || isLoading} />
+                <Dropdown
+                  label="District"
+                  value={selectedDistrict}
+                  options={dropdownOptions.districts}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  disabled={!selectedState || isLoading}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="City" value={selectedCity} options={dropdownOptions.cities} onChange={e => setSelectedCity(e.target.value)} disabled={!selectedDistrict || isLoading} />
+                <Dropdown
+                  label="City"
+                  value={selectedCity}
+                  options={dropdownOptions.cities}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  disabled={!selectedDistrict || isLoading}
+                />
               </Grid>
 
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="School" value={selectedSchool} options={dropdownOptions.schools} onChange={e => setSelectedSchool(e.target.value)} disabled={isLoading || !selectedCity} />
+                <Dropdown
+                  label="School"
+                  value={selectedSchool}
+                  options={dropdownOptions.schools}
+                  onChange={(e) => setSelectedSchool(e.target.value)}
+                  disabled={isLoading || !selectedCity}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <FormControl fullWidth margin="normal" size="small" disabled={isLoading}>
+                <FormControl
+                  fullWidth
+                  margin="normal"
+                  size="small"
+                  disabled={isLoading}
+                >
                   <InputLabel>Classes</InputLabel>
                   <Select
                     multiple
                     value={selectedClassIds}
-                    onChange={e => setSelectedClassIds(e.target.value)}
+                    onChange={(e) => setSelectedClassIds(e.target.value)}
                     label="Classes"
-                    renderValue={selected => (
+                    renderValue={(selected) => (
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map(id => (
-                          <Chip key={id} label={classes.find(c => c.id === id)?.name || id} size="small" />
+                        {selected.map((id) => (
+                          <Chip
+                            key={id}
+                            label={classes.find((c) => c.id === id)?.name || id}
+                            size="small"
+                          />
                         ))}
                       </Box>
                     )}
                   >
-                    {classes.map(cls => (
-                      <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+                    {classes.map((cls) => (
+                      <MenuItem key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <FormControl fullWidth margin="normal" size="small" disabled={isLoading}>
+                <FormControl
+                  fullWidth
+                  margin="normal"
+                  size="small"
+                  disabled={isLoading}
+                >
                   <InputLabel>Subjects</InputLabel>
                   <Select
                     multiple
                     value={selectedSubjectIds}
-                    onChange={e => setSelectedSubjectIds(e.target.value)}
+                    onChange={(e) => setSelectedSubjectIds(e.target.value)}
                     label="Subjects"
-                    renderValue={selected => (
+                    renderValue={(selected) => (
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map(id => (
-                          <Chip key={id} label={subjects.find(s => s.id === id)?.name || id} size="small" />
+                        {selected.map((id) => (
+                          <Chip
+                            key={id}
+                            label={
+                              subjects.find((s) => s.id === id)?.name || id
+                            }
+                            size="small"
+                          />
                         ))}
                       </Box>
                     )}
                   >
-                    {subjects.map(sub => (
-                      <MenuItem key={sub.id} value={sub.id}>{sub.name}</MenuItem>
+                    {subjects.map((sub) => (
+                      <MenuItem key={sub.id} value={sub.id}>
+                        {sub.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="Level" value={selectedLevel} options={dropdownOptions.levels} onChange={e => setSelectedLevel(e.target.value)} disabled={isLoading} />
+                <Dropdown
+                  label="Level"
+                  value={selectedLevel}
+                  options={dropdownOptions.levels}
+                  onChange={(e) => setSelectedLevel(e.target.value)}
+                  disabled={isLoading}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <Dropdown label="Mode" value={selectedModel} options={dropdownOptions.modes} onChange={e => setSelectedModel(e.target.value)} disabled={isLoading} />
+                <Dropdown
+                  label="Mode"
+                  value={selectedModel}
+                  options={dropdownOptions.modes}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  disabled={isLoading}
+                />
               </Grid>
             </Grid>
 
             <Box mt={3} mb={3}>
               {totalCount > 0 ? (
-                <Typography variant="h6" color="primary">Total Students: {totalCount}</Typography>
+                <Typography variant="h6" color="primary">
+                  Total Students: {totalCount}
+                </Typography>
               ) : (
-                selectedSchool && selectedClassIds.length > 0 && selectedSubjectIds.length > 0 && (
-                  <Typography variant="body2" color="textSecondary">No students found matching the criteria</Typography>
+                selectedSchool &&
+                selectedClassIds.length > 0 &&
+                selectedSubjectIds.length > 0 && (
+                  <Typography variant="body2" color="textSecondary">
+                    No students found matching the criteria
+                  </Typography>
                 )
               )}
             </Box>
 
-            <Box className={`${styles.buttonContainer} gap-2 mt-4`} sx={{ display: "flex", gap: 2 }}>
+            <Box
+              className={`${styles.buttonContainer} gap-2 mt-4`}
+              sx={{ display: "flex", gap: 2 }}
+            >
               <ButtonComp
                 variant="contained"
                 color="primary"
                 onClick={handleSave}
-                disabled={!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length || isLoading || !totalCount}
+                disabled={
+                  !selectedSchool ||
+                  !selectedClassIds.length ||
+                  !selectedSubjectIds.length ||
+                  isLoading ||
+                  !totalCount
+                }
                 text={isLoading ? "Processing..." : "Generate PDF"}
                 sx={{ flexGrow: 1 }}
               />

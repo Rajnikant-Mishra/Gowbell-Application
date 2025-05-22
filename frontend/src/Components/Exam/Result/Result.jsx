@@ -45,22 +45,69 @@ export default function DataTable() {
   const [loading, setLoading] = useState(false); // Reused for API call
 
   // Fetch paginated data from the backend
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(`${API_BASE_URL}/api/all-results`, {
+  //         params: { page: currentPage, limit: pageSize },
+  //       });
+  //       const { students, totalRecords, totalPages, nextPage, prevPage } =
+  //         response.data;
+
+  //       setStudents(students);
+  //       setTotalRecords(totalRecords);
+  //       setTotalPages(totalPages);
+  //       setCurrentPage(currentPage);
+  //     } catch (error) {
+  //       console.error("Error fetching student data:", error);
+  //       Swal.fire("Error", "Failed to fetch student data.", "error");
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [currentPage, pageSize]);
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch student results
         const response = await axios.get(`${API_BASE_URL}/api/all-results`, {
           params: { page: currentPage, limit: pageSize },
         });
         const { students, totalRecords, totalPages, nextPage, prevPage } =
           response.data;
 
-        setStudents(students);
+        // Fetch class and subject details for each student
+        const updatedStudents = await Promise.all(
+          students.map(async (student) => {
+            // Fetch class details
+            const classResponse = await axios.get(
+              `${API_BASE_URL}/api/class/${student.class_id}`
+            );
+            const className = classResponse.data.name || "Unknown Class";
+
+            // Fetch subject details
+            const subjectResponse = await axios.get(
+              `${API_BASE_URL}/api/subject/${student.subject_id}`
+            );
+            const subjectName = subjectResponse.data.name || "Unknown Subject";
+
+            // Return student object with class and subject names
+            return {
+              ...student,
+              class_id: className,
+              subject_id: subjectName,
+            };
+          })
+        );
+
+        // Update state with enriched student data
+        setStudents(updatedStudents);
         setTotalRecords(totalRecords);
         setTotalPages(totalPages);
         setCurrentPage(currentPage);
       } catch (error) {
-        console.error("Error fetching student data:", error);
-        Swal.fire("Error", "Failed to fetch student data.", "error");
+        console.error("Error fetching data:", error);
+        Swal.fire("Error", "Failed to fetch data.", "error");
       }
     };
 
@@ -657,12 +704,12 @@ export default function DataTable() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    <span>{col.toUpperCase()}</span>
                     {getSortIcon(col)}
                   </div>
                 </th>
               ))}
-              <th>Action</th>
+              <th>ACTION</th>
             </tr>
           </thead>
           <tr

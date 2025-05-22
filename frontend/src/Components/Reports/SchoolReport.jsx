@@ -1,41 +1,458 @@
+// import React, { useEffect, useState } from "react";
+// import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
+// import { UilAngleRightB, UilAngleLeftB } from "@iconscout/react-unicons";
+
+// import Mainlayout from "../Layouts/Mainlayout";
+// import styles from "./../CommonTable/DataTable.module.css";
+// import Checkbox from "@mui/material/Checkbox";
+// import axios from "axios";
+// import { jsPDF } from "jspdf";
+// import * as XLSX from "xlsx";
+// import { Menu, MenuItem, Button,  Box } from "@mui/material";
+// import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+// import { API_BASE_URL } from "../ApiConfig/APIConfig";
+
+// export default function SchoolReport() {
+//   const [records, setRecords] = useState([]);
+//   const [filteredRecords, setFilteredRecords] = useState([]);
+//   const [sortConfig, setSortConfig] = useState({
+//     column: "",
+//     direction: "asc",
+//   });
+//   const [page, setPage] = useState(1);
+//   const [pageSize, setPageSize] = useState(10);
+
+//   const pageSizes = [10, 20, 50, 100];
+
+//   useEffect(() => {
+//     // Fetch data from the API when the component mounts
+//     axios
+//       .get(`${ API_BASE_URL }/api/get/schools`) // Your API URL here
+//       .then((response) => {
+//         setRecords(response.data);
+//         setFilteredRecords(response.data);
+//       })
+//       .catch((error) => {
+//         console.error("There was an error fetching the records!", error);
+//       });
+//   }, []);
+
+//   const handleFilter = (event, column) => {
+//     const value = event.target.value.toLowerCase();
+//     const filtered = records.filter((row) =>
+//       (row[column] || "").toString().toLowerCase().includes(value)
+//     );
+//     setFilteredRecords(filtered);
+//     setPage(1);
+//   };
+
+//   const handleSort = (column) => {
+//     let direction = "asc";
+
+//     if (sortConfig.column === column) {
+//       direction = sortConfig.direction === "asc" ? "desc" : "asc";
+//     }
+
+//     let sortedData = [...filteredRecords];
+//     sortedData.sort((a, b) => {
+//       const aValue = a[column];
+//       const bValue = b[column];
+//       if (typeof aValue === "string" && typeof bValue === "string") {
+//         return direction === "asc"
+//           ? aValue.localeCompare(bValue)
+//           : bValue.localeCompare(aValue);
+//       } else {
+//         return direction === "asc" ? aValue - bValue : bValue - aValue;
+//       }
+//     });
+
+//     setFilteredRecords(sortedData);
+//     setSortConfig({ column, direction });
+//   };
+
+//   const getSortIcon = (column) => {
+//     const isActive = sortConfig.column === column;
+//     const isAsc = sortConfig.direction === "asc";
+//     return (
+//       <div className={styles.sortIconsContainer}>
+//         <FaCaretUp
+//           className={`${styles.sortIcon} ${
+//             isActive && isAsc ? styles.activeSortIcon : ""
+//           }`}
+//           onClick={(e) => {
+//             e.stopPropagation();
+//             handleSort(column);
+//           }}
+//         />
+//         <FaCaretDown
+//           className={`${styles.sortIcon} ${
+//             isActive && !isAsc ? styles.activeSortIcon : ""
+//           }`}
+//           onClick={(e) => {
+//             e.stopPropagation();
+//             handleSort(column);
+//           }}
+//         />
+//       </div>
+//     );
+//   };
+
+//   const handlePreviousPage = () => {
+//     if (page > 1) setPage(page - 1);
+//   };
+
+//   const handleNextPage = () => {
+//     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
+//   };
+
+//   const currentRecords = filteredRecords.slice(
+//     (page - 1) * pageSize,
+//     page * pageSize
+//   );
+
+//   const [isAllChecked, setIsAllChecked] = useState(false);
+
+//   const [checkedRows, setCheckedRows] = useState({});
+
+//   const handleRowCheck = (id) => {
+//     setCheckedRows((prevCheckedRows) => {
+//       const newCheckedRows = { ...prevCheckedRows };
+//       if (newCheckedRows[id]) {
+//         delete newCheckedRows[id]; // Uncheck
+//       } else {
+//         newCheckedRows[id] = true; // Check
+//       }
+//       return newCheckedRows;
+//     });
+//   };
+
+//   function handleClick(event) {
+//     event.preventDefault();
+//     console.info("You clicked a breadcrumb.");
+//   }
+
+//   const handleSelectAll = () => {
+//     if (isAllChecked) {
+//       setCheckedRows({}); // Uncheck all rows
+//     } else {
+//       const allChecked = filteredRecords.reduce((acc, row) => {
+//         acc[row.id] = true; // Check all rows
+//         return acc;
+//       }, {});
+//       setCheckedRows(allChecked);
+//     }
+//     setIsAllChecked(!isAllChecked);
+//   };
+
+//   useEffect(() => {
+//     if (filteredRecords.every((row) => checkedRows[row.id])) {
+//       setIsAllChecked(true);
+//     } else {
+//       setIsAllChecked(false);
+//     }
+//   }, [checkedRows, filteredRecords]);
+
+//   // pdf generate codes--------------------------------------------//
+
+//   const [exportType, setExportType] = useState(null);
+//   const [anchorEl, setAnchorEl] = useState(null);
+
+//   const handleExportClick = (event) => {
+//     setAnchorEl(event.currentTarget);
+//   };
+
+//   const handleExportClose = () => {
+//     setAnchorEl(null);
+//   };
+
+//   const exportPDF = () => {
+//     const doc = new jsPDF();
+//     let yPosition = 10;
+
+//     // Add Table Headers
+//     doc.text(
+//       "Board | School | Email | Contact | State | District | City | Pincode",
+//       10,
+//       yPosition
+//     );
+//     yPosition += 10;
+
+//     // Add Table Rows
+//     records.forEach((row) => {
+//       const rowData = `${row.board} | ${row.school_name} | ${row.school_email} | ${row.school_contact_number} | ${row.state} | ${row.district} | ${row.city} | ${row.pincode}`;
+//       doc.text(rowData, 10, yPosition);
+//       yPosition += 10;
+//     });
+
+//     doc.save("school_report.pdf");
+//     handleExportClose();
+//   };
+
+//   //excell generate codes ----------------------------------------------------------------//
+
+//   const exportExcel = () => {
+//     const ws = XLSX.utils.json_to_sheet(filteredRecords);
+//     const wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, "School Report");
+
+//     XLSX.writeFile(wb, "school_report.xlsx");
+//     handleExportClose();
+//   };
+
+//   return (
+//     <Mainlayout>
+//       <div className="d-flex justify-content-between align-items-center mb-3">
+//         <div role="presentation">
+//           <Breadcrumb data={[{ name: "School Report" }]} />
+//         </div>
+//         <div className="d-flex justify-content-end">
+//         <div
+//           role="presentation"
+//           onClick={handleClick}
+//           className={`${styles.breadcrumb} my-1`}
+//         >
+//          {/* //export button */}
+//          <Box display="flex" justifyContent="flex-end" p={0}>
+//         <Button onClick={handleExportClick} variant="contained">
+//           Export <FaCaretDown />
+//         </Button>
+//         <Menu
+//           anchorEl={anchorEl}
+//           open={Boolean(anchorEl)}
+//           onClose={handleExportClose}
+//         >
+//           <MenuItem onClick={exportPDF}>Export as PDF</MenuItem>
+//           <MenuItem onClick={exportExcel}>Export as Excel</MenuItem>
+//         </Menu>
+//       </Box>
+
+//         </div>
+//       </div>
+//       </div>
+
+//       <div className={`${styles.tablecont} mt-3`}>
+//         <table
+//           className={`${styles.table} `}
+//           style={{ fontFamily: "Nunito, sans-serif" }}
+//         >
+//           <thead>
+//             <tr className={`${styles.headerRow} pt-0 pb-0`}>
+//               <th>
+//                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
+//               </th>
+//               {[
+//                 "board",
+//                 "school",
+//                 "email",
+//                 "contact",
+//                 "state",
+//                 "district",
+//                 "city",
+//                 "pincode",
+//               ].map((col) => (
+//                 <th
+//                   key={col}
+//                   className={styles.sortableHeader}
+//                   onClick={() => handleSort(col)}
+//                   style={{ cursor: "pointer" }}
+//                 >
+//                   <div className="d-flex justify-content-between align-items-center">
+//                     <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+//                     {getSortIcon(col)}
+//                   </div>
+//                 </th>
+//               ))}
+//               {/* <th>Action</th> */}
+//             </tr>
+//           </thead>
+//           <tr
+//             className={styles.filterRow}
+//             style={{ fontFamily: "Nunito, sans-serif" }}
+//           >
+//             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
+//             {[
+//               "board",
+//               "school",
+//               "email",
+//               "contact",
+//               "state",
+//               "district",
+//               "city",
+//               "pincode",
+//             ].map((col) => (
+//               <th key={col}>
+//                 <div className={styles.inputContainer}>
+//                   <FaSearch className={styles.searchIcon} />
+//                   <input
+//                     type="text"
+//                     placeholder={`Search ${col}`}
+//                     onChange={(e) => handleFilter(e, col)}
+//                     className={styles.filterInput}
+//                   />
+//                 </div>
+//               </th>
+//             ))}
+//           </tr>
+//           <tbody>
+//             {currentRecords.map((row) => (
+//               <tr
+//                 key={row.id}
+//                 className={styles.dataRow}
+//                 style={{ fontFamily: "Nunito, sans-serif" }}
+//               >
+//                 <td>
+//                   <Checkbox
+//                     checked={!!checkedRows[row.id]}
+//                     onChange={() => handleRowCheck(row.id)}
+//                   />
+//                 </td>
+//                 <td>{row.board}</td>
+//                 <td>{row.school_name}</td>
+//                 <td>{row.school_email}</td>
+//                 <td>{row.school_contact_number}</td>
+//                 <td>{row.state}</td>
+//                 <td>{row.district}</td>
+//                 <td>{row.city}</td>
+//                 <td>{row.pincode}</td>
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+
+//         {/* pagination */}
+//         <div className="d-flex justify-content-between flex-wrap mt-2">
+//           <div
+//             className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
+//           >
+//             <select
+//               value={pageSize}
+//               onChange={(e) => {
+//                 const selectedSize = parseInt(e.target.value, 10);
+//                 setPageSize(selectedSize);
+//                 setPage(1);
+//               }}
+//               className={styles.pageSizeSelect}
+//             >
+//               {pageSizes.map((size) => (
+//                 <option key={size} value={size}>
+//                   {size}
+//                 </option>
+//               ))}
+//             </select>
+//             <p className={`  my-auto text-secondary`}>data per Page</p>
+//           </div>
+
+//           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
+//             <label
+//               htmlFor="pageSize"
+//               style={{ fontFamily: "Nunito, sans-serif" }}
+//             >
+//               <p className={`  my-auto text-secondary`}>
+//                 {filteredRecords.length} of {page}-
+//                 {Math.ceil(filteredRecords.length / pageSize)}
+//               </p>
+//             </label>
+//           </div>
+
+//           <div className={`${styles.pagination} my-auto`}>
+//             <button
+//               onClick={handlePreviousPage}
+//               disabled={page === 1}
+//               className={styles.paginationButton}
+//             >
+//               <UilAngleLeftB />
+//             </button>
+
+//             {Array.from(
+//               { length: Math.ceil(filteredRecords.length / pageSize) },
+//               (_, i) => i + 1
+//             )
+//               .filter(
+//                 (pg) =>
+//                   pg === 1 ||
+//                   pg === Math.ceil(filteredRecords.length / pageSize) ||
+//                   Math.abs(pg - page) <= 2
+//               )
+//               .map((pg, index, array) => (
+//                 <React.Fragment key={pg}>
+//                   {index > 0 && pg > array[index - 1] + 1 && (
+//                     <span className={styles.ellipsis}>...</span>
+//                   )}
+//                   <button
+//                     onClick={() => setPage(pg)}
+//                     className={`${styles.paginationButton} ${
+//                       page === pg ? styles.activePage : ""
+//                     }`}
+//                   >
+//                     {pg}
+//                   </button>
+//                 </React.Fragment>
+//               ))}
+
+//             <button
+//               onClick={handleNextPage}
+//               disabled={page === Math.ceil(filteredRecords.length / pageSize)}
+//               className={styles.paginationButton}
+//             >
+//               <UilAngleRightB />
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </Mainlayout>
+//   );
+// }
+
 import React, { useEffect, useState } from "react";
 import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
 import { UilAngleRightB, UilAngleLeftB } from "@iconscout/react-unicons";
-
 import Mainlayout from "../Layouts/Mainlayout";
 import styles from "./../CommonTable/DataTable.module.css";
 import Checkbox from "@mui/material/Checkbox";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
-import { Menu, MenuItem, Button,  Box } from "@mui/material";
+import { Menu, MenuItem, Button, Box } from "@mui/material";
 import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 
 export default function SchoolReport() {
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [sortConfig, setSortConfig] = useState({
     column: "",
     direction: "asc",
   });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [error, setError] = useState(null);
+  const [isAllChecked, setIsAllChecked] = useState(false);
+  const [checkedRows, setCheckedRows] = useState({});
+  const [exportType, setExportType] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const pageSizes = [10, 20, 50, 100];
 
   useEffect(() => {
-    // Fetch data from the API when the component mounts
+    // Fetch data with pagination
     axios
-      .get(`${ API_BASE_URL }/api/get/schools`) // Your API URL here
+      .get(`${API_BASE_URL}/api/get/schools`, {
+        params: { page, limit: pageSize },
+      })
       .then((response) => {
-        setRecords(response.data);
-        setFilteredRecords(response.data);
+        setRecords(response.data.schools);
+        setFilteredRecords(response.data.schools);
+        setTotalPages(response.data.totalPages);
+        setTotalRecords(response.data.totalRecords);
+        setError(null);
       })
       .catch((error) => {
-        console.error("There was an error fetching the records!", error);
+        console.error("Error fetching records:", error);
+        setError("Failed to load school data. Please try again.");
       });
-  }, []);
+  }, [page, pageSize]);
 
   const handleFilter = (event, column) => {
     const value = event.target.value.toLowerCase();
@@ -43,100 +460,78 @@ export default function SchoolReport() {
       (row[column] || "").toString().toLowerCase().includes(value)
     );
     setFilteredRecords(filtered);
-    setPage(1);
+    setPage(1); // Reset to first page on filter
   };
 
   const handleSort = (column) => {
-    let direction = "asc";
-
-    if (sortConfig.column === column) {
-      direction = sortConfig.direction === "asc" ? "desc" : "asc";
-    }
-
-    let sortedData = [...filteredRecords];
-    sortedData.sort((a, b) => {
+    let direction =
+      sortConfig.column === column && sortConfig.direction === "asc"
+        ? "desc"
+        : "asc";
+    let sortedData = [...filteredRecords].sort((a, b) => {
       const aValue = a[column];
       const bValue = b[column];
       if (typeof aValue === "string" && typeof bValue === "string") {
         return direction === "asc"
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
-      } else {
-        return direction === "asc" ? aValue - bValue : bValue - aValue;
       }
+      return direction === "asc" ? aValue - bValue : bValue - aValue;
     });
-
     setFilteredRecords(sortedData);
     setSortConfig({ column, direction });
   };
 
-  const getSortIcon = (column) => {
-    const isActive = sortConfig.column === column;
-    const isAsc = sortConfig.direction === "asc";
-    return (
-      <div className={styles.sortIconsContainer}>
-        <FaCaretUp
-          className={`${styles.sortIcon} ${
-            isActive && isAsc ? styles.activeSortIcon : ""
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSort(column);
-          }}
-        />
-        <FaCaretDown
-          className={`${styles.sortIcon} ${
-            isActive && !isAsc ? styles.activeSortIcon : ""
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSort(column);
-          }}
-        />
-      </div>
-    );
-  };
+  const getSortIcon = (column) => (
+    <div className={styles.sortIconsContainer}>
+      <FaCaretUp
+        className={`${styles.sortIcon} ${
+          sortConfig.column === column && sortConfig.direction === "asc"
+            ? styles.activeSortIcon
+            : ""
+        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleSort(column);
+        }}
+      />
+      <FaCaretDown
+        className={`${styles.sortIcon} ${
+          sortConfig.column === column && sortConfig.direction === "desc"
+            ? styles.activeSortIcon
+            : ""
+        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleSort(column);
+        }}
+      />
+    </div>
+  );
 
   const handlePreviousPage = () => {
     if (page > 1) setPage(page - 1);
   };
 
   const handleNextPage = () => {
-    if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
+    if (page < totalPages) setPage(page + 1);
   };
 
-  const currentRecords = filteredRecords.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
-
-  const [isAllChecked, setIsAllChecked] = useState(false);
-
-  const [checkedRows, setCheckedRows] = useState({});
-
   const handleRowCheck = (id) => {
-    setCheckedRows((prevCheckedRows) => {
-      const newCheckedRows = { ...prevCheckedRows };
-      if (newCheckedRows[id]) {
-        delete newCheckedRows[id]; // Uncheck
-      } else {
-        newCheckedRows[id] = true; // Check
-      }
-      return newCheckedRows;
+    setCheckedRows((prev) => {
+      const newChecked = { ...prev };
+      if (newChecked[id]) delete newChecked[id];
+      else newChecked[id] = true;
+      return newChecked;
     });
   };
 
-  function handleClick(event) {
-    event.preventDefault();
-    console.info("You clicked a breadcrumb.");
-  }
-
   const handleSelectAll = () => {
     if (isAllChecked) {
-      setCheckedRows({}); // Uncheck all rows
+      setCheckedRows({});
     } else {
       const allChecked = filteredRecords.reduce((acc, row) => {
-        acc[row.id] = true; // Check all rows
+        acc[row.id] = true;
         return acc;
       }, {});
       setCheckedRows(allChecked);
@@ -145,17 +540,8 @@ export default function SchoolReport() {
   };
 
   useEffect(() => {
-    if (filteredRecords.every((row) => checkedRows[row.id])) {
-      setIsAllChecked(true);
-    } else {
-      setIsAllChecked(false);
-    }
+    setIsAllChecked(filteredRecords.every((row) => checkedRows[row.id]));
   }, [checkedRows, filteredRecords]);
-
-  // pdf generate codes--------------------------------------------//
-
-  const [exportType, setExportType] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleExportClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -166,35 +552,112 @@ export default function SchoolReport() {
   };
 
   const exportPDF = () => {
-    const doc = new jsPDF();
-    let yPosition = 10;
-
-    // Add Table Headers
-    doc.text(
-      "Board | School | Email | Contact | State | District | City | Pincode",
-      10,
-      yPosition
-    );
-    yPosition += 10;
-
-    // Add Table Rows
-    records.forEach((row) => {
-      const rowData = `${row.board} | ${row.school_name} | ${row.school_email} | ${row.school_contact_number} | ${row.state} | ${row.district} | ${row.city} | ${row.pincode}`;
-      doc.text(rowData, 10, yPosition);
-      yPosition += 10;
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
     });
+
+    // Define table columns
+    const headers = [
+      "Board",
+      "School",
+      "Email",
+      "Contact",
+      "State",
+      "District",
+      "City",
+      "Pincode",
+    ];
+
+    // Map filteredRecords to table data
+    const data = filteredRecords.map((row) => [
+      row.board,
+      row.school_name,
+      row.school_email,
+      row.school_contact_number,
+      row.state_name,
+      row.district_name,
+      row.city_name,
+      row.pincode,
+    ]);
+
+    // Add title
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 51, 102); // Dark blue
+    doc.text("School Report", 14, 15);
+
+    // Create table with AutoTable
+    doc.autoTable({
+      head: [headers],
+      body: data,
+      startY: 25,
+      theme: "striped", // Modern striped theme
+      styles: {
+        font: "helvetica",
+        fontSize: 9,
+        cellPadding: 3,
+        overflow: "linebreak",
+        minCellHeight: 6,
+      },
+      headStyles: {
+        fillColor: [135, 206, 235], // Sky blue header
+        textColor: [255, 255, 255], // White text
+        fontStyle: "bold",
+        fontSize: 10,
+        halign: "center",
+      },
+      bodyStyles: {
+        textColor: [50, 50, 50], // Dark gray text
+        lineColor: [200, 200, 200], // Light gray borders
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], // Very light gray for alternate rows
+      },
+      margin: { top: 25, left: 14, right: 14 },
+      columnStyles: {
+        // Auto width is handled by autoTable, but we can set minimum widths
+        0: { minCellWidth: 15 }, // Board
+        1: { minCellWidth: 30 }, // School
+        2: { minCellWidth: 30 }, // Email
+        3: { minCellWidth: 20 }, // Contact
+        4: { minCellWidth: 15 }, // State
+        5: { minCellWidth: 15 }, // District
+        6: { minCellWidth: 15 }, // City
+        7: { minCellWidth: 12 }, // Pincode
+      },
+      didDrawPage: function (data) {
+        // Add page numbers
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text(
+          `Page ${data.pageNumber} of ${pageCount}`,
+          doc.internal.pageSize.width - 20,
+          doc.internal.pageSize.height - 10,
+          { align: "right" }
+        );
+      },
+    });
+
+    // Add footer
+    doc.setFontSize(8);
+    doc.setTextColor(100);
+    doc.text(
+      `Generated on ${new Date().toLocaleDateString()}`,
+      14,
+      doc.internal.pageSize.height - 10
+    );
 
     doc.save("school_report.pdf");
     handleExportClose();
   };
 
-  //excell generate codes ----------------------------------------------------------------//
-
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredRecords);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "School Report");
-
     XLSX.writeFile(wb, "school_report.xlsx");
     handleExportClose();
   };
@@ -205,49 +668,41 @@ export default function SchoolReport() {
         <div role="presentation">
           <Breadcrumb data={[{ name: "School Report" }]} />
         </div>
-        <div className="d-flex justify-content-end">
-        <div
-          role="presentation"
-          onClick={handleClick}
-          className={`${styles.breadcrumb} my-1`}
-        >
-         {/* //export button */}
-         <Box display="flex" justifyContent="flex-end" p={0}>
-        <Button onClick={handleExportClick} variant="contained">
-          Export <FaCaretDown />
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleExportClose}
-        >
-          <MenuItem onClick={exportPDF}>Export as PDF</MenuItem>
-          <MenuItem onClick={exportExcel}>Export as Excel</MenuItem>
-        </Menu>
-      </Box>
+        <Box display="flex" justifyContent="flex-end" p={0}>
+          <Button onClick={handleExportClick} variant="contained">
+            Export <FaCaretDown />
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleExportClose}
+          >
+            <MenuItem onClick={exportPDF}>Export as PDF</MenuItem>
+            <MenuItem onClick={exportExcel}>Export as Excel</MenuItem>
+          </Menu>
+        </Box>
+      </div>
 
-        </div>
-      </div>
-      </div>
-     
+      {error && <div className="alert alert-danger">{error}</div>}
+
       <div className={`${styles.tablecont} mt-3`}>
         <table
-          className={`${styles.table} `}
+          className={styles.table}
           style={{ fontFamily: "Nunito, sans-serif" }}
         >
           <thead>
-            <tr className={`${styles.headerRow} pt-0 pb-0`}>
+            <tr className={styles.headerRow}>
               <th>
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
                 "board",
-                "school",
-                "email",
-                "contact",
-                "state",
-                "district",
-                "city",
+                "school_name",
+                "school_email",
+                "school_contact_number",
+                "state_name",
+                "district_name",
+                "city_name",
                 "pincode",
               ].map((col) => (
                 <th
@@ -257,49 +712,43 @@ export default function SchoolReport() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    <span>
+                      {col.toUpperCase()}
+                    </span>
                     {getSortIcon(col)}
                   </div>
                 </th>
               ))}
-              {/* <th>Action</th> */}
+            </tr>
+            <tr className={styles.filterRow}>
+              <th></th>
+              {[
+                "board",
+                "school_name",
+                "school_email",
+                "school_contact_number",
+                "state_name",
+                "district_name",
+                "city_name",
+                "pincode",
+              ].map((col) => (
+                <th key={col}>
+                  <div className={styles.inputContainer}>
+                    <FaSearch className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      placeholder={`Search ${col.replace(/_/g, " ")}`}
+                      onChange={(e) => handleFilter(e, col)}
+                      className={styles.filterInput}
+                    />
+                  </div>
+                </th>
+              ))}
             </tr>
           </thead>
-          <tr
-            className={styles.filterRow}
-            style={{ fontFamily: "Nunito, sans-serif" }}
-          >
-            <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {[
-              "board",
-              "school",
-              "email",
-              "contact",
-              "state",
-              "district",
-              "city",
-              "pincode",
-            ].map((col) => (
-              <th key={col}>
-                <div className={styles.inputContainer}>
-                  <FaSearch className={styles.searchIcon} />
-                  <input
-                    type="text"
-                    placeholder={`Search ${col}`}
-                    onChange={(e) => handleFilter(e, col)}
-                    className={styles.filterInput}
-                  />
-                </div>
-              </th>
-            ))}
-          </tr>
           <tbody>
-            {currentRecords.map((row) => (
-              <tr
-                key={row.id}
-                className={styles.dataRow}
-                style={{ fontFamily: "Nunito, sans-serif" }}
-              >
+            {filteredRecords.map((row) => (
+              <tr key={row.id} className={styles.dataRow}>
                 <td>
                   <Checkbox
                     checked={!!checkedRows[row.id]}
@@ -310,16 +759,15 @@ export default function SchoolReport() {
                 <td>{row.school_name}</td>
                 <td>{row.school_email}</td>
                 <td>{row.school_contact_number}</td>
-                <td>{row.state}</td>
-                <td>{row.district}</td>
-                <td>{row.city}</td>
+                <td>{row.state_name}</td>
+                <td>{row.district_name}</td>
+                <td>{row.city_name}</td>
                 <td>{row.pincode}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* pagination */}
         <div className="d-flex justify-content-between flex-wrap mt-2">
           <div
             className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
@@ -327,8 +775,7 @@ export default function SchoolReport() {
             <select
               value={pageSize}
               onChange={(e) => {
-                const selectedSize = parseInt(e.target.value, 10);
-                setPageSize(selectedSize);
+                setPageSize(parseInt(e.target.value, 10));
                 setPage(1);
               }}
               className={styles.pageSizeSelect}
@@ -339,19 +786,13 @@ export default function SchoolReport() {
                 </option>
               ))}
             </select>
-            <p className={`  my-auto text-secondary`}>data per Page</p>
+            <p className="my-auto text-secondary">data per Page</p>
           </div>
 
-          <div className="my-0 d-flex justify-content-center align-items-center my-auto">
-            <label
-              htmlFor="pageSize"
-              style={{ fontFamily: "Nunito, sans-serif" }}
-            >
-              <p className={`  my-auto text-secondary`}>
-                {filteredRecords.length} of {page}-
-                {Math.ceil(filteredRecords.length / pageSize)}
-              </p>
-            </label>
+          <div className="my-0 d-flex justify-content-center align-items-center">
+            <p className="my-auto text-secondary">
+              {totalRecords} records, Page {page} of {totalPages}
+            </p>
           </div>
 
           <div className={`${styles.pagination} my-auto`}>
@@ -362,16 +803,10 @@ export default function SchoolReport() {
             >
               <UilAngleLeftB />
             </button>
-
-            {Array.from(
-              { length: Math.ceil(filteredRecords.length / pageSize) },
-              (_, i) => i + 1
-            )
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter(
                 (pg) =>
-                  pg === 1 ||
-                  pg === Math.ceil(filteredRecords.length / pageSize) ||
-                  Math.abs(pg - page) <= 2
+                  pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2
               )
               .map((pg, index, array) => (
                 <React.Fragment key={pg}>
@@ -388,10 +823,9 @@ export default function SchoolReport() {
                   </button>
                 </React.Fragment>
               ))}
-
             <button
               onClick={handleNextPage}
-              disabled={page === Math.ceil(filteredRecords.length / pageSize)}
+              disabled={page === totalPages}
               className={styles.paginationButton}
             >
               <UilAngleRightB />

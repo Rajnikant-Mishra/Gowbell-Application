@@ -146,7 +146,7 @@ export default function FormCo() {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/api/get/schools`) // Adjust API endpoint
+      .get(`${API_BASE_URL}/api/get/all-schools`) // Adjust API endpoint
       .then((response) => {
         setSchools(response.data); // Assuming response.data is an array of school objects
       })

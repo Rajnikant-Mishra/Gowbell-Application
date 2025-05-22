@@ -1,12 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
 
+* {
+  box-sizing: border-box;
+}
+
 .omrSheetContent {
-  padding: 20px;
-  margin: 20px auto;
-  /* / background-color: #fff; / */
-  max-width: 800px;
+  height: 100%;
+  width: 100%;
+  max-width: 900px; /* Set a max-width for the entire sheet */
+  margin: 0 auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  gap: 12px; /* Adjusted gap for consistency */
+}
+
+.mainContent {
+  flex: 1;
+  max-width: 840px; /* Account for 20px bars on each side + 12px gaps */
 }
 
 .header {
@@ -16,38 +27,30 @@
 .title {
   font-weight: bold;
   font-size: 22px;
-  /* / margin: 10px 0 0px 0px ; / */
   color: #1230ae;
 }
 
 .subtitle {
-  /* / margin: 5px 0; / */
   font-size: 16px;
   color: #555;
 }
 
-.content {
-  margin-top: 20px;
-}
-
-.instruction {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: #333;
-}
 .logo {
   height: 50px;
   width: 150px;
   margin-top: -15%;
 }
+
 .formContainer {
   font-size: 0.8rem;
+  width: 100%;
 }
 
 .formContainer .inputGroup {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  margin-top: -10px;
 }
 
 .formContainer .labelContainer {
@@ -55,12 +58,17 @@
   text-align: right;
   padding-right: 8px;
   white-space: nowrap;
-  width: 125px; 
+  width: 125px;
 }
 
 .formContainer .label {
   display: block;
   margin-bottom: -20px;
+}
+
+.formContainer .studentName {
+  margin-left: 150px;
+  font-size: 14px;
 }
 
 .formContainer .inputContainer {
@@ -70,37 +78,37 @@
 .formContainer .inputField {
   width: 100%;
   border: none;
-  border-bottom: 1px solid #000; 
+  border-bottom: 1px solid #000;
   outline: none;
   background: transparent;
-
-  padding-bottom: 15px;
-  margin-left: 0px !important;
-  border-radius: 0px !important;
+  padding-bottom: 10px;
+  margin-left: 0 !important;
+  border-radius: 0 !important;
 }
-/* / hjjhjjk / */
+
 .examDetails {
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .examDetails .row {
   display: flex;
   flex-wrap: nowrap;
-  gap: 14px;
-}
-s
-.examDetails .column {
-  flex: 1;
-  /* / min-width: 222.5px; / */
-  min-width: 220px;
-  max-width: 28%;
-  height: 50px;
-  border: 1px solid black;
+  gap: 12px;
+  width: 100%;
 }
 
-/* .detailBox {
-  margin-bottom: 1rem;
-} */
+.examDetails .column {
+  flex: 1;
+  min-width: 0; /* Prevent overflow */
+  /* border: 1px solid black; */
+  height: 100% !important;
+}
+
+.examDetails .detailBox {
+  width: 100%;
+  border: 1px solid black; /* Ensure border is consistent */
+}
 
 .examDetails .textBox {
   display: flex;
@@ -110,33 +118,44 @@ s
 
 .examDetails .textBox label {
   text-align: center;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
   font-size: 12px;
 }
 
 .examDetails .textBox p {
-  margin-top: 5px; 
+  margin-top: 5px;
   font-size: 12px;
 }
-/* / instruction / */
+
+.instructionDetails {
+  width: 100%;
+}
+
 .instructionDetails .row {
   display: flex;
   flex-wrap: nowrap;
-  gap: 17px;
+  gap: 12px;
 }
 
 .instructionDetails .column {
   flex: 1;
-  min-width: 152px;
-  max-width: 20%;
-  border: 1px solid black;
+  min-width: 0;
+
+}
+.instructionDetails .column:first-child{
+    border: 1px solid black;
 }
 
 .instructionDetails .middleColumn {
-  flex: 1;
-  min-width: 350px; 
-  max-width: 30% !important; 
+  flex: 2; /* Middle column is twice as wide */
+  min-width: 0;
 }
+
+.instructionDetails .detailBox {
+  width: 100%;
+  border: 1px solid black;
+}
+
 
 .instructionDetails .textBox {
   display: flex;
@@ -146,23 +165,24 @@ s
 
 .instructionDetails .textBox label {
   text-align: center;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
 }
 
 .instructionDetails .textBox p {
-  margin-top: 5px; 
+  margin-top: 5px;
 }
+
 .rollno {
   background-color: #000;
   color: #fff;
   font-size: 10px;
 }
+
 .ruleBox {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   font-size: 10px;
 }
-/* .instructionDetails .textBox1 {
-} */
+
 .instructionBox1 {
   border-bottom: 1px solid black;
   border-top: 1px solid black;
@@ -170,100 +190,101 @@ s
   text-align: center;
   font-size: 10px;
 }
+
 .instructionBoxLabel {
   font-size: 10px;
 }
+
 .answerSectionTitle {
   background-color: #000;
   color: #fff;
   font-size: 12px;
 }
+
 .textBox2 {
   margin-top: 6%;
   height: 269px;
   width: 100%;
   border: 1px solid #000;
-
-  /* / background-color: #f9f9f9; / */
   box-sizing: border-box;
 }
-.textBox4 {
-  height: 297px;
-  width: 100%;
-  border: 1px solid #000;
 
-  /* / background-color: #f9f9f9; / */
-  box-sizing: border-box;
-}
 .textBox3 {
   height: 275px;
   width: 100%;
-
   font-size: 1rem;
   border: 1px solid #000;
-
-  /* / background-color: #f9f9f9; / */
   color: #000;
   box-sizing: border-box;
 }
+
 .textBox4 {
   height: 297px;
   width: 100%;
   border: 1px solid #000;
   margin-top: 5%;
-  /* / background-color: #f9f9f9; / */
   box-sizing: border-box;
 }
+
 .questiondiv {
-  width: "100%";
+  width: 100%;
   background-color: #000;
   color: white;
 }
+
 .questiondiv th {
   font-size: 10px;
 }
+
 table {
   border: 1px solid black;
-  padding: 10px 0px !important;
+  padding: 10px 0 !important;
 }
+
 td {
   padding: 2px 8px !important;
 }
+
 .questionnumberdiv {
   border-right: 1px solid black;
 }
+
 .footerdiv {
   border: 1px solid black;
   height: 60px;
 }
+
 .inputUnderline {
   border: none;
   border-bottom: 1px solid #000;
   width: 90%;
   height: 100%;
   outline: none;
-  border-radius: 0px !important;
-  margin-left: 0px !important;
-  margin-top: 0px !important;
+  border-radius: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
 }
+
 .footerdiv label {
   font-size: 10px;
 }
+
 .footerdiv input {
   height: 40px !important;
 }
+
 .bars {
   margin-top: 12%;
 }
+
 .bars1 {
   margin-top: 13%;
 }
+
 .omrtable {
   border: 1px solid black;
-  padding: 10px 0px !important;
+  padding: 10px 0 !important;
 }
-
-
 
 .barcodeContainer {
   display: flex;
@@ -271,13 +292,14 @@ td {
   margin-top: 5px;
   padding: 2px;
   background-color: white;
-  height: 50px;
+  height: 100%;
   overflow: hidden;
 }
-
 
 .rollNumberText {
   font-size: 12px;
   font-weight: bold;
- 
 }
+
+/* extra */
+

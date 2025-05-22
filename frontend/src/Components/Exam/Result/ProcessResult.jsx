@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
@@ -29,7 +28,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import html2canvas from "html2canvas";
 import MedalsWinnersList from "../../Exam/Result/MedalwinnerList";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
 
 const Dropdown = ({ label, value, options, onChange, disabled }) => (
   <TextField
@@ -264,7 +263,7 @@ const ExaminationForm = () => {
       setIsLoading(false);
     }
   };
-       
+
   // Handle Download PDF
   // const handleDownloadPDF = () => {
   //   if (!selectedSchool || !selectedClassId || !selectedSubjectId) {
@@ -364,12 +363,12 @@ const ExaminationForm = () => {
       toast.error("Please select school, class, and subject to download PDF");
       return;
     }
-  
+
     if (students.length === 0) {
       toast.error("No student data available to download");
       return;
     }
-  
+
     // Map students to winnersList format
     const winnersList = students.map((student, index) => ({
       slNo: index + 1,
@@ -382,7 +381,7 @@ const ExaminationForm = () => {
       medal: student.medals || "N/A",
       certificate: student.certificate || "N/A",
     }));
-  
+
     // Compute medalsTally (example logic, adjust as needed)
     const medalsTally = [
       {
@@ -398,19 +397,19 @@ const ExaminationForm = () => {
         quantity: students.filter((s) => s.medals === "Bronze").length,
       },
     ];
-  
+
     // Compute classCutoff (example logic, adjust as needed)
     const classCutoff = [
       { class: selectedClassId, gold: 90, silver: 80, bronze: 70 }, // Example values
       // Add more classes if needed based on your data
     ];
-  
+
     // Create a temporary container for rendering the component
     const container = document.createElement("div");
     container.style.position = "absolute";
     container.style.left = "-9999px";
     document.body.appendChild(container);
-  
+
     // Render MedalsWinnersList to the container
     const component = (
       <MedalsWinnersList
@@ -422,33 +421,33 @@ const ExaminationForm = () => {
         subjectId={selectedSubjectId}
       />
     );
-  
+
     // Use ReactDOM to render the component to the container
     const { render } = await import("react-dom");
     render(component, container);
-  
+
     // Capture the rendered component with html2canvas
     const canvas = await html2canvas(container, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
-  
+
     // Create PDF
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
-  
+
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const imgWidth = pageWidth - 20; // Adjust for margins
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  
+
     // Add the captured image to the PDF
     let heightLeft = imgHeight;
     let position = 10;
-  
+
     doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-  
+
     // Handle multiple pages if content exceeds page height
     heightLeft -= pageHeight - 20;
     while (heightLeft > 0) {
@@ -457,7 +456,7 @@ const ExaminationForm = () => {
       doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
     }
-  
+
     // Add footer
     doc.setFontSize(10);
     doc.text(
@@ -465,12 +464,12 @@ const ExaminationForm = () => {
       14,
       pageHeight - 10
     );
-  
+
     // Save the PDF
     doc.save(
       `Result_${selectedSchool}_Class${selectedClassId}_Subject${selectedSubjectId}.pdf`
     );
-  
+
     // Clean up
     document.body.removeChild(container);
   };
@@ -714,19 +713,19 @@ const ExaminationForm = () => {
             </Box>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Student</TableCell>
-                  <TableCell>Class</TableCell>
-                  <TableCell>Subject</TableCell>
-                  <TableCell>Roll No</TableCell>
-                  <TableCell>Full Mark</TableCell>
-                  <TableCell>Mark Secured</TableCell>
-                  <TableCell>Percentage</TableCell>
-                  <TableCell>Ranking</TableCell>
-                  <TableCell>Remarks</TableCell>
-                  <TableCell>Medal</TableCell>
-                  <TableCell>Certificate</TableCell>
-                  <TableCell>Status</TableCell>
+                <TableRow style={{ backgroundColor: '#e3f2fd' }}>
+                  <TableCell>STUDENT</TableCell>
+                  <TableCell>CLASS</TableCell>
+                  <TableCell>SUBJECT</TableCell>
+                  <TableCell>ROLL NO</TableCell>
+                  <TableCell>FULL MARK</TableCell>
+                  <TableCell>MARK SECURED</TableCell>
+                  <TableCell>PERCENTAGE</TableCell>
+                  <TableCell>RANKING</TableCell>
+                  <TableCell>MEDAL</TableCell>
+                  <TableCell>REMARK</TableCell>
+                  <TableCell>CERTIFICATE</TableCell>
+                  <TableCell>STATUS</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -757,8 +756,8 @@ const ExaminationForm = () => {
                       <TableCell>{student.mark_secured || "N/A"}</TableCell>
                       <TableCell>{student.percentage || "N/A"}</TableCell>
                       <TableCell>{student.ranking || "N/A"}</TableCell>
-                      <TableCell>{student.remarks || "N/A"}</TableCell>
                       <TableCell>{student.medals || "N/A"}</TableCell>
+                      <TableCell>{student.remarks || "N/A"}</TableCell>
                       <TableCell>{student.certificate || "N/A"}</TableCell>
                       <TableCell style={getStatusStyle(student.status)}>
                         {student.status || "N/A"}

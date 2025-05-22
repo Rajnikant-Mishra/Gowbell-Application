@@ -257,7 +257,7 @@ export default function DataTable() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    <span>{col.toUpperCase()}</span>
                     {getSortIcon(col)}
                   </div>
                 </th>

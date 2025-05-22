@@ -1,5 +1,5 @@
 import React from "react";
-import OMRGenerator from "./OMRGenerator";
+import OMRGenerator from "./OMRGenerate60";
 import styles from "./OMRSheet.module.css";
 import sheetlogo from "../../../../public/logo GOWBELL.png";
 import Barcode from "react-barcode";
@@ -12,6 +12,8 @@ export default function OMRSheet({
   className,
   date,
   rollNumber,
+  subjectIds,
+  classId,
 }) {
   return (
     <div
@@ -61,7 +63,8 @@ export default function OMRSheet({
                   htmlFor="student-name"
                   className={`${styles.label} fw-bold`}
                 >
-                  CANDIDATE NAME: {student}
+                  CANDIDATE NAME:{" "}
+                  <span className={`${styles.studentName}`}>{student}</span>
                 </label>
               </div>
               <div className={styles.inputContainer}>
@@ -74,19 +77,19 @@ export default function OMRSheet({
             </div>
 
             <div className={styles.inputGroup}>
-              <div className={styles.labelContainer} style={{ width: "103px" }}>
+              <div className={styles.labelContainer}>
                 <label
                   htmlFor="school-name"
                   className={`${styles.label} fw-bold text-start`}
-                  style={{ width: "103px" }}
                 >
-                  SCHOOL NAME: {schoolName}
+                  SCHOOL NAME: {" "}
+                   <span className={`${styles.studentName}`}>{schoolName}</span>
                 </label>
               </div>
               <div className={styles.inputContainer}>
                 <input
                   id="school-name"
-                  className={styles.inputField}
+                  className={`${styles.inputField} `}
                   type="text"
                 />
               </div>
@@ -106,11 +109,10 @@ export default function OMRSheet({
                     EXAM DATE
                   </label>
                   <p style={{ fontWeight: "bold", color: "black" }}>{date}</p>
-
                 </div>
               </div>
             </div>
-            <div className={styles.column} style={{ maxWidth: "170px" }}>
+            <div className={styles.column}>
               <div className={styles.detailBox}>
                 <div
                   id="level"
@@ -132,7 +134,9 @@ export default function OMRSheet({
                   <label htmlFor="standard" className="text-center fw-bold">
                     STANDARD
                   </label>
-                  <p style={{ fontWeight: "bold", color: "black" }}>{className}</p>
+                  <p style={{ fontWeight: "bold", color: "black" }}>
+                    {className}
+                  </p>
                 </div>
               </div>
             </div>
@@ -157,7 +161,7 @@ export default function OMRSheet({
               </div>
             </div> */}
             <div className={styles.column}>
-              <div className={`${styles.detailBox} ${styles.rolldiv}`}>
+              <div className={` ${styles.rolldiv}`}>
                 <div
                   id="rollNum"
                   className={`${styles.textBox1} textBox d-flex flex-column P-0`}
@@ -168,20 +172,24 @@ export default function OMRSheet({
                   >
                     ROLL NO.
                   </label>
-                  {/* Barcode with roll number display */}
-                  <div className={styles.barcodeContainer}>
-                    {rollNumber && (
-                      <div className={styles.barcodeWrapper}>
+                  {/* Barcode with roll number + className + subject display */}
+                  <div className={`${styles.barcodeContainer} my-auto`}>
+                    {rollNumber && className && subject && (
+                      <div
+                        className={`${styles.barcodeWrapper}  
+                                `}
+                      >
                         <Barcode
-                          value={rollNumber.toString()}
-                          width={1}
+                          value={`${rollNumber}-${classId}-${subjectIds}`}
+                          width={0.6}
                           height={30}
                           fontSize={12}
                           margin={0}
-                          displayValue={true} // We'll handle the text separately
+                          displayValue={true}
+                          className="mt-4"
                         />
                         <div className={styles.rollNumberText}>
-                          {rollNumber}
+                          {`${rollNumber}-${classId}-${subjectIds}`}
                         </div>
                       </div>
                     )}
@@ -189,49 +197,49 @@ export default function OMRSheet({
                 </div>
               </div>
             </div>
-            <div className={`${styles.column} ${styles.middleColumn}`}>
-              <div className={styles.detailBox}>
-                <div
-                  id="level"
-                  className={`${styles.textBox1} textBox d-flex flex-column`}
-                >
-                  <ol className={styles.ruleBox}>
-                    <li>
-                      Write Your <b>Roll Number</b> on the left side of the OMR
-                      sheet in the box specified and darken the appropriate
-                      circles given by using{" "}
-                      <b>HB Pencil/ball point pen (blue/black)</b> only.
-                    </li>
-                    <li>
-                      Put your{" "}
-                      <b>
-                        Full Name, School Name, Standard, Subject, Exam Date &
-                        Level
-                      </b>{" "}
-                      in the space provided.
-                    </li>
-                    <li>
-                      Darken the circle(s) completely that you think
-                      appropriate.
-                    </li>
-                    <li>Do not fold or crumple the OMR Sheet.</li>
-                    <li>
-                      Before submitting the OMR Sheet, the candidate should
-                      verify that all the entries are made correctly and
-                      duly/signed by the invigilator.
-                    </li>
-                    <li>
-                      Do <b>Not</b> do any rough work on this OMR Sheet.
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div>
+               <div className={` ${styles.middleColumn}`}>
+                        <div className={styles.detailBox}>
+                          <div
+                            id="level"
+                            className={`${styles.textBox1} textBox d-flex flex-column`}
+                          >
+                            <ol className={`${styles.ruleBox} my-2`}>
+                              <li>
+                                Write Your <b>Roll Number</b> on the left side of the OMR
+                                sheet in the box specified and darken the appropriate
+                                circles given by using{" "}
+                                <b>HB Pencil/ball point pen (blue/black)</b> only.
+                              </li>
+                              <li>
+                                Put your{" "}
+                                <b>
+                                  Full Name, School Name, Standard, Subject, Exam Date &
+                                  Level
+                                </b>{" "}
+                                in the space provided.
+                              </li>
+                              <li>
+                                Darken the circle(s) completely that you think
+                                appropriate.
+                              </li>
+                              <li>Do not fold or crumple the OMR Sheet.</li>
+                              <li>
+                                Before submitting the OMR Sheet, the candidate should
+                                verify that all the entries are made correctly and
+                                duly/signed by the invigilator.
+                              </li>
+                              <li>
+                                Do <b>Not</b> do any rough work on this OMR Sheet.
+                              </li>
+                            </ol>
+                          </div>
+                        </div>
+                      </div>
             <div className={styles.column}>
               <div className={styles.detailBox}>
                 <div
                   id="standard"
-                  className={`${styles.textBox1} textBox d-flex flex-column p-0`}
+                  className={`${styles.textBox1} textBox d-flex flex-column p-0 my-2`}
                 >
                   <div
                     className={`${styles.instructionBox} d-flex justify-content-center  `}
@@ -322,7 +330,16 @@ export default function OMRSheet({
                 >
                   SUBJECTS
                 </label>
-                <p style={{ fontWeight: "bold", color: "black",  textAlign: "center" }}>{subject}</p>
+                <p
+                  style={{
+                    fontWeight: "bold",
+                    color: "black",
+                    textAlign: "center",
+                  }}
+                  className="my-auto"
+                >
+                  {subject}
+                </p>
               </div>
             </div>
             <div className={`${styles.detailBox} ${styles.rolldiv}`}>
