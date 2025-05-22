@@ -6,9 +6,10 @@ import {
   getStudentById,
   updateStudent,
   deleteStudent,
-  getAllstudentserach ,
+  getAllstudentserach,
   getFilteredStudents,
   getFilteredStudentsomrreceipt,
+
 } from "../../controllers/Student/studentController.js";
 import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
@@ -31,11 +32,15 @@ router.put("/student/:id", updateStudent);
 // Delete a student by ID
 router.delete("/student/:id", deleteStudent);
 
-router.get("/allstudents", getAllstudentserach );
 
-  router.post('/filter', getFilteredStudents);
+router.get("/allstudents", getAllstudentserach);
 
-  //omr receipt
-  router.post('/filter/omr-receipt', getFilteredStudentsomrreceipt);
+//omr issues
+router.post("/student/filter", getFilteredStudents);
+
+//omr receipt
+router.post("/filter/omr-receipt", getFilteredStudentsomrreceipt);
+
+
 
 export default router;

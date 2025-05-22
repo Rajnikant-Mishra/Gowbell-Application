@@ -1,5 +1,6 @@
 import Student from "../../models/Student/studentModel.js";
 
+
 // Create a single student
 // export const createStudent = (req, res) => {
 //   const {
@@ -90,35 +91,6 @@ export const createStudent = (req, res) => {
 };
 
 // Bulk upload students
-// export const bulkUploadStudents = (req, res) => {
-//   const students = req.body; // Expecting an array of student objects
-
-//   if (!Array.isArray(students) || students.length === 0) {
-//     return res.status(400).send({ message: "No student data provided" });
-//   }
-
-//   // Extract logged-in user ID from request
-//   const userId = req.user?.id;
-
-//   if (!userId) {
-//     return res.status(401).json({ message: "Unauthorized. Please log in." });
-//   }
-
-//   // Call bulkCreate method from the model
-//   Student.bulkCreate(students, userId, (err, result) => {
-//     if (err) {
-//       console.error("Error inserting students:", err);
-//       return res
-//         .status(500)
-//         .send({ message: "Error uploading students", error: err });
-//     }
-//     res.status(201).send({
-//       message: "Students uploaded successfully",
-//       insertedCount: result.affectedRows,
-//     });
-//   });
-// };
-
 
 // export const bulkUploadStudents = async (req, res) => {
 //   const students = req.body;
@@ -297,88 +269,96 @@ export const deleteStudent = (req, res) => {
 };
 
 //omr issues
-
 export const getFilteredStudents = (req, res) => {
   const { schoolName, classList, subjectList } = req.body;
 
   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
-    return res.status(400).json({ error: 'Invalid input data' });
+    return res.status(400).json({ error: "Invalid input data" });
   }
 
-  
-    Student.getStudentsByFilters(schoolName, classList, subjectList, (err, result) => {
-
-    if (err) {
-      console.error('Error fetching students:', err);
-      return res.status(500).json({ error: 'Failed to fetch students' });
-    }
-
-    const { students, totalCount } = result; // ✅ fixed here
-
-    Student.getClassNames(classList, (err, classNames) => {
+  Student.getStudentsByFilters(
+    schoolName,
+    classList,
+    subjectList,
+    (err, result) => {
       if (err) {
-        console.error('Error fetching class names:', err);
-        return res.status(500).json({ error: 'Failed to fetch class names' });
+        console.error("Error fetching students:", err);
+        return res.status(500).json({ error: "Failed to fetch students" });
       }
 
-      Student.getSubjectNames(subjectList, (err, subjectNames) => {
+      const { students, totalCount } = result; // ✅ fixed here
+
+      Student.getClassNames(classList, (err, classNames) => {
         if (err) {
-          console.error('Error fetching subject names:', err);
-          return res.status(500).json({ error: 'Failed to fetch subject names' });
+          console.error("Error fetching class names:", err);
+          return res.status(500).json({ error: "Failed to fetch class names" });
         }
 
-        res.json({
-          students,
-          totalCount, // ✅ make sure it's correct here too
-          classNames,
-          subjectNames
+        Student.getSubjectNames(subjectList, (err, subjectNames) => {
+          if (err) {
+            console.error("Error fetching subject names:", err);
+            return res
+              .status(500)
+              .json({ error: "Failed to fetch subject names" });
+          }
+
+          res.json({
+            students,
+            totalCount, // ✅ make sure it's correct here too
+            classNames,
+            subjectNames,
+          });
         });
       });
-    });
-  });
+    }
+  );
 };
-
 
 //omr receipt
 export const getFilteredStudentsomrreceipt = (req, res) => {
   const { schoolName, classList, subjectList, rollnoclasssubject } = req.body;
 
   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
-    return res.status(400).json({ error: 'Invalid input data' });
+    return res.status(400).json({ error: "Invalid input data" });
   }
 
-  Student.getStudents(schoolName, classList, subjectList, rollnoclasssubject, (err, result) => {
-    if (err) {
-      console.error('Error fetching students:', err);
-      return res.status(500).json({ error: 'Failed to fetch students' });
-    }
-
-    const { students, totalCount } = result;
-
-    Student.getClassNames(classList, (err, classNames) => {
+  Student.getStudents(
+    schoolName,
+    classList,
+    subjectList,
+    rollnoclasssubject,
+    (err, result) => {
       if (err) {
-        console.error('Error fetching class names:', err);
-        return res.status(500).json({ error: 'Failed to fetch class names' });
+        console.error("Error fetching students:", err);
+        return res.status(500).json({ error: "Failed to fetch students" });
       }
 
-      Student.getSubjectNames(subjectList, (err, subjectNames) => {
+      const { students, totalCount } = result;
+
+      Student.getClassNames(classList, (err, classNames) => {
         if (err) {
-          console.error('Error fetching subject names:', err);
-          return res.status(500).json({ error: 'Failed to fetch subject names' });
+          console.error("Error fetching class names:", err);
+          return res.status(500).json({ error: "Failed to fetch class names" });
         }
 
-        res.json({
-          students,
-          totalCount,
-          classNames,
-          subjectNames
+        Student.getSubjectNames(subjectList, (err, subjectNames) => {
+          if (err) {
+            console.error("Error fetching subject names:", err);
+            return res
+              .status(500)
+              .json({ error: "Failed to fetch subject names" });
+          }
+
+          res.json({
+            students,
+            totalCount,
+            classNames,
+            subjectNames,
+          });
         });
       });
-    });
-  });
+    }
+  );
 };
-
-
-
 
 

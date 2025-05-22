@@ -392,12 +392,62 @@ const ResultModel = {
   //   });
   // },
   // Calculate and update percentages for rows with status "pending"
+  // updatePendingPercentages: (callback) => {
+  //   const query = `
+  //     WITH RankedResults AS (
+  //       SELECT
+  //         id,
+  //         ROW_NUMBER() OVER (PARTITION BY class_id, subject_id ORDER BY mark_secured DESC) AS student_rank,
+  //         COUNT(*) OVER (PARTITION BY class_id, subject_id) AS total_students
+  //       FROM result
+  //       WHERE status = 'pending' AND full_mark > 0
+  //     )
+  //     UPDATE result r
+  //     JOIN RankedResults rr ON r.id = rr.id
+  //     SET
+  //       r.percentage = (r.mark_secured / r.full_mark) * 100,
+  //       r.status = 'success',
+  //       r.certificate = CASE
+  //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 90 AND (r.mark_secured / r.full_mark) * 100 <= 100 THEN 'Excellence'
+  //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 80 AND (r.mark_secured / r.full_mark) * 100 < 90 THEN 'Merit'
+  //                   ELSE NULL
+  //                 END,
+  //       r.remarks = CASE
+  //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 90 AND (r.mark_secured / r.full_mark) * 100 <= 100 THEN 'Outstanding Performance'
+  //                   WHEN (r.mark_secured / r.full_mark) * 100 >= 80 AND (r.mark_secured / r.full_mark) * 100 < 90 THEN 'Good Performance'
+  //                   ELSE NULL
+  //                 END,
+  //       r.ranking = CASE
+  //                   WHEN rr.student_rank = 1 THEN '1'
+  //                   WHEN rr.student_rank = 2 THEN '2'
+  //                   WHEN rr.student_rank = 3 THEN '3'
+  //                   ELSE NULL
+  //                 END,
+  //       r.medals = CASE
+  //                   WHEN rr.student_rank = 1 AND rr.total_students > 2 THEN 'Gold'
+  //                   WHEN rr.student_rank = 2 AND rr.total_students > 2 THEN 'Silver'
+  //                   WHEN rr.student_rank = 3 AND rr.total_students > 2 THEN 'Bronze'
+  //                   WHEN rr.total_students = 2 AND (r.mark_secured / r.full_mark) * 100 >= 60 AND rr.student_rank = 1 THEN 'Gold'
+  //                   WHEN rr.total_students = 2 AND (r.mark_secured / r.full_mark) * 100 >= 60 AND rr.student_rank = 2 THEN 'Silver'
+  //                   ELSE NULL
+  //                 END,
+  //       r.updated_at = CURRENT_TIMESTAMP
+  //     WHERE r.status = 'pending' AND r.full_mark > 0
+  //   `;
+
+  //   db.query(query, (err, result) => {
+  //     if (err) return callback(err);
+  //     callback(null, {
+  //       message: `${result.affectedRows} pending records updated`,
+  //     });
+  //   });
+  // },
   updatePendingPercentages: (callback) => {
     const query = `
       WITH RankedResults AS (
         SELECT 
           id,
-          ROW_NUMBER() OVER (PARTITION BY class_id, subject_id ORDER BY mark_secured DESC) AS student_rank,
+          DENSE_RANK() OVER (PARTITION BY class_id, subject_id ORDER BY (mark_secured / full_mark) * 100 DESC) AS student_rank,
           COUNT(*) OVER (PARTITION BY class_id, subject_id) AS total_students
         FROM result
         WHERE status = 'pending' AND full_mark > 0
@@ -417,18 +467,12 @@ const ResultModel = {
                     WHEN (r.mark_secured / r.full_mark) * 100 >= 80 AND (r.mark_secured / r.full_mark) * 100 < 90 THEN 'Good Performance'
                     ELSE NULL
                   END,
-        r.ranking = CASE 
-                    WHEN rr.student_rank = 1 THEN '1'
-                    WHEN rr.student_rank = 2 THEN '2'
-                    WHEN rr.student_rank = 3 THEN '3'
-                    ELSE NULL
-                  END,
+        r.ranking = rr.student_rank,
         r.medals = CASE 
-                    WHEN rr.student_rank = 1 AND rr.total_students > 2 THEN 'Gold'
-                    WHEN rr.student_rank = 2 AND rr.total_students > 2 THEN 'Silver'
-                    WHEN rr.student_rank = 3 AND rr.total_students > 2 THEN 'Bronze'
-                    WHEN rr.total_students = 2 AND (r.mark_secured / r.full_mark) * 100 >= 60 AND rr.student_rank = 1 THEN 'Gold'
-                    WHEN rr.total_students = 2 AND (r.mark_secured / r.full_mark) * 100 >= 60 AND rr.student_rank = 2 THEN 'Silver'
+                    WHEN (r.mark_secured / r.full_mark) * 100 < 60 THEN NULL
+                    WHEN rr.student_rank = 1 AND (r.mark_secured / r.full_mark) * 100 >= 60 THEN 'Gold'
+                    WHEN rr.student_rank = 2 AND (r.mark_secured / r.full_mark) * 100 >= 60 THEN 'Silver'
+                    WHEN rr.student_rank = 3 AND (r.mark_secured / r.full_mark) * 100 >= 60 THEN 'Bronze'
                     ELSE NULL
                   END,
         r.updated_at = CURRENT_TIMESTAMP

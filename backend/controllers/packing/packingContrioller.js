@@ -5,28 +5,21 @@ import packingModel from "../../models/packing/packingModel.js";
 export const fetchExamDate = (req, res) => {
   const { school, subject } = req.query;
 
-  packingModel.fetchExamDateBySchoolAndSubject(
-    school,
-    subject,
-    (error, results) => {
-      if (error) {
-        return res
-          .status(500)
-          .json({ error: "Error fetching exam date", details: error });
-      }
-      if (results.length === 1) {
-        return res
-          .status(404)
-          .json({
-            message: "No exams found for the given school and subject.",
-          });
-      }
-      res
-        .status(200)
-        .json({ message: "Exam dates fetched successfully", data: results });
+  packingModel.fetchExamDateBySchoolAndSubject(school, subject, (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: "Error fetching exam date", details: error });
     }
-  );
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({
+        message: "No exams found for the given school and subject.",
+      });
+    }
+
+    res.status(200).json({ message: "Exam dates fetched successfully", data: results });
+  });
 };
+
 
 // Fetch school_code by school_name
 export const getSchoolCodeByName = (req, res) => {
