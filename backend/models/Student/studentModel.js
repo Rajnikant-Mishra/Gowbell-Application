@@ -82,120 +82,6 @@ export const Student = {
   },
 
   // BULK UPLOAD
-  // bulkCreate: (students, userId, callback) => {
-  //   // Step 1: Group students by school_name and class_name
-  //   const groupedStudents = students.reduce((acc, student) => {
-  //     const key = `${student.school_name}-${student.class_name}`;
-  //     if (!acc[key]) {
-  //       acc[key] = [];
-  //     }
-  //     acc[key].push(student);
-  //     return acc;
-  //   }, {});
-
-  //   // Step 2: Process each group to generate roll_no
-  //   const processGroup = (group, schoolName, className, callback) => {
-  //     // Get school_code from school table
-  //     const schoolQuery = `SELECT school_code FROM school WHERE school_name = ?`;
-
-  //     db.query(schoolQuery, [schoolName], (err, schoolResult) => {
-  //       if (err) return callback(err);
-
-  //       if (schoolResult.length === 0) {
-  //         return callback(new Error(`School not found: ${schoolName}`));
-  //       }
-
-  //       const school_code = schoolResult[0].school_code;
-
-  //       // Get the last roll_no for this school_code and class_name
-  //       const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
-  //       const rollPrefix = `${school_code}${className}%`;
-
-  //       db.query(rollQuery, [rollPrefix], (err, rollResult) => {
-  //         if (err) return callback(err);
-
-  //         let newRollNumber = 1;
-  //         if (rollResult.length > 0) {
-  //           const lastRoll = rollResult[0].roll_no;
-  //           const lastRollNumber = parseInt(lastRoll.slice(-2), 10); // Extract last 2 digits
-  //           newRollNumber = lastRollNumber + 1;
-  //         }
-
-  //         // Generate roll_no for each student in the group
-  //         const studentsWithRollNo = group.map((student, index) => {
-  //           const formattedRollNo = `${school_code}${className}${String(
-  //             newRollNumber + index
-  //           ).padStart(2, "0")}`;
-  //           return {
-  //             ...student,
-  //             roll_no: formattedRollNo,
-  //           };
-  //         });
-
-  //         callback(null, studentsWithRollNo);
-  //       });
-  //     });
-  //   };
-
-  //   // Step 3: Process all groups and collect results
-  //   const processAllGroups = async () => {
-  //     const allStudents = [];
-  //     for (const key of Object.keys(groupedStudents)) {
-  //       const [schoolName, className] = key.split("-");
-  //       const group = groupedStudents[key];
-  //       await new Promise((resolve, reject) => {
-  //         processGroup(
-  //           group,
-  //           schoolName,
-  //           className,
-  //           (err, studentsWithRollNo) => {
-  //             if (err) return reject(err);
-  //             allStudents.push(...studentsWithRollNo);
-  //             resolve();
-  //           }
-  //         );
-  //       });
-  //     }
-  //     return allStudents;
-  //   };
-
-  //   // Step 4: Insert all students with generated roll_no
-  //   processAllGroups()
-  //     .then((allStudents) => {
-  //       const query = `
-  //         INSERT INTO student
-  //         (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at)
-  //         VALUES ?
-  //       `;
-
-  //       // Convert student objects to an array of arrays for bulk insertion
-  //       const values = allStudents.map((student) => [
-  //         student.school_name,
-  //         student.student_name,
-  //         student.roll_no,
-  //         student.class_name,
-  //         student.student_section,
-  //         student.mobile_number,
-  //         student.whatsapp_number,
-  //         JSON.stringify(student.student_subject || []) || null, // Convert JSON array to string
-  //         student.country,
-  //         student.state,
-  //         student.district,
-  //         student.city,
-  //         student.approved,
-  //         student.approved_by,
-  //         userId, // Created by logged-in user
-  //         userId, // Updated by logged-in user
-  //         new Date(), // created_at
-  //         new Date(), // updated_at
-  //       ]);
-
-  //       // Execute the query with the array of values
-  //       db.query(query, [values], callback);
-  //     })
-  //     .catch(callback);
-  // },
-
   // bulkCreate: (students, userId) => {
   //   return new Promise((resolve, reject) => {
   //     // Group students by school_name and class_name
@@ -352,9 +238,9 @@ export const Student = {
   //         }
 
   //         const query = `
-  //         INSERT INTO student 
-  //         (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, 
-  //          country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at) 
+  //         INSERT INTO student
+  //         (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject,
+  //          country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at)
   //         VALUES ?
   //       `;
   //         const values = allStudents.map((student) => [
@@ -409,224 +295,254 @@ export const Student = {
   // },
 
   bulkCreate: (students, userId) => {
-  return new Promise((resolve, reject) => {
-    // Validate that all students have the same school_name, class_name, country, state, district, city
-    const validateFields = [
-      "school_name",
-      "class_name",
-      "country",
-      "state",
-      "district",
-      "city",
-    ];
-    const inconsistencies = validateFields.reduce((acc, field) => {
-      const values = [...new Set(students.map((s) => s[field]))];
-      if (values.length > 1) {
-        acc[field] = `The Students  ${field} not match : ${values.join(", ")}`;
-      }
-      return acc;
-    }, {});
-
-    // Validate that all students have the same student_subject
-    const subjects = students.map((s) => JSON.stringify(s.student_subject?.sort() || []));
-    const uniqueSubjects = [...new Set(subjects)];
-    if (uniqueSubjects.length > 1) {
-      inconsistencies.student_subject =
-        `The student subjects not match : ${uniqueSubjects.join(", ")}`;
-    }
-
-    if (Object.keys(inconsistencies).length > 0) {
-      return reject(new Error("Inconsistent student data", { cause: inconsistencies }));
-    }
-
-    // Group students by school_name and class_name (though already validated as same)
-    const groupedStudents = students.reduce((acc, student) => {
-      const key = `${student.school_name}-${student.class_name}`;
-      acc[key] = acc[key] || [];
-      acc[key].push(student);
-      return acc;
-    }, {});
-
-    const getIdByName = (table, name) => {
-      const validTables = [
-        "countries",
-        "states",
-        "districts",
-        "cities",
-        "class",
-        "subject_master",
+    return new Promise((resolve, reject) => {
+      // Validate that all students have the same school_name, class_name, country, state, district, city
+      const validateFields = [
+        "school_name",
+        "class_name",
+        "country",
+        "state",
+        "district",
+        "city",
       ];
-      if (!validTables.includes(table)) {
-        throw new Error(`Invalid table: ${table}`);
-      }
-      return new Promise((resolve, reject) => {
-        db.query(`SELECT id FROM ${table} WHERE name = ?`, [name], (err, result) => {
-          if (err) return reject(err);
-          if (result.length === 0) return reject(new Error(`${table} not found: ${name}`));
-          resolve(result[0].id);
-        });
-      });
-    };
+      const inconsistencies = validateFields.reduce((acc, field) => {
+        const values = [...new Set(students.map((s) => s[field]))];
+        if (values.length > 1) {
+          acc[field] = `The Students  ${field} not match : ${values.join(
+            ", "
+          )}`;
+        }
+        return acc;
+      }, {});
 
-    const getSubjectIds = async (subjects) => {
-      if (!Array.isArray(subjects) || subjects.length === 0) return [];
-      return Promise.all(subjects.map((subject) => getIdByName("subject_master", subject)));
-    };
-
-    const processGroup = async (group, schoolName, className) => {
-      const schoolResult = await new Promise((resolve, reject) =>
-        db.query(
-          `SELECT school_code FROM school WHERE school_name = ?`,
-          [schoolName],
-          (err, result) => (err ? reject(err) : resolve(result))
-        )
+      // Validate that all students have the same student_subject
+      const subjects = students.map((s) =>
+        JSON.stringify(s.student_subject?.sort() || [])
       );
-      if (schoolResult.length === 0) {
-        throw new Error(`School not found: ${schoolName}`);
+      const uniqueSubjects = [...new Set(subjects)];
+      if (uniqueSubjects.length > 1) {
+        inconsistencies.student_subject = `The student subjects not match : ${uniqueSubjects.join(
+          ", "
+        )}`;
       }
-      // const school_code = schoolResult = schoolResult[0].school_code;
-       const school_code = schoolResult[0].school_code;
 
-      const rollResult = await new Promise((resolve, reject) =>
-        db.query(
-          `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1 FOR UPDATE`,
-          [`${school_code}${className}%`],
-          (err, result) => (err ? reject(err) : resolve(result))
-        )
-      );
-      let newRollNumber =
-        rollResult.length > 0 ? parseInt(rollResult[0].roll_no.slice(-2), 10) + 1 : 1;
+      if (Object.keys(inconsistencies).length > 0) {
+        return reject(
+          new Error("Inconsistent student data", { cause: inconsistencies })
+        );
+      }
 
-      const studentsWithRollNoAndIds = [];
-      for (const student of group) {
-        const requiredFields = ["student_name", "school_name", "class_name"];
-        const missing = requiredFields.filter((field) => !student[field]);
-        if (missing.length) {
-          throw new Error(`Missing fields for student: ${missing.join(", ")}`);
+      // Group students by school_name and class_name (though already validated as same)
+      const groupedStudents = students.reduce((acc, student) => {
+        const key = `${student.school_name}-${student.class_name}`;
+        acc[key] = acc[key] || [];
+        acc[key].push(student);
+        return acc;
+      }, {});
+
+      const getIdByName = (table, name) => {
+        const validTables = [
+          "countries",
+          "states",
+          "districts",
+          "cities",
+          "class",
+          "subject_master",
+        ];
+        if (!validTables.includes(table)) {
+          throw new Error(`Invalid table: ${table}`);
         }
-        if (!Array.isArray(student.student_subject)) {
-          throw new Error(`Invalid student_subject for ${student.student_name}`);
-        }
-
-        const [countryId, stateId, districtId, cityId, classId, subjectIds] = await Promise.all([
-          getIdByName("countries", student.country),
-          getIdByName("states", student.state),
-          getIdByName("districts", student.district),
-          getIdByName("cities", student.city),
-          getIdByName("class", className),
-          getSubjectIds(student.student_subject),
-        ]);
-
-        const formattedRollNo = `${school_code}${className}${String(newRollNumber).padStart(2, "0")}`;
-        if (formattedRollNo.length > 20) {
-          throw new Error(`Roll number too long: ${formattedRollNo}`);
-        }
-        newRollNumber++;
-
-        studentsWithRollNoAndIds.push({
-          ...student,
-          roll_no: formattedRollNo,
-          country: countryId,
-          state: stateId,
-          district: districtId,
-          city: cityId,
-          class_name: classId,
-          student_subject: subjectIds,
-          updated: 0, // Initialize updated field
+        return new Promise((resolve, reject) => {
+          db.query(
+            `SELECT id FROM ${table} WHERE name = ?`,
+            [name],
+            (err, result) => {
+              if (err) return reject(err);
+              if (result.length === 0)
+                return reject(new Error(`${table} not found: ${name}`));
+              resolve(result[0].id);
+            }
+          );
         });
-      }
-      return studentsWithRollNoAndIds;
-    };
+      };
 
-    const processAllGroups = async () => {
-      const errors = [];
-      const allStudents = [];
-      const groupPromises = Object.keys(groupedStudents).map(async (key) => {
-        try {
-          const [schoolName, className] = key.split("-");
-          const students = await processGroup(groupedStudents[key], schoolName, className);
-          return { students };
-        } catch (err) {
-          return { error: { group: key, message: err.message } };
+      const getSubjectIds = async (subjects) => {
+        if (!Array.isArray(subjects) || subjects.length === 0) return [];
+        return Promise.all(
+          subjects.map((subject) => getIdByName("subject_master", subject))
+        );
+      };
+
+      const processGroup = async (group, schoolName, className) => {
+        const schoolResult = await new Promise((resolve, reject) =>
+          db.query(
+            `SELECT school_code FROM school WHERE school_name = ?`,
+            [schoolName],
+            (err, result) => (err ? reject(err) : resolve(result))
+          )
+        );
+        if (schoolResult.length === 0) {
+          throw new Error(`School not found: ${schoolName}`);
         }
-      });
+        // const school_code = schoolResult = schoolResult[0].school_code;
+        const school_code = schoolResult[0].school_code;
 
-      const results = await Promise.all(groupPromises);
-      results.forEach(({ students, error }) => {
-        if (error) {
-          errors.push(error);
-        } else {
-          allStudents.push(...students);
+        const rollResult = await new Promise((resolve, reject) =>
+          db.query(
+            `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1 FOR UPDATE`,
+            [`${school_code}${className}%`],
+            (err, result) => (err ? reject(err) : resolve(result))
+          )
+        );
+        let newRollNumber =
+          rollResult.length > 0
+            ? parseInt(rollResult[0].roll_no.slice(-2), 10) + 1
+            : 1;
+
+        const studentsWithRollNoAndIds = [];
+        for (const student of group) {
+          const requiredFields = ["student_name", "school_name", "class_name"];
+          const missing = requiredFields.filter((field) => !student[field]);
+          if (missing.length) {
+            throw new Error(
+              `Missing fields for student: ${missing.join(", ")}`
+            );
+          }
+          if (!Array.isArray(student.student_subject)) {
+            throw new Error(
+              `Invalid student_subject for ${student.student_name}`
+            );
+          }
+
+          const [countryId, stateId, districtId, cityId, classId, subjectIds] =
+            await Promise.all([
+              getIdByName("countries", student.country),
+              getIdByName("states", student.state),
+              getIdByName("districts", student.district),
+              getIdByName("cities", student.city),
+              getIdByName("class", className),
+              getSubjectIds(student.student_subject),
+            ]);
+
+          const formattedRollNo = `${school_code}${className}${String(
+            newRollNumber
+          ).padStart(2, "0")}`;
+          if (formattedRollNo.length > 20) {
+            throw new Error(`Roll number too long: ${formattedRollNo}`);
+          }
+          newRollNumber++;
+
+          studentsWithRollNoAndIds.push({
+            ...student,
+            roll_no: formattedRollNo,
+            country: countryId,
+            state: stateId,
+            district: districtId,
+            city: cityId,
+            class_name: classId,
+            student_subject: subjectIds,
+            updated: 0, // Initialize updated field
+          });
         }
-      });
+        return studentsWithRollNoAndIds;
+      };
 
-      if (allStudents.length === 0 && errors.length > 0) {
-        throw new Error("No valid students to insert", { cause: errors });
-      }
-      return { allStudents, errors };
-    };
+      const processAllGroups = async () => {
+        const errors = [];
+        const allStudents = [];
+        const groupPromises = Object.keys(groupedStudents).map(async (key) => {
+          try {
+            const [schoolName, className] = key.split("-");
+            const students = await processGroup(
+              groupedStudents[key],
+              schoolName,
+              className
+            );
+            return { students };
+          } catch (err) {
+            return { error: { group: key, message: err.message } };
+          }
+        });
 
-    processAllGroups()
-      .then(({ allStudents, errors }) => {
-        if (allStudents.length === 0) {
-          return reject(new Error("No valid students to insert", { cause: errors }));
+        const results = await Promise.all(groupPromises);
+        results.forEach(({ students, error }) => {
+          if (error) {
+            errors.push(error);
+          } else {
+            allStudents.push(...students);
+          }
+        });
+
+        if (allStudents.length === 0 && errors.length > 0) {
+          throw new Error("No valid students to insert", { cause: errors });
         }
+        return { allStudents, errors };
+      };
 
-        const query = `
+      processAllGroups()
+        .then(({ allStudents, errors }) => {
+          if (allStudents.length === 0) {
+            return reject(
+              new Error("No valid students to insert", { cause: errors })
+            );
+          }
+
+          const query = `
           INSERT INTO student 
           (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, 
            country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at) 
           VALUES ?
         `;
-        const values = allStudents.map((student) => [
-          student.school_name,
-          student.student_name,
-          student.roll_no,
-          student.class_name,
-          student.student_section ?? null,
-          student.mobile_number ?? null,
-          student.whatsapp_number ?? null,
-          JSON.stringify(student.student_subject || []),
-          student.country,
-          student.state,
-          student.district,
-          student.city,
-          student.approved ?? 0,
-          student.approved_by ?? null,
-          userId,
-          userId,
-          new Date(),
-          new Date(),
-          
-        ]);
+          const values = allStudents.map((student) => [
+            student.school_name,
+            student.student_name,
+            student.roll_no,
+            student.class_name,
+            student.student_section ?? null,
+            student.mobile_number ?? null,
+            student.whatsapp_number ?? null,
+            JSON.stringify(student.student_subject || []),
+            student.country,
+            student.state,
+            student.district,
+            student.city,
+            student.approved ?? 0,
+            student.approved_by ?? null,
+            userId,
+            userId,
+            new Date(),
+            new Date(),
+          ]);
 
-        db.beginTransaction((err) => {
-          if (err) return reject(err);
-          db.query(query, [values], (err, result) => {
-            if (err) {
-              db.rollback(() => reject(err));
-              return;
-            }
-            db.commit((err) => {
+          db.beginTransaction((err) => {
+            if (err) return reject(err);
+            db.query(query, [values], (err, result) => {
               if (err) {
                 db.rollback(() => reject(err));
                 return;
               }
-              resolve({
-                ...result,
-                errors: errors.length ? errors : undefined,
+              db.commit((err) => {
+                if (err) {
+                  db.rollback(() => reject(err));
+                  return;
+                }
+                resolve({
+                  ...result,
+                  errors: errors.length ? errors : undefined,
+                });
               });
             });
           });
-        });
-      })
-      .catch((err) =>
-        reject(
-          err.cause ? err : new Error("Processing failed", { cause: [err.message] })
-        )
-      );
-  });
-},
+        })
+        .catch((err) =>
+          reject(
+            err.cause
+              ? err
+              : new Error("Processing failed", { cause: [err.message] })
+          )
+        );
+    });
+  },
 
   getAllStudent: (callback) => {
     const query = "SELECT * FROM student";
@@ -910,6 +826,91 @@ export const Student = {
     FROM subject_master 
     WHERE id IN (${placeholders})
   `;
+    db.query(query, subjectIds, callback);
+  },
+
+  //student attendance
+  getStudentforAttendance: (
+    schoolName,
+    classList,
+    subjectList,
+    callback
+  ) => {
+    if (!classList.length || !subjectList.length) {
+      return callback(null, { students: [], totalCount: 0 });
+    }
+
+    const classPlaceholders = classList.map(() => "?").join(",");
+    const subjectJsonConditions = subjectList
+      .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
+      .join(" OR ");
+
+    const dataQuery = `
+      SELECT 
+        s.id,
+        s.roll_no,
+        s.student_name,
+        s.school_name,
+        c.name AS class_name,
+        GROUP_CONCAT(DISTINCT sub.name) AS subject_names
+      FROM student s
+      LEFT JOIN class c ON s.class_name = c.id
+      LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
+        ON TRUE
+      LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+      WHERE s.school_name = ? 
+        AND s.class_name IN (${classPlaceholders}) 
+        AND (${subjectJsonConditions})
+      GROUP BY s.id
+    `;
+
+    const countQuery = `
+      SELECT COUNT(DISTINCT s.id) as total_count 
+      FROM student s
+      WHERE s.school_name = ? 
+        AND s.class_name IN (${classPlaceholders}) 
+        AND (${subjectJsonConditions})
+    `;
+
+    const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
+    const dataParams = [schoolName, ...classList, ...jsonSubjectParams];
+    const countParams = [schoolName, ...classList, ...jsonSubjectParams];
+
+    db.query(dataQuery, dataParams, (err, students) => {
+      if (err) {
+        return callback(err);
+      }
+
+      db.query(countQuery, countParams, (countErr, countResult) => {
+        if (countErr) {
+          return callback(countErr);
+        }
+
+        const totalCount = countResult[0]?.total_count || 0;
+        callback(null, { students, totalCount });
+      });
+    });
+  },
+
+  getClassNames: (classIds, callback) => {
+    if (!classIds.length) return callback(null, []);
+    const placeholders = classIds.map(() => "?").join(",");
+    const query = `
+      SELECT id, name AS class_name 
+      FROM class 
+      WHERE id IN (${placeholders})
+    `;
+    db.query(query, classIds, callback);
+  },
+
+  getSubjectNames: (subjectIds, callback) => {
+    if (!subjectIds.length) return callback(null, []);
+    const placeholders = subjectIds.map(() => "?").join(",");
+    const query = `
+      SELECT id, name AS subject_name 
+      FROM subject_master 
+      WHERE id IN (${placeholders})
+    `;
     db.query(query, subjectIds, callback);
   },
 };

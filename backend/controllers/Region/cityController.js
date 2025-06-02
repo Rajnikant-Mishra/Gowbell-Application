@@ -44,18 +44,33 @@ export const getAll = (req, res) => {
 };
 
 // Controller function to handle API request
+// export const getAllCities = (req, res) => {
+//   let { page = 1, limit = 10 } = req.query;
+//   page = parseInt(page, 10);
+//   limit = parseInt(limit, 10);
+
+//   if (isNaN(page) || page < 1) page = 1;
+//   if (isNaN(limit) || limit < 1) limit = 10;
+
+//   City.getAll(page, limit, (err, data) => {
+//       if (err) return res.status(500).json({ error: err.message });
+
+//       res.status(200).json(data);
+//   });
+// };
 export const getAllCities = (req, res) => {
-  let { page = 1, limit = 10 } = req.query;
+  let { page = 1, limit = 10, search = "" } = req.query;
   page = parseInt(page, 10);
   limit = parseInt(limit, 10);
 
   if (isNaN(page) || page < 1) page = 1;
   if (isNaN(limit) || limit < 1) limit = 10;
+  search = search ? search.trim() : "";
 
-  City.getAll(page, limit, (err, data) => {
-      if (err) return res.status(500).json({ error: err.message });
+  City.getAll(page, limit, search, (err, data) => {
+    if (err) return res.status(500).json({ error: err.message });
 
-      res.status(200).json(data);
+    res.status(200).json(data);
   });
 };
 

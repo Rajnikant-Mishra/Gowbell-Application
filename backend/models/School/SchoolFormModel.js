@@ -21,8 +21,21 @@ ORDER BY s.id DESC;
   },
 
   //get all school for paginations
-  getAll: (page = 1, limit = 10, callback) => {
+  getAll: (page = 1, limit = 10, search = "", callback) => {
     const offset = (page - 1) * limit;
+    let whereClause = "";
+    let queryParams = [];
+
+    if (search && search.trim() !== "") {
+      whereClause = `WHERE 
+      s.school_name LIKE ? OR
+      s.school_email LIKE ? OR
+      c1.name LIKE ? OR
+      s1.name LIKE ? OR
+      d.name LIKE ? OR
+      c2.name LIKE ?`;
+      for (let i = 0; i < 6; i++) queryParams.push(`%${search}%`);
+    }
 
     const query = `
     SELECT 
@@ -36,13 +49,21 @@ ORDER BY s.id DESC;
     LEFT JOIN states s1 ON s.state = s1.id
     LEFT JOIN districts d ON s.district = d.id
     LEFT JOIN cities c2 ON s.city = c2.id
+    ${whereClause}
     ORDER BY s.id DESC
     LIMIT ? OFFSET ?;
   `;
 
-    const countQuery = `SELECT COUNT(*) AS total FROM school`;
+    const countQuery = `
+    SELECT COUNT(*) AS total FROM school s
+    LEFT JOIN countries c1 ON s.country = c1.id
+    LEFT JOIN states s1 ON s.state = s1.id
+    LEFT JOIN districts d ON s.district = d.id
+    LEFT JOIN cities c2 ON s.city = c2.id
+    ${whereClause};
+  `;
 
-    db.query(countQuery, (err, countResult) => {
+    db.query(countQuery, queryParams, (err, countResult) => {
       if (err) return callback(err);
 
       const totalRecords = countResult[0].total;
@@ -50,18 +71,22 @@ ORDER BY s.id DESC;
       const nextPage = page < totalPages ? page + 1 : null;
       const prevPage = page > 1 ? page - 1 : null;
 
-      db.query(query, [parseInt(limit), parseInt(offset)], (err, result) => {
-        if (err) return callback(err);
+      db.query(
+        query,
+        [...queryParams, parseInt(limit), parseInt(offset)],
+        (err, result) => {
+          if (err) return callback(err);
 
-        callback(null, {
-          schools: result,
-          currentPage: page,
-          nextPage,
-          prevPage,
-          totalPages,
-          totalRecords,
-        });
-      });
+          callback(null, {
+            schools: result,
+            currentPage: page,
+            nextPage,
+            prevPage,
+            totalPages,
+            totalRecords,
+          });
+        }
+      );
     });
   },
 
@@ -283,619 +308,6 @@ ORDER BY s.id DESC;
       });
     });
   },
-
-  // bulkCreate: (schools) => {
-  //   return new Promise((resolve, reject) => {
-  //     // Function to generate unique school codes
-  //     const generateSchoolCode = (stateId, cityId) => {
-  //       return new Promise((resolve, reject) => {
-  //         const sqlGetLatestCode = `
-  //           SELECT school_code FROM school
-  //           WHERE school_code LIKE '${stateId}${cityId}%'
-  //           ORDER BY school_code DESC LIMIT 1
-  //         `;
-
-  //         db.query(sqlGetLatestCode, (err, results) => {
-  //           if (err) {
-  //             return reject(err);
-  //           }
-
-  //           let schoolCode;
-  //           if (results.length > 0) {
-  //             const latestCode = results[0].school_code;
-  //             const numericPart = parseInt(latestCode.substring(4), 10);
-  //             const newNumericPart = numericPart + 1;
-  //             schoolCode = `${stateId}${cityId}${String(
-  //               newNumericPart
-  //             ).padStart(2, "0")}`;
-  //           } else {
-  //             schoolCode = `${stateId}${cityId}01`;
-  //           }
-
-  //           // Ensure the school_code length does not exceed 20 characters (adjust based on your schema)
-  //           if (schoolCode.length > 20) {
-  //             schoolCode = schoolCode.substring(0, 20);
-  //           }
-
-  //           resolve(schoolCode);
-  //         });
-  //       });
-  //     };
-
-  //     // Function to get state, district, and city IDs
-  //     const getLocationIds = (state, district, city) => {
-  //       return new Promise((resolve, reject) => {
-  //         const sqlQuery = `
-  //           SELECT
-  //             s.id AS state_id,
-  //             d.id AS district_id,
-  //             c.id AS city_id
-  //           FROM states s
-  //           JOIN districts d ON d.state_id = s.id
-  //           JOIN cities c ON c.district_id = d.id
-  //           WHERE s.name = ? AND d.name = ? AND c.name = ?
-  //         `;
-
-  //         db.query(sqlQuery, [state, district, city], (err, results) => {
-  //           if (err) {
-  //             return reject(err);
-  //           } else if (results.length === 0) {
-  //             return reject(
-  //               new Error(`Location Not Found: ${state}, ${district}, ${city}`)
-  //             );
-  //           }
-  //           resolve(results[0]);
-  //         });
-  //       });
-  //     };
-
-  //     // Process each school entry
-  //     const processSchools = async () => {
-  //       try {
-  //         const values = [];
-
-  //         for (const school of schools) {
-  //           const { state, district, city } = school;
-
-  //           if (!state || !district || !city) {
-  //             throw new Error(
-  //               "State, district, and city are required for each school."
-  //             );
-  //           }
-
-  //           try {
-  //             const locationIds = await getLocationIds(state, district, city);
-  //             const schoolCode = await generateSchoolCode(
-  //               locationIds.state_id,
-  //               locationIds.city_id
-  //             );
-
-  //             values.push([
-  //               school.board,
-  //               school.school_name,
-  //               school.school_email,
-  //               school.school_contact_number,
-  //               school.school_landline_number || null,
-  //               locationIds.state_id,
-  //               locationIds.district_id,
-  //               locationIds.city_id,
-  //               school.pincode,
-  //               school.principal_name,
-  //               school.principal_contact_number,
-  //               school.principal_whatsapp,
-  //               school.vice_principal_name || null,
-  //               school.vice_principal_contact_number || null,
-  //               school.vice_principal_whatsapp || null,
-  //               // school.student_strength,
-  //               JSON.stringify(school.classes || []),
-  //               school.status,
-  //               schoolCode,
-  //             ]);
-  //           } catch (error) {
-  //             console.warn(error.message);
-  //             reject({ message: error.message });
-  //             return;
-  //           }
-  //         }
-
-  //         const query = `
-  //           INSERT INTO school
-  //           (board, school_name, school_email, school_contact_number, school_landline_number, state, district, city, pincode, principal_name, principal_contact_number, principal_whatsapp, vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp, classes, status, school_code)
-  //           VALUES ?
-  //         `;
-
-  //         db.query(query, [values], (err, results) => {
-  //           if (err) {
-  //             return reject(err);
-  //           }
-  //           resolve(results);
-  //         });
-  //       } catch (error) {
-  //         reject(error);
-  //       }
-  //     };
-
-  //     processSchools();
-  //   });
-  // },
-
-  // bulkCreate: (schools) => {
-  //   return new Promise((resolve, reject) => {
-  //     // Function to generate unique school codes
-  //     const generateSchoolCode = (stateId, cityId) => {
-  //       return new Promise((resolve, reject) => {
-  //         const sqlGetLatestCode = `
-  //           SELECT school_code FROM school
-  //           WHERE school_code LIKE ?
-  //           ORDER BY school_code DESC LIMIT 1
-  //         `;
-  //         const stateCityPrefix = `${stateId}${cityId}`;
-
-  //         db.query(sqlGetLatestCode, [`${stateCityPrefix}%`], (err, results) => {
-  //           if (err) {
-  //             return reject(err);
-  //           }
-
-  //           let schoolCode;
-  //           if (results.length > 0) {
-  //             const latestCode = results[0].school_code;
-  //             const numericPart = parseInt(latestCode.substring(4), 10);
-  //             const newNumericPart = numericPart + 1;
-  //             schoolCode = `${stateCityPrefix}${String(newNumericPart).padStart(2, "0")}`;
-  //           } else {
-  //             schoolCode = `${stateCityPrefix}01`;
-  //           }
-
-  //           // Ensure the school_code length does not exceed 20 characters
-  //           if (schoolCode.length > 20) {
-  //             schoolCode = schoolCode.substring(0, 20);
-  //           }
-
-  //           resolve(schoolCode);
-  //         });
-  //       });
-  //     };
-
-  //     // Function to get state, district, and city IDs
-  //     const getLocationIds = (state, district, city) => {
-  //       return new Promise((resolve, reject) => {
-  //         const sqlQuery = `
-  //           SELECT
-  //             s.id AS state_id,
-  //             d.id AS district_id,
-  //             c.id AS city_id
-  //           FROM states s
-  //           JOIN districts d ON d.state_id = s.id
-  //           JOIN cities c ON c.district_id = d.id
-  //           WHERE s.name = ? AND d.name = ? AND c.name = ?
-  //         `;
-
-  //         db.query(sqlQuery, [state, district, city], (err, results) => {
-  //           if (err) {
-  //             return reject(err);
-  //           } else if (results.length === 0) {
-  //             return reject(
-  //               new Error(`Location Not Found: ${state}, ${district}, ${city}`)
-  //             );
-  //           }
-  //           resolve(results[0]);
-  //         });
-  //       });
-  //     };
-
-  //     // Process each school entry
-  //     const processSchools = async () => {
-  //       try {
-  //         const values = [];
-
-  //         for (const school of schools) {
-  //           const { state, district, city, created_by, updated_by } = school;
-
-  //           if (!state || !district || !city) {
-  //             throw new Error(
-  //               "State, district, and city are required for each school."
-  //             );
-  //           }
-
-  //           if (!created_by || !updated_by) {
-  //             throw new Error(
-  //               "created_by and updated_by are required for each school."
-  //             );
-  //           }
-
-  //           try {
-  //             const locationIds = await getLocationIds(state, district, city);
-  //             const schoolCode = await generateSchoolCode(
-  //               locationIds.state_id,
-  //               locationIds.city_id
-  //             );
-
-  //             values.push([
-  //               school.board,
-  //               school.school_name,
-  //               school.school_address,
-  //               school.pincode,
-  //               locationIds.state_id,
-  //               locationIds.district_id,
-  //               locationIds.city_id,
-  //               schoolCode,
-  //               school.created_by,
-  //               school.updated_by,
-  //             ]);
-  //           } catch (error) {
-  //             console.warn(error.message);
-  //             reject({ message: error.message });
-  //             return;
-  //           }
-  //         }
-
-  //         const query = `
-  //           INSERT INTO school
-  //           (board, school_name, state, district, city, pincode, school_code, created_by, updated_by)
-  //           VALUES ?
-  //         `;
-
-  //         db.query(query, [values], (err, results) => {
-  //           if (err) {
-  //             return reject(err);
-  //           }
-  //           resolve(results);
-  //         });
-  //       } catch (error) {
-  //         reject(error);
-  //       }
-  //     };
-
-  //     processSchools();
-  //   });
-  // },
-
-  // bulkCreate: (schools) => {
-  //   return new Promise((resolve, reject) => {
-  //     const generateSchoolCode = (stateId, cityId) => {
-  //       return new Promise((resolve, reject) => {
-  //         const prefix = `${stateId}${cityId}`;
-  //         const sql = `
-  //           SELECT school_code FROM school
-  //           WHERE school_code LIKE ?
-  //           ORDER BY school_code DESC LIMIT 1
-  //         `;
-  //         db.query(sql, [`${prefix}%`], (err, results) => {
-  //           if (err) return reject(err);
-
-  //           let schoolCode;
-  //           if (results.length > 0) {
-  //             const latest = results[0].school_code;
-  //             const num = parseInt(latest.substring(prefix.length), 10) + 1;
-  //             schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
-  //           } else {
-  //             schoolCode = `${prefix}01`;
-  //           }
-
-  //           // Limit to 20 characters
-  //           if (schoolCode.length > 20) {
-  //             schoolCode = schoolCode.substring(0, 20);
-  //           }
-
-  //           resolve(schoolCode);
-  //         });
-  //       });
-  //     };
-
-  //     const getLocationIds = (country, state, district, city) => {
-  //       return new Promise((resolve, reject) => {
-  //         const sql = `
-  //           SELECT
-  //             ctry.id AS country_id,
-  //             s.id AS state_id,
-  //             d.id AS district_id,
-  //             ct.id AS city_id
-  //           FROM countries ctry
-  //           JOIN states s ON s.country_id = ctry.id
-  //           JOIN districts d ON d.state_id = s.id
-  //           JOIN cities ct ON ct.district_id = d.id
-  //           WHERE ctry.name = ? AND s.name = ? AND d.name = ? AND ct.name = ?
-  //         `;
-  //         db.query(sql, [country, state, district, city], (err, results) => {
-  //           if (err) return reject(err);
-  //           if (results.length === 0) {
-  //             return reject(
-  //               new Error(
-  //                 `Location not found for: ${country}, ${state}, ${district}, ${city}`
-  //               )
-  //             );
-  //           }
-  //           resolve(results[0]);
-  //         });
-  //       });
-  //     };
-
-  //     const processSchools = async () => {
-  //       try {
-  //         const values = [];
-  //         const insertedSchools = [];
-
-  //         for (const school of schools) {
-  //           const { country, state, district, city, created_by, updated_by } =
-  //             school;
-
-  //           if (!country || !state || !district || !city) {
-  //             throw new Error(
-  //               "Country, state, district, and city are required."
-  //             );
-  //           }
-
-  //           if (!created_by || !updated_by) {
-  //             throw new Error("created_by and updated_by are required.");
-  //           }
-
-  //           const location = await getLocationIds(
-  //             country,
-  //             state,
-  //             district,
-  //             city
-  //           );
-  //           const schoolCode = await generateSchoolCode(
-  //             location.state_id,
-  //             location.city_id
-  //           );
-
-  //           const schoolData = [
-  //             school.board || null,
-  //             school.school_name || null,
-  //             school.school_address || null,
-  //             school.pincode || null,
-  //             location.country_id,
-  //             location.state_id,
-  //             location.district_id,
-  //             location.city_id,
-  //             schoolCode,
-  //             school.school_email || null,
-  //             school.principal_contact_number || null,
-  //             created_by,
-  //             updated_by,
-  //           ];
-
-  //           values.push(schoolData);
-
-  //           insertedSchools.push({
-  //             ...school,
-  //             school_code: schoolCode,
-  //             country_id: location.country_id,
-  //             state_id: location.state_id,
-  //             district_id: location.district_id,
-  //             city_id: location.city_id,
-  //           });
-  //         }
-
-  //         const sql = `
-  //           INSERT INTO school (
-  //             board, school_name, school_address, pincode,
-  //             country, state, district, city, school_code,
-  //             school_email, principal_contact_number,
-  //             created_by, updated_by
-  //           )
-  //           VALUES ?
-  //         `;
-
-  //         db.query(sql, [values], (err, result) => {
-  //           if (err) return reject(err);
-  //           resolve({
-  //             affectedRows: result.affectedRows,
-  //             schools: insertedSchools,
-  //           });
-  //         });
-  //       } catch (err) {
-  //         reject(err);
-  //       }
-  //     };
-
-  //     processSchools();
-  //   });
-  // },
-
-  // bulkCreate: (schools) => {
-  //   return new Promise((resolve, reject) => {
-  //     const generateSchoolCode = (stateId, cityId) => {
-  //       return new Promise((resolve, reject) => {
-  //         const prefix = `${stateId}${cityId}`;
-  //         const sql = `
-  //           SELECT school_code FROM school
-  //           WHERE school_code LIKE ?
-  //           ORDER BY school_code DESC LIMIT 1
-  //         `;
-  //         db.query(sql, [`${prefix}%`], (err, results) => {
-  //           if (err) return reject(err);
-
-  //           let schoolCode;
-  //           if (results.length > 0) {
-  //             const latest = results[0].school_code;
-  //             const num = parseInt(latest.substring(prefix.length), 10) + 1;
-  //             schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
-  //           } else {
-  //             schoolCode = `${prefix}01`;
-  //           }
-
-  //           // Limit to 20 characters
-  //           if (schoolCode.length > 20) {
-  //             schoolCode = schoolCode.substring(0, 20);
-  //           }
-
-  //           resolve(schoolCode);
-  //         });
-  //       });
-  //     };
-
-  //     const getLocationIds = (country, state, district, city) => {
-  //       return new Promise((resolve, reject) => {
-  //         const sql = `
-  //           SELECT
-  //             ctry.id AS country_id,
-  //             s.id AS state_id,
-  //             d.id AS district_id,
-  //             ct.id AS city_id
-  //           FROM countries ctry
-  //           JOIN states s ON s.country_id = ctry.id
-  //           JOIN districts d ON d.state_id = s.id
-  //           JOIN cities ct ON ct.district_id = d.id
-  //           WHERE ctry.name = ? AND s.name = ? AND d.name = ? AND ct.name = ?
-  //         `;
-  //         db.query(sql, [country, state, district, city], (err, results) => {
-  //           if (err) return reject(err);
-  //           if (results.length === 0) {
-  //             return reject(
-  //               new Error(
-  //                 `Location not found for: ${country}, ${state}, ${district}, ${city}`
-  //               )
-  //             );
-  //           }
-  //           resolve(results[0]);
-  //         });
-  //       });
-  //     };
-
-  //     const processSchools = async () => {
-  //       try {
-  //         const values = [];
-  //         const insertedSchools = [];
-
-  //         for (const school of schools) {
-  //           const {
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             created_by,
-  //             updated_by,
-  //             ...optionalFields // Capture all other fields dynamically
-  //           } = school;
-
-  //           // Validate required fields
-  //           const requiredFields = {
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             created_by,
-  //             updated_by,
-  //           };
-  //           const missingFields = Object.keys(requiredFields).filter(
-  //             (key) => !requiredFields[key]
-  //           );
-
-  //           if (missingFields.length > 0) {
-  //             throw new Error(
-  //               `Missing required fields: ${missingFields.join(", ")}`
-  //             );
-  //           }
-
-  //           // Get location IDs
-  //           const location = await getLocationIds(
-  //             country,
-  //             state,
-  //             district,
-  //             city
-  //           );
-
-  //           // Generate school code
-  //           const schoolCode = await generateSchoolCode(
-  //             location.state_id,
-  //             location.city_id
-  //           );
-
-  //           // Define all possible fields for the school table
-  //           const schoolData = [
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             location.country_id,
-  //             location.state_id,
-  //             location.district_id,
-  //             location.city_id,
-  //             schoolCode,
-  //             optionalFields.school_email || null,
-  //             optionalFields.principal_contact_number || null,
-  //             created_by,
-  //             updated_by,
-  //             optionalFields.school_contact_number || null,
-  //             optionalFields.school_landline_number || null,
-  //             optionalFields.principal_name || null,
-  //             optionalFields.principal_whatsapp || null,
-  //             optionalFields.vice_principal_name || null,
-  //             optionalFields.vice_principal_contact_number || null,
-  //             optionalFields.vice_principal_whatsapp || null,
-  //             optionalFields.manager_name || null,
-  //             optionalFields.manager_contact_number || null,
-  //             optionalFields.manager_whatsapp_number || null,
-  //             optionalFields.first_incharge_name || null,
-  //             optionalFields.first_incharge_number || null,
-  //             optionalFields.first_incharge_whatsapp || null,
-  //             optionalFields.second_incharge_name || null,
-  //             optionalFields.second_incharge_number || null,
-  //             optionalFields.second_incharge_whatsapp || null,
-  //             optionalFields.junior_student_strength || null,
-  //             optionalFields.senior_student_strength || null,
-  //             optionalFields.classes
-  //               ? JSON.stringify(optionalFields.classes)
-  //               : null,
-  //             optionalFields.status || null,
-  //           ];
-
-  //           values.push(schoolData);
-
-  //           // Store inserted school data for response
-  //           insertedSchools.push({
-  //             ...school,
-  //             school_code: schoolCode,
-  //             country_id: location.country_id,
-  //             state_id: location.state_id,
-  //             district_id: location.district_id,
-  //             city_id: location.city_id,
-  //           });
-  //         }
-
-  //         // SQL for inserting multiple schools
-  //         const sql = `
-  //           INSERT INTO school (
-  //             board, school_name, school_address, pincode,
-  //             country, state, district, city, school_code,
-  //             school_email, principal_contact_number,
-  //             created_by, updated_by,
-  //             school_contact_number, school_landline_number,
-  //             principal_name, principal_whatsapp,
-  //             vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp,
-  //             manager_name, manager_contact_number, manager_whatsapp_number,
-  //             first_incharge_name, first_incharge_number, first_incharge_whatsapp,
-  //             second_incharge_name, second_incharge_number, second_incharge_whatsapp,
-  //             junior_student_strength, senior_student_strength, classes, status
-  //           )
-  //           VALUES ?
-  //         `;
-
-  //         db.query(sql, [values], (err, result) => {
-  //           if (err) return reject(err);
-  //           resolve({
-  //             affectedRows: result.affectedRows,
-  //             schools: insertedSchools,
-  //           });
-  //         });
-  //       } catch (err) {
-  //         reject(err);
-  //       }
-  //     };
-
-  //     processSchools();
-  //   });
-  // },
 
   // bulkCreate: (schools) => {
   //   return new Promise((resolve, reject) => {

@@ -362,3 +362,49 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
 };
 
 
+//attendance
+export const getFilteredStudentsforattendance = (req, res) => {
+  const { schoolName, classList, subjectList } = req.body;
+
+  if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({ error: "Invalid input data" });
+  }
+
+  Student.getStudentforAttendance(
+    schoolName,
+    classList,
+    subjectList,
+    (err, result) => {
+      if (err) {
+        console.error("Error fetching students:", err);
+        return res.status(500).json({ error: "Failed to fetch students" });
+      }
+
+      const { students, totalCount } = result;
+
+      Student.getClassNames(classList, (classErr, classNames) => {
+        if (classErr) {
+          console.error("Error fetching class names:", classErr);
+          return res.status(500).json({ error: "Failed to fetch class names" });
+        }
+
+        Student.getSubjectNames(subjectList, (subErr, subjectNames) => {
+          if (subErr) {
+            console.error("Error fetching subject names:", subErr);
+            return res
+              .status(500)
+              .json({ error: "Failed to fetch subject names" });
+          }
+
+          res.json({
+            students,
+            totalCount,
+            classNames,
+            subjectNames,
+          });
+        });
+      });
+    }
+  );
+};
+

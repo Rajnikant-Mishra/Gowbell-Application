@@ -9,6 +9,7 @@ import {
   getAllstudentserach,
   getFilteredStudents,
   getFilteredStudentsomrreceipt,
+  getFilteredStudentsforattendance,
 
 } from "../../controllers/Student/studentController.js";
 import { authenticateToken } from "../../middleware/verifyToken.js";
@@ -40,6 +41,10 @@ router.post("/student/filter", getFilteredStudents);
 
 //omr receipt
 router.post("/filter/omr-receipt", getFilteredStudentsomrreceipt);
+
+//attendance
+
+router.post("/student-attendance", getFilteredStudentsforattendance);
 
 
 

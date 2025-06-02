@@ -6,80 +6,6 @@ import { db } from "../../config/db.js";
 import User from "../../models/User/userModel.js";
 
 // export const createSchool = async (req, res) => {
-//   const { id } = req.user;
-//   const data = req.body;
-
-//   try {
-//     // Ensure created_by and updated_by are set to the logged-in user's ID
-//     const schoolData = {
-//       ...data,
-//       created_by: id,
-//       updated_by: id,
-//     };
-
-//     // Create school in the database
-//     const results = await School.create(schoolData);
-
-//     if (!results || !results.insertId) {
-//       return res
-//         .status(500)
-//         .json({ message: "School creation failed, no ID returned" });
-//     }
-
-//     const schoolId = results.insertId;
-//     const schoolCode = results.school_code;
-//     const schoolName = data.school_name;
-//     const schoolEmail = data.school_email;
-//     const principalPhoneNumber = data.principal_contact_number;
-
-//     // Check if both email and phone are present
-//     if (schoolEmail && principalPhoneNumber && /^[+]?\d后来{10,15}$/.test(principalPhoneNumber)) {
-//       // Prepare details for email and SMS
-//       const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
-
-//       const emailSubject = `School Registration Successful: ${schoolName}`;
-//       const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
-//       const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
-//                         <p>Your registration with Gowbell Foundation was successful.</p>
-//                         <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
-
-//       // Send notifications
-//       await Promise.all([
-//         sendEmail(schoolEmail, emailSubject, emailText, emailHtml),
-//         sendSms(principalPhoneNumber, smsMessage)
-//       ]);
-
-//       // Success response with notifications sent
-//       return res.status(201).json({
-//         message: "School created, email and SMS sent successfully!",
-//         id: schoolId,
-//         school_code: schoolCode,
-//       });
-//     } else {
-//       // Success response without notifications
-//       return res.status(201).json({
-//         message: "School created successfully, notifications not sent due to missing or invalid contact information",
-//         id: schoolId,
-//         school_code: schoolCode,
-//       });
-//     }
-//   } catch (err) {
-//     console.error("Error during school creation:", err);
-
-//     if (err.response) {
-//       return res
-//         .status(500)
-//         .json({
-//           message: "Error in external service",
-//           error: err.response.data,
-//         });
-//     }
-
-//     res.status(500).json({ message: "An error occurred", error: err.message });
-//   }
-// };
-
-// export const createSchool = async (req, res) => {
 //   const { id } = req.user; // Only id is guaranteed from req.user
 //   const data = req.body;
 
@@ -93,8 +19,9 @@ import User from "../../models/User/userModel.js";
 //       });
 //     });
 
-//     // Determine status_approved based on user role or username
+//     // Determine status_approved and approved_by based on user role or username
 //     let statusApproved;
+//     let approvedBy = null; // Default to null for non-admins
 //     if (user) {
 //       const roleLower = user.role ? user.role.toLowerCase() : "";
 //       const isAdmin =
@@ -103,6 +30,7 @@ import User from "../../models/User/userModel.js";
 
 //       if (isAdmin) {
 //         statusApproved = "approved";
+//         approvedBy = user.username; // Store admin's username in approved_by
 //       } else if (roleLower === "maker") {
 //         statusApproved = "pending";
 //       } else if (roleLower === "checker") {
@@ -114,12 +42,13 @@ import User from "../../models/User/userModel.js";
 //       statusApproved = "pending"; // Default if no user found
 //     }
 
-//     // Ensure created_by and updated_by are set to the logged-in user's ID
+//     // Ensure created_by, updated_by, and approved_by are set appropriately
 //     const schoolData = {
 //       ...data,
 //       created_by: id,
 //       updated_by: id,
 //       status_approved: statusApproved,
+//       approved_by: approvedBy, // Add approved_by to schoolData
 //     };
 
 //     // Create school in the database
@@ -164,6 +93,7 @@ import User from "../../models/User/userModel.js";
 //         id: schoolId,
 //         school_code: schoolCode,
 //         status_approved: schoolData.status_approved,
+//         approved_by: schoolData.approved_by, // Include approved_by in response
 //       });
 //     } else {
 //       // Success response without notifications
@@ -173,6 +103,7 @@ import User from "../../models/User/userModel.js";
 //         id: schoolId,
 //         school_code: schoolCode,
 //         status_approved: schoolData.status_approved,
+//         approved_by: schoolData.approved_by, // Include approved_by in response
 //       });
 //     }
 //   } catch (err) {
@@ -246,50 +177,15 @@ export const createSchool = async (req, res) => {
 
     const schoolId = results.insertId;
     const schoolCode = results.school_code;
-    const schoolName = data.school_name;
-    const schoolEmail = data.school_email;
-    const principalPhoneNumber = data.principal_contact_number;
 
-    // Check if both email and phone are present
-    if (
-      schoolEmail &&
-      principalPhoneNumber &&
-      /^[+]?\d{10,15}$/.test(principalPhoneNumber)
-    ) {
-      // Prepare details for email and SMS
-      const smsMessage = `Dear ${schoolName}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
-
-      const emailSubject = `School Registration Successful: ${schoolName}`;
-      const emailText = `Dear ${schoolName}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
-      const emailHtml = `<p>Dear <strong>${schoolName}</strong>,</p>
-                        <p>Your registration with Gowbell Foundation was successful.</p>
-                        <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
-
-      // Send notifications
-      await Promise.all([
-        sendEmail(schoolEmail, emailSubject, emailText, emailHtml),
-        sendSms(principalPhoneNumber, smsMessage),
-      ]);
-
-      // Success response with notifications sent
-      return res.status(201).json({
-        message: "School created, email and SMS sent successfully!",
-        id: schoolId,
-        school_code: schoolCode,
-        status_approved: schoolData.status_approved,
-        approved_by: schoolData.approved_by, // Include approved_by in response
-      });
-    } else {
-      // Success response without notifications
-      return res.status(201).json({
-        message:
-          "School created successfully, notifications not sent due to missing or invalid contact information",
-        id: schoolId,
-        school_code: schoolCode,
-        status_approved: schoolData.status_approved,
-        approved_by: schoolData.approved_by, // Include approved_by in response
-      });
-    }
+    // Success response
+    return res.status(201).json({
+      message: "School created successfully",
+      id: schoolId,
+      school_code: schoolCode,
+      status_approved: schoolData.status_approved,
+      approved_by: schoolData.approved_by, // Include approved_by in response
+    });
   } catch (err) {
     console.error("Error during school creation:", err);
 
@@ -305,11 +201,10 @@ export const createSchool = async (req, res) => {
 };
 
 // export const bulkUploadSchools = async (req, res) => {
-//   const { id } = req.user; // User ID from authenticated request
-//   const schools = req.body; // Expecting an array of school objects
+//   const { id } = req.user;
+//   const schools = req.body;
 
 //   try {
-//     // Add created_by and updated_by to each school object
 //     const schoolsWithUserData = schools.map((school) => ({
 //       ...school,
 //       created_by: id,
@@ -322,88 +217,30 @@ export const createSchool = async (req, res) => {
 //       return res.status(500).json({ message: "Failed to insert schools" });
 //     }
 
-//     // Generate school codes and send confirmation emails/SMS
-//     const schoolsWithCodes = schoolsWithUserData.map((school, index) => {
-//       const { state, city } = school; // Extract state and city
-
-//       const schoolCode = `${state}${city}${String(index + 1).padStart(2, "0")}`;
-
-//       // Send confirmation email
-//       const emailSubject = `School Registration Successful: ${school.school_name}`;
-//       const emailText = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. Your School Code: ${schoolCode}`;
-//       const emailHtml = `<p>Dear <strong>${school.school_name}</strong>,</p>
-//                          <p>Your registration with Gowbell Foundation was successful.</p>
-//                          <p>Your School Code: <strong>${schoolCode}</strong>.</p>`;
-//       sendEmail(school.school_email, emailSubject, emailText, emailHtml);
-
-//       // Send confirmation SMS
-//       const smsMessage = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful! Your School Code: ${schoolCode}`;
-//       sendSms(school.principal_contact_number, smsMessage);
-
-//       return {
-//         ...school,
-//         school_code: schoolCode,
-//       };
-//     });
-
-//     res.status(201).json({
-//       message: "Schools uploaded successfully",
-//       insertedCount: results.affectedRows,
-//       schools: schoolsWithCodes,
-//     });
-//   } catch (err) {
-//     console.error("Error during bulk upload of schools:", err);
-//     res.status(500).json({ message: "An error occurred", error: err.message });
-//   }
-// };
-
-// export const bulkUploadSchools = async (req, res) => {
-//   const { id } = req.user; // Authenticated user ID
-//   const schools = req.body; // Array of school objects
-
-//   try {
-//     // Add created_by and updated_by to each school object
-//     const schoolsWithUserData = schools.map((school) => ({
-//       ...school,
-//       created_by: id,
-//       updated_by: id,
-//     }));
-
-//     const results = await School.bulkCreate(schoolsWithUserData);
-
-//     if (!results || results.affectedRows === 0) {
-//       return res.status(500).json({ message: "Failed to insert schools" });
-//     }
-
-//     // Combine school data with generated codes (assuming School.bulkCreate returns them)
-//     const insertedSchools = results.schools || schoolsWithUserData; // Fallback if no returned school list
-
-//     // Loop through and send notifications only if both email and phone are present
-//     insertedSchools.forEach((school) => {
+//     results.schools.forEach((school) => {
 //       if (school.school_email && school.principal_contact_number) {
-//         const emailSubject = `School Registration Successful: ${school.school_name}`;
-//         const emailText = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. Your School Code: ${school.school_code}`;
-//         const emailHtml = `
+//         const subject = `School Registration Successful: ${school.school_name}`;
+//         const text = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. School Code: ${school.school_code}`;
+//         const html = `
 //           <p>Dear <strong>${school.school_name}</strong>,</p>
-//           <p>Your registration with Gowbell Foundation was successful.</p>
-//           <p>Your School Code: <strong>${school.school_code}</strong>.</p>
+//           <p>Registration successful with Gowbell Foundation.</p>
+//           <p>Your School Code is <strong>${school.school_code}</strong>.</p>
 //         `;
 
-//         sendEmail(school.school_email, emailSubject, emailText, emailHtml);
-
-//         const smsMessage = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful! Your School Code: ${school.school_code}`;
-//         sendSms(school.principal_contact_number, smsMessage);
+//         sendEmail(school.school_email, subject, text, html);
+//         sendSms(school.principal_contact_number, text);
 //       }
 //     });
 
 //     res.status(201).json({
 //       message: "Schools uploaded successfully",
 //       insertedCount: results.affectedRows,
-//       schools: insertedSchools,
+//       schools: results.schools,
+//       errors: results.errors || [],
 //     });
 //   } catch (err) {
-//     console.error("Error during bulk upload of schools:", err);
-//     res.status(500).json({ message: "An error occurred", error: err.message });
+//     console.error("Bulk upload error:", err);
+//     res.status(500).json({ message: "Server error", error: err.message });
 //   }
 // };
 
@@ -423,21 +260,6 @@ export const bulkUploadSchools = async (req, res) => {
     if (!results || results.affectedRows === 0) {
       return res.status(500).json({ message: "Failed to insert schools" });
     }
-
-    results.schools.forEach((school) => {
-      if (school.school_email && school.principal_contact_number) {
-        const subject = `School Registration Successful: ${school.school_name}`;
-        const text = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. School Code: ${school.school_code}`;
-        const html = `
-          <p>Dear <strong>${school.school_name}</strong>,</p>
-          <p>Registration successful with Gowbell Foundation.</p>
-          <p>Your School Code is <strong>${school.school_code}</strong>.</p>
-        `;
-
-        sendEmail(school.school_email, subject, text, html);
-        sendSms(school.principal_contact_number, text);
-      }
-    });
 
     res.status(201).json({
       message: "Schools uploaded successfully",
@@ -459,19 +281,17 @@ export const getAll = (req, res) => {
   });
 };
 
-//pagibnation school get
 export const getAllSchools = (req, res) => {
-  let { page = 1, limit = 10 } = req.query;
+  let { page = 1, limit = 10, search = "" } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
 
-  School.getAll(page, limit, (err, data) => {
+  School.getAll(page, limit, search, (err, data) => {
     if (err) return res.status(500).json({ error: err.message });
 
     res.status(200).json(data);
   });
 };
-
 
 // Get school by ID
 export const getSchoolById = (req, res) => {
@@ -554,69 +374,7 @@ export const filterByLocation = (req, res) => {
 };
 
 //approvede code
-// export const updateStatusApproved = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { status_approved } = req.body;
 
-//     if (!status_approved) {
-//       return res.status(400).json({ message: "status_approved is required" });
-//     }
-
-//     const result = await School.updateStatusApprovedById(id, status_approved);
-
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: "School not found" });
-//     }
-
-//     res.json({ message: "status_approved updated successfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// }
-
-// export const updateStatusApproved = async (req, res) => {
-//   try {
-//     const { id: userId } = req.user; // logged-in user's ID
-//     if (!userId) {
-//       return res.status(401).json({ error: "User ID is missing from token" });
-//     }
-
-//     const { id: schoolId } = req.params;
-//     const { status_approved } = req.body;
-
-//     if (!status_approved) {
-//       return res.status(400).json({ message: "status_approved is required" });
-//     }
-
-//     // ✅ Fetch the user by ID from DB
-//     const user = await User.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const { username } = user;
-
-//     // ✅ Role-based access control
-//     if (username !== "admin") {
-//       return res.status(403).json({
-//         message: "Only admin or checker can approved",
-//       });
-//     }
-
-//     const result = await School.updateStatusApprovedById(schoolId, status_approved);
-
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: "School not found" });
-//     }
-
-//     res.json({ message: "status_approved updated successfully" });
-//   } catch (error) {
-//     console.error("Error in updateStatusApproved:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 // export const updateStatusApproved = async (req, res) => {
 //   try {
 //     const { id: userId } = req.user; // logged-in user's ID
@@ -683,6 +441,366 @@ export const filterByLocation = (req, res) => {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
+
+// export const updateStatusApproved = async (req, res) => {
+//   try {
+//     const { id: userId } = req.user; // logged-in user's ID
+//     if (!userId) {
+//       return res.status(401).json({ error: "User ID is missing from token" });
+//     }
+
+//     const { id: schoolId } = req.params;
+//     const { status_approved } = req.body;
+
+//     if (!status_approved) {
+//       return res.status(400).json({ message: "status_approved is required" });
+//     }
+
+//     // ✅ Fetch user and role
+//     const sql = `
+//       SELECT users.*, roles.role_name
+//       FROM users
+//       JOIN roles ON users.role = roles.id
+//       WHERE users.id = ?
+//     `;
+
+//     db.query(sql, [userId], async (err, results) => {
+//       if (err) {
+//         console.error("Error querying user and role:", err);
+//         return res.status(500).json({ error: "Database error" });
+//       }
+
+//       const user = results[0];
+
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+
+//       const { role_name, username } = user;
+
+//       // ✅ Role-based access control
+//       if (status_approved === "approved") {
+//         if (role_name !== "admin" && role_name !== "checker") {
+//           return res.status(403).json({
+//             message: "Only admin or checker can approve",
+//           });
+//         }
+//       } else if (status_approved === "rejected") {
+//         if (role_name !== "admin") {
+//           return res.status(403).json({
+//             message: "Only admin can rejected",
+//           });
+//         }
+//       } else if (status_approved === "pending") {
+//         if (role_name !== "admin") {
+//           return res.status(403).json({
+//             message: "Only admin can pending",
+//           });
+//         }
+//       } else {
+//         return res.status(400).json({
+//           message: "Invalid status_approved value",
+//         });
+//       }
+
+//       // ✅ Call your existing model function
+//       try {
+//         const result = await School.updateStatusApprovedById(
+//           schoolId,
+//           status_approved,
+//           username
+//         );
+
+//         if (result.affectedRows === 0) {
+//           return res.status(404).json({ message: "School not found" });
+//         }
+
+//         return res.json({
+//           message: `Status updated to ${status_approved} successfully`,
+//         });
+//       } catch (updateError) {
+//         console.error("Error updating status:", updateError);
+//         return res.status(500).json({ error: updateError.message });
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error in updateStatusApproved:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+///////-----------------------
+// export const updateStatusApproved = async (req, res) => {
+//   try {
+//     const { id: userId } = req.user; // logged-in user's ID
+//     if (!userId) {
+//       return res.status(401).json({ error: "User ID is missing from token" });
+//     }
+
+//     const { id: schoolId } = req.params;
+//     const { status_approved } = req.body;
+
+//     if (!status_approved) {
+//       return res.status(400).json({ message: "status_approved is required" });
+//     }
+
+//     // ✅ Fetch user and role
+//     const sqlUser = `
+//       SELECT users.*, roles.role_name
+//       FROM users
+//       JOIN roles ON users.role = roles.id
+//       WHERE users.id = ?
+//     `;
+
+//     db.query(sqlUser, [userId], async (err, results) => {
+//       if (err) {
+//         console.error("Error querying user and role:", err);
+//         return res.status(500).json({ error: "Database error" });
+//       }
+
+//       const user = results[0];
+
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+
+//       const { role_name, username } = user;
+
+//       // ✅ Role-based access control
+//       if (status_approved === "approved") {
+//         if (role_name !== "admin" && role_name !== "checker") {
+//           return res.status(403).json({
+//             message: "Only admin or checker can approve",
+//           });
+//         }
+//       } else if (status_approved === "rejected") {
+//         if (role_name !== "admin") {
+//           return res.status(403).json({
+//             message: "Only admin can reject",
+//           });
+//         }
+//       } else if (status_approved === "pending") {
+//         if (role_name !== "admin") {
+//           return res.status(403).json({
+//             message: "Only admin can set to pending",
+//           });
+//         }
+//       } else {
+//         return res.status(400).json({
+//           message: "Invalid status_approved value",
+//         });
+//       }
+
+//       // ✅ Fetch school email and name
+//       const sqlSchool = `
+//         SELECT school_email, school_name
+//         FROM school
+//         WHERE id = ?
+//       `;
+
+//       db.query(sqlSchool, [schoolId], async (err, schoolResults) => {
+//         if (err) {
+//           console.error("Error querying school email and name:", err);
+//           return res.status(500).json({ error: "Database error" });
+//         }
+
+//         if (!schoolResults[0]) {
+//           return res.status(404).json({ message: "School not found" });
+//         }
+
+//         const { school_email, school_name } = schoolResults[0];
+
+//         // ✅ Update school status
+//         try {
+//           const result = await School.updateStatusApprovedById(
+//             schoolId,
+//             status_approved,
+//             username
+//           );
+
+//           if (result.affectedRows === 0) {
+//             return res.status(404).json({ message: "School not found" });
+//           }
+
+//           // ✅ Send email notification with school name
+//           const subject = `School Status Update: ${
+//             status_approved.charAt(0).toUpperCase() + status_approved.slice(1)
+//           }`;
+//           const text = `Dear School Administrator,\n\nThe status of your school, ${school_name}, has been updated to "${status_approved}".\n\nBest regards,\nThe Approval Team`;
+//           const html = `
+//             <h3>School Status Update</h3>
+//             <p>Dear School Administrator,</p>
+//             <p>The status of your school, <strong>${school_name}</strong>, has been updated to <strong>${status_approved}</strong>.</p>
+//             <p>Best regards,<br>The Approval Team</p>
+//           `;
+
+//           try {
+//             await sendEmail(school_email, subject, text, html);
+//             console.log(`Email sent to ${school_email} for ${school_name}`);
+//           } catch (emailError) {
+//             console.error("Error sending email:", emailError);
+//             // Note: Not failing the request if email fails, just logging
+//           }
+
+//           return res.json({
+//             message: `Status updated to ${status_approved} successfully`,
+//           });
+//         } catch (updateError) {
+//           console.error("Error updating status:", updateError);
+//           return res.status(500).json({ error: updateError.message });
+//         }
+//       });
+//     });
+//   } catch (error) {
+//     console.error("Error in updateStatusApproved:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+// export const updateStatusApproved = async (req, res) => {
+//   try {
+//     const { id: userId } = req.user; // logged-in user's ID
+//     if (!userId) {
+//       return res.status(401).json({ error: "User ID is missing from token" });
+//     }
+
+//     const { id: schoolId } = req.params;
+//     const { status_approved } = req.body;
+
+//     if (!status_approved) {
+//       return res.status(400).json({ message: "status_approved is required" });
+//     }
+
+//     // ✅ Fetch user and role
+//     const sqlUser = `
+//       SELECT users.*, roles.role_name
+//       FROM users
+//       JOIN roles ON users.role = roles.id
+//       WHERE users.id = ?
+//     `;
+
+//     db.query(sqlUser, [userId], async (err, results) => {
+//       if (err) {
+//         console.error("Error querying user and role:", err);
+//         return res.status(500).json({ error: "Database error" });
+//       }
+
+//       const user = results[0];
+
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+
+//       const { role_name, username } = user;
+
+//       // ✅ Role-based access control
+//       if (status_approved === "approved") {
+//         if (role_name !== "admin" && role_name !== "checker") {
+//           return res.status(403).json({
+//             message: "Only admin or checker can approve",
+//           });
+//         }
+//       } else if (status_approved === "rejected") {
+//         if (role_name !== "admin") {
+//           return res.status(403).json({
+//             message: "Only admin can reject",
+//           });
+//         }
+//       } else if (status_approved === "pending") {
+//         if (role_name !== "admin") {
+//           return res.status(403).json({
+//             message: "Only admin can set to pending",
+//           });
+//         }
+//       } else {
+//         return res.status(400).json({
+//           message: "Invalid status_approved value",
+//         });
+//       }
+
+//       // ✅ Fetch school email, name, and contact number
+//       const sqlSchool = `
+//         SELECT school_email, school_name, school_contact_number
+//         FROM school
+//         WHERE id = ?
+//       `;
+
+//       db.query(sqlSchool, [schoolId], async (err, schoolResults) => {
+//         if (err) {
+//           console.error("Error querying school details:", err);
+//           return res.status(500).json({ error: "Database error" });
+//         }
+
+//         if (!schoolResults[0]) {
+//           return res.status(404).json({ message: "School not found" });
+//         }
+
+//         const { school_email, school_name, school_contact_number } =
+//           schoolResults[0];
+
+//         // ✅ Update school status
+//         try {
+//           const result = await School.updateStatusApprovedById(
+//             schoolId,
+//             status_approved,
+//             username
+//           );
+
+//           if (result.affectedRows === 0) {
+//             return res.status(404).json({ message: "School not found" });
+//           }
+
+//           // ✅ Send email notification with school name
+//           const subject = `School Status Update: ${
+//             status_approved.charAt(0).toUpperCase() + status_approved.slice(1)
+//           }`;
+//           const text = `Dear School Administrator,\n\nThe status of your school, ${school_name}, has been updated to "${status_approved}".\n\nBest regards,\nThe Approval Team`;
+//           const html = `
+//             <h3>School Status Update</h3>
+//             <p>Dear School Administrator,</p>
+//             <p>The status of your school, <strong>${school_name}</strong>, has been updated to <strong>${status_approved}</strong>.</p>
+//             <p>Best regards,<br>The Approval Team</p>
+//           `;
+
+//           try {
+//             await sendEmail(school_email, subject, text, html);
+//             console.log(`Email sent to ${school_email} for ${school_name}`);
+//           } catch (emailError) {
+//             console.error("Error sending email:", emailError);
+//             // Note: Not failing the request if email fails, just logging
+//           }
+
+//           // ✅ Send SMS notification if school_contact_number exists
+//           if (school_contact_number) {
+//             const smsMessage = `Dear Administrator, the status of ${school_name} has been updated to ${status_approved}. Regards, Approval Team`;
+//             try {
+//               await sendSms(school_contact_number, smsMessage);
+//               console.log(
+//                 `SMS sent to ${school_contact_number} for ${school_name}`
+//               );
+//             } catch (smsError) {
+//               console.error("Error sending SMS:", smsError);
+//               // Note: Not failing the request if SMS fails, just logging
+//             }
+//           } else {
+//             console.log(
+//               `No contact number available for ${school_name}, SMS not sent`
+//             );
+//           }
+
+//           return res.json({
+//             message: `Status updated to ${status_approved} successfully`,
+//           });
+//         } catch (updateError) {
+//           console.error("Error updating status:", updateError);
+//           return res.status(500).json({ error: updateError.message });
+//         }
+//       });
+//     });
+//   } catch (error) {
+//     console.error("Error in updateStatusApproved:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 export const updateStatusApproved = async (req, res) => {
   try {
     const { id: userId } = req.user; // logged-in user's ID
@@ -698,14 +816,14 @@ export const updateStatusApproved = async (req, res) => {
     }
 
     // ✅ Fetch user and role
-    const sql = `
+    const sqlUser = `
       SELECT users.*, roles.role_name
       FROM users
       JOIN roles ON users.role = roles.id
       WHERE users.id = ?
     `;
 
-    db.query(sql, [userId], async (err, results) => {
+    db.query(sqlUser, [userId], async (err, results) => {
       if (err) {
         console.error("Error querying user and role:", err);
         return res.status(500).json({ error: "Database error" });
@@ -729,13 +847,13 @@ export const updateStatusApproved = async (req, res) => {
       } else if (status_approved === "rejected") {
         if (role_name !== "admin") {
           return res.status(403).json({
-            message: "Only admin can rejected",
+            message: "Only admin can reject",
           });
         }
       } else if (status_approved === "pending") {
         if (role_name !== "admin") {
           return res.status(403).json({
-            message: "Only admin can pending",
+            message: "Only admin can set to pending",
           });
         }
       } else {
@@ -744,7 +862,7 @@ export const updateStatusApproved = async (req, res) => {
         });
       }
 
-      // ✅ Call your existing model function
+      // ✅ Update school status
       try {
         const result = await School.updateStatusApprovedById(
           schoolId,
@@ -756,7 +874,69 @@ export const updateStatusApproved = async (req, res) => {
           return res.status(404).json({ message: "School not found" });
         }
 
-        return res.json({ message: `Status updated to ${status_approved} successfully` });
+        // ✅ Send notifications only when status_approved is "approved"
+        if (status_approved === "approved") {
+          // ✅ Fetch school email, name, and contact number
+          const sqlSchool = `
+            SELECT school_email, school_name, school_contact_number
+            FROM school
+            WHERE id = ?
+          `;
+
+          db.query(sqlSchool, [schoolId], async (err, schoolResults) => {
+            if (err) {
+              console.error("Error querying school details:", err);
+              return res.status(500).json({ error: "Database error" });
+            }
+
+            if (!schoolResults[0]) {
+              return res.status(404).json({ message: "School not found" });
+            }
+
+            const { school_email, school_name, school_contact_number } =
+              schoolResults[0];
+
+            // ✅ Send email notification
+            const subject = `School Status Update: Approved`;
+            const text = `Dear School Administrator,\n\nThe status of your school, ${school_name}, has been updated to "approved".\n\nBest regards,\nThe Approval Team`;
+            const html = `
+              <h3>School Status Update</h3>
+              <p>Dear School Administrator,</p>
+              <p>The status of your school, <strong>${school_name}</strong>, has been updated to <strong>approved</strong>.</p>
+              <p>Best regards,<br>The Approval Team</p>
+            `;
+
+            try {
+              await sendEmail(school_email, subject, text, html);
+              console.log(`Email sent to ${school_email} for ${school_name}`);
+            } catch (emailError) {
+              console.error("Error sending email:", emailError);
+              // Note: Not failing the request if email fails, just logging
+            }
+
+            // ✅ Send SMS notification if school_contact_number exists
+            if (school_contact_number) {
+              const smsMessage = `Dear Administrator, the status of ${school_name} has been updated to approved. Regards, Approval Team`;
+              try {
+                await sendSms(school_contact_number, smsMessage);
+                console.log(
+                  `SMS sent to ${school_contact_number} for ${school_name}`
+                );
+              } catch (smsError) {
+                console.error("Error sending SMS:", smsError);
+                // Note: Not failing the request if SMS fails, just logging
+              }
+            } else {
+              console.log(
+                `No contact number available for ${school_name}, SMS not sent`
+              );
+            }
+          });
+        }
+
+        return res.json({
+          message: `Status updated to ${status_approved} successfully`,
+        });
       } catch (updateError) {
         console.error("Error updating status:", updateError);
         return res.status(500).json({ error: updateError.message });
@@ -767,4 +947,3 @@ export const updateStatusApproved = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-

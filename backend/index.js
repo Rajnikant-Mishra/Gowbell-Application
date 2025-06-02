@@ -254,15 +254,15 @@ app.use('/api/t1', itemRoutes);
 app.use('/api/s1', subitem);
 
 // ✅ Cron Job: Runs every day at 1 AM
-cron.schedule('* * * * * *', () => {
-  console.log('🕐 Cron job running ', new Date());
+// cron.schedule('* * * * * *', () => {
+//   console.log('🕐 Cron job running ', new Date());
 
-  // You can add any logic here, for example:
-  // - Clear expired sessions
-  // - Archive old records
-  // - Send email reports
-  // - Auto-generate exam results
-});
+//   // You can add any logic here, for example:
+//   // - Clear expired sessions
+//   // - Archive old records
+//   // - Send email reports
+//   // - Auto-generate exam results
+// });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

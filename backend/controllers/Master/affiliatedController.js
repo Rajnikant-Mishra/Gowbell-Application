@@ -43,6 +43,14 @@ export const getAllAffiliated = (req, res) => {
     });
 };
 
+export const getAll = (req, res) => {
+  const { page, limit, search } = req.query;
+  Affiliated.getAll(page, limit, search, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
 // READ - Get a specific affiliated entry by ID
 export const getAffiliatedById = (req, res) => {
     const { id } = req.params;
