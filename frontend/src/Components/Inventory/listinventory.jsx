@@ -47,7 +47,6 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
 
-
   // useEffect(() => {
   //   const fetchData = async () => {
   //     try {
@@ -63,7 +62,7 @@ export default function DataTable() {
   //           const userResponse = await axios.get(
   //             `${API_BASE_URL}/api/u1/users/${record.created_by}`
   //           );
-  //           const userName = userResponse.data.username; 
+  //           const userName = userResponse.data.username;
   //           return {
   //             ...record,
   //             date: record.date.split("T")[0], // Format date
@@ -84,34 +83,38 @@ export default function DataTable() {
     const fetchData = async () => {
       try {
         // Fetch inventory records
-        const inventoryResponse = await axios.get(`${API_BASE_URL}/api/v1/inventory`);
+        const inventoryResponse = await axios.get(
+          `${API_BASE_URL}/api/v1/inventory`
+        );
         const inventoryData = inventoryResponse.data;
-  
+
         // Fetch all items and sub-items once
         const itemsResponse = await axios.get(`${API_BASE_URL}/api/t1/items`);
         const subItemsResponse = await axios.get(`${API_BASE_URL}/api/s1/all`);
-  
+
         const itemsData = itemsResponse.data;
         const subItemsData = subItemsResponse.data;
-  
+
         // Create maps for faster lookup
         const itemsMap = {};
-        itemsData.forEach(item => {
+        itemsData.forEach((item) => {
           itemsMap[item.id] = item.name; // Assuming your item object has { id, name }
         });
-  
+
         const subItemsMap = {};
-        subItemsData.forEach(subItem => {
+        subItemsData.forEach((subItem) => {
           subItemsMap[subItem.id] = subItem.name; // Assuming subItem has { id, name }
         });
-  
+
         // Now format inventory data
         const formattedData = await Promise.all(
           inventoryData.map(async (record) => {
             // Fetch username
-            const userResponse = await axios.get(`${API_BASE_URL}/api/u1/users/${record.created_by}`);
+            const userResponse = await axios.get(
+              `${API_BASE_URL}/api/u1/users/${record.created_by}`
+            );
             const userName = userResponse.data.username;
-  
+
             return {
               ...record,
               date: record.date.split("T")[0], // Format date
@@ -121,19 +124,16 @@ export default function DataTable() {
             };
           })
         );
-  
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
-  
       } catch (error) {
         console.error("There was an error fetching the records!", error);
       }
     };
-  
+
     fetchData();
   }, []);
-  
-
 
   const handleDelete = (id) => {
     // Show SweetAlert confirmation dialog
@@ -327,7 +327,15 @@ export default function DataTable() {
                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
               </th>
               {[
-               "Date", "Invoice No" , "Items", "Sub Item", "Quantity", "Unit", "Price", "Supplier" ,"created_by"
+                "Date",
+                "Invoice No",
+                "Items",
+                "Sub Item",
+                "Quantity",
+                "Unit",
+                "Price",
+                "Supplier",
+                "created_by",
               ].map((col) => (
                 <th
                   key={col}
@@ -349,21 +357,29 @@ export default function DataTable() {
             style={{ fontFamily: "Nunito, sans-serif" }}
           >
             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-            {["Date", "Invoice No" , "Items", "Sub Item", "Quantity", "Unit", "Price", "Supplier" ,"created_by"].map(
-              (col) => (
-                <th key={col}>
-                  <div className={styles.inputContainer}>
-                    <FaSearch className={styles.searchIcon} />
-                    <input
-                      type="text"
-                      placeholder={`Search ${col}`}
-                      onChange={(e) => handleFilter(e, col)}
-                      className={styles.filterInput}
-                    />
-                  </div>
-                </th>
-              )
-            )}
+            {[
+              "Date",
+              "Invoice No",
+              "Items",
+              "Sub Item",
+              "Quantity",
+              "Unit",
+              "Price",
+              "Supplier",
+              "created_by",
+            ].map((col) => (
+              <th key={col}>
+                <div className={styles.inputContainer}>
+                  <FaSearch className={styles.searchIcon} />
+                  <input
+                    type="text"
+                    placeholder={`Search ${col}`}
+                    onChange={(e) => handleFilter(e, col)}
+                    className={styles.filterInput}
+                  />
+                </div>
+              </th>
+            ))}
             <th></th>
           </tr>
           <tbody>

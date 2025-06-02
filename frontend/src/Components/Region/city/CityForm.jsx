@@ -146,7 +146,7 @@ const CreateCity = () => {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate("/city");
+          navigate("/region");
         });
       })
       .catch((error) => {
@@ -198,7 +198,7 @@ const CreateCity = () => {
         <div role="presentation">
           <Breadcrumb
             data={[
-              { name: "Region Setup", link: "/city" },
+              { name: "Region Setup", link: "/region" },
               { name: "Create Region" },
             ]}
           />
@@ -342,7 +342,7 @@ const CreateCity = () => {
                 text="Cancel"
                 type="button"
                 sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/city")}
+                onClick={() => navigate("/region")}
               />
             </Box>
           </form>

@@ -23,12 +23,12 @@ export default function OMRSheet({
       className={`${styles.omrSheetContent} d-flex gap-3`}
     >
       <div className={`${styles.bars}`}>
-        {Array.from({ length: 135 }).map((_, index) =>
+        {Array.from({ length: 158 }).map((_, index) =>
           index % 2 === 0 ? (
             <div
               key={index}
               style={{
-                height: "10px",
+                height: "8px",
                 width: "20px",
                 borderRadius: "2px",
                 backgroundColor: "black",
@@ -82,13 +82,13 @@ export default function OMRSheet({
                   htmlFor="school-name"
                   className={`${styles.label} text-start fw-bold`}
                 >
-                  SCHOOL NAME: <span className={`${styles.studentName}`}>{schoolName}</span>
+                  SCHOOL NAME: <span className={`${styles.schoolName}`}>{schoolName}</span>
                 </label>
               </div>
               <div className={styles.inputContainer}>
                 <input
                   id="school-name"
-                  className={styles.inputField}
+                  className={`${styles.inputField} font-light text-center `}
                   type="text"
                 />
               </div>
@@ -156,19 +156,19 @@ export default function OMRSheet({
                   </label>
                   <div className={`${styles.barcodeContainer} my-auto`}>
                     {rollNumber && className && subject && (
-                      <div className={`${styles.barcodeWrapper}`}>
+                      <div className={`${styles.barcodeWrapper} my-auto` }>
                         <Barcode
                           value={`${rollNumber}-${classId}-${subjectIds}`}
                           width={0.6}
-                          height={30}
+                          height={40}
                           fontSize={12}
                           margin={0}
                           displayValue={true}
-                          className="mt-4"
+                          // className="mt-3"
                         />
-                        <div className={styles.rollNumberText}>
+                        {/* <div className={styles.rollNumberText}>
                           {`${rollNumber}-${classId}-${subjectIds}`}
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </div>
@@ -177,13 +177,13 @@ export default function OMRSheet({
             </div>
 
             <div className={` ${styles.middleColumn}`}>
-              <div className={styles.detailBox}>
+              <div className={`${styles.detailBox} ms--3`}>
                 <div
                   id="level"
-                  className={`${styles.textBox1} textBox d-flex flex-column`}
+                  className={`${styles.textBox1} textBox d-flex flex-column ms--3`}
                 >
-                  <ol className={`${styles.ruleBox} my-2`}>
-                    <li>
+                  <ol className={`${styles.ruleBox} my-2 ms--3`}>
+                    <li className="ms--3">
                       Write Your <b>Roll Number</b> on the left side of the OMR
                       sheet in the box specified and darken the appropriate
                       circles given by using{" "}
@@ -221,7 +221,7 @@ export default function OMRSheet({
                   className={`${styles.textBox1} textBox d-flex flex-column p-0`}
                 >
                   <div
-                    className={`${styles.instructionBox} d-flex justify-content-center`}
+                    className={`${styles.instructionBox} d-flex justify-content-center my-2`}
                   >
                     <label
                       htmlFor="standard"
@@ -230,10 +230,10 @@ export default function OMRSheet({
                       HOW TO DARKEN
                     </label>
                   </div>
-                  <div className={styles.instructionBox1}>
+                  <div className={`${styles.instructionBox1}  py-3`}>
                     <label
                       htmlFor="standard"
-                      className={`${styles.instructionBoxLabel} `}
+                      className={`${styles.instructionBoxLabel}`}
                     >
                       CORRECT
                     </label>
@@ -284,7 +284,7 @@ export default function OMRSheet({
                       </svg>
                     }
                   />
-                  <OMRGenerator fill="none" line={"lightgray"} />
+                  <OMRGenerator fill="none" line="blackStripes" />
                 </div>
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function OMRSheet({
         <div
           className={`${styles.answerSectionTitle} my-2 d-flex justify-content-center`}
         >
-          <p className="m-auto fw-bold">
+          <p className="m-auto fw-bold text-white">
             MARK YOUR ANSWERS WITH HB PENCIL/BALL POINT PEN (BLUE/BLACK)
           </p>
         </div>
@@ -317,7 +317,7 @@ export default function OMRSheet({
                     color: "black",
                     textAlign: "center",
                   }}
-                  className="my-auto"
+                  className={`${styles.subjects} my-auto`}
                 >
                   {subject}
                 </p>
@@ -416,7 +416,7 @@ export default function OMRSheet({
               >
                 <div className="my-auto">
                   <h5 className="fw-bold">Gowbell Olympiads</h5>
-                  <p style={{ fontSize: "12px" }} className="fw-bold">
+                  <p style={{ fontSize: "12px" }} className="fw-bold text-black">
                     Plot No-18, Matalia Dwaraka, Sector-3, New Delhi, India - 110059
                   </p>
                 </div>
@@ -458,8 +458,8 @@ export default function OMRSheet({
       </div>
 
       <div className={`${styles.bars1}`}>
-        {Array.from({ length: 134 }).map((_, index) =>
-          index === 0 || index === 133 ? (
+        {Array.from({ length: 135 }).map((_, index) =>
+          index === 0 || index === 134 ? (
             <div
               key={index}
               style={{

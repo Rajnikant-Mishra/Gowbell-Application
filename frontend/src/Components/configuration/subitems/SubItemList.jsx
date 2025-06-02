@@ -105,7 +105,7 @@ export default function DataTable() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${API_BASE_URL}/api/subitem/${id}`)
+          .delete(`${API_BASE_URL}/api/s1/${id}`)
           .then(() => {
             setRecords((prev) => prev.filter((record) => record.id !== id));
             setFilteredRecords((prev) =>

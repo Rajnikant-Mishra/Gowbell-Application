@@ -168,7 +168,7 @@ export default function UpdateConsignmentForm() {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/api/get/schools`)
+      .get(`${API_BASE_URL}/api/get/all-schools`)
       .then((response) => {
         setSchools(response.data);
       })

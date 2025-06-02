@@ -10,9 +10,10 @@
   max-width: 900px; /* Set a max-width for the entire sheet */
   margin: 0 auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: 'Nunito', sans-serif;
+ font-family: Arial, Helvetica, sans-serif;
   display: flex;
   gap: 12px; /* Adjusted gap for consistency */
+  font-size: 12px !important;
 }
 
 .mainContent {
@@ -27,7 +28,7 @@
 .title {
   font-weight: bold;
   font-size: 22px;
-  color: #1230ae;
+   color: #0660fd;
 }
 
 .subtitle {
@@ -42,7 +43,7 @@
 }
 
 .formContainer {
-  font-size: 0.8rem;
+  /* font-size: 0.8rem; */
   width: 100%;
 }
 
@@ -68,7 +69,12 @@
 
 .formContainer .studentName {
   margin-left: 150px;
-  font-size: 14px;
+  font-size: 20px !important;
+  font-weight: bold !important;
+}
+.formContainer .schoolName {
+  margin-left: 150px;
+ 
 }
 
 .formContainer .inputContainer {
@@ -119,12 +125,12 @@
 .examDetails .textBox label {
   text-align: center;
   margin-bottom: 8px;
-  font-size: 12px;
+  /* font-size: 12px; */
 }
 
 .examDetails .textBox p {
   margin-top: 5px;
-  font-size: 12px;
+  /* font-size: 12px; */
 }
 
 .instructionDetails {
@@ -174,13 +180,14 @@
 
 .rollno {
   background-color: #000;
-  color: #fff;
+  color: white;
   font-size: 10px;
 }
 
 .ruleBox {
   margin-bottom: 0;
-  font-size: 10px;
+  /* font-size: 10px; */
+  padding-left: 1rem !important;
 }
 
 .instructionBox1 {
@@ -188,22 +195,24 @@
   border-top: 1px solid black;
   justify-content: center;
   text-align: center;
-  font-size: 10px;
+  /* font-size: 10px; */
 }
 
 .instructionBoxLabel {
-  font-size: 10px;
+  /* font-size: 10px; */
 }
 
 .answerSectionTitle {
   background-color: #000;
-  color: #fff;
-  font-size: 12px;
+   color: white;
+  /* font-size: 12px; */
 }
-
+.textBox1{
+  height: 230px;
+}
 .textBox2 {
   margin-top: 6%;
-  height: 269px;
+  height: 250px;
   width: 100%;
   border: 1px solid #000;
   box-sizing: border-box;
@@ -212,14 +221,14 @@
 .textBox3 {
   height: 275px;
   width: 100%;
-  font-size: 1rem;
+  /* font-size: 1rem; */
   border: 1px solid #000;
   color: #000;
   box-sizing: border-box;
 }
 
 .textBox4 {
-  height: 297px;
+  height: 257px;
   width: 100%;
   border: 1px solid #000;
   margin-top: 5%;
@@ -233,7 +242,7 @@
 }
 
 .questiondiv th {
-  font-size: 10px;
+  /* font-size: 10px; */
 }
 
 table {
@@ -266,7 +275,7 @@ td {
 }
 
 .footerdiv label {
-  font-size: 10px;
+  /* font-size: 10px; */
 }
 
 .footerdiv input {
@@ -297,8 +306,11 @@ td {
 }
 
 .rollNumberText {
-  font-size: 12px;
+  /* font-size: 12px; */
   font-weight: bold;
+}
+.subjects{
+  font-size: 15px;
 }
 
 /* extra */

@@ -58,8 +58,13 @@ import StudentForm from "./Components/Student/StudentForm";
 import StudentList from "./Components/Student/StudentList";
 import StudentUpdate from "./Components/Student/StudentUpdate";
 
+
+//Omrco
 import OmrcoList from "./Components/Exam/omrco/OmrcoList";
 import OmrcoFrom from "./Components/Exam/omrco/OmrcoForm";
+import OmrView from "./Components/Exam/omrco/OmrView";
+import OmrUpdate from "./Components/Exam/omrco/OmrUpdate";
+
 
 //conginment
 import Create from "./Components/Consignment/create/Create";
@@ -83,7 +88,6 @@ import UserUpdate from "./Components/User/UserUpdate";
 import Role from "./Components/Role/Role";
 import Rolelist from "./Components/Role/RoleList";
 import UpdateRole from "./Components/Role/UpdateRole";
-
 
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
@@ -112,10 +116,14 @@ import ListAttribute from "./Components/configuration/Attribute/ListAttribute";
 //items
 import Itemform from "./Components/configuration/Item/Itemform";
 import ItemList from "./Components/configuration/Item/ItemList";
+import UpdatedItem from "./Components/configuration/Item/UpdatedItem";
 
 //sub-items
 import SubItemForm from "./Components/configuration/subitems/SubItemForm";
 import SubItemList from "./Components/configuration/subitems/SubItemList";
+
+//attendance
+import AttendanceSheet from "./Components/Exam/Attendance/AttendanceSheet";
 
 function App() {
   return (
@@ -297,6 +305,14 @@ function App() {
             path="/omr-create"
             element={<ProtectedRoute element={<OmrcoFrom />} />}
           />
+          <Route
+            path="/omr/view/:id"
+            element={<ProtectedRoute element={<OmrView />} />}
+          />
+           <Route
+            path="/omr/update/:id"
+            element={<ProtectedRoute element={<OmrUpdate/>} />}
+          />
           {/* //omr receipt */}
           <Route
             path="/omr-receipt"
@@ -374,12 +390,10 @@ function App() {
             path="/role-list"
             element={<ProtectedRoute element={<Rolelist />} />}
           />
-         
           <Route
             path="/role/update/:id"
-            element={<ProtectedRoute element={<UpdateRole/>} />}
+            element={<ProtectedRoute element={<UpdateRole />} />}
           />
-
           {/* //Exam */}
           <Route path="/exam" element={<ProtectedRoute element={<Exam />} />} />
           <Route
@@ -427,6 +441,10 @@ function App() {
             path="/item-list"
             element={<ProtectedRoute element={<ItemList />} />}
           />
+          <Route
+            path="/item/update/:id"
+            element={<ProtectedRoute element={<UpdatedItem />} />}
+          />
           {/* //sub-items */}
           <Route
             path="/create-subitem"
@@ -435,6 +453,11 @@ function App() {
           <Route
             path="/subitem-list"
             element={<ProtectedRoute element={<SubItemList />} />}
+          />
+          {/* //attendance */}
+          <Route
+            path="/attendance"
+            element={<ProtectedRoute element={<AttendanceSheet />} />}
           />
         </Routes>
       </Router>

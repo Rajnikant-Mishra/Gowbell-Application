@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
 import {
   UilTrashAlt,
   UilAngleRightB,
   UilAngleLeftB,
+  UilEye,
+  UilEditAlt,
 } from "@iconscout/react-unicons";
 import Mainlayout from "../../Layouts/Mainlayout";
 import styles from "./../../CommonTable/DataTable.module.css";
@@ -30,12 +32,16 @@ export default function DataTable() {
 
   const pageSizes = [10, 20, 50, 100];
   const columns = [
-    { label: "School", key: "school" },
-    { label: "Total Students", key: "student_count" },
-    { label: "Subjects", key: "subjects" },
-    { label: "Classes", key: "classes" },
-    { label: "Level", key: "level" },
-    { label: "Action", key: "action" },
+    { label: "SCHOOL", key: "school" },
+    { label: "COUNTRY", key: "country" },
+    { label: "STATE", key: "state" },
+    { label: "DISTRICT", key: "district" },
+    { label: "CITY", key: "city" },
+    { label: "SUBJECTS", key: "subjects" },
+    { label: "CLASSES", key: "classes" },
+    { label: "TOTAL STUDENTS", key: "student_count" },
+    { label: "LEVEL", key: "level" },
+    { label: "ACTION", key: "action" },
   ];
 
   useEffect(() => {
@@ -249,11 +255,21 @@ export default function DataTable() {
                 {columns.map((col) => (
                   <td key={`${row.id}-${col.key}`}>
                     {col.key === "action" ? (
-                      <UilTrashAlt
-                        onClick={() => handleDelete(row.id)}
-                        className={`${styles.FaTrash} text-danger cursor-pointer`}
-                        style={{ width: "25px", height: "25px" }}
-                      />
+                      <>
+                        <div className={styles.actionButtons}>
+                          <Link to={`/omr/view/${row.id}`}>
+                            <UilEye className={styles.FaEdit} />
+                          </Link>
+                          <UilTrashAlt
+                            onClick={() => handleDelete(row.id)}
+                            className={`${styles.FaTrash} text-danger cursor-pointer`}
+                            style={{ width: "25px", height: "25px" }}
+                          />
+                          {/* <Link to={`/omr/update/${row.id}`}>
+                            <UilEditAlt className={styles.FaEdit} />
+                          </Link> */}
+                        </div>
+                      </>
                     ) : Array.isArray(row[col.key]) ? (
                       row[col.key].join(", ")
                     ) : (

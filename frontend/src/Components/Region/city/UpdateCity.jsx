@@ -148,7 +148,7 @@ const UpdateCity = () => {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate("/city");
+          navigate("/region");
         });
       })
       .catch((error) => {
@@ -222,7 +222,7 @@ const UpdateCity = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div role="presentation">
           <Breadcrumb
-            data={[{ name: "City", link: "/city" }, { name: "Update City" }]}
+            data={[{ name: "City", link: "/region" }, { name: "Update City" }]}
           />
         </div>
       </div>
@@ -358,7 +358,7 @@ const UpdateCity = () => {
                 text="Cancel"
                 type="button"
                 sx={{ flexGrow: 1 }}
-                onClick={() => navigate("/city")}
+                onClick={() => navigate("/region")}
               />
             </Box>
           </form>

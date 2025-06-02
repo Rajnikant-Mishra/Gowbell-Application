@@ -242,13 +242,7 @@ export default function DataTable() {
     setIsAllChecked(!isAllChecked);
   };
 
-  // useEffect(() => {
-  //   if (filteredRecords.every((row) => checkedRows[row.id])) {
-  //     setIsAllChecked(true);
-  //   } else {
-  //     setIsAllChecked(false);
-  //   }
-  // }, [checkedRows, filteredRecords]);
+ 
 
   useEffect(() => {
     if (

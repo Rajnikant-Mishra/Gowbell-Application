@@ -444,14 +444,14 @@ export default function DataTable() {
       .get(`${API_BASE_URL}/api/t1/items`)
       .then((response) => {
         const data = Array.isArray(response.data) ? response.data : [];
-  
+
         // Format timestamps
         const formattedData = data.map((record) => ({
           ...record,
           created_at: formatTimestamp(record.created_at),
           updated_at: formatTimestamp(record.updated_at),
         }));
-  
+
         setRecords(formattedData);
         setFilteredRecords(formattedData);
       })
@@ -461,7 +461,7 @@ export default function DataTable() {
         setFilteredRecords([]);
       });
   }, []);
-  
+
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-US", {
       year: "numeric",
@@ -473,7 +473,6 @@ export default function DataTable() {
       hour12: true,
     });
   };
-  
 
   useEffect(() => {
     if (Array.isArray(filteredRecords) && filteredRecords.length > 0) {
@@ -699,10 +698,13 @@ export default function DataTable() {
                 <td>{row.updated_at}</td>
                 <td>
                   <div className={styles.actionButtons}>
-                    <UilTrashAlt
+                    <Link to={`/item/update/${row.id}`}>
+                      <UilEditAlt className={styles.FaEdit} />
+                    </Link>
+                    {/* <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
-                    />
+                    /> */}
                   </div>
                 </td>
               </tr>

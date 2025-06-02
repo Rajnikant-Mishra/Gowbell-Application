@@ -1,0 +1,136 @@
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  padding: 20px;
+  /* border: 1px solid rgb(250, 234, 234); */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.headerLeft,
+.headerRight,
+.headerCenter {
+  text-align: center;
+}
+
+.headerLeft span,
+.headerRight span,
+.headerCenter span {
+  display: block;
+  font-weight: bold;
+}
+
+.headerCenter {
+  font-size: 10px;
+}
+
+/* .qrPlaceholder {
+  width: 100px;
+  height: 100px;
+  background-color: #ccc;
+  display: inline-block;
+  margin-bottom: 5px;
+  line-height: 50px;
+  text-align: center;
+} */
+
+.schoolInfo {
+  margin-bottom: 20px;
+}
+
+.schoolInfo span {
+  display: block;
+  font-weight: bold;
+}
+
+.classInfo {
+  float: right;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.table th,
+.table td {
+  border: 0.1px solid black;
+  padding: 5px;
+  text-align: center;
+}
+
+
+.table th {
+  font-weight: bold;
+}
+
+.table td:nth-child(1) {
+  width: 5%;
+}
+.table td:nth-child(2) {
+  width: 20%;
+}
+.table td:nth-child(3) {
+  width: 10%;
+}
+.table td:nth-child(4) {
+  width: 40%;
+}
+.table td:nth-child(5) {
+  width: 25%;
+}
+
+.instructions h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.sectionBreakup {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-bottom: 10px;
+}
+
+.sectionBreakup span {
+  font-weight: bold;
+}
+
+.instructions ol {
+  padding-left: 20px;
+}
+
+.instructions li {
+  margin-bottom: 5px;
+}
+
+.generateButton:hover {
+  background-color: #0056b3;
+}
+.qrmainSection {
+  display: flex;
+  align-items: start;
+  margin-left: auto;
+  justify-content: end;
+  font-weight: bold;
+}
+.qrmainSection div {
+  border: 2px solid black;
+}
+
+.logo {
+  height: 50px;
+  width: 150px;
+  margin-top: -15%;
+}
+hr {
+  opacity: 1;
+}

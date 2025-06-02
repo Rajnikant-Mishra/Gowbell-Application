@@ -1,0 +1,16 @@
+.formTitle {
+  text-align: left;
+  color: #3b3e86;
+  font-weight: 500 !important;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.5rem !important;
+}
+.main {
+  padding: 20px;
+  margin-top: 13px;
+  margin-left: -23px;
+  margin-right: -27px;
+  border-radius: 8px;
+  background-color: #ffffff;
+ 
+}
