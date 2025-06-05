@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Mainlayout from "../../Layouts/Mainlayout";
 import { UilPlus, UilMinus } from "@iconscout/react-unicons";
 import ButtonComp from "../../CommonButton/ButtonComp";
@@ -18,62 +18,178 @@ const Extra = () => {
     school: "",
     school_code: "",
     subject: "",
-    exam_date:"",
+    exam_date: "",
     exam_set: "",
     print_date: new Date().toISOString().split("T")[0], // Default to today's date
     packing_no: "",
     rows: [
       {
-        product_code: "",
-        product_name: "",
-        registered_quantity: "",
-        extra_quantity: "",
-        total_quantity: "",
+        product_code: "S242500000849",
+        product_name: "IHO EXAM GUIDELINES 2024-25",
+        registered_quantity: "1",
+        extra_quantity: "0",
+        total_quantity: "1",
+      },
+      {
+        product_code: "S242500000850",
+        product_name: "IHO EXAM DETAILS 2024-25",
+        registered_quantity: "1",
+        extra_quantity: "0",
+        total_quantity: "1",
+      },
+      {
+        product_code: "S242500000851",
+        product_name: "IHO OMR RETURN ENVELOPES",
+        registered_quantity: "1",
+        extra_quantity: "0",
+        total_quantity: "1",
+      },
+      {
+        product_code: "S242500000852",
+        product_name: "IHO SET A SCHOOL LIBRARY PACK (SLP)",
+        registered_quantity: "1",
+        extra_quantity: "0",
+        total_quantity: "1",
+      },
+      {
+        product_code: "S242500000853",
+        product_name: "IHO SET A ATTENDANCE SHEET",
+        registered_quantity: "1",
+        extra_quantity: "0",
+        total_quantity: "1",
       },
     ],
   });
 
   const [schools, setSchools] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [submittedData, setSubmittedData] = useState(null);
 
   const navigate = useNavigate();
 
-  // Fetch schools on component mount
+  // Fetch initial data (countries, states, districts, cities, subjects)
   useEffect(() => {
-    const fetchSchools = async () => {
-      setIsLoading(true);
+    let isMounted = true;
+
+    const fetchInitialData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/get/all-schools`);
-        setSchools(response.data);
+        setIsLoading(true);
+        const [countriesRes, statesRes, districtsRes, citiesRes, subjectsRes] =
+          await Promise.all([
+            axios.get(`${API_BASE_URL}/api/countries`),
+            axios.get(`${API_BASE_URL}/api/states`),
+            axios.get(`${API_BASE_URL}/api/districts`),
+            axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+            axios.get(`${API_BASE_URL}/api/subject`),
+          ]);
+
+        if (isMounted) {
+          setCountries(countriesRes.data || []);
+          setStates(statesRes.data || []);
+          setDistricts(districtsRes.data || []);
+          setCities(citiesRes.data || []);
+          setSubjects(
+            (subjectsRes.data || []).map((sub) => ({
+              id: sub.id,
+              name: sub.name,
+            }))
+          );
+        }
       } catch (error) {
-        console.error("Error fetching schools:", error);
-        setError("Failed to fetch schools. Please try again.");
+        console.error("Error fetching initial data:", error);
+        setError("Failed to load initial data");
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
-    fetchSchools();
+
+    fetchInitialData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Fetch subjects when the component mounts
+  // Location filtering
   useEffect(() => {
-    const fetchSubjects = async () => {
+    setFilteredStates(states.filter((s) => s.country_id === selectedCountry));
+    setSelectedState("");
+    setSelectedDistrict("");
+    setSelectedCity("");
+    setFormData({ ...formData, school: "" });
+  }, [selectedCountry, states]);
+
+  useEffect(() => {
+    setFilteredDistricts(districts.filter((d) => d.state_id === selectedState));
+    setSelectedDistrict("");
+    setSelectedCity("");
+    setFormData({ ...formData, school: "" });
+  }, [selectedState, districts]);
+
+  useEffect(() => {
+    setFilteredCities(cities.filter((c) => c.district_id === selectedDistrict));
+    setSelectedCity("");
+    setFormData({ ...formData, school: "" });
+  }, [selectedDistrict, cities]);
+
+  // Fetch schools based on location filters
+  const fetchSchoolsByLocation = useCallback(async (filters) => {
+    try {
       setIsLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/subject`);
-        setSubjects(response.data);
-      } catch (error) {
-        console.error("Error fetching subjects:", error);
-        setError("Failed to fetch subjects. Please try again.");
-      } finally {
-        setIsLoading(false);
+      const response = await axios.get(`${API_BASE_URL}/api/get/filter`, {
+        params: filters,
+      });
+      if (response.data.success) {
+        const schoolList = response.data.data.flatMap((location) =>
+          location.schools.map((school) => ({
+            school_name: school,
+            country_name: location.country,
+            state_name: location.state,
+            district_name: location.district,
+            city_name: location.city,
+          }))
+        );
+        setSchools(schoolList);
+        setError(null);
+      } else {
+        setSchools([]);
       }
-    };
-    fetchSubjects();
+    } catch (error) {
+      console.error("Error fetching schools:", error);
+      setError("Failed to fetch schools");
+      setSchools([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    const filters = {
+      country: selectedCountry,
+      state: selectedState,
+      district: selectedDistrict,
+      city: selectedCity,
+    };
+    if (selectedCountry) fetchSchoolsByLocation(filters);
+  }, [
+    selectedCountry,
+    selectedState,
+    selectedDistrict,
+    selectedCity,
+    fetchSchoolsByLocation,
+  ]);
 
   // Fetch exam date when school or subject changes
   useEffect(() => {
@@ -85,8 +201,6 @@ const Extra = () => {
             params: {
               school: formData.school,
               subject: formData.subject,
-              exam_date:formData.exam_date,
-              
             },
           });
           if (response.data.data.length > 0) {
@@ -94,7 +208,7 @@ const Extra = () => {
             const formattedDate = isoDate.split("T")[0]; // Extract "yyyy-MM-dd"
             setFormData((prevData) => ({
               ...prevData,
-              examDate: formattedDate,
+              exam_date: formattedDate,
             }));
           }
         } catch (error) {
@@ -146,10 +260,9 @@ const Extra = () => {
     setFormData({ ...formData, [field]: value });
   };
 
-
   const generatePDF = (data) => {
     const doc = new jsPDF(); // Create new PDF document
-  
+
     // Add Header
     doc.setFontSize(14);
     doc.text("Gowbell", 105, 15, { align: "center" });
@@ -160,24 +273,24 @@ const Extra = () => {
     doc.text("Bhouma Nagar, Bhubaneswar, Odisha 751001", 105, 25, {
       align: "center",
     });
-  
+
     // Packing List Title
     doc.setFontSize(16);
     doc.text("PACKING LIST", 105, 35, { align: "center" });
     doc.setFontSize(14);
     doc.text(`SOF2425063980`, 105, 42, { align: "center" });
-  
+
     // Generate Barcode using school_code
     const barcodeCanvas = document.createElement("canvas");
     JsBarcode(barcodeCanvas, data.school_code, {
       format: "CODE128",
       displayValue: true,
     });
-  
+
     // Convert barcode to image and add it to PDF
     const barcodeImage = barcodeCanvas.toDataURL("image/png");
     doc.addImage(barcodeImage, "PNG", 10, 50, 40, 20);
-  
+
     // School Details on the Right Side
     doc.setFontSize(10);
     const xRight = 140;
@@ -187,13 +300,13 @@ const Extra = () => {
     doc.text(`Exam Date: ${data.exam_date}`, xRight, 65);
     doc.text(`Print Date: ${data.print_date}`, xRight, 70);
     doc.text(`Packet No: ${data.packing_no}`, xRight, 75);
-  
+
     // Table Positioning
     let startX = 10;
     let startY = 85;
     let rowHeight = 8;
     let colWidths = [10, 30, 50, 40, 30, 30]; // Column widths
-  
+
     // Table Headers
     const headers = [
       "S.No",
@@ -203,7 +316,7 @@ const Extra = () => {
       "Extra Quantity",
       "Total Quantity",
     ];
-  
+
     // Draw Header Background
     doc.setFillColor(200, 200, 200); // Light gray background
     doc.rect(
@@ -213,7 +326,7 @@ const Extra = () => {
       rowHeight,
       "F"
     );
-  
+
     // Draw Table Headers
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
@@ -222,7 +335,7 @@ const Extra = () => {
       doc.text(header, xPos + 2, startY + 5);
       xPos += colWidths[index];
     });
-  
+
     // Draw Table Rows
     startY += rowHeight;
     data.rows.forEach((row, rowIndex) => {
@@ -233,7 +346,7 @@ const Extra = () => {
         colWidths.reduce((a, b) => a + b, 0),
         rowHeight
       ); // Row boundary
-  
+
       const rowData = [
         rowIndex + 1,
         row.product_code,
@@ -242,29 +355,31 @@ const Extra = () => {
         row.extra_quantity,
         row.total_quantity,
       ];
-  
+
       rowData.forEach((cell, index) => {
         doc.text(String(cell), xPos + 2, startY + 5);
         xPos += colWidths[index];
       });
-  
+
       startY += rowHeight; // Move to next row
     });
-  
+
     doc.save("packing_list.pdf");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Fetch school_code based on school_name
     try {
-      const schoolCodeResponse = await axios.get(`${API_BASE_URL}/api/school-code/${formData.school}`);
+      const schoolCodeResponse = await axios.get(
+        `${API_BASE_URL}/api/school-code/${formData.school}`
+      );
       const school_code = schoolCodeResponse.data.school_code;
-  
+
       // Auto-generate exam_name
-      const exam_name = `GW${formData.subject}`;
-  
+      const exam_name = `GW-${formData.subject}`;
+
       // Prepare payload
       const payload = {
         ...formData,
@@ -273,11 +388,9 @@ const Extra = () => {
         rows: formData.rows.map((row) => ({
           ...row,
           total_quantity: row.total_quantity,
-            // parseFloat(row.registered_quantity || 0) +
-            // parseFloat(row.extra_quantity || 0),
         })),
       };
-  
+
       // Submit the form
       const response = await axios.post(`${API_BASE_URL}/api/packing`, payload);
       if (response.status === 200) {
@@ -296,7 +409,7 @@ const Extra = () => {
             popup: "small-swal",
           },
         }).then(() => {
-          navigate(0); // Refresh the current page
+          navigate("/packing-list"); // Refresh the current page
         });
       }
     } catch (error) {
@@ -312,9 +425,12 @@ const Extra = () => {
   return (
     <Mainlayout>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <Breadcrumb data={[{ name: "Packing list", link: "/packing-list" },
-          { name: "Create", link: "/packing-create" },
-          ]} />
+        <Breadcrumb
+          data={[
+            { name: "Packing list", link: "/packing-list" },
+            { name: "Create", link: "/packing-create" },
+          ]}
+        />
       </div>
       <Paper elevation={3} className="w-100 bg-white p-4 mx-auto rounded">
         <Typography variant="h6" gutterBottom>
@@ -322,8 +438,91 @@ const Extra = () => {
         </Typography>
         <form onSubmit={handleSubmit} style={{ fontFamily: "Poppins" }}>
           <Grid container spacing={3}>
+            {/* Country Dropdown */}
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                select
+                label="Country"
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                size="small"
+                variant="outlined"
+              >
+                <MenuItem value="">Select Country</MenuItem>
+                {countries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            {/* State Dropdown */}
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                select
+                label="State"
+                value={selectedState}
+                onChange={(e) => setSelectedState(e.target.value)}
+                size="small"
+                variant="outlined"
+                disabled={!selectedCountry}
+              >
+                <MenuItem value="">Select State</MenuItem>
+                {filteredStates.map((state) => (
+                  <MenuItem key={state.id} value={state.id}>
+                    {state.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            {/* District Dropdown */}
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                select
+                label="District"
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                size="small"
+                variant="outlined"
+                disabled={!selectedState}
+              >
+                <MenuItem value="">Select District</MenuItem>
+                {filteredDistricts.map((district) => (
+                  <MenuItem key={district.id} value={district.id}>
+                    {district.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            {/* City Dropdown */}
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                select
+                label="City"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                size="small"
+                variant="outlined"
+                disabled={!selectedDistrict}
+              >
+                <MenuItem value="">Select City</MenuItem>
+                {filteredCities.map((city) => (
+                  <MenuItem key={city.id} value={city.id}>
+                    {city.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
             {/* School Dropdown */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 select
@@ -332,9 +531,11 @@ const Extra = () => {
                 onChange={(e) => handleChange("school", e.target.value)}
                 size="small"
                 variant="outlined"
+                disabled={!selectedCity}
               >
+                <MenuItem value="">Select School</MenuItem>
                 {schools.map((school) => (
-                  <MenuItem key={school.id} value={school.school_name}>
+                  <MenuItem key={school.school_name} value={school.school_name}>
                     {school.school_name}
                   </MenuItem>
                 ))}
@@ -342,7 +543,7 @@ const Extra = () => {
             </Grid>
 
             {/* Subject Dropdown */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 select
@@ -361,7 +562,7 @@ const Extra = () => {
             </Grid>
 
             {/* Exam Set */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 select
@@ -381,7 +582,7 @@ const Extra = () => {
             </Grid>
 
             {/* Packet No */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 label="Packet No"
@@ -398,19 +599,19 @@ const Extra = () => {
             <thead className="my-2">
               <tr>
                 <th scope="col" className="py-1">
-                  product code
+                  Product Code
                 </th>
                 <th scope="col" className="py-1">
-                  product name
+                  Product Name
                 </th>
                 <th scope="col" className="py-1">
-                  Registered quantity
+                  Registered Quantity
                 </th>
                 <th scope="col" className="py-1">
-                  extra quantity
+                  Extra Quantity
                 </th>
                 <th scope="col" className="py-1">
-                  total quantity
+                  Total Quantity
                 </th>
                 <th scope="col" className="py-1">
                   <UilPlus style={{ cursor: "pointer" }} onClick={addRow} />
@@ -489,7 +690,7 @@ const Extra = () => {
                     ) : (
                       <UilMinus
                         className="my-2"
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "not-allowed" }}
                       />
                     )}
                   </td>
@@ -509,7 +710,7 @@ const Extra = () => {
                       0
                     )}
                     readOnly
-                  />  
+                  />
                 </td>
                 <td></td>
               </tr>
@@ -518,7 +719,7 @@ const Extra = () => {
 
           <div className="d-flex gap-2">
             <ButtonComp
-              text="Submit"
+              text="Generate Packing"
               type="submit"
               disabled={false}
               sx={{ flexGrow: 1 }}

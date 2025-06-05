@@ -10,7 +10,7 @@
   max-width: 900px; /* Set a max-width for the entire sheet */
   margin: 0 auto;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
- font-family: Arial, Helvetica, sans-serif;
+ font-family:Arial, Helvetica, sans-serif;
   display: flex;
   gap: 12px; /* Adjusted gap for consistency */
   font-size: 12px !important;
@@ -28,18 +28,19 @@
 .title {
   font-weight: bold;
   font-size: 22px;
-   color: #0660fd;
+   color: #000;
 }
 
 .subtitle {
   font-size: 16px;
-  color: #555;
+  color: #000;
+  margin-top:-10px;
 }
 
 .logo {
   height: 50px;
-  width: 150px;
-  margin-top: -15%;
+  width: 180px;
+  margin-top: -13.5%;
 }
 
 .formContainer {
@@ -87,7 +88,8 @@
   border-bottom: 1px solid #000;
   outline: none;
   background: transparent;
-  padding-bottom: 10px;
+  font-family: Arial, Helvetica, sans-serif !important;
+  padding-bottom: 3px;
   margin-left: 0 !important;
   border-radius: 0 !important;
 }
@@ -114,6 +116,11 @@
 .examDetails .detailBox {
   width: 100%;
   border: 1px solid black; /* Ensure border is consistent */
+  height: 70px;
+}
+
+.examDetails .detailBox label{
+  font-size: 14px;
 }
 
 .examDetails .textBox {
@@ -144,7 +151,7 @@
 }
 
 .instructionDetails .column {
-  flex: 1;
+  flex: 1.5;
   min-width: 0;
 
 }
@@ -153,7 +160,7 @@
 }
 
 .instructionDetails .middleColumn {
-  flex: 2; /* Middle column is twice as wide */
+  flex: 2.4; /* Middle column is twice as wide */
   min-width: 0;
 }
 
@@ -181,13 +188,18 @@
 .rollno {
   background-color: #000;
   color: white;
-  font-size: 10px;
+  font-size: 13px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 .ruleBox {
   margin-bottom: 0;
-  /* font-size: 10px; */
-  padding-left: 1rem !important;
+  font-size: 11px;
+  line-height: 15px;
+  
+  padding-left: 1.2rem !important;
+  padding-right: 0.6rem !important;
 }
 
 .instructionBox1 {
@@ -200,6 +212,7 @@
 
 .instructionBoxLabel {
   /* font-size: 10px; */
+  font-weight: bold;
 }
 
 .answerSectionTitle {
@@ -283,11 +296,11 @@ td {
 }
 
 .bars {
-  margin-top: 12%;
+  margin-top: 10.5%;
 }
 
 .bars1 {
-  margin-top: 13%;
+  margin-top: 10.5%;
 }
 
 .omrtable {

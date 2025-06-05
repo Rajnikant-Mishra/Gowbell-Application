@@ -58,12 +58,16 @@ import StudentForm from "./Components/Student/StudentForm";
 import StudentList from "./Components/Student/StudentList";
 import StudentUpdate from "./Components/Student/StudentUpdate";
 
-
 //Omrco
 import OmrcoList from "./Components/Exam/omrco/OmrcoList";
 import OmrcoFrom from "./Components/Exam/omrco/OmrcoForm";
 import OmrView from "./Components/Exam/omrco/OmrView";
 import OmrUpdate from "./Components/Exam/omrco/OmrUpdate";
+
+//question
+import QuestionIssues from "./Components/Exam/question/QuestionIssues";
+import QuestionCreate from "./Components/Exam/question/QuestionCreate";
+import QuestionUpdated from "./Components/Exam/question/QuestionUpdated";
 
 
 //conginment
@@ -89,6 +93,7 @@ import Role from "./Components/Role/Role";
 import Rolelist from "./Components/Role/RoleList";
 import UpdateRole from "./Components/Role/UpdateRole";
 
+//exam
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
 
@@ -309,9 +314,9 @@ function App() {
             path="/omr/view/:id"
             element={<ProtectedRoute element={<OmrView />} />}
           />
-           <Route
+          <Route
             path="/omr/update/:id"
-            element={<ProtectedRoute element={<OmrUpdate/>} />}
+            element={<ProtectedRoute element={<OmrUpdate />} />}
           />
           {/* //omr receipt */}
           <Route
@@ -335,6 +340,22 @@ function App() {
             path="/resultprocess-list"
             element={<ProtectedRoute element={<ProcessResult />} />}
           />
+
+          {/* //question */}
+          <Route
+            path="/question-list"
+            element={<ProtectedRoute element={<QuestionIssues />} />}
+          />
+          <Route
+            path="/question-create"
+            element={<ProtectedRoute element={<QuestionCreate />} />}
+          />
+
+          <Route
+            path="/question/update/:id"
+            element={<ProtectedRoute element={<QuestionUpdated />} />}
+          />
+
           {/* //conginments */}
           <Route
             path="/consignment-list"

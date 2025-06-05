@@ -45,7 +45,7 @@ export default function OMRSheet({
         )}
       </div>
 
-      <div>
+      <div className="mt-0">
         <div className={`mx-auto text-center ${styles.header}`}>
           <h5 className={styles.title}>ANSWER SHEET</h5>
           <p className={styles.subtitle}>
@@ -72,6 +72,7 @@ export default function OMRSheet({
                   id="student-name"
                   className={styles.inputField}
                   type="text"
+                  style={{fontFamily:"Arial", fontSize:"14px", paddingBottom:"15px" }}
                 />
               </div>
             </div>
@@ -91,6 +92,7 @@ export default function OMRSheet({
                   id="school-name"
                   className={`${styles.inputField} `}
                   type="text"
+                   style={{fontFamily:"Arial", fontSize:"12px", paddingBottom:"15px" }}
                 />
               </div>
             </div>
@@ -108,11 +110,11 @@ export default function OMRSheet({
                   <label htmlFor="exam-date" className="text-center fw-bold">
                     EXAM DATE
                   </label>
-                  <p style={{ fontWeight: "bold", color: "black" }}>{date}</p>
+                  <p style={{ fontWeight: "bold", color: "black",fontFamily:"Arial", fontSize:"12px", }}>{date}</p>
                 </div>
               </div>
             </div>
-            <div className={styles.column}>
+            <div className={styles.column} style={{flex:"0.7"}}>
               <div className={styles.detailBox}>
                 <div
                   id="level"
@@ -121,7 +123,7 @@ export default function OMRSheet({
                   <label htmlFor="level" className="text-center fw-bold">
                     LEVEL
                   </label>
-                  <p style={{ fontWeight: "bold", color: "black" }}>{level}</p>
+                  <p style={{ fontWeight: "bold", color: "black",fontFamily:"Arial", fontSize:"12px", }}>{level}</p>
                 </div>
               </div>
             </div>
@@ -134,7 +136,7 @@ export default function OMRSheet({
                   <label htmlFor="standard" className="text-center fw-bold">
                     STANDARD
                   </label>
-                  <p style={{ fontWeight: "bold", color: "black" }}>
+                  <p style={{ fontWeight: "bold", color: "black",fontFamily:"Arial", fontSize:"12px", }}>
                     {className}
                   </p>
                 </div>
@@ -299,7 +301,7 @@ export default function OMRSheet({
         
                 <div className={`${styles.instructionDetails}`}>
                   <div className={styles.row}>
-                    <div className={styles.column}>
+                    <div className={styles.column} style={{flex:"1.9"}}>
                       <div className={` ${styles.rolldiv}`}>
                         <div
                           id="rollNum"
