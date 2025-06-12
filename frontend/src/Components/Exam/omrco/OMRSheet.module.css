@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
 
 * {
   box-sizing: border-box;
@@ -7,18 +7,17 @@
 .omrSheetContent {
   height: 100%;
   width: 100%;
-  max-width: 900px; /* Set a max-width for the entire sheet */
-  margin: 0 auto;
+  max-width: 900px; 
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
  font-family:Arial, Helvetica, sans-serif;
   display: flex;
-  gap: 12px; /* Adjusted gap for consistency */
+  gap: 8px; 
   font-size: 12px !important;
 }
 
 .mainContent {
   flex: 1;
-  max-width: 840px; /* Account for 20px bars on each side + 12px gaps */
+  max-width: 840px;
 }
 
 .header {
@@ -44,7 +43,7 @@
 }
 
 .formContainer {
-  /* font-size: 0.8rem; */
+ 
   width: 100%;
 }
 
@@ -69,7 +68,8 @@
 }
 
 .formContainer .studentName {
-  margin-left: 150px;
+ 
+    margin-left: 150px;
   font-size: 20px !important;
   font-weight: bold !important;
 }
@@ -89,6 +89,7 @@
   outline: none;
   background: transparent;
   font-family: Arial, Helvetica, sans-serif !important;
+  text-align: center  !important;
   padding-bottom: 3px;
   margin-left: 0 !important;
   border-radius: 0 !important;
@@ -108,14 +109,13 @@
 
 .examDetails .column {
   flex: 1;
-  min-width: 0; /* Prevent overflow */
-  /* border: 1px solid black; */
+  min-width: 0;
   height: 100% !important;
 }
 
 .examDetails .detailBox {
   width: 100%;
-  border: 1px solid black; /* Ensure border is consistent */
+  border: 1px solid black;
   height: 70px;
 }
 
@@ -132,12 +132,12 @@
 .examDetails .textBox label {
   text-align: center;
   margin-bottom: 8px;
-  /* font-size: 12px; */
+
 }
 
 .examDetails .textBox p {
   margin-top: 5px;
-  /* font-size: 12px; */
+
 }
 
 .instructionDetails {
@@ -160,7 +160,7 @@
 }
 
 .instructionDetails .middleColumn {
-  flex: 2.4; /* Middle column is twice as wide */
+  flex: 2.4; 
   min-width: 0;
 }
 
@@ -207,18 +207,16 @@
   border-top: 1px solid black;
   justify-content: center;
   text-align: center;
-  /* font-size: 10px; */
+
 }
 
 .instructionBoxLabel {
-  /* font-size: 10px; */
   font-weight: bold;
 }
 
 .answerSectionTitle {
   background-color: #000;
    color: white;
-  /* font-size: 12px; */
 }
 .textBox1{
   height: 230px;
@@ -234,7 +232,7 @@
 .textBox3 {
   height: 275px;
   width: 100%;
-  /* font-size: 1rem; */
+
   border: 1px solid #000;
   color: #000;
   box-sizing: border-box;
@@ -254,9 +252,7 @@
   color: white;
 }
 
-.questiondiv th {
-  /* font-size: 10px; */
-}
+
 
 table {
   border: 1px solid black;
@@ -269,6 +265,9 @@ td {
 
 .questionnumberdiv {
   border-right: 1px solid black;
+  text-align: left !important;
+  font-size: 10px;
+
 }
 
 .footerdiv {
@@ -287,9 +286,7 @@ td {
   margin-top: 0 !important;
 }
 
-.footerdiv label {
-  /* font-size: 10px; */
-}
+
 
 .footerdiv input {
   height: 40px !important;
@@ -319,12 +316,411 @@ td {
 }
 
 .rollNumberText {
-  /* font-size: 12px; */
+
   font-weight: bold;
 }
 .subjects{
   font-size: 15px;
 }
 
-/* extra */
 
+ */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+.omrSheetContent {
+  width: 210mm; /* A4 width */
+  height: 297mm; /* A4 height */
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  gap: 8px;
+  font-size: 12px !important;
+  background-color: white; /* Ensure white background for printing */
+  margin: 0;
+  padding: 0;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 0;
+}
+
+.headerText {
+  flex: 1;
+  text-align: center;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 20px;
+  color: #000;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #000;
+  margin: 0;
+  font-style: italic;
+}
+
+.logo {
+  height: 40px;
+  width: 120px;
+  margin: 0;
+}
+
+.formContainer {
+  width: 100%;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-top: -5px;
+}
+
+.labelContainer {
+  flex: none;
+  text-align: left;
+  padding-right: 8px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.label {
+  display: block;
+  margin-bottom: -15px;
+  font-size: 14px;
+  color: #000;
+}
+
+.inputField {
+  width: 90%;
+  border: none;
+  border-bottom: 1px solid #000;
+  font-size: 18px !important;
+  outline: none;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-align: center !important;
+  margin-left: 10px !important;
+  border-radius: 0 !important;
+  color: #000;
+  padding-bottom: 0px !important;
+ 
+}
+.inputField1 {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #000;
+  font-size: 14px !important;
+  outline: none;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-align: center !important;
+  margin-left: -10px !important;
+  border-radius: 0 !important;
+  color: #000;
+  padding-bottom: 1px;
+}
+.examDetails {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.examDetails .row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.examDetails .column {
+  flex: 1;
+  min-width: 0;
+  height: 100% !important;
+}
+
+.examDetails .detailBox {
+  width: 100%;
+  border: 1px solid black;
+  height: 17mm; /* 1.7cm as requested */
+}
+
+.examDetails .detailBox label {
+  font-size: 12px;
+  color: #000;
+}
+
+.examDetails .textBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.examDetails .textBox label {
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.examDetails .textBox p {
+  margin: 0;
+}
+
+.instructionDetails {
+  width: 100%;
+}
+
+.instructionDetails .row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+
+.instructionDetails .column {
+  flex: 1.5;
+  min-width: 0;
+}
+
+.instructionDetails .column:first-child {
+  border: 1px solid black;
+}
+
+.instructionDetails .middleColumn {
+  flex: 2.4;
+  min-width: 0;
+}
+
+.instructionDetails .detailBox {
+  width: 100%;
+  border: 1px solid black;
+}
+
+.instructionDetails .textBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.instructionDetails .textBox label {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.instructionDetails .textBox p {
+  margin-top: 5px;
+}
+
+.instructionDetails .textBox1 {
+  height: 53mm; /* 5.3cm as requested for Roll No, Instructions, and How to Darken */
+}
+
+.rollno {
+  background-color: #000;
+  color: white;
+  font-size: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.ruleBox {
+  margin-bottom: 0;
+  font-size: 10px;
+  line-height: 13px;
+  padding-left: 1.2rem !important;
+  padding-right: 0.6rem !important;
+}
+
+.instructionBox1 {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  justify-content: center;
+  text-align: center;
+}
+
+.instructionBoxLabel {
+  font-weight: bold;
+  font-size: 12px;
+  color: #000;
+}
+
+.answerSectionTitle {
+  background-color: #000;
+  color: white;
+}
+
+.textBox3 {
+  height: 280px;
+  width: 100%;
+  border: 1px solid #000;
+  color: #000;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.verticalText {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 20px;
+  font-weight: bold;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+}
+
+.textBox4 {
+  height: 255px;
+  width: 100%;
+  border: 1px solid #000;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+.textBox41 {
+  height: 255px;
+  width: 100%;
+  border: 1px solid #000;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+.questiondiv {
+  width: 100%;
+  background-color: #000;
+  color: white;
+}
+
+.questiondiv th {
+  font-size: 12px;
+}
+
+table {
+  border: 1px solid black;
+  padding: 5px 0 !important;
+  width: 43mm; /* 4.3cm as requested for OMR sections */
+}
+
+td {
+  padding: 1px 6px !important;
+}
+
+.questionnumberdiv {
+  border-right: 1px solid black;
+  text-align: center !important;
+  font-size: 10px;
+  width: 15mm; /* Adjusted to fit within 4.3cm table width */
+}
+
+.footerdiv {
+  border: 1px solid black;
+  height: 20mm; /* 2.7cm as requested for signature divs */
+}
+
+.inputUnderline {
+  border: none;
+  border-bottom: 1px solid #000;
+  width: 90%;
+  height: 100%;
+  outline: none;
+  border-radius: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+}
+
+.footerdiv label {
+  font-size: 12px;
+  color: #000;
+}
+
+.footerdiv input {
+  height: 17mm !important; /* Adjusted to fit within 2.7cm height */
+}
+
+.bars {
+  margin-top: 7%;
+}
+
+.bars1 {
+  margin-top: 7%;
+}
+
+.barcodeContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  padding: 2px;
+  background-color: white;
+  height: 100%;
+  overflow: hidden;
+}
+
+.subjects {
+  font-size: 14px;
+  flex: 1;
+  text-align: center;
+  color: #000;
+}
+
+/* Print-specific styles */
+@media print {
+  .omrSheetContent {
+    width: 210mm;
+    height: 297mm;
+    box-shadow: none !important; /* Remove shadow for printing */
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact; /* Ensure colors print correctly */
+    print-color-adjust: exact;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure all text and borders are black for high contrast */
+  .title,
+  .subtitle,
+  .label,
+  .examDetails .textBox label,
+  .examDetails .textBox p,
+  .instructionBoxLabel,
+  .verticalText,
+  .subjects,
+  .footerdiv label {
+    color: #000 !important;
+  }
+
+  /* Ensure backgrounds print correctly */
+  .rollno,
+  .answerSectionTitle,
+  .questiondiv {
+    background-color: #000 !important;
+    color: #fff !important;
+  }
+
+  /* Remove any unnecessary effects */
+  .logo {
+    filter: none !important; /* Remove any filters that might affect the logo */
+  }
+
+  /* Ensure barcode prints clearly */
+  .barcodeContainer {
+    background-color: white !important;
+  }
+}

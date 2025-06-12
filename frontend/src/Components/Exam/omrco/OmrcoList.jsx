@@ -770,6 +770,9 @@
 //   );
 // }
 
+
+
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaCaretDown, FaCaretUp, FaSearch } from "react-icons/fa";
@@ -841,23 +844,19 @@ export default function DataTable() {
 
   const handleDownload = async (id, school) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/api/omr/download/by-id/${id}`,
-        {
-          responseType: "blob", // Important for handling binary data
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/omr/download/by-id/${id}`, {
+        responseType: 'blob', // Important for handling binary data
+      });
 
-      const contentDisposition = response.headers["content-disposition"];
+      const contentDisposition = response.headers['content-disposition'];
       const filename = contentDisposition
-        ? contentDisposition.split("filename=")[1]?.replace(/"/g, "") ||
-          `${school}_${id}.pdf`
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || `${school}_${id}.pdf`
         : `${school}_${id}.pdf`;
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", filename);
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -877,10 +876,7 @@ export default function DataTable() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text:
-          error.response?.status === 404
-            ? "PDF file not found."
-            : "Failed to download PDF.",
+        text: error.response?.status === 404 ? "PDF file not found." : "Failed to download PDF.",
         toast: true,
         position: "top-end",
         showConfirmButton: false,
@@ -1094,29 +1090,10 @@ export default function DataTable() {
                           style={{ width: "25px", height: "25px" }}
                         />
                         <span
-                          onClick={
-                            row.status === "Active"
-                              ? () => handleDownload(row.id, row.school)
-                              : undefined
-                          }
-                          className={`${styles.downloadButton} ${
-                            row.status === "Active"
-                              ? "cursor-pointer"
-                              : styles.disabledButton
-                          }`}
-                          title={
-                            row.status === "Inactive"
-                              ? "Download disabled: Status is inactive"
-                              : "Download PDF"
-                          }
+                          onClick={() => handleDownload(row.id, row.school)}
+                          className="cursor-pointer"
                         >
-                          <UilDownloadAlt
-                            className={`${styles.FaEdit} ${
-                              row.status === "Inactive"
-                                ? styles.disabledIcon
-                                : ""
-                            }`}
-                          />
+                          <UilDownloadAlt className={styles.FaEdit} />
                         </span>
                       </div>
                     ) : Array.isArray(row[col.key]) ? (
