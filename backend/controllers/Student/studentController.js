@@ -1,6 +1,5 @@
 import Student from "../../models/Student/studentModel.js";
 
-
 // Create a single student
 // export const createStudent = (req, res) => {
 //   const {
@@ -361,7 +360,6 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
   );
 };
 
-
 //attendance
 export const getFilteredStudentsforattendance = (req, res) => {
   const { schoolName, classList, subjectList } = req.body;
@@ -407,4 +405,3 @@ export const getFilteredStudentsforattendance = (req, res) => {
     }
   );
 };
-

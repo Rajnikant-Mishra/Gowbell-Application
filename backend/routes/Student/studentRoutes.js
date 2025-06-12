@@ -10,7 +10,6 @@ import {
   getFilteredStudents,
   getFilteredStudentsomrreceipt,
   getFilteredStudentsforattendance,
-
 } from "../../controllers/Student/studentController.js";
 import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
@@ -33,7 +32,6 @@ router.put("/student/:id", updateStudent);
 // Delete a student by ID
 router.delete("/student/:id", deleteStudent);
 
-
 router.get("/allstudents", getAllstudentserach);
 
 //omr issues
@@ -43,9 +41,6 @@ router.post("/student/filter", getFilteredStudents);
 router.post("/filter/omr-receipt", getFilteredStudentsomrreceipt);
 
 //attendance
-
 router.post("/student-attendance", getFilteredStudentsforattendance);
-
-
 
 export default router;

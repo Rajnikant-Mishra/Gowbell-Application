@@ -168,6 +168,7 @@ import examRoutes from './routes/Exam/examRoutes.js';
 import ResultRoutes from './routes/Exam/ResultRoutes.js';
 import omrReceiptRoutes from './routes/Exam/omrReceiptRoutes.js';
 
+
 // Users
 import userRoutes from "./routes/User/userRoutes.js";
 
@@ -188,6 +189,9 @@ import attributeRoutes from "./routes/attribute/attributeRoutes.js";
 // Items
 import itemRoutes from "./routes/configuration/itemRoutes.js";
 import subitem from "./routes/configuration/subitemRoutes.js";
+
+//question
+import questionRoutes from "./routes/question/questionRoutes.js";
 
 const app = express();
 
@@ -242,6 +246,7 @@ app.use('/api/e1', examRoutes);
 app.use('/api', ResultRoutes);
 app.use('/api', omrReceiptRoutes);
 
+
 // Menu
 app.use('/api/m1', menuRoutes);
 app.use('/api/permission', role_menuRoutes);
@@ -252,6 +257,9 @@ app.use('/api/a1', attributeRoutes);
 // Items
 app.use('/api/t1', itemRoutes);
 app.use('/api/s1', subitem);
+
+//question
+app.use('/api/q1', questionRoutes);
 
 // ✅ Cron Job: Runs every day at 1 AM
 // cron.schedule('* * * * * *', () => {
