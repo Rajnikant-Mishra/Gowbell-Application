@@ -148,7 +148,7 @@ export const OMRGenerator = ({ fill, line, smaller = false }) => {
   const cxCy = smaller ? 7 : 9; // Center for smaller circles
 
   return (
-    <div className="d-flex justify-content-center gap-1" style={{ marginBottom: "3px" , marginTop: "3px" }}>
+    <div className="d-flex justify-content-center gap-2" style={{ marginBottom: "3px" , marginTop: "3px" }}>
       <svg height={size} width={size}>
         <circle cx={cxCy} cy={cxCy} r={radius} stroke="black" strokeWidth="1" fill={fill} />
         <text x={cxCy} y={textY} textAnchor="middle" fontSize="10" fill="black" fontWeight="bold">

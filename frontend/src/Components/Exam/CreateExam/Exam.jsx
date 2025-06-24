@@ -1,3 +1,5 @@
+
+
 // import React, { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import {
@@ -5,16 +7,13 @@
 //   Paper,
 //   Typography,
 //   TextField,
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
 //   Grid,
 //   MenuItem,
-//   CircularProgress,
 //   Box,
+//   Select,
+//   InputLabel,
+//   FormControl,
+//   Chip,
 // } from "@mui/material";
 // import Mainlayout from "../../Layouts/Mainlayout";
 // import Breadcrumb from "../../CommonButton/Breadcrumb";
@@ -50,9 +49,6 @@
 //   // State variables
 //   const [schools, setSchools] = useState([]);
 //   const [selectedSchool, setSelectedSchool] = useState("");
-//   const [students, setStudents] = useState([]);
-//   const [selectedClass, setSelectedClass] = useState("");
-//   const [selectedSubject, setSelectedSubject] = useState("");
 //   const [selectedLevel, setSelectedLevel] = useState("");
 //   const [examDate, setExamDate] = useState("");
 //   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +71,12 @@
 //   const [filteredStates, setFilteredStates] = useState([]);
 //   const [filteredDistricts, setFilteredDistricts] = useState([]);
 //   const [filteredCities, setFilteredCities] = useState([]);
+
+//   // Classes and Subjects states
+//   const [classes, setClasses] = useState([]);
+//   const [subjects, setSubjects] = useState([]);
+//   const [selectedClasses, setSelectedClasses] = useState([]);
+//   const [selectedSubjects, setSelectedSubjects] = useState([]);
 
 //   // Fetch location data on component mount
 //   useEffect(() => {
@@ -106,6 +108,46 @@
 //     };
 
 //     fetchLocationData();
+//   }, []);
+
+//   // Fetch classes data
+//   useEffect(() => {
+//     const fetchClasses = async () => {
+//       try {
+//         const response = await axios.get(`${API_BASE_URL}/api/class`);
+//         if (response.data && Array.isArray(response.data)) {
+//           setClasses(response.data.map(cls => ({
+//             value: cls.name,
+//             label: cls.name
+//           })));
+//         }
+//       } catch (error) {
+//         console.error("Error fetching classes:", error);
+//         setClasses([]);
+//       }
+//     };
+
+//     fetchClasses();
+//   }, []);
+
+//   // Fetch subjects data
+//   useEffect(() => {
+//     const fetchSubjects = async () => {
+//       try {
+//         const response = await axios.get(`${API_BASE_URL}/api/subject`);
+//         if (response.data && Array.isArray(response.data)) {
+//           setSubjects(response.data.map(sub => ({
+//             value: sub.name,
+//             label: sub.name
+//           })));
+//         }
+//       } catch (error) {
+//         console.error("Error fetching subjects:", error);
+//         setSubjects([]);
+//       }
+//     };
+
+//     fetchSubjects();
 //   }, []);
 
 //   // Function to fetch schools based on location filters
@@ -152,6 +194,7 @@
 //     setSelectedState("");
 //     setSelectedDistrict("");
 //     setSelectedCity("");
+//     setSelectedSchool("");
 
 //     // Fetch schools when country changes
 //     const filters = {
@@ -175,6 +218,7 @@
 //     }
 //     setSelectedDistrict("");
 //     setSelectedCity("");
+//     setSelectedSchool("");
 
 //     // Fetch schools when state changes
 //     const filters = {
@@ -197,6 +241,7 @@
 //       setFilteredCities([]);
 //     }
 //     setSelectedCity("");
+//     setSelectedSchool("");
 
 //     // Fetch schools when district changes
 //     const filters = {
@@ -221,6 +266,21 @@
 //       fetchSchoolsByLocation(filters);
 //     }
 //   }, [selectedCity]);
+
+//   // Handle school change
+//   const handleSchoolChange = (e) => {
+//     setSelectedSchool(e.target.value);
+//   };
+
+//   // Handle classes change
+//   const handleClassesChange = (event) => {
+//     setSelectedClasses(event.target.value);
+//   };
+
+//   // Handle subjects change
+//   const handleSubjectsChange = (event) => {
+//     setSelectedSubjects(event.target.value);
+//   };
 
 //   // Prepare options for dropdowns with null checks
 //   const countryOptions = Array.isArray(countries)
@@ -251,7 +311,6 @@
 //       }))
 //     : [];
 
-
 //   // Handle exam date change
 //   const handleExamDateChange = (event) => {
 //     setExamDate(event.target.value);
@@ -259,8 +318,8 @@
 
 //   // Handle save button click
 //   const handleSave = async () => {
-//     if (!selectedSchool || !selectedClass || !selectedSubject || !examDate) {
-//       setError("Please select school, class, subject, and exam date.");
+//     if (!selectedSchool || !examDate || selectedClasses.length === 0 || selectedSubjects.length === 0) {
+//       setError("Please fill all required fields.");
 //       return;
 //     }
 
@@ -285,19 +344,15 @@
 //     }
 
 //     const examData = {
-//       exam_code: `EXAM-${Date.now()}`,
 //       school: selectedSchool,
-//       class_name: selectedClass,
-//       subject: selectedSubject,
 //       level: selectedLevel,
 //       exam_date: examDate,
-//       students: students.map((student) => ({
-//         student_name: student.student_name,
-//         roll_number: student.roll_no,
-//         class: student.class_name,
-//         full_mark: 100,
-//         subject: student.student_subject,
-//       })),
+//       classes: selectedClasses,
+//       subjects: selectedSubjects,
+//       country: selectedCountry,
+//       state: selectedState,
+//       district: selectedDistrict,
+//       city: selectedCity
 //     };
 
 //     try {
@@ -329,11 +384,10 @@
 
 //       // Reset form
 //       setSelectedSchool("");
-//       setSelectedClass("");
-//       setSelectedSubject("");
 //       setSelectedLevel("");
 //       setExamDate("");
-//       setStudents([]);
+//       setSelectedClasses([]);
+//       setSelectedSubjects([]);
 //     } catch (error) {
 //       Swal.fire({
 //         position: "top-end",
@@ -429,36 +483,78 @@
 //                     }`,
 //                   }))}
 //                   onChange={handleSchoolChange}
-//                   disabled={isLoading}
+//                   disabled={isLoading || !selectedCity}
 //                 />
 //               </Grid>
-
-//               {/* Class Dropdown */}
+              
+//               {/* Classes Multi-Select Dropdown */}
 //               <Grid item xs={12} sm={6} md={3}>
-//                 <Dropdown
-//                   label="Class"
-//                   value={selectedClass}
-//                   options={classes.map((cls) => ({
-//                     value: cls,
-//                     label: cls,
-//                   }))}
-//                   onChange={handleClassChange}
-//                   disabled={!selectedSchool || isLoading}
-//                 />
+//                 <FormControl fullWidth margin="normal" size="small">
+//                   <InputLabel id="classes-label">Classes</InputLabel>
+//                   <Select
+//                     labelId="classes-label"
+//                     id="classes-select"
+//                     multiple
+//                     value={selectedClasses}
+//                     onChange={handleClassesChange}
+//                     label="Classes"
+//                     renderValue={(selected) => (
+//                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+//                         {selected.map((value) => {
+//                           const selectedClass = classes.find(c => c.value === value);
+//                           return (
+//                             <Chip 
+//                               key={value} 
+//                               label={selectedClass ? selectedClass.label : value} 
+//                               size="small" 
+//                             />
+//                           );
+//                         })}
+//                       </Box>
+//                     )}
+//                   >
+//                     {classes.map((cls) => (
+//                       <MenuItem key={cls.value} value={cls.value}>
+//                         {cls.label}
+//                       </MenuItem>
+//                     ))}
+//                   </Select>
+//                 </FormControl>
 //               </Grid>
-
-//               {/* Subject Dropdown */}
+              
+//               {/* Subjects Multi-Select Dropdown */}
 //               <Grid item xs={12} sm={6} md={3}>
-//                 <Dropdown
-//                   label="Subject"
-//                   value={selectedSubject}
-//                   options={subjects.map((subject) => ({
-//                     value: subject,
-//                     label: subject,
-//                   }))}
-//                   onChange={handleSubjectChange}
-//                   disabled={isLoading}
-//                 />
+//                 <FormControl fullWidth margin="normal" size="small">
+//                   <InputLabel id="subjects-label">Subjects</InputLabel>
+//                   <Select
+//                     labelId="subjects-label"
+//                     id="subjects-select"
+//                     multiple
+//                     value={selectedSubjects}
+//                     onChange={handleSubjectsChange}
+//                     label="Subjects"
+//                     renderValue={(selected) => (
+//                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+//                         {selected.map((value) => {
+//                           const selectedSubject = subjects.find(s => s.value === value);
+//                           return (
+//                             <Chip 
+//                               key={value} 
+//                               label={selectedSubject ? selectedSubject.label : value} 
+//                               size="small" 
+//                             />
+//                           );
+//                         })}
+//                       </Box>
+//                     )}
+//                   >
+//                     {subjects.map((sub) => (
+//                       <MenuItem key={sub.value} value={sub.value}>
+//                         {sub.label}
+//                       </MenuItem>
+//                     ))}
+//                   </Select>
+//                 </FormControl>
 //               </Grid>
 
 //               {/* Level Dropdown */}
@@ -476,9 +572,7 @@
 //                   disabled={isLoading}
 //                 />
 //               </Grid>
-//             </Grid>
 
-//             <Grid container spacing={2}>
 //               {/* Exam Date Input */}
 //               <Grid item xs={12} sm={6} md={3}>
 //                 <TextField
@@ -497,6 +591,12 @@
 //             </Grid>
 //           </form>
 
+//           {/* Error message */}
+//           {error && (
+//             <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+//               {error}
+//             </Typography>
+//           )}
 
 //           {/* Save Button */}
 //           <Box
@@ -510,9 +610,9 @@
 //               onClick={handleSave}
 //               disabled={
 //                 !selectedSchool ||
-//                 !selectedClass ||
-//                 !selectedSubject ||
 //                 !examDate ||
+//                 selectedClasses.length === 0 ||
+//                 selectedSubjects.length === 0 ||
 //                 isLoading
 //               }
 //               text={isLoading ? "Processing..." : "Submit"}
@@ -533,9 +633,6 @@
 // };
 
 // export default ExaminationForm;
-
-
-
 
 
 import React, { useState, useEffect } from "react";
@@ -958,7 +1055,15 @@ const ExaminationForm = () => {
           ]}
         />
       </div>
-      <Container component="main" maxWidth="">
+      <Container 
+        component="main" 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          width: '100%' 
+        }}
+      >
         <Paper
           className={`${styles.main}`}
           elevation={3}

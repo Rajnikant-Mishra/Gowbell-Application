@@ -612,7 +612,7 @@ td {
 table {
   border: 1px solid black;
   padding: 5px 0 !important;
-  width: 43mm; /* 4.3cm as requested for OMR sections */
+  width: 43.5mm; /* 4.3cm as requested for OMR sections */
 }
 
 td {

@@ -1396,8 +1396,6 @@ const ExaminationForm = () => {
     classes,
     subjects,
   ]);
- 
-
 
   // Event handlers
   const handleSchoolChange = (e) => setSelectedSchool(e.target.value);

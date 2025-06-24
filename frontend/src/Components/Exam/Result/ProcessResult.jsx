@@ -17,6 +17,9 @@ import {
   TableCell,
   TableBody,
   Button,
+  Select,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import Mainlayout from "../../Layouts/Mainlayout";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
@@ -30,24 +33,30 @@ import html2canvas from "html2canvas";
 import MedalsWinnersList from "../../Exam/Result/MedalwinnerList";
 import ReactDOM from "react-dom";
 
-const Dropdown = ({ label, value, options, onChange, disabled }) => (
-  <TextField
-    select
-    label={label}
-    variant="outlined"
-    fullWidth
-    margin="normal"
-    size="small"
-    value={value}
-    onChange={onChange}
-    disabled={disabled}
-  >
-    {options.map((option, index) => (
-      <MenuItem key={index} value={option.value}>
-        {option.label}
-      </MenuItem>
-    ))}
-  </TextField>
+const Dropdown = ({ label, value, options, onChange, disabled, multiple }) => (
+  <FormControl fullWidth margin="normal" size="small" disabled={disabled}>
+    <InputLabel>{label}</InputLabel>
+    <Select
+      label={label}
+      value={value}
+      onChange={onChange}
+      multiple={multiple}
+      renderValue={(selected) =>
+        multiple
+          ? options
+              .filter((opt) => selected.includes(opt.value))
+              .map((opt) => opt.label)
+              .join(", ")
+          : options.find((opt) => opt.value === selected)?.label || ""
+      }
+    >
+      {options.map((option) => (
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
 );
 
 const ExaminationForm = () => {
@@ -55,7 +64,7 @@ const ExaminationForm = () => {
   const [selectedSchool, setSelectedSchool] = useState("");
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [selectedClassId, setSelectedClassId] = useState("");
+  const [selectedClassIds, setSelectedClassIds] = useState([]); // Changed to array
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
   const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -171,7 +180,7 @@ const ExaminationForm = () => {
 
   // Fetch students
   const fetchStudents = useCallback(async () => {
-    if (!selectedSchool || !selectedClassId || !selectedSubjectId) {
+    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectId) {
       setStudents([]);
       setTotalCount(0);
       setFetchError(null);
@@ -180,10 +189,10 @@ const ExaminationForm = () => {
 
     try {
       setIsLoading(true);
-      const classId = Number(selectedClassId);
+      const classIds = selectedClassIds.map(Number);
       const subjectId = Number(selectedSubjectId);
 
-      if (isNaN(classId) || isNaN(subjectId)) {
+      if (classIds.some(isNaN) || isNaN(subjectId)) {
         throw new Error("Invalid class or subject ID.");
       }
 
@@ -191,7 +200,7 @@ const ExaminationForm = () => {
         `${API_BASE_URL}/api/getFilteredStudentreceipt`,
         {
           schoolName: selectedSchool,
-          classId,
+          classIds, // Send as array
           subjectId,
         }
       );
@@ -226,12 +235,12 @@ const ExaminationForm = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedSchool, selectedClassId, selectedSubjectId]);
+  }, [selectedSchool, selectedClassIds, selectedSubjectId]);
 
   // Handle Generate Rank
   const handleGenerateRank = async () => {
-    if (!selectedSchool || !selectedClassId || !selectedSubjectId) {
-      toast.error("Please select school, class, and subject first");
+    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectId) {
+      toast.error("Please select school, classes, and subject first");
       return;
     }
 
@@ -241,7 +250,7 @@ const ExaminationForm = () => {
         `${API_BASE_URL}/api/update-pending-percentages`,
         {
           schoolName: selectedSchool,
-          classId: Number(selectedClassId),
+          classIds: selectedClassIds.map(Number), // Send as array
           subjectId: Number(selectedSubjectId),
         }
       );
@@ -250,7 +259,6 @@ const ExaminationForm = () => {
         response.data.message || "Rank and percentages updated successfully"
       );
 
-      // Refresh student data after updating
       await fetchStudents();
     } catch (error) {
       console.error("Error updating pending percentages:", error);
@@ -265,9 +273,9 @@ const ExaminationForm = () => {
   };
 
   // Handle Download PDF
-  // const handleDownloadPDF = () => {
-  //   if (!selectedSchool || !selectedClassId || !selectedSubjectId) {
-  //     toast.error("Please select school, class, and subject to download PDF");
+  // const handleDownloadPDF = async () => {
+  //   if (!selectedSchool || !selectedClassIds.length || !selectedSubjectId) {
+  //     toast.error("Please select school, classes, and subject to download PDF");
   //     return;
   //   }
 
@@ -276,91 +284,100 @@ const ExaminationForm = () => {
   //     return;
   //   }
 
-  //   const doc = new jsPDF();
-  //   const pageWidth = doc.internal.pageSize.getWidth();
-  //   const pageHeight = doc.internal.pageSize.getHeight();
+  //   const winnersList = students.map((student, index) => ({
+  //     slNo: index + 1,
+  //     name: student.student_name || "N/A",
+  //     rollNo: student.roll_no || "N/A",
+  //     class: student.class_name || "N/A",
+  //     fullMarks: student.full_mark || "N/A",
+  //     securedMarks: student.mark_secured || "N/A",
+  //     percentage: student.percentage || "N/A",
+  //     ranking: student.ranking || "N/A",
+  //     medal: student.medals || "N/A",
+  //     certificate: student.certificate || "N/A",
+  //   }));
 
-  //   // Add Header
-  //   doc.setFontSize(18);
-  //   doc.text("Student Result Report", pageWidth / 2, 20, { align: "center" });
-
-  //   // Add Filters Info
-  //   doc.setFontSize(12);
-  //   doc.text(`School: ${selectedSchool}`, 14, 40);
-  //   doc.text(
-  //     `Class: ${classes.find((cls) => cls.value === selectedClassId)?.label || "N/A"}`,
-  //     14,
-  //     50
-  //   );
-  //   doc.text(
-  //     `Subject: ${subjects.find((sub) => sub.value === selectedSubjectId)?.label || "N/A"}`,
-  //     14,
-  //     60
-  //   );
-  //   doc.text(`Total Students: ${students.length}`, 14, 70);
-
-  //   // Prepare Table Data
-  //   const tableColumns = [
-  //     "Student",
-  //     "Class",
-  //     "Subject",
-  //     "Roll No",
-  //     "Full Mark",
-  //     "Mark Secured",
-  //     "Percentage",
-  //     "Ranking",
-  //     "Remarks",
-  //     "Medal",
-  //     "Certificate",
-  //     "Status",
+  //   const medalsTally = [
+  //     { medal: "Gold", quantity: students.filter((s) => s.medals === "Gold").length },
+  //     { medal: "Silver", quantity: students.filter((s) => s.medals === "Silver").length },
+  //     { medal: "Bronze", quantity: students.filter((s) => s.medals === "Bronze").length },
   //   ];
 
-  //   const tableRows = students.map((student) => [
-  //     student.student_name || "N/A",
-  //     student.class_name || "N/A",
-  //     student.student_subject?.length > 0
-  //       ? student.student_subject.join(", ")
-  //       : "N/A",
-  //     student.roll_no || "N/A",
-  //     student.full_mark || "N/A",
-  //     student.mark_secured || "N/A",
-  //     student.percentage || "N/A",
-  //     student.ranking || "N/A",
-  //     student.remarks || "N/A",
-  //     student.medals || "N/A",
-  //     student.certificate || "N/A",
-  //     student.status || "N/A",
-  //   ]);
+  //   const classCutoff = selectedClassIds.map((classId) => ({
+  //     class: classes.find((cls) => cls.value === classId)?.label || classId,
+  //     gold: students.filter((s) => s.medals === "Gold" && s.class_id === classId).length,
+  //     silver: students.filter((s) => s.medals === "Silver" && s.class_id === classId).length,
+  //     bronze: students.filter((s) => s.medals === "Bronze" && s.class_id === classId).length,
+  //   }));
 
-  //   // Add Table using autoTable
-  //   doc.autoTable({
-  //     head: [tableColumns],
-  //     body: tableRows,
-  //     startY: 80,
-  //     theme: "grid",
-  //     styles: { fontSize: 10, cellPadding: 2 },
-  //     headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
-  //     alternateRowStyles: { fillColor: [240, 240, 240] },
-  //     margin: { top: 80, left: 14, right: 14 },
+  //   const container = document.createElement("div");
+  //   container.style.position = "absolute";
+  //   container.style.left = "-9999px";
+  //   document.body.appendChild(container);
+
+  //   const component = (
+  //     <MedalsWinnersList
+  //       medalsTally={medalsTally}
+  //       classCutoff={classCutoff}
+  //       winnersList={winnersList}
+  //       schoolName={selectedSchool}
+  //       classId={selectedClassIds.join(",")} // Join for display
+  //       subjectId={selectedSubjectId}
+  //     />
+  //   );
+
+  //   ReactDOM.render(component, container);
+
+  //   const canvas = await html2canvas(container, { scale: 2 });
+  //   const imgData = canvas.toDataURL("image/png");
+
+  //   const doc = new jsPDF({
+  //     orientation: "portrait",
+  //     unit: "mm",
+  //     format: "a4",
   //   });
 
-  //   // Add Footer
-  //   const finalY = doc.lastAutoTable.finalY + 20;
+  //   const pageWidth = doc.internal.pageSize.getWidth();
+  //   const pageHeight = doc.internal.pageSize.getHeight();
+  //   const imgWidth = pageWidth - 20;
+  //   const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  //   let heightLeft = imgHeight;
+  //   let position = 10;
+
+  //   doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+
+  //   heightLeft -= pageHeight - 20;
+  //   while (heightLeft > 0) {
+  //     doc.addPage();
+  //     position = heightLeft - imgHeight;
+  //     doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+  //     heightLeft -= pageHeight;
+  //   }
+
   //   doc.setFontSize(10);
   //   doc.text(
   //     `Generated on: ${new Date().toLocaleDateString()}`,
   //     14,
-  //     finalY > pageHeight - 20 ? pageHeight - 20 : finalY
+  //     pageHeight - 10
   //   );
 
-  //   // Save the PDF
   //   doc.save(
-  //     `Result_${selectedSchool}_Class${selectedClassId}_Subject${selectedSubjectId}.pdf`
+  //     `Result_${selectedSchool}_Classes${selectedClassIds.join("_")}_Subject${selectedSubjectId}.pdf`
   //   );
+
+  //   document.body.removeChild(container);
   // };
+
+  // Helper functions to get location names from IDs
+  const getLocationName = (id, dataArray) => {
+    const item = dataArray.find((item) => item.id === id);
+    return item ? item.name : "";
+  };
+
   const handleDownloadPDF = async () => {
-    if (!selectedSchool || !selectedClassId || !selectedSubjectId) {
-      toast.error("Please select school, class, and subject to download PDF");
+    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectId) {
+      toast.error("Please select school, classes, and subject to download PDF");
       return;
     }
 
@@ -369,20 +386,19 @@ const ExaminationForm = () => {
       return;
     }
 
-    // Map students to winnersList format
     const winnersList = students.map((student, index) => ({
       slNo: index + 1,
       name: student.student_name || "N/A",
       rollNo: student.roll_no || "N/A",
-      class: student.class_name || selectedClassId,
+      class: student.class_name || "N/A",
       fullMarks: student.full_mark || "N/A",
       securedMarks: student.mark_secured || "N/A",
       percentage: student.percentage || "N/A",
+      ranking: student.ranking || "N/A",
       medal: student.medals || "N/A",
       certificate: student.certificate || "N/A",
     }));
 
-    // Compute medalsTally (example logic, adjust as needed)
     const medalsTally = [
       {
         medal: "Gold",
@@ -398,39 +414,50 @@ const ExaminationForm = () => {
       },
     ];
 
-    // Compute classCutoff (example logic, adjust as needed)
-    const classCutoff = [
-      { class: selectedClassId, gold: 90, silver: 80, bronze: 70 }, // Example values
-      // Add more classes if needed based on your data
-    ];
+    const classCutoff = selectedClassIds.map((classId) => ({
+      class: classes.find((cls) => cls.value === classId)?.label || classId,
+      gold: students.filter(
+        (s) => s.medals === "Gold" && s.class_id === classId
+      ).length,
+      silver: students.filter(
+        (s) => s.medals === "Silver" && s.class_id === classId
+      ).length,
+      bronze: students.filter(
+        (s) => s.medals === "Bronze" && s.class_id === classId
+      ).length,
+    }));
 
-    // Create a temporary container for rendering the component
+    // Get location names
+    const countryName = getLocationName(selectedCountry, countries);
+    const stateName = getLocationName(selectedState, states);
+    const districtName = getLocationName(selectedDistrict, districts);
+    const cityName = getLocationName(selectedCity, cities);
+
     const container = document.createElement("div");
     container.style.position = "absolute";
     container.style.left = "-9999px";
     document.body.appendChild(container);
 
-    // Render MedalsWinnersList to the container
     const component = (
       <MedalsWinnersList
         medalsTally={medalsTally}
         classCutoff={classCutoff}
         winnersList={winnersList}
         schoolName={selectedSchool}
-        classId={selectedClassId}
+        classId={selectedClassIds.join(",")} // Join for display
         subjectId={selectedSubjectId}
+        country={countryName} // Pass location names
+        state={stateName}
+        district={districtName}
+        city={cityName}
       />
     );
 
-    // Use ReactDOM to render the component to the container
-    const { render } = await import("react-dom");
-    render(component, container);
+    ReactDOM.render(component, container);
 
-    // Capture the rendered component with html2canvas
     const canvas = await html2canvas(container, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
 
-    // Create PDF
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -439,16 +466,14 @@ const ExaminationForm = () => {
 
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const imgWidth = pageWidth - 20; // Adjust for margins
+    const imgWidth = pageWidth - 20;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    // Add the captured image to the PDF
     let heightLeft = imgHeight;
     let position = 10;
 
     doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
 
-    // Handle multiple pages if content exceeds page height
     heightLeft -= pageHeight - 20;
     while (heightLeft > 0) {
       doc.addPage();
@@ -457,7 +482,6 @@ const ExaminationForm = () => {
       heightLeft -= pageHeight;
     }
 
-    // Add footer
     doc.setFontSize(10);
     doc.text(
       `Generated on: ${new Date().toLocaleDateString()}`,
@@ -465,12 +489,12 @@ const ExaminationForm = () => {
       pageHeight - 10
     );
 
-    // Save the PDF
     doc.save(
-      `Result_${selectedSchool}_Class${selectedClassId}_Subject${selectedSubjectId}.pdf`
+      `Result_${selectedSchool}_Classes${selectedClassIds.join(
+        "_"
+      )}_Subject${selectedSubjectId}.pdf`
     );
 
-    // Clean up
     document.body.removeChild(container);
   };
 
@@ -478,7 +502,6 @@ const ExaminationForm = () => {
     fetchStudents,
   ]);
 
-  // Trigger fetch on filter changes
   useEffect(() => {
     debouncedFetchStudents();
     return () => debouncedFetchStudents.cancel();
@@ -564,7 +587,7 @@ const ExaminationForm = () => {
 
   // Event handlers
   const handleSchoolChange = (e) => setSelectedSchool(e.target.value);
-  const handleClassChange = (e) => setSelectedClassId(e.target.value);
+  const handleClassChange = (e) => setSelectedClassIds(e.target.value); // Handles array
   const handleSubjectChange = (e) => setSelectedSubjectId(e.target.value);
 
   const handlePreviousPage = () => {
@@ -574,13 +597,11 @@ const ExaminationForm = () => {
     if (page < Math.ceil(totalCount / pageSize)) setPage(page + 1);
   };
 
-  // Status styling
   const getStatusStyle = (status) => ({
     color: status.toLowerCase() === "success" ? "green" : "red",
     fontWeight: "bold",
   });
 
-  // Paginated students
   const paginatedStudents = students.slice(
     (page - 1) * pageSize,
     page * pageSize
@@ -662,11 +683,12 @@ const ExaminationForm = () => {
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Dropdown
-                  label="Class"
-                  value={selectedClassId}
+                  label="Classes"
+                  value={selectedClassIds}
                   options={classes}
                   onChange={handleClassChange}
                   disabled={isLoading || !selectedSchool}
+                  multiple
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -713,19 +735,19 @@ const ExaminationForm = () => {
             </Box>
             <Table>
               <TableHead>
-                <TableRow style={{ backgroundColor: '#e3f2fd' }}>
-                  <TableCell>STUDENT</TableCell>
-                  <TableCell>CLASS</TableCell>
-                  <TableCell>SUBJECT</TableCell>
-                  <TableCell>ROLL NO</TableCell>
-                  <TableCell>FULL MARK</TableCell>
-                  <TableCell>MARK SECURED</TableCell>
-                  <TableCell>PERCENTAGE</TableCell>
-                  <TableCell>RANKING</TableCell>
-                  <TableCell>MEDAL</TableCell>
-                  <TableCell>REMARK</TableCell>
-                  <TableCell>CERTIFICATE</TableCell>
-                  <TableCell>STATUS</TableCell>
+                <TableRow style={{ backgroundColor: "#e3f2fd" }}>
+                  <TableCell align="center">STUDENT</TableCell>
+                  <TableCell align="center">CLASS</TableCell>
+                  <TableCell align="center">SUBJECT</TableCell>
+                  <TableCell align="center">ROLL NO</TableCell>
+                  <TableCell align="center">FULL MARK</TableCell>
+                  <TableCell align="center">MARK SECURED</TableCell>
+                  <TableCell align="center">PERCENTAGE</TableCell>
+                  <TableCell align="center">RANKING</TableCell>
+                  <TableCell align="center">MEDAL</TableCell>
+                  <TableCell align="center">REMARK</TableCell>
+                  <TableCell align="center">CERTIFICATE</TableCell>
+                  <TableCell align="center">STATUS</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -738,9 +760,13 @@ const ExaminationForm = () => {
                 ) : paginatedStudents.length > 0 ? (
                   paginatedStudents.map((student, index) => (
                     <TableRow key={student.roll_no || index}>
-                      <TableCell>{student.student_name || "N/A"}</TableCell>
-                      <TableCell>{student.class_name || "N/A"}</TableCell>
-                      <TableCell>
+                      <TableCell align="center">
+                        {student.student_name || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.class_name || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
                         {student.student_subject?.length > 0
                           ? student.student_subject
                               .map(
@@ -751,15 +777,34 @@ const ExaminationForm = () => {
                               .join(", ")
                           : "N/A"}
                       </TableCell>
-                      <TableCell>{student.roll_no || "N/A"}</TableCell>
-                      <TableCell>{student.full_mark || "N/A"}</TableCell>
-                      <TableCell>{student.mark_secured || "N/A"}</TableCell>
-                      <TableCell>{student.percentage || "N/A"}</TableCell>
-                      <TableCell>{student.ranking || "N/A"}</TableCell>
-                      <TableCell>{student.medals || "N/A"}</TableCell>
-                      <TableCell>{student.remarks || "N/A"}</TableCell>
-                      <TableCell>{student.certificate || "N/A"}</TableCell>
-                      <TableCell style={getStatusStyle(student.status)}>
+                      <TableCell align="center">
+                        {student.roll_no || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.full_mark || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.mark_secured || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.percentage || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.ranking || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.medals || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.remarks || "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {student.certificate || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        style={getStatusStyle(student.status)}
+                      >
                         {student.status || "N/A"}
                       </TableCell>
                     </TableRow>
@@ -767,9 +812,11 @@ const ExaminationForm = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={12} align="center">
-                      {selectedSchool && selectedClassId && selectedSubjectId
+                      {selectedSchool &&
+                      selectedClassIds.length &&
+                      selectedSubjectId
                         ? "No students found for the selected criteria"
-                        : "Please select school, class, and subject to view students"}
+                        : "Please select school, classes, and subject to view students"}
                     </TableCell>
                   </TableRow>
                 )}

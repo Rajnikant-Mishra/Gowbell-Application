@@ -2626,38 +2626,68 @@ export default function DataTable() {
     });
   };
 
-  const validateSchoolData = (schools) => {
-    const mandatoryFields = [
-      "board",
-      "school_name",
-      "pincode",
-      "school_address",
-      "country",
-      "state",
-      "district",
-      "city",
-    ];
-    const invalidSchools = [];
-    schools.forEach((school, index) => {
-      const fieldMessages = [];
-      mandatoryFields.forEach((field) => {
-        if (!school[field] || school[field].toString().trim() === "") {
-          if (["country", "state", "district", "city"].includes(field)) {
-            fieldMessages.push(`Invalid ${field}: ${school[field] || "empty"}`);
-          } else {
-            fieldMessages.push(`Missing ${field}`);
-          }
-        }
-      });
-      if (fieldMessages.length > 0) {
-        invalidSchools.push({
-          index: index + 1,
-          messages: fieldMessages,
-        });
-      }
-    });
-    return invalidSchools;
-  };
+  // const uploadSchoolsData = async (schools) => {
+  //   if (!Array.isArray(schools) || schools.length === 0) {
+  //     return Swal.fire({
+  //       position: "top-end",
+  //       icon: "warning",
+  //       title: "No Data",
+  //       text: "Please upload a valid CSV file with school data.",
+  //       showConfirmButton: false,
+  //       timer: 3000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await axios.post(
+  //       `${API_BASE_URL}/api/get/school/bulk-upload`,
+  //       schools,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     setLoading(false);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "success",
+  //       title: "Success!",
+  //       text: `Successfully uploaded ${
+  //         response.data.affectedRows || schools.length
+  //       } schools.`,
+  //       showConfirmButton: false,
+  //       timer: 1000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     }).then(() => {
+  //       navigate(0);
+  //     });
+  //   } catch (error) {
+  //     setLoading(false);
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "error",
+  //       title: "Error!",
+  //       text:
+  //         error.response?.data?.message || "An error occurred during upload.",
+  //       showConfirmButton: false,
+  //       timer: 3000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: { popup: "small-swal" },
+  //     });
+  //   }
+  // };
 
   const uploadSchoolsData = async (schools) => {
     if (!Array.isArray(schools) || schools.length === 0) {
@@ -2674,32 +2704,7 @@ export default function DataTable() {
         customClass: { popup: "small-swal" },
       });
     }
-    const invalidSchools = validateSchoolData(schools);
-    if (invalidSchools.length > 0) {
-      const details = invalidSchools.slice(0, 3).map((school) => {
-        const errorList = school.messages
-          .map((msg) => `<li>${msg}</li>`)
-          .join("");
-        return `<li><strong>Row ${school.index}:</strong><ul>${errorList}</ul></li>`;
-      });
-      if (invalidSchools.length > 3) {
-        details.push(`<li>...and ${invalidSchools.length - 3} more rows</li>`);
-      }
-      return Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Invalid Data",
-        html: `<div style="text-align: left;">
-               <p>Issues found in ${invalidSchools.length} row(s):</p>
-               <ul style="padding-left: 20px;">${details.join("")}</ul>
-              </div>`,
-        showConfirmButton: true,
-        background: "#fff",
-        customClass: { popup: "small-swal" },
-        width: 500,
-      });
-    }
-    setLoading(true);
+
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
@@ -2713,37 +2718,81 @@ export default function DataTable() {
         }
       );
       setLoading(false);
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Success!",
-        text: `Successfully uploaded ${
-          response.data.affectedRows || schools.length
-        } schools.`,
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: { popup: "small-swal" },
-      }).then(() => {
-        navigate(0);
-      });
+
+      if (response.data.errors && response.data.errors.length > 0) {
+        // Display each error in a separate Swal toast
+        response.data.errors.forEach((error, index) => {
+          setTimeout(() => {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: `Error in ${error.school || "Unnamed School"}`,
+              text: error.error,
+              showConfirmButton: false,
+              timer: 4000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: { popup: "small-swal" },
+            });
+          }, index * 4500); // Stagger toasts by 4.5 seconds to avoid overlap
+        });
+      } else {
+        // Success case: no errors
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `Successfully uploaded ${response.data.insertedCount} schools.`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: { popup: "small-swal" },
+        }).then(() => {
+          navigate(0);
+        });
+      }
     } catch (error) {
       setLoading(false);
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Error!",
-        text:
-          error.response?.data?.message || "An error occurred during upload.",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        toast: true,
-        background: "#fff",
-        customClass: { popup: "small-swal" },
-      });
+      const errorMessage =
+        error.response?.data?.message || "An error occurred during upload.";
+      const errors = error.response?.data?.errors || [];
+
+      if (errors.length > 0) {
+        // Display each error in a separate Swal toast
+        errors.forEach((err, index) => {
+          setTimeout(() => {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: `Error in ${err.school || "Unnamed School"}`,
+              text: err.error,
+              showConfirmButton: false,
+              timer: 4000,
+              timerProgressBar: true,
+              toast: true,
+              background: "#fff",
+              customClass: { popup: "small-swal" },
+            });
+          }, index * 4500); // Stagger toasts by 4.5 seconds
+        });
+      } else {
+        // General server error
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: errorMessage,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: { popup: "small-swal" },
+        });
+      }
     }
   };
 
