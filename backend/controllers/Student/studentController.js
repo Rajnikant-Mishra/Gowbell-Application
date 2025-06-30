@@ -1,46 +1,6 @@
 import Student from "../../models/Student/studentModel.js";
 
 // Create a single student
-// export const createStudent = (req, res) => {
-//   const {
-//     school_name,
-//     student_name,
-//     class_name,
-//     student_section,
-//     mobile_number,
-//     whatsapp_number,
-//     student_subject,
-//     approved,
-//     approved_by,
-//   } = req.body;
-
-//   // Extract logged-in user ID from request
-//   const userId = req.user?.id;
-
-//   if (!userId) {
-//     return res.status(401).json({ message: "Unauthorized. Please log in." });
-//   }
-
-//   const newStudent = {
-//     school_name,
-//     student_name,
-//     class_name,
-//     student_section,
-//     mobile_number,
-//     whatsapp_number,
-//     student_subject,
-//     approved,
-//     approved_by,
-//   };
-
-//   Student.create(newStudent, userId, (err, result) => {
-//     if (err) return res.status(500).send(err);
-//     res
-//       .status(201)
-//       .send({ message: "Student created", studentId: result.insertId });
-//   });
-// };
-
 export const createStudent = (req, res) => {
   const {
     school_name,
@@ -52,10 +12,6 @@ export const createStudent = (req, res) => {
     student_subject,
     approved,
     approved_by,
-    country,
-    state,
-    district,
-    city,
   } = req.body;
 
   // Extract logged-in user ID from request
@@ -75,10 +31,6 @@ export const createStudent = (req, res) => {
     student_subject,
     approved,
     approved_by,
-    country,
-    state,
-    district,
-    city,
   };
 
   Student.create(newStudent, userId, (err, result) => {
@@ -89,8 +41,57 @@ export const createStudent = (req, res) => {
   });
 };
 
-// Bulk upload students
+// export const createStudent = (req, res) => {
+//   const {
+//     school_id,
+//     school_name,
+//     student_name,
+//     class_name,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//     country,
+//     state,
+//     district,
+//     city,
+//   } = req.body;
 
+//   // Extract logged-in user ID from request
+//   const userId = req.user?.id;
+
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized. Please log in." });
+//   }
+
+//   const newStudent = {
+//     school_id,
+//     school_name,
+//     student_name,
+//     class_name,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//     country,
+//     state,
+//     district,
+//     city,
+//   };
+
+//   Student.create(newStudent, userId, (err, result) => {
+//     if (err) return res.status(500).send(err);
+//     res
+//       .status(201)
+//       .send({ message: "Student created", studentId: result.insertId });
+//   });
+// };
+
+// Bulk upload students
 // export const bulkUploadStudents = async (req, res) => {
 //   const students = req.body;
 
@@ -112,10 +113,10 @@ export const createStudent = (req, res) => {
 //     });
 //   } catch (err) {
 //     console.error("Error inserting students:", err);
-//     res.status(500).json({
+//     res.status(400).json({
 //       message: "Error uploading students",
 //       error: err.message,
-//       errors: err.cause,
+//       errors: err.cause, // Include detailed errors (e.g., inconsistencies)
 //     });
 //   }
 // };
@@ -148,6 +149,8 @@ export const bulkUploadStudents = async (req, res) => {
     });
   }
 };
+
+
 
 // Get all students
 export const getAllstudentserach = (req, res) => {

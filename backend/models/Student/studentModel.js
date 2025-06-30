@@ -3,6 +3,7 @@ import { db } from "../../config/db.js";
 export const Student = {
   create: (studentData, userId, callback) => {
     const {
+      school_id,
       school_name,
       student_name,
       class_name,
@@ -51,13 +52,14 @@ export const Student = {
         // Step 3: Insert the new student record
         const insertQuery = `
           INSERT INTO student 
-          (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, created_by, updated_by, created_at, updated_at) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+          (school_id, school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, created_by, updated_by, created_at, updated_at) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         `;
 
         db.query(
           insertQuery,
           [
+            school_id,
             school_name,
             student_name,
             formattedRollNo,
@@ -84,7 +86,43 @@ export const Student = {
   // BULK UPLOAD
   // bulkCreate: (students, userId) => {
   //   return new Promise((resolve, reject) => {
-  //     // Group students by school_name and class_name
+  //     // Validate that all students have the same school_name, class_name, country, state, district, city
+  //     const validateFields = [
+  //       "school_name",
+  //       "class_name",
+  //       "country",
+  //       "state",
+  //       "district",
+  //       "city",
+  //     ];
+  //     const inconsistencies = validateFields.reduce((acc, field) => {
+  //       const values = [...new Set(students.map((s) => s[field]))];
+  //       if (values.length > 1) {
+  //         acc[field] = `The Students  ${field} not match : ${values.join(
+  //           ", "
+  //         )}`;
+  //       }
+  //       return acc;
+  //     }, {});
+
+  //     // Validate that all students have the same student_subject
+  //     const subjects = students.map((s) =>
+  //       JSON.stringify(s.student_subject?.sort() || [])
+  //     );
+  //     const uniqueSubjects = [...new Set(subjects)];
+  //     if (uniqueSubjects.length > 1) {
+  //       inconsistencies.student_subject = `The student subjects not match : ${uniqueSubjects.join(
+  //         ", "
+  //       )}`;
+  //     }
+
+  //     if (Object.keys(inconsistencies).length > 0) {
+  //       return reject(
+  //         new Error("Inconsistent student data", { cause: inconsistencies })
+  //       );
+  //     }
+
+  //     // Group students by school_name and class_name (though already validated as same)
   //     const groupedStudents = students.reduce((acc, student) => {
   //       const key = `${student.school_name}-${student.class_name}`;
   //       acc[key] = acc[key] || [];
@@ -136,6 +174,7 @@ export const Student = {
   //       if (schoolResult.length === 0) {
   //         throw new Error(`School not found: ${schoolName}`);
   //       }
+  //       // const school_code = schoolResult = schoolResult[0].school_code;
   //       const school_code = schoolResult[0].school_code;
 
   //       const rollResult = await new Promise((resolve, reject) =>
@@ -192,6 +231,7 @@ export const Student = {
   //           city: cityId,
   //           class_name: classId,
   //           student_subject: subjectIds,
+  //           updated: 0, // Initialize updated field
   //         });
   //       }
   //       return studentsWithRollNoAndIds;
@@ -294,6 +334,7 @@ export const Student = {
   //   });
   // },
 
+  // BULK UPLOAD
   bulkCreate: (students, userId) => {
     return new Promise((resolve, reject) => {
       // Validate that all students have the same school_name, class_name, country, state, district, city
@@ -308,9 +349,7 @@ export const Student = {
       const inconsistencies = validateFields.reduce((acc, field) => {
         const values = [...new Set(students.map((s) => s[field]))];
         if (values.length > 1) {
-          acc[field] = `The Students  ${field} not match : ${values.join(
-            ", "
-          )}`;
+          acc[field] = `The Students ${field} not match: ${values.join(", ")}`;
         }
         return acc;
       }, {});
@@ -321,7 +360,7 @@ export const Student = {
       );
       const uniqueSubjects = [...new Set(subjects)];
       if (uniqueSubjects.length > 1) {
-        inconsistencies.student_subject = `The student subjects not match : ${uniqueSubjects.join(
+        inconsistencies.student_subject = `The student subjects not match: ${uniqueSubjects.join(
           ", "
         )}`;
       }
@@ -376,7 +415,7 @@ export const Student = {
       const processGroup = async (group, schoolName, className) => {
         const schoolResult = await new Promise((resolve, reject) =>
           db.query(
-            `SELECT school_code FROM school WHERE school_name = ?`,
+            `SELECT school_id, school_code FROM school WHERE school_name = ?`,
             [schoolName],
             (err, result) => (err ? reject(err) : resolve(result))
           )
@@ -384,8 +423,7 @@ export const Student = {
         if (schoolResult.length === 0) {
           throw new Error(`School not found: ${schoolName}`);
         }
-        // const school_code = schoolResult = schoolResult[0].school_code;
-        const school_code = schoolResult[0].school_code;
+        const { school_id: fetchedSchoolId, school_code } = schoolResult[0];
 
         const rollResult = await new Promise((resolve, reject) =>
           db.query(
@@ -434,6 +472,7 @@ export const Student = {
 
           studentsWithRollNoAndIds.push({
             ...student,
+            school_id: fetchedSchoolId,
             roll_no: formattedRollNo,
             country: countryId,
             state: stateId,
@@ -489,11 +528,12 @@ export const Student = {
 
           const query = `
           INSERT INTO student 
-          (school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, 
+          (school_id, school_name, student_name, roll_no, class_name, student_section, mobile_number, whatsapp_number, student_subject, 
            country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at) 
           VALUES ?
         `;
           const values = allStudents.map((student) => [
+            student.school_id,
             student.school_name,
             student.student_name,
             student.roll_no,
@@ -742,6 +782,7 @@ export const Student = {
         s.school_name,
         s.student_section,
         s.mobile_number,
+        s.status,
         c.name AS class_name,
         sub.name AS subject_names
       FROM student s

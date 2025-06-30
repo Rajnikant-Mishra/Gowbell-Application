@@ -25,7 +25,7 @@ router.get("/get/:id", getOmrById);
 //update
 router.put("/update/:id", updateOmr);
 
-// Delete OMR data by ID
+// Delete OMR data by ID    
 router.delete("/omr-data/:id", deleteOmrData);
 
 // Update filename for an OMR record

@@ -1,5 +1,5 @@
 import express from "express";
-import {createResult,updateResult,getResultById,  bulkUploadResults, getAllResults, deleteResultById, updatePendingPercentages, getFilteredStudentsomrreceipt} from "../../controllers/Exam/ResultController.js";
+import {createResult,updateResult,getResultById,  bulkUploadResults, getAllResults, deleteResultById, getFilteredStudentsomrreceipt} from "../../controllers/Exam/ResultController.js";
 
 const router = express.Router();
 
@@ -28,6 +28,6 @@ router.post('/getFilteredStudentreceipt', getFilteredStudentsomrreceipt);
 
 
 // New route for updating percentages of pending records
-router.post("/update-pending-percentages", updatePendingPercentages);
+// router.post("/update-pending-percentages", updatePendingPercentages);
 
 export default router;

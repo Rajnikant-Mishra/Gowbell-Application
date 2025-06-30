@@ -28,13 +28,58 @@
 //   fileFilter: fileFilter,
 // });
 
+
+//=======================================
+
+// import multer from "multer";
+// import path from "path";
+
+// // Storage settings
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.join(process.cwd(), ".../../uploads/omr_pdfs")); // Fixed: absolute path
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueName = Date.now() + "-" + file.originalname;
+//     cb(null, uniqueName);
+//   },
+// });
+
+// // Only accept PDFs
+// const fileFilter = (req, file, cb) => {
+//   const filetypes = /pdf/;
+//   const mimetype = filetypes.test(file.mimetype);
+//   if (mimetype) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error("Only PDF files are allowed"), false);
+//   }
+// };
+
+// // ✅ Added file size limit to fix 413 error
+// export const upload = multer({
+//   storage: storage,
+//   fileFilter: fileFilter,
+//   limits: {
+//     fileSize: 50 * 1024 * 1024, // 50 MB
+//   },
+// });
+
+
 import multer from "multer";
 import path from "path";
+import fs from "fs";
+
+// Create uploads folder if it doesn't exist
+const uploadDir = path.join(process.cwd(), "uploads/omr_pdfs");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Storage settings
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(process.cwd(), ".../../uploads/omr_pdfs")); // Fixed: absolute path
+    cb(null, uploadDir); // ✅ Correct absolute path
   },
   filename: function (req, file, cb) {
     const uniqueName = Date.now() + "-" + file.originalname;
@@ -42,7 +87,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// Only accept PDFs
+// Accept only PDFs
 const fileFilter = (req, file, cb) => {
   const filetypes = /pdf/;
   const mimetype = filetypes.test(file.mimetype);
@@ -53,11 +98,12 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// ✅ Added file size limit to fix 413 error
+// Final export with 50MB limit
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50 MB
+    fileSize: 50 * 1024 * 1024, // 50MB
   },
 });
+

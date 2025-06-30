@@ -874,7 +874,7 @@ ORDER BY s.id DESC;
       const { country, state, district, city } = filters;
 
       const sql = `
-          SELECT 
+          SELECT
             COUNT(s.id) AS school_count,
             c.name AS country_name,
             st.name AS state_name,
@@ -886,14 +886,14 @@ ORDER BY s.id DESC;
           LEFT JOIN states st ON s.state = st.id
           LEFT JOIN districts d ON s.district = d.id
           LEFT JOIN cities ci ON s.city = ci.id
-          WHERE 
+          WHERE
             (? IS NULL OR s.country = ?) AND
             (? IS NULL OR s.state = ?) AND
             (? IS NULL OR s.district = ?) AND
             (? IS NULL OR s.city = ?)
-          GROUP BY 
+          GROUP BY
             c.name, st.name, d.name, ci.name
-          ORDER BY 
+          ORDER BY
             c.name, st.name, d.name, ci.name
         `;
 
@@ -914,7 +914,7 @@ ORDER BY s.id DESC;
       });
     });
   },
-
+  
   // school approved code
   // updateStatusApprovedById: (id, status_approved) => {
   //   return new Promise((resolve, reject) => {
@@ -948,6 +948,58 @@ ORDER BY s.id DESC;
       });
     });
   },
+
+  //extra get schools id filterd by location (country, state, district, city)
+  getSchoolIdByLocation: (filters) => {
+    return new Promise((resolve, reject) => {
+      const { country, state, district, city } = filters;
+
+      const sql = `
+          SELECT
+            COUNT(s.id) AS school_count,
+            c.name AS country_name,
+            st.name AS state_name,
+            d.name AS district_name,
+            ci.name AS city_name,
+            GROUP_CONCAT(
+              CONCAT(s.id, ':', s.school_name) 
+              ORDER BY s.school_name ASC
+              SEPARATOR ','
+            ) AS school_info
+          FROM school s
+          LEFT JOIN countries c ON s.country = c.id
+          LEFT JOIN states st ON s.state = st.id
+          LEFT JOIN districts d ON s.district = d.id
+          LEFT JOIN cities ci ON s.city = ci.id
+          WHERE
+            (? IS NULL OR s.country = ?) AND
+            (? IS NULL OR s.state = ?) AND
+            (? IS NULL OR s.district = ?) AND
+            (? IS NULL OR s.city = ?)
+          GROUP BY
+            c.name, st.name, d.name, ci.name
+          ORDER BY
+            c.name, st.name, d.name, ci.name
+        `;
+
+      const values = [
+        country,
+        country,
+        state,
+        state,
+        district,
+        district,
+        city,
+        city,
+      ];
+
+      db.query(sql, values, (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
+  },
+
 };
 
 export default School;
