@@ -280,7 +280,78 @@ const ResultModel = {
   },
 
   //get all result by select school class subject
-  getStudents: (schoolName, classId, subjectId, callback) => {
+  // getStudents: (schoolName, classId, subjectId, callback) => {
+  //   const dataQuery = `
+  //   SELECT
+  //     r.id,
+  //     r.roll_no,
+  //     r.student_name,
+  //     r.school_name,
+  //     r.roll_no,
+  //     r.full_mark,
+  //     r.mark_secured,
+  //     r.percentage,
+  //     r.medals,
+  //     r.certificate,
+  //     r.remarks,
+  //     r.ranking,
+  //     r.status,
+  //     c.name AS class_name,
+  //     sub.name AS subject_name
+  //   FROM result r
+  //   LEFT JOIN class c ON r.class_id = c.id
+  //   LEFT JOIN subject_master sub ON r.subject_id = sub.id
+  //   WHERE r.school_name = ?
+  //     AND r.class_id = ?
+  //     AND r.subject_id = ?
+  // `;
+
+  //   const countQuery = `
+  //   SELECT COUNT(*) as total_count
+  //   FROM result r
+  //   WHERE r.school_name = ?
+  //     AND r.class_id = ?
+  //     AND r.subject_id = ?
+  // `;
+
+  //   const dataParams = [schoolName, classId, subjectId];
+  //   const countParams = [schoolName, classId, subjectId];
+
+  //   db.query(dataQuery, dataParams, (err, students) => {
+  //     if (err) return callback(err);
+
+  //     db.query(countQuery, countParams, (countErr, countResult) => {
+  //       if (countErr) return callback(countErr);
+
+  //       const totalCount = countResult[0].total_count;
+  //       callback(null, { students, totalCount });
+  //     });
+  //   });
+  // },
+
+  // getClassNames: (classIds, callback) => {
+  //   if (!classIds.length) return callback(null, []);
+  //   const placeholders = classIds.map(() => "?").join(",");
+  //   const query = `SELECT id, name AS class_id FROM class WHERE id IN (${placeholders})`;
+  //   db.query(query, classIds, callback);
+  // },
+
+  // getSubjectNames: (subjectIds, callback) => {
+  //   if (!subjectIds.length) return callback(null, []);
+  //   const placeholders = subjectIds.map(() => "?").join(",");
+  //   const query = `SELECT id, name AS subject_name FROM subject_master WHERE id IN (${placeholders})`;
+  //   db.query(query, subjectIds, callback);
+  // },
+
+  getStudents: (schoolName, classIds, subjectId, callback) => {
+    // Ensure classIds is an array
+    if (!Array.isArray(classIds)) {
+      classIds = [classIds];
+    }
+
+    // Create placeholders for classIds
+    const classPlaceholders = classIds.map(() => "?").join(",");
+
     const dataQuery = `
     SELECT
       r.id,
@@ -302,7 +373,7 @@ const ResultModel = {
     LEFT JOIN class c ON r.class_id = c.id
     LEFT JOIN subject_master sub ON r.subject_id = sub.id
     WHERE r.school_name = ?
-      AND r.class_id = ?
+      AND r.class_id IN (${classPlaceholders})
       AND r.subject_id = ?
   `;
 
@@ -310,12 +381,13 @@ const ResultModel = {
     SELECT COUNT(*) as total_count
     FROM result r
     WHERE r.school_name = ?
-      AND r.class_id = ?
+      AND r.class_id IN (${classPlaceholders})
       AND r.subject_id = ?
   `;
 
-    const dataParams = [schoolName, classId, subjectId];
-    const countParams = [schoolName, classId, subjectId];
+    // Combine parameters for both queries
+    const dataParams = [schoolName, ...classIds, subjectId];
+    const countParams = [schoolName, ...classIds, subjectId];
 
     db.query(dataQuery, dataParams, (err, students) => {
       if (err) return callback(err);
@@ -330,14 +402,15 @@ const ResultModel = {
   },
 
   getClassNames: (classIds, callback) => {
-    if (!classIds.length) return callback(null, []);
+    if (!Array.isArray(classIds) || !classIds.length) return callback(null, []);
     const placeholders = classIds.map(() => "?").join(",");
-    const query = `SELECT id, name AS class_id FROM class WHERE id IN (${placeholders})`;
+    const query = `SELECT id, name AS class_name FROM class WHERE id IN (${placeholders})`;
     db.query(query, classIds, callback);
   },
 
   getSubjectNames: (subjectIds, callback) => {
-    if (!subjectIds.length) return callback(null, []);
+    if (!Array.isArray(subjectIds) || !subjectIds.length)
+      return callback(null, []);
     const placeholders = subjectIds.map(() => "?").join(",");
     const query = `SELECT id, name AS subject_name FROM subject_master WHERE id IN (${placeholders})`;
     db.query(query, subjectIds, callback);

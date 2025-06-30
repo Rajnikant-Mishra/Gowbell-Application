@@ -1364,11 +1364,11 @@ export default function OMRSheet({
                     <li>
                       Any overwriting or stray marks may lead to wrong evaluation.
                     </li>
-                    <li>
+                   
                      <li>
                       Any overwriting or stray marks may lead to wrong evaluation.
                     </li>
-                    </li>
+                   
                     <li>
                       Submit your OMR Sheet only to the Invigilator at the end of the exam.
                     </li>
@@ -1503,7 +1503,7 @@ export default function OMRSheet({
                     }}
                     className={`${styles.subjects} my-auto`}
                   >
-                    {subject}
+                    {subject}-{2025}
                   </p>
                 </div>
               </div>

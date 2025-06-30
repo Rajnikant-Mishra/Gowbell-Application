@@ -830,12 +830,7 @@ export const Student = {
   },
 
   //student attendance
-  getStudentforAttendance: (
-    schoolName,
-    classList,
-    subjectList,
-    callback
-  ) => {
+  getStudentforAttendance: (schoolName, classList, subjectList, callback) => {
     if (!classList.length || !subjectList.length) {
       return callback(null, { students: [], totalCount: 0 });
     }

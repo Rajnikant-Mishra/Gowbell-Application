@@ -235,7 +235,7 @@ const UpdateClass = () => {
         Swal.fire({
           title: "Error",
           text: "Failed to load class details.",
-          icon: "error",
+          
           confirmButtonText: "OK",
         });
       });

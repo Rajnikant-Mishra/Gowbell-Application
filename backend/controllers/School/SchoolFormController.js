@@ -217,21 +217,6 @@ export const createSchool = async (req, res) => {
 //       return res.status(500).json({ message: "Failed to insert schools" });
 //     }
 
-//     results.schools.forEach((school) => {
-//       if (school.school_email && school.principal_contact_number) {
-//         const subject = `School Registration Successful: ${school.school_name}`;
-//         const text = `Dear ${school.school_name}, your registration with Gowbell Foundation was successful. School Code: ${school.school_code}`;
-//         const html = `
-//           <p>Dear <strong>${school.school_name}</strong>,</p>
-//           <p>Registration successful with Gowbell Foundation.</p>
-//           <p>Your School Code is <strong>${school.school_code}</strong>.</p>
-//         `;
-
-//         sendEmail(school.school_email, subject, text, html);
-//         sendSms(school.principal_contact_number, text);
-//       }
-//     });
-
 //     res.status(201).json({
 //       message: "Schools uploaded successfully",
 //       insertedCount: results.affectedRows,
@@ -258,18 +243,25 @@ export const bulkUploadSchools = async (req, res) => {
     const results = await School.bulkCreate(schoolsWithUserData);
 
     if (!results || results.affectedRows === 0) {
-      return res.status(500).json({ message: "Failed to insert schools" });
+      return res.status(400).json({
+        message: "No schools were inserted",
+        errors: results.errors || [{ error: "No valid schools to insert" }],
+      });
     }
 
     res.status(201).json({
       message: "Schools uploaded successfully",
       insertedCount: results.affectedRows,
       schools: results.schools,
-      errors: results.errors || [],
+      errors: results.errors || [], // Include errors if any
     });
   } catch (err) {
     console.error("Bulk upload error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({
+      message: "Server error during bulk upload",
+      error: err.message,
+      errors: err.errors || [], // Ensure errors array is included
+    });
   }
 };
 

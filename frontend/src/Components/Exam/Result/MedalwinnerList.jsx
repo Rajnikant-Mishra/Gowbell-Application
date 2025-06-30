@@ -546,8 +546,6 @@
 
 // export default MedalsWinnersList;
 
-
-
 import React from "react";
 import logo from "../../../../public/logo GOWBELL.png"; // Adjust path as needed
 import {
@@ -568,19 +566,15 @@ const MedalsWinnersList = ({
   classCutoff,
   winnersList,
   schoolName,
+  schoolAddress,
+  subjectName,
   classId,
   subjectId,
   country, // New prop
-  state,   // New prop
-  district,// New prop
-  city,    // New prop
+  state, // New prop
+  district, // New prop
+  city, // New prop
 }) => {
-  // Construct location string dynamically
-  const locationString = [city, district, state]
-    .filter(Boolean) // Remove empty or undefined values
-    .join("-")
-    .toUpperCase() || "N/A";
-
   return (
     <Box
       sx={{ p: 3, fontFamily: "Arial, sans-serif", backgroundColor: "white" }}
@@ -601,7 +595,7 @@ const MedalsWinnersList = ({
               fontSize: "1.3rem",
             }}
           >
-            GOWBELL INTERNATIONAL MATHEMATICS OLYMPIAD (2024-25)
+            GOWBELL INTERNATIONAL {subjectName} OLYMPIAD (2024-25)
           </Typography>
         </Grid>
         <Grid item xs={2} sx={{ textAlign: "right" }}>
@@ -648,7 +642,7 @@ const MedalsWinnersList = ({
                 mb: 1,
               }}
             >
-              ({locationString})
+              ({schoolAddress || "N/A"} )
             </Typography>
             <Box border={1}>
               <Typography

@@ -825,8 +825,6 @@
 
 // export default ExaminationForm;
 
-
-
 //---------------------------------------------------------------------------------------------
 
 // import React, { useState, useEffect, useCallback } from "react";
@@ -1687,7 +1685,6 @@
 
 // export default ExaminationForm;
 
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -1966,14 +1963,15 @@ const ExaminationForm = () => {
     let currentBatch = 0;
 
     // Process students in batches
-    for (let batchStart = 0; batchStart < totalStudents; batchStart += batchSize) {
+    for (
+      let batchStart = 0;
+      batchStart < totalStudents;
+      batchStart += batchSize
+    ) {
       const batchStudents = students.slice(batchStart, batchStart + batchSize);
       currentBatch++;
 
-      const progress = Math.min(
-        ((currentBatch / totalBatches) * 80 + 10),
-        90
-      );
+      const progress = Math.min((currentBatch / totalBatches) * 80 + 10, 90);
       localStorage.setItem("pdfProgress", JSON.stringify({ progress }));
       window.dispatchEvent(new Event("storage"));
 
@@ -2024,7 +2022,7 @@ const ExaminationForm = () => {
             subjectIds={subjectIds}
             className={student.class_name}
             classId={classId}
-            date={examDate || new Date().toLocaleDateString()}
+            // date={examDate || new Date().toLocaleDateString()}
             rollNumber={student.roll_no}
             omrSet={omrSet}
           />,

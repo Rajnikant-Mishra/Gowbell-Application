@@ -1285,36 +1285,35 @@ export default function OMRSheet({
                   className={`${styles.textBox1} textBox d-flex flex-column`}
                 >
                   <ol className={`${styles.ruleBox} my-2`}>
-                                     <li>
-                                       Use only a  <b>BLACK or BLUE </b> ballpoint pen to darken the appropriate circle.
-                                       
-                                     </li>
-                                     <li>
-                                      Do not use 
-                                       <b>
-                                         gel pens, ink removers, or whiteners.
-                                       </b>
-                                      
-                                     </li>
-                                     <li>
-                                      Fill the circle completely and neatly. Do not tick or cross the circles.
-                                     </li>
-                                     <li>Mark only one answer for each question.</li>
-                                     <li>
-                                      Changing an answer is not allowed.
-                                     </li>
-                                     <li>
-                                       Any overwriting or stray marks may lead to wrong evaluation.
-                                     </li>
-                                     <li>
-                                      <li>
-                                       Any overwriting or stray marks may lead to wrong evaluation.
-                                     </li>
-                                     </li>
-                                     <li>
-                                       Submit your OMR Sheet only to the Invigilator at the end of the exam.
-                                     </li>
-                                   </ol>
+                    <li>
+                      Use only a <b>BLACK or BLUE </b> ballpoint pen to darken
+                      the appropriate circle.
+                    </li>
+                    <li>
+                      Do not use
+                      <b>gel pens, ink removers, or whiteners.</b>
+                    </li>
+                    <li>
+                      Fill the circle completely and neatly. Do not tick or
+                      cross the circles.
+                    </li>
+                    <li>Mark only one answer for each question.</li>
+                    <li>Changing an answer is not allowed.</li>
+                    <li>
+                      Any overwriting or stray marks may lead to wrong
+                      evaluation.
+                    </li>
+                    
+                      <li>
+                        Any overwriting or stray marks may lead to wrong
+                        evaluation.
+                      </li>
+                 
+                    <li>
+                      Submit your OMR Sheet only to the Invigilator at the end
+                      of the exam.
+                    </li>
+                  </ol>
                 </div>
               </div>
             </div>
@@ -1442,7 +1441,7 @@ export default function OMRSheet({
                     }}
                     className={`${styles.subjects} my-auto`}
                   >
-                    {subject}
+                    {subject}-{2025}
                   </p>
                 </div>
               </div>
