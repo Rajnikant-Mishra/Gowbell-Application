@@ -1,5 +1,3 @@
-
-
 // import React, { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import {
@@ -486,7 +484,7 @@
 //                   disabled={isLoading || !selectedCity}
 //                 />
 //               </Grid>
-              
+
 //               {/* Classes Multi-Select Dropdown */}
 //               <Grid item xs={12} sm={6} md={3}>
 //                 <FormControl fullWidth margin="normal" size="small">
@@ -503,10 +501,10 @@
 //                         {selected.map((value) => {
 //                           const selectedClass = classes.find(c => c.value === value);
 //                           return (
-//                             <Chip 
-//                               key={value} 
-//                               label={selectedClass ? selectedClass.label : value} 
-//                               size="small" 
+//                             <Chip
+//                               key={value}
+//                               label={selectedClass ? selectedClass.label : value}
+//                               size="small"
 //                             />
 //                           );
 //                         })}
@@ -521,7 +519,7 @@
 //                   </Select>
 //                 </FormControl>
 //               </Grid>
-              
+
 //               {/* Subjects Multi-Select Dropdown */}
 //               <Grid item xs={12} sm={6} md={3}>
 //                 <FormControl fullWidth margin="normal" size="small">
@@ -538,10 +536,10 @@
 //                         {selected.map((value) => {
 //                           const selectedSubject = subjects.find(s => s.value === value);
 //                           return (
-//                             <Chip 
-//                               key={value} 
-//                               label={selectedSubject ? selectedSubject.label : value} 
-//                               size="small" 
+//                             <Chip
+//                               key={value}
+//                               label={selectedSubject ? selectedSubject.label : value}
+//                               size="small"
 //                             />
 //                           );
 //                         })}
@@ -633,6 +631,9 @@
 // };
 
 // export default ExaminationForm;
+
+
+
 
 
 import React, { useState, useEffect } from "react";
@@ -751,10 +752,12 @@ const ExaminationForm = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/class`);
         if (response.data && Array.isArray(response.data)) {
-          setClasses(response.data.map(cls => ({
-            value: cls.name,
-            label: cls.name
-          })));
+          setClasses(
+            response.data.map((cls) => ({
+              value: cls.name,
+              label: cls.name,
+            }))
+          );
         }
       } catch (error) {
         console.error("Error fetching classes:", error);
@@ -771,10 +774,12 @@ const ExaminationForm = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/subject`);
         if (response.data && Array.isArray(response.data)) {
-          setSubjects(response.data.map(sub => ({
-            value: sub.name,
-            label: sub.name
-          })));
+          setSubjects(
+            response.data.map((sub) => ({
+              value: sub.name,
+              label: sub.name,
+            }))
+          );
         }
       } catch (error) {
         console.error("Error fetching subjects:", error);
@@ -953,7 +958,12 @@ const ExaminationForm = () => {
 
   // Handle save button click
   const handleSave = async () => {
-    if (!selectedSchool || !examDate || selectedClasses.length === 0 || selectedSubjects.length === 0) {
+    if (
+      !selectedSchool ||
+      !examDate ||
+      selectedClasses.length === 0 ||
+      selectedSubjects.length === 0
+    ) {
       setError("Please fill all required fields.");
       return;
     }
@@ -987,7 +997,7 @@ const ExaminationForm = () => {
       country: selectedCountry,
       state: selectedState,
       district: selectedDistrict,
-      city: selectedCity
+      city: selectedCity,
     };
 
     try {
@@ -1055,13 +1065,13 @@ const ExaminationForm = () => {
           ]}
         />
       </div>
-      <Container 
-        component="main" 
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          width: '100%' 
+      <Container
+        component="main"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
         }}
       >
         <Paper
@@ -1129,7 +1139,7 @@ const ExaminationForm = () => {
                   disabled={isLoading || !selectedCity}
                 />
               </Grid>
-              
+
               {/* Classes Multi-Select Dropdown */}
               <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth margin="normal" size="small">
@@ -1142,14 +1152,18 @@ const ExaminationForm = () => {
                     onChange={handleClassesChange}
                     label="Classes"
                     renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => {
-                          const selectedClass = classes.find(c => c.value === value);
+                          const selectedClass = classes.find(
+                            (c) => c.value === value
+                          );
                           return (
-                            <Chip 
-                              key={value} 
-                              label={selectedClass ? selectedClass.label : value} 
-                              size="small" 
+                            <Chip
+                              key={value}
+                              label={
+                                selectedClass ? selectedClass.label : value
+                              }
+                              size="small"
                             />
                           );
                         })}
@@ -1164,7 +1178,7 @@ const ExaminationForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              
+
               {/* Subjects Multi-Select Dropdown */}
               <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth margin="normal" size="small">
@@ -1177,14 +1191,18 @@ const ExaminationForm = () => {
                     onChange={handleSubjectsChange}
                     label="Subjects"
                     renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => {
-                          const selectedSubject = subjects.find(s => s.value === value);
+                          const selectedSubject = subjects.find(
+                            (s) => s.value === value
+                          );
                           return (
-                            <Chip 
-                              key={value} 
-                              label={selectedSubject ? selectedSubject.label : value} 
-                              size="small" 
+                            <Chip
+                              key={value}
+                              label={
+                                selectedSubject ? selectedSubject.label : value
+                              }
+                              size="small"
                             />
                           );
                         })}

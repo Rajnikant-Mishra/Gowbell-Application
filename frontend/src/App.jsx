@@ -69,7 +69,6 @@ import QuestionIssues from "./Components/Exam/question/QuestionIssues";
 import QuestionCreate from "./Components/Exam/question/QuestionCreate";
 import QuestionUpdated from "./Components/Exam/question/QuestionUpdated";
 
-
 //conginment
 import Create from "./Components/Consignment/create/Create";
 import List from "./Components/Consignment/create/List";
@@ -96,6 +95,9 @@ import UpdateRole from "./Components/Role/UpdateRole";
 //exam
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
+
+// wildcard
+import WildcardList from "./Components/Exam/Wildcard/WildcardList";
 
 //result
 import Result from "./Components/Exam/Result/Result";
@@ -421,6 +423,12 @@ function App() {
             path="/examList"
             element={<ProtectedRoute element={<ExamList />} />}
           />
+
+
+          {/* wildcard */}
+          <Route path="/wildcard" element={<ProtectedRoute element={<WildcardList/>} />} />
+
+
           {/* //menu */}
           <Route path="/menu" element={<ProtectedRoute element={<Menu />} />} />
           <Route
