@@ -29,22 +29,22 @@ import SelectDrop from "./SelectDrop";
 // Validation Schema using Yup (unchanged)
 const validationSchema = Yup.object({
   board: Yup.string().required("Board is required"),
-  school_name: Yup.string()
-    .required("School name is required")
-    .test("unique-name", "School name already exists.", async (value) => {
-      if (!value) return true;
-      try {
-        const { data: existingSchools } = await axios.get(
-          `${API_BASE_URL}/api/get/all-schools`
-        );
-        return !existingSchools.some(
-          (school) => school.school_name.toLowerCase() === value.toLowerCase()
-        );
-      } catch (error) {
-        console.error("Error checking duplicate school name:", error);
-        return false;
-      }
-    }),
+  // school_name: Yup.string()
+  //   .required("School name is required")
+  //   .test("unique-name", "School name already exists.", async (value) => {
+  //     if (!value) return true;
+  //     try {
+  //       const { data: existingSchools } = await axios.get(
+  //         `${API_BASE_URL}/api/get/all-schools`
+  //       );
+  //       return !existingSchools.some(
+  //         (school) => school.school_name.toLowerCase() === value.toLowerCase()
+  //       );
+  //     } catch (error) {
+  //       console.error("Error checking duplicate school name:", error);
+  //       return false;
+  //     }
+  //   }),
   school_email: Yup.string().email("Invalid email format"),
   school_contact_number: Yup.string()
     // .required("Contact number is required")

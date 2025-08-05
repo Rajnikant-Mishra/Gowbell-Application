@@ -1,1100 +1,536 @@
 // import React from "react";
-// import logo from "../../../../public/logo GOWBELL.png"; // Adjust path as needed
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
-//   Paper,
-//   Typography,
-//   Box,
-//   Grid,
-// } from "@mui/material";
+// import styles from "./Medal.module.css";
+// import logoimg from "../../../assets/logo gowbell.jpg"; // Adjust path as needed
+// import gidoLogo from "../../../assets/gido image.png"; // Adjust path as needed
 
 // const MedalsWinnersList = ({
-//   medalsTally,
-//   classCutoff,
 //   winnersList,
+//   classCutoff,
 //   schoolName,
+//   schoolAddress,
+//   subjectIds,
+//   subjectNames,
 //   classId,
-//   subjectId,
+//   country,
+//   state,
+//   district,
+//   city,
+//   singleSubject, // Prop to render a single subject's data
 // }) => {
+//   // Define class headers as in Pdfa
+//   const classHeaders = [
+//     "NUR",
+//     "LKG",
+//     "UKG",
+//     "01",
+//     "02",
+//     "03",
+//     "04",
+//     "05",
+//     "06",
+//     "07",
+//     "08",
+//     "09",
+//     "10",
+//     "11",
+//     "12",
+//   ];
+
+//   // Filter data for the single subject if provided, else use all subjects
+//   const subjectToRender = singleSubject ? [singleSubject] : subjectNames;
+
+//   // Prepare cutoff data for the subject
+//   const cutoffData = subjectToRender
+//     .map((subjectName) => {
+//       const subjectCutoff = classCutoff.filter(
+//         (cutoff) => cutoff.subjects === subjectName
+//       );
+
+//       // Initialize cutoff arrays for each medal
+//       const goldData = Array(classHeaders.length).fill("");
+//       const silverData = Array(classHeaders.length).fill("");
+//       const bronzeData = Array(classHeaders.length).fill("");
+
+//       // Map cutoff values to the correct class index
+//       subjectCutoff.forEach((cutoff) => {
+//         const classIndex = classHeaders.indexOf(cutoff.class);
+//         if (classIndex !== -1) {
+//           goldData[classIndex] = cutoff.gold || "N/A";
+//           silverData[classIndex] = cutoff.silver || "N/A";
+//           bronzeData[classIndex] = cutoff.bronze || "N/A";
+//         }
+//       });
+
+//       return [
+//         { medal: "Gold", data: goldData },
+//         { medal: "Silver", data: silverData },
+//         { medal: "Bronze", data: bronzeData },
+//       ];
+//     })
+//     .flat();
+
+//   // Filter winners list for the subject
+//   const studentData = subjectToRender
+//     .map((subjectName) =>
+//       winnersList
+//         .filter((winner) => winner.subject === subjectName)
+//         .map((winner, index) => ({
+//           sl: index + 1,
+//           name: winner.name || "N/A",
+//           roll: winner.rollNo || "N/A",
+//           className: winner.class || "N/A",
+//           fullMarks: winner.fullMarks || "N/A",
+//           secured: winner.securedMarks || "N/A",
+//           percent: winner.percentage || "N/A",
+//           rank: winner.ranking || "N/A",
+//           medal: winner.medal || "N/A",
+//           certificate: winner.certificate || "N/A",
+//           remarks: winner.remarks || "",
+//         }))
+//     )
+//     .flat();
+
+//   // Construct full address
+//   const fullAddress = `
+//   ${
+//     schoolAddress || "N/A"
+//   },
+//   `;
+
 //   return (
-//     <Box
-//       sx={{ p: 3, fontFamily: "Arial, sans-serif", backgroundColor: "white" }}
-//     >
-//       {/* First Row: Logo, Heading, and L-1 Results */}
-//       <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
-//         <Grid item xs={2}>
-//           <img src={logo} alt="Logo" width="150px" height="50px" />
-//         </Grid>
-//         <Grid item xs={8}>
-//           <Typography
-//             variant="h5"
-//             align="center"
-//             sx={{
-//               fontWeight: "bold",
-//               color: "black",
-//               fontFamily: "Arial, sans-serif",
-//               fontSize: "1.3rem",
-//             }}
-//           >
-//             GOWBELL INTERNATIONAL MATHEMATICS OLYMPIAD (2024-25)
-//           </Typography>
-//         </Grid>
-//         <Grid item xs={2} sx={{ textAlign: "right" }}>
-//           <Box
-//             sx={{
-//               backgroundColor: "#1E3A8A",
-//               color: "#FFFFFF",
-//               padding: "4px 8px",
-//               fontFamily: "Arial, sans-serif",
-//               fontWeight: "bold",
-//               display: "inline-block",
-//             }}
-//           >
-//             L-1 Results
-//           </Box>
-//         </Grid>
-//       </Grid>
+//     <div className={styles.page}>
+//       {/* Header */}
+//       <div className={`${styles.headerSection} gap-4`}>
+//         <div className={styles.leftLogo}>
+//           <img src={logoimg} alt="Gowbell Logo" />
+//         </div>
+//         <div className={styles.centerInfo}>
+//           <h2>GOWBELL FOUNDATION-INDIA</h2>
+//           <h2>
+//             GOWBELL INTERNATIONAL {singleSubject || subjectNames.join(", ")}{" "}
+//             OLYMPIAD (2024-25)
+//           </h2>
+//         </div>
+//         <div className={`${styles.rightLogo} `}>
+//           <img src={gidoLogo} alt="Shared Logo" />
+//         </div>
+//       </div>
 
-//       <Grid container spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
-//         {/* School Name and Medals Tally */}
-//         <Grid item xs={4}>
-//           <Box sx={{ display: "flex", flexDirection: "column" }}>
-//             <Typography
-//               variant="h6"
-//               sx={{
-//                 fontWeight: "bold",
-//                 color: "#1E3A8A",
-//                 mx: "auto",
-//                 fontFamily: "Arial, sans-serif",
-//                 mb: 1,
-//                 fontSize: "1.4rem",
-//               }}
-//             >
-//               {schoolName || "ST. XAVIER PUBLIC SCHOOL"}
-//             </Typography>
-//             <Typography
-//               variant="h6"
-//               sx={{
-//                 fontWeight: "bold",
-//                 color: "#000000",
-//                 fontFamily: "Arial, sans-serif",
-//                 fontSize: "0.8rem",
-//                 mx: "auto",
-//                 mb: 1,
-//               }}
-//             >
-//               (UNIT-4 BHUBANESWAR-KHORDHA)
-//             </Typography>
-//             <Box border={1}>
-//               <Typography
-//                 variant="h6"
-//                 sx={{
-//                   fontWeight: "bold",
-//                   fontFamily: "Arial, sans-serif",
-//                   color: "#000000",
-//                   textAlign: "center",
-//                 }}
-//               >
-//                 Medals Tally
-//               </Typography>
-//               <Table
-//                 size="small"
-//                 sx={{ width: "100%", mx: "auto", border: "none" }}
-//               >
-//                 <TableBody>
-//                   <TableRow>
-//                     <TableCell
-//                       sx={{
-//                         fontFamily: "Arial, sans-serif",
-//                         fontWeight: "bold",
-//                         textAlign: "center",
-//                         border: "none",
-//                         padding: "4px",
-//                       }}
-//                     >
-//                       MEDALS
-//                     </TableCell>
-//                     <TableCell
-//                       align="right"
-//                       sx={{
-//                         fontFamily: "Arial, sans-serif",
-//                         fontWeight: "bold",
-//                         textAlign: "center",
-//                         border: "none",
-//                         padding: "4px",
-//                       }}
-//                     >
-//                       QUANTITY
-//                     </TableCell>
-//                   </TableRow>
-//                   {medalsTally.map((row) => (
-//                     <TableRow key={row.medal}>
-//                       <TableCell
-//                         sx={{
-//                           fontFamily: "Arial, sans-serif",
-//                           fontWeight: "bold",
-//                           border: "none",
-//                           textAlign: "center",
-//                           padding: "4px",
-//                         }}
-//                       >
-//                         {row.medal}
-//                       </TableCell>
-//                       <TableCell
-//                         align="right"
-//                         sx={{
-//                           fontFamily: "Arial, sans-serif",
-//                           textAlign: "center",
-//                           border: "none",
-//                           padding: "4px",
-//                         }}
-//                       >
-//                         {row.quantity}
-//                       </TableCell>
-//                     </TableRow>
-//                   ))}
-//                 </TableBody>
-//               </Table>
-//             </Box>
-//           </Box>
-//         </Grid>
+//       {/* School Address */}
+//       <div className={`${styles.address} uppercase`}>
+//         <p>
+//           {schoolName || "ABHIPSHA INTERNATIONAL SCHOOL"}
+//           <br />
+//           {fullAddress.split(", ").map((line, idx) => (
+//             <React.Fragment key={idx}>
+//               {line}
+//               <br />
+//             </React.Fragment>
+//           ))}
+//         </p>
+//       </div>
 
-//         <Grid item xs={4}>
-//           <Typography
-//             variant="h6"
-//             sx={{
-//               fontWeight: "bold",
-//               fontFamily: "Arial, sans-serif",
-//               color: "#000000",
-//               textAlign: "center",
-//             }}
-//           >
-//             MEDALS WINNERS LIST
-//           </Typography>
-//         </Grid>
+//       <div className={styles.secondcont}>
+//       <div className="d-flex justify-content-center ">    <div className={`${styles.resultsBox} mx-auto`}>LEVEL-1 RESULTS</div></div>
 
-//         <Grid item xs={4}>
-//           <Box
-//             sx={{
-//               display: "flex",
-//               flexDirection: "column",
-//               border: "1px solid black",
-//               textAlign: "center",
-//             }}
-//           >
-//             <Typography
-//               variant="h6"
-//               sx={{
-//                 fontWeight: "bold",
-//                 fontFamily: "Arial, sans-serif",
-//                 color: "#000000",
-//                 fontSize: "0.95rem",
-//               }}
-//             >
-//               Class and Subject Wise Cutoff Percentage
-//             </Typography>
-//             <Typography
-//               variant="h6"
-//               sx={{
-//                 fontWeight: "bold",
-//                 fontFamily: "Arial, sans-serif",
-//                 color: "#000000",
-//                 fontSize: "0.95rem",
-//                 textAlign: "center",
-//               }}
-//             >
-//               Medals
-//             </Typography>
-//             <Table
-//               size="small"
-//               sx={{ width: "300px", mx: "auto", border: "none" }}
-//             >
-//               <TableHead>
-//                 <TableRow>
-//                   <TableCell
-//                     sx={{
-//                       fontFamily: "Arial, sans-serif",
-//                       fontWeight: "bold",
-//                       border: "none",
-//                       textAlign: "center",
-//                       padding: "4px",
-//                     }}
-//                   >
-//                     Class
-//                   </TableCell>
-//                   <TableCell
-//                     sx={{
-//                       fontFamily: "Arial, sans-serif",
-//                       fontWeight: "bold",
-//                       border: "none",
-//                       textAlign: "center",
-//                       padding: "4px",
-//                     }}
-//                   >
-//                     Gold
-//                   </TableCell>
-//                   <TableCell
-//                     sx={{
-//                       fontFamily: "Arial, sans-serif",
-//                       fontWeight: "bold",
-//                       border: "none",
-//                       textAlign: "center",
-//                       padding: "4px",
-//                     }}
-//                   >
-//                     Silver
-//                   </TableCell>
-//                   <TableCell
-//                     sx={{
-//                       fontFamily: "Arial, sans-serif",
-//                       fontWeight: "bold",
-//                       border: "none",
-//                       textAlign: "center",
-//                       padding: "4px",
-//                     }}
-//                   >
-//                     Bronze
-//                   </TableCell>
-//                 </TableRow>
-//               </TableHead>
-//               <TableBody>
-//                 {classCutoff.map((row) => (
-//                   <TableRow key={row.class}>
-//                     <TableCell
-//                       sx={{
-//                         fontFamily: "Arial, sans-serif",
-//                         border: "none",
-//                         padding: "4px",
-//                         textAlign: "center",
-//                       }}
-//                     >
-//                       {row.class}
-//                     </TableCell>
-//                     <TableCell
-//                       sx={{
-//                         fontFamily: "Arial, sans-serif",
-//                         border: "none",
-//                         padding: "4px",
-//                         textAlign: "center",
-//                       }}
-//                     >
-//                       {row.gold}
-//                     </TableCell>
-//                     <TableCell
-//                       sx={{
-//                         fontFamily: "Arial, sans-serif",
-//                         border: "none",
-//                         padding: "4px",
-//                         textAlign: "center",
-//                       }}
-//                     >
-//                       {row.silver}
-//                     </TableCell>
-//                     <TableCell
-//                       sx={{
-//                         fontFamily: "Arial, sans-serif",
-//                         border: "none",
-//                         padding: "4px",
-//                         textAlign: "center",
-//                       }}
-//                     >
-//                       {row.bronze}
-//                     </TableCell>
-//                   </TableRow>
+//         {/* Cutoff Table */}
+//         <div className={styles.tableWrapper}>
+//           <table className={styles.cutoffTable}>
+//             <thead>
+//               <tr>
+//                 <th colSpan={classHeaders.length + 1}>
+//                   CLASS AND SUBJECT WISE CUTOFF PERCENTAGE
+//                 </th>
+//               </tr>
+//               <tr>
+//                 <th>Medals</th>
+//                 {classHeaders.map((ch, idx) => (
+//                   <th key={idx}>{ch}</th>
 //                 ))}
-//               </TableBody>
-//             </Table>
-//           </Box>
-//         </Grid>
-//       </Grid>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {cutoffData.map((row, idx) => (
+//                 <tr key={idx}>
+//                   <td>{row.medal}</td>
+//                   {row.data.map((val, i) => (
+//                     <td key={i}>{val}</td>
+//                   ))}
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
 
-//       <TableContainer
-//         component={Paper}
-//         sx={{ py: "20px", borderRadius: "none", boxShadow: "none" }}
-//       >
-//         <Table sx={{ border: "none" }}>
-//           <TableHead>
-//             <TableRow>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Sl. No
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Student's Name
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Roll No
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Class
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Full Marks
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Secured Marks
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Percentage
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Ranking
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Medals Achievement
-//               </TableCell>
-//               <TableCell
-//                 sx={{
-//                   fontFamily: "Arial, sans-serif",
-//                   fontWeight: "bold",
-//                   border: "none",
-//                   textAlign: "center",
-//                   padding: "4px",
-//                 }}
-//               >
-//                 Certificate of Achievement
-//               </TableCell>
-//             </TableRow>
-//           </TableHead>
-//           <TableBody>
-//             {winnersList.map((row) => (
-//               <TableRow key={row.slNo}>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.slNo}.
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.name}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.rollNo}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.class}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.fullMarks}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.securedMarks}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.percentage}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.ranking}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.medal}
-//                 </TableCell>
-//                 <TableCell
-//                   sx={{
-//                     fontFamily: "Arial, sans-serif",
-//                     border: "none",
-//                     textAlign: "center",
-//                     padding: "4px",
-//                   }}
-//                 >
-//                   {row.certificate}
-//                 </TableCell>
-//               </TableRow>
-//             ))}
-//           </TableBody>
-//         </Table>
-//       </TableContainer>
-//     </Box>
+//         {/* Student Result Table */}
+//         <div className={styles.tableWrapper}>
+//           <table className={styles.studentTable}>
+//             <thead>
+//               <tr>
+//                 <th>Sl.No</th>
+//                 <th>Student’s Name</th>
+//                 <th>Roll No</th>
+//                 <th>Class</th>
+//                 <th>Full Marks</th>
+//                 <th>Secured Marks</th>
+//                 <th>Percentage</th>
+//                 <th>Ranking</th>
+//                 <th>Medal Awarded</th>
+//                 <th>Certificate Awarded</th>
+//                 <th>Remarks</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {studentData.length > 0 ? (
+//                 studentData.map((s) => (
+//                   <tr key={s.sl}>
+//                     <td>{s.sl}</td>
+//                     <td>{s.name}</td>
+//                     <td>{s.roll}</td>
+//                     <td>{s.className}</td>
+//                     <td>{s.fullMarks}</td>
+//                     <td>{s.secured}</td>
+//                     <td>{s.percent}</td>
+//                     <td>{s.rank}</td>
+//                     <td>{s.medal}</td>
+//                     <td>{s.certificate}</td>
+//                     <td>{s.remarks}</td>
+//                   </tr>
+//                 ))
+//               ) : (
+//                 <tr>
+//                   <td colSpan={11}>No students found for this subject.</td>
+//                 </tr>
+//               )}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+//     </div>
 //   );
 // };
 
 // export default MedalsWinnersList;
 
 import React from "react";
-import logo from "../../../../public/logo GOWBELL.png"; // Adjust path as needed
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  Grid,
-} from "@mui/material";
+import styles from "./Medal.module.css";
+import logoimg from "../../../assets/logo gowbell.jpg"; // Gowbell Foundation logo
+import gimoLogo from "../../../assets/gimo image.png"; // GIMO logo
+import gidoLogo from "../../../assets/gido image.png"; // GIDO logo
+import gisoLogo from "../../../assets/giso image.png"; // GISO logo
+import gikoLogo from "../../../assets/giko  image.png";
+import jtdoLogo from "../../../assets/jtdo image.png";
+import cywoLogo from "../../../assets/cywo image.png";
+import gicoLogo from "../../../assets/gico image.png";
+import gieoLogo from "../../../assets/gieo image.png";
 
 const MedalsWinnersList = ({
-  medalsTally,
-  classCutoff,
   winnersList,
+  classCutoff,
   schoolName,
   schoolAddress,
-  subjectName,
+  subjectIds,
+  subjectNames,
   classId,
-  subjectId,
-  country, // New prop
-  state, // New prop
-  district, // New prop
-  city, // New prop
+  country,
+  state,
+  district,
+  city,
+  singleSubject, // Prop to render a single subject's data
 }) => {
+  // Define class headers as in Pdfa
+  const classHeaders = [
+    "NUR",
+    "LKG",
+    "UKG",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+  ];
+
+  // Filter data for the single subject if provided, else use all subjects
+  const subjectToRender = singleSubject ? [singleSubject] : subjectNames;
+
+  // Prepare cutoff data for the subject
+  const cutoffData = subjectToRender
+    .map((subjectName) => {
+      const subjectCutoff = classCutoff.filter(
+        (cutoff) => cutoff.subjects === subjectName
+      );
+
+      // Initialize cutoff arrays for each medal
+      const goldData = Array(classHeaders.length).fill("");
+      const silverData = Array(classHeaders.length).fill("");
+      const bronzeData = Array(classHeaders.length).fill("");
+
+      // Map cutoff values to the correct class index
+      subjectCutoff.forEach((cutoff) => {
+        const classIndex = classHeaders.indexOf(cutoff.class);
+        if (classIndex !== -1) {
+          goldData[classIndex] = cutoff.gold || "N/A";
+          silverData[classIndex] = cutoff.silver || "N/A";
+          bronzeData[classIndex] = cutoff.bronze || "N/A";
+        }
+      });
+
+      return [
+        { medal: "Gold", data: goldData },
+        { medal: "Silver", data: silverData },
+        { medal: "Bronze", data: bronzeData },
+      ];
+    })
+    .flat();
+
+  // Filter winners list for the subject
+  const studentData = subjectToRender
+    .map((subjectName) =>
+      winnersList
+        .filter((winner) => winner.subject === subjectName)
+        .map((winner, index) => ({
+          sl: index + 1,
+          name: winner.name || "N/A",
+          roll: winner.rollNo || "N/A",
+          className: winner.class || "N/A",
+          fullMarks: winner.fullMarks || "N/A",
+          secured: winner.securedMarks || "N/A",
+          percent: winner.percentage || "N/A",
+          rank: winner.ranking || "N/A",
+          medal: winner.medal || "N/A",
+          certificate: winner.certificate || "N/A",
+          remarks: winner.remarks || "",
+        }))
+    )
+    .flat();
+
+  // Construct full address
+  const fullAddress = `
+  ${schoolAddress || "N/A"}, 
+  `;
+
+  // Dynamic logo selection based on subject
+  const getDynamicLogo = () => {
+    const subject = singleSubject || subjectNames[0]; // Use singleSubject or first subjectName
+    if (subject?.toUpperCase().includes("GIMO")) {
+      return { src: gimoLogo, alt: "SIMO Logo" };
+    } else if (subject?.toUpperCase().includes("GISO")) {
+      return { src: gisoLogo, alt: "GIMO Logo" };
+    } else if (subject?.toUpperCase().includes("GIEO")) {
+      return { src: gieoLogo, alt: "GISO Logo" };
+    } else if (subject?.toUpperCase().includes("GIDO")) {
+      return { src: gidoLogo, alt: "GIMO Logo" };
+    } else if (subject?.toUpperCase().includes("GICO")) {
+      return { src: gicoLogo, alt: "GIMO Logo" };
+    } else if (subject?.toUpperCase().includes("GIKO")) {
+      return { src: gikoLogo, alt: "GIMO Logo" };
+    } else if (subject?.toUpperCase().includes("JTDO")) {
+      return { src: jtdoLogo, alt: "GIMO Logo" };
+    } else if (subject?.toUpperCase().includes("CYWO")) {
+      return { src: cywoLogo, alt: "GIMO Logo" };
+    } else {
+      return { src: gidoLogo, alt: "GIDO Logo" }; // Default logo
+    }
+  };
+
+  const dynamicLogo = getDynamicLogo();
+
+  //FOR DYNAMIC SIBJECT NAME SHOW
+  const subjectCodeMap = {
+    GIMO: "MATHEMATICS",
+    GISO: "SCIENCE",
+    GIEO: "ENGLISH",
+    GICO: "CYBER",
+    GIKO: "KNOWLEDGE",
+    JIDO: "DRAWING",
+  };
+
+  // Handles both singleSubject (string) and subjectNames (array)
+  const getSubjectName = (subject) => {
+    if (!subject) return "";
+
+    if (typeof subject === "string") {
+      return subjectCodeMap[subject] || subject;
+    }
+
+    // If it's an array, map each code to full name
+    return subject.map((code) => subjectCodeMap[code] || code).join(", ");
+  };
+
   return (
-    <Box
-      sx={{ p: 3, fontFamily: "Arial, sans-serif", backgroundColor: "white" }}
-    >
-      {/* First Row: Logo, Heading, and L-1 Results */}
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
-        <Grid item xs={2}>
-          <img src={logo} alt="Logo" width="150px" height="50px" />
-        </Grid>
-        <Grid item xs={8}>
-          <Typography
-            variant="h5"
-            align="center"
-            sx={{
-              fontWeight: "bold",
-              color: "black",
-              fontFamily: "Arial, sans-serif",
-              fontSize: "1.3rem",
-            }}
-          >
-            GOWBELL INTERNATIONAL {subjectName} OLYMPIAD (2024-25)
-          </Typography>
-        </Grid>
-        <Grid item xs={2} sx={{ textAlign: "right" }}>
-          <Box
-            sx={{
-              backgroundColor: "#1E3A8A",
-              color: "#FFFFFF",
-              padding: "4px 8px",
-              fontFamily: "Arial, sans-serif",
-              fontWeight: "bold",
-              display: "inline-block",
-            }}
-          >
-            L-1 Results
-          </Box>
-        </Grid>
-      </Grid>
+    <div className={styles.page}>
+      {/* Header */}
+      <div className={`${styles.headerSection} gap-4`}>
+        <div className={styles.leftLogo}>
+          <img src={logoimg} alt="Gowbell Logo" />
+        </div>
+        {/* <div className={styles.centerInfo}>
+          <h2>GOWBELL FOUNDATION-INDIA</h2>
+          <h2>
+            GOWBELL INTERNATIONAL {singleSubject || subjectNames.join(", ")}{" "}
+            OLYMPIAD (2024-25)
+          </h2>
+        </div> */}
+        <div className={styles.centerInfo}>
+          <h2>GOWBELL FOUNDATION-INDIA</h2>
+          <h2>
+            GOWBELL INTERNATIONAL{" "}
+            {getSubjectName(singleSubject || subjectNames)} OLYMPIAD (2024-25)
+          </h2>
+        </div>
 
-      <Grid container spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
-        {/* School Name and Medals Tally */}
-        <Grid item xs={4}>
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-                color: "#1E3A8A",
-                mx: "auto",
-                fontFamily: "Arial, sans-serif",
-                mb: 1,
-                fontSize: "1.4rem",
-              }}
-            >
-              {schoolName || "ST. XAVIER PUBLIC SCHOOL"}
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-                color: "#000000",
-                fontFamily: "Arial, sans-serif",
-                fontSize: "0.8rem",
-                mx: "auto",
-                mb: 1,
-              }}
-            >
-              ({schoolAddress || "N/A"} )
-            </Typography>
-            <Box border={1}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  fontFamily: "Arial, sans-serif",
-                  color: "#000000",
-                  textAlign: "center",
-                }}
-              >
-                Medals Tally
-              </Typography>
-              <Table
-                size="small"
-                sx={{ width: "100%", mx: "auto", border: "none" }}
-              >
-                <TableBody>
-                  <TableRow>
-                    <TableCell
-                      sx={{
-                        fontFamily: "Arial, sans-serif",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        border: "none",
-                        padding: "4px",
-                      }}
-                    >
-                      MEDALS
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontFamily: "Arial, sans-serif",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        border: "none",
-                        padding: "4px",
-                      }}
-                    >
-                      QUANTITY
-                    </TableCell>
-                  </TableRow>
-                  {medalsTally.map((row) => (
-                    <TableRow key={row.medal}>
-                      <TableCell
-                        sx={{
-                          fontFamily: "Arial, sans-serif",
-                          fontWeight: "bold",
-                          border: "none",
-                          textAlign: "center",
-                          padding: "4px",
-                        }}
-                      >
-                        {row.medal}
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          fontFamily: "Arial, sans-serif",
-                          textAlign: "center",
-                          border: "none",
-                          padding: "4px",
-                        }}
-                      >
-                        {row.quantity}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        </Grid>
+        <div className={`${styles.rightLogo}`}>
+          <img src={dynamicLogo.src} alt={dynamicLogo.alt} />
+        </div>
+      </div>
 
-        <Grid item xs={4}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "bold",
-              fontFamily: "Arial, sans-serif",
-              color: "#000000",
-              textAlign: "center",
-            }}
-          >
-            MEDALS WINNERS LIST
-          </Typography>
-        </Grid>
+      {/* School Address */}
+      <div className={`${styles.address} uppercase`}>
+        <p>
+          {schoolName || "ABHIPSHA INTERNATIONAL SCHOOL"}
+          <br />
+          {fullAddress.split(", ").map((line, idx) => (
+            <React.Fragment key={idx}>
+              {line}
+              <br />
+            </React.Fragment>
+          ))}
+        </p>
+      </div>
 
-        <Grid item xs={4}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              border: "1px solid black",
-              textAlign: "center",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-                fontFamily: "Arial, sans-serif",
-                color: "#000000",
-                fontSize: "0.95rem",
-              }}
-            >
-              Class and Subject Wise Cutoff Percentage
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-                fontFamily: "Arial, sans-serif",
-                color: "#000000",
-                fontSize: "0.95rem",
-                textAlign: "center",
-              }}
-            >
-              Medals
-            </Typography>
-            <Table
-              size="small"
-              sx={{ width: "300px", mx: "auto", border: "none" }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      fontFamily: "Arial, sans-serif",
-                      fontWeight: "bold",
-                      border: "none",
-                      textAlign: "center",
-                      padding: "4px",
-                    }}
-                  >
-                    Class
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontFamily: "Arial, sans-serif",
-                      fontWeight: "bold",
-                      border: "none",
-                      textAlign: "center",
-                      padding: "4px",
-                    }}
-                  >
-                    Gold
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontFamily: "Arial, sans-serif",
-                      fontWeight: "bold",
-                      border: "none",
-                      textAlign: "center",
-                      padding: "4px",
-                    }}
-                  >
-                    Silver
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontFamily: "Arial, sans-serif",
-                      fontWeight: "bold",
-                      border: "none",
-                      textAlign: "center",
-                      padding: "4px",
-                    }}
-                  >
-                    Bronze
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {classCutoff.map((row) => (
-                  <TableRow key={row.class}>
-                    <TableCell
-                      sx={{
-                        fontFamily: "Arial, sans-serif",
-                        border: "none",
-                        padding: "4px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {row.class}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontFamily: "Arial, sans-serif",
-                        border: "none",
-                        padding: "4px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {row.gold}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontFamily: "Arial, sans-serif",
-                        border: "none",
-                        padding: "4px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {row.silver}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontFamily: "Arial, sans-serif",
-                        border: "none",
-                        padding: "4px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {row.bronze}
-                    </TableCell>
-                  </TableRow>
+      <div className={styles.secondcont}>
+        <div className="d-flex justify-content-center">
+          <div className={`${styles.resultsBox} mx-auto`}>LEVEL-1 RESULTS</div>
+        </div>
+
+        {/* Cutoff Table */}
+        <div className={styles.tableWrapper}>
+          <table className={styles.cutoffTable}>
+            <thead>
+              <tr>
+                <th colSpan={classHeaders.length + 1}>
+                  CLASS AND SUBJECT WISE CUTOFF PERCENTAGE
+                </th>
+              </tr>
+              <tr>
+                <th>Medals</th>
+                {classHeaders.map((ch, idx) => (
+                  <th key={idx}>{ch}</th>
                 ))}
-              </TableBody>
-            </Table>
-          </Box>
-        </Grid>
-      </Grid>
+              </tr>
+            </thead>
+            <tbody>
+              {cutoffData.map((row, idx) => (
+                <tr key={idx}>
+                  <td>{row.medal}</td>
+                  {row.data.map((val, i) => (
+                    <td key={i}>{val}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <TableContainer
-        component={Paper}
-        sx={{ py: "20px", borderRadius: "none", boxShadow: "none" }}
-      >
-        <Table sx={{ border: "none" }}>
-          <TableHead>
-            <TableRow>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Sl. No
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Student's Name
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Roll No
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Class
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Full Marks
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Secured Marks
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Percentage
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Ranking
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Medals Achievement
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold",
-                  border: "none",
-                  textAlign: "center",
-                  padding: "4px",
-                }}
-              >
-                Certificate of Achievement
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {winnersList.map((row) => (
-              <TableRow key={row.slNo}>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.slNo}.
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.name}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.rollNo}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.class}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.fullMarks}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.securedMarks}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.percentage}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.ranking}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.medal}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontFamily: "Arial, sans-serif",
-                    border: "none",
-                    textAlign: "center",
-                    padding: "4px",
-                  }}
-                >
-                  {row.certificate}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+        {/* Student Result Table */}
+        <div className={styles.tableWrapper}>
+          <table className={styles.studentTable}>
+            <thead>
+              <tr>
+                <th>Sl.No</th>
+                <th>Student’s Name</th>
+                <th>Roll No</th>
+                <th>Class</th>
+                <th>Full Marks</th>
+                <th>Secured Marks</th>
+                <th>Percentage</th>
+                <th>Ranking</th>
+                <th>Medal Awarded</th>
+                <th>Certificate Awarded</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {studentData.length > 0 ? (
+                studentData.map((s) => (
+                  <tr key={s.sl}>
+                    <td>{s.sl}</td>
+                    <td>{s.name}</td>
+                    <td>{s.roll}</td>
+                    <td>{s.className}</td>
+                    <td>{s.fullMarks}</td>
+                    <td>{s.secured}</td>
+                    <td>{s.percent}</td>
+                    <td>{s.rank}</td>
+                    <td>{s.medal}</td>
+                    <td>{s.certificate}</td>
+                    <td>{s.remarks}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={11}>No students found for this subject.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Note Section */}
+      <div className={styles.note}>
+        <p
+          style={{
+            color: "#3f3da9",
+            textDecoration: "underline",
+            fontWeight: "bold",
+          }}
+        >
+          NOTE:
+        </p>
+
+        <ul>
+          <li>
+            All participating students, except Level-1 qualifiers, will receive
+            a "Certificate of Participation".Level-1 qualifiers will be awarded
+            a "Certificate
+            <br /> of Achievement", along with a School Qualifier embossed Gold
+            Medal, Silver Medal and Bronze Medal based on the percentage secured
+            in
+            <br /> the Level-1 examination for their respective subject and
+            class.
+          </li>
+          <li>
+            For download the results or score cards please visit{" "}
+            <b>www.gowbell.org</b>
+          </li>
+          <li>
+            For Rechecking the request must be sent by the principal of the
+            school at results <b>@gowbell.org.</b>
+          </li>
+          <li>
+            Rechecking of Results is permissible within 7 days of the
+            declaration of each level result.
+          </li>
+          <li>
+            The rechecking fee of Rs. 150/- must be paid and upon receiving the
+            request a revert will be sent within 3 working days.
+          </li>
+          <li>
+            Additionally, wild card qualifiers-students who secure marks close
+            to the third-highest percentage holder will also remain in <br />
+            the competition and advance for Next Level of examination.
+          </li>
+        </ul>
+      </div>
+    </div>
   );
 };
 

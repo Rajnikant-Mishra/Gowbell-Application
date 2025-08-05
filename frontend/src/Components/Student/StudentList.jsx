@@ -968,10 +968,6 @@
 //   );
 // }
 
-
-
-
-
 // import React, { useEffect, useState, useMemo, useRef } from "react";
 // import { AgGridReact } from "ag-grid-react";
 // import "ag-grid-community/styles/ag-grid.css";
@@ -1465,7 +1461,7 @@
 //         "false",
 //         "admin",
 //       ],
-      
+
 //     ];
 
 //     const csvContent = [
@@ -2133,7 +2129,6 @@
 //   );
 // }
 
-
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -2213,15 +2208,15 @@ export default function DataTable() {
 
               // Fetch class details
               let className = "Unknown Class";
-              if (record.class_name) {
+              if (record.class_id) {
                 try {
                   const classResponse = await axios.get(
-                    `${API_BASE_URL}/api/class/${record.class_name}`
+                    `${API_BASE_URL}/api/class/${record.class_id}`
                   );
                   className = classResponse.data.name || "Unknown Class";
                 } catch (error) {
                   console.error(
-                    `Failed to fetch class details for class_id: ${record.class_name}`,
+                    `Failed to fetch class details for class_id: ${record.class_id}`,
                     error
                   );
                 }
@@ -2358,7 +2353,9 @@ export default function DataTable() {
               position: "top-end",
               icon: "error",
               title: "Error!",
-              text: error.response?.data?.error || "There was an issue deleting the student.",
+              text:
+                error.response?.data?.error ||
+                "There was an issue deleting the student.",
               showConfirmButton: false,
               timer: 2000,
               toast: true,
@@ -2464,15 +2461,15 @@ export default function DataTable() {
 
         const students = result.data
           .filter((row) => {
-            const schoolName = row.school_name?.trim();
+            const schoolName = row.school_id?.trim();
             const studentName = row.student_name?.trim();
-            const className = row.class_name?.trim();
+            const className = row.class_id?.trim();
             return schoolName && studentName && className;
           })
           .map((row) => ({
-            school_name: row.school_name?.trim() || "",
+            school_id: row.school_id?.trim() || "",
             student_name: row.student_name?.trim() || "",
-            class_name: formatClassName(row.class_name?.trim() || ""),
+            class_id: formatClassName(row.class_id?.trim() || ""),
             student_section: row.student_section?.trim() || null,
             mobile_number: row.mobile_number?.trim() || null,
             whatsapp_number: row.whatsapp_number?.trim() || null,
@@ -2512,7 +2509,10 @@ export default function DataTable() {
     });
   };
 
+ 
+
   const uploadStudentsData = async (students) => {
+    // Validate input array
     if (!Array.isArray(students) || students.length === 0) {
       Swal.fire({
         position: "top-end",
@@ -2525,6 +2525,41 @@ export default function DataTable() {
       });
       return;
     }
+
+    // Validate required fields for each student
+    const requiredFields = [
+      "school_id",
+      "class_id",
+      "student_section",
+      "student_name",
+    ];
+    const validationErrors = students.reduce((acc, student, index) => {
+      const missingFields = requiredFields.filter(
+        (field) => student[field] == null || student[field] === ""
+      );
+      if (missingFields.length > 0) {
+        acc.push(
+          `Student at Row ${
+            index + 1
+          }: required - ${missingFields.join(", ")}`
+        );
+      }
+      return acc;
+    }, []);
+
+    if (validationErrors.length > 0) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Validation Failed",
+        text: validationErrors.join("\n"),
+        showConfirmButton: true,
+        toast: true,
+        customClass: { popup: "small-swal" },
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -2558,15 +2593,18 @@ export default function DataTable() {
     } catch (error) {
       console.error("Upload Error:", error);
       let errorMessage = "An error occurred while uploading students.";
+
       if (error.response?.data) {
         const { message, errors } = error.response.data;
         if (errors) {
           if (typeof errors === "object" && !Array.isArray(errors)) {
+            // Handle inconsistencies from backend validation (e.g., mismatched fields)
             errorMessage = Object.entries(errors)
               .map(([field, msg]) => `${field}: ${msg}`)
               .filter((msg, index, self) => self.indexOf(msg) === index)
               .join("\n");
           } else if (Array.isArray(errors)) {
+            // Handle group processing errors
             errorMessage = Array.from(
               new Set(
                 errors.map((err) => `${err.group || "General"}: ${err.message}`)
@@ -2581,15 +2619,18 @@ export default function DataTable() {
       } else if (error.message.includes("School not found")) {
         errorMessage =
           "The specified school_name does not exist in the database.";
+      } else if (error.message.includes("Unauthorized")) {
+        errorMessage = "Session expired. Please log in again.";
       }
+
       Swal.fire({
         position: "top-end",
         icon: "error",
         title: "Upload Failed",
         text: errorMessage,
-        showConfirmButton: false,
-        timer: 3000,
-        toast: true,
+        showConfirmButton: true,
+        toast: false,
+        customClass: { popup: "small-swal" },
       });
     } finally {
       setLoading(false);
@@ -2598,9 +2639,9 @@ export default function DataTable() {
 
   const handleDownloadClick = () => {
     const headers = [
-      "school_name",
+      "school_id",
       "student_name",
-      "class_name",
+      "class_id",
       "student_section",
       "mobile_number",
       "whatsapp_number",
@@ -2972,14 +3013,17 @@ export default function DataTable() {
       >
         {loading ? (
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div className="spinner" style={{
-              border: "4px solid #f3f3f3",
-              borderTop: "4px solid #1230AE",
-              borderRadius: "50%",
-              width: "24px",
-              height: "24px",
-              animation: "spin 1s linear infinite"
-            }} />
+            <div
+              className="spinner"
+              style={{
+                border: "4px solid #f3f3f3",
+                borderTop: "4px solid #1230AE",
+                borderRadius: "50%",
+                width: "24px",
+                height: "24px",
+                animation: "spin 1s linear infinite",
+              }}
+            />
             <span>Loading...</span>
             <style>{`
               @keyframes spin {
@@ -2992,29 +3036,39 @@ export default function DataTable() {
           <>
             <div
               className="ag-theme-alpine"
-              style={{ height: "500px", width: "100%", overflowX: "auto", position: "relative" }}
+              style={{
+                height: "500px",
+                width: "100%",
+                overflowX: "auto",
+                position: "relative",
+              }}
             >
               {searchLoading && (
-                <div style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "#fff",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                }}>
-                  <div className="spinner" style={{
-                    border: "3px solid #f3f3f3",
-                    borderTop: "3px solid #1230AE",
-                    borderRadius: "50%",
-                    width: "16px",
-                    height: "16px",
-                    animation: "spin 1s linear infinite"
-                  }} />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "#fff",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div
+                    className="spinner"
+                    style={{
+                      border: "3px solid #f3f3f3",
+                      borderTop: "3px solid #1230AE",
+                      borderRadius: "50%",
+                      width: "16px",
+                      height: "16px",
+                      animation: "spin 1s linear infinite",
+                    }}
+                  />
                   <span>Searching...</span>
                 </div>
               )}

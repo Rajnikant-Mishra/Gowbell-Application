@@ -22,6 +22,7 @@
     "@mui/material": "^6.4.7",
     "@mui/styled-engine-sc": "^6.1.6",
     "@mui/x-date-pickers": "^7.22.2",
+    "@tanstack/react-query": "^5.83.0",
     "ag-grid-community": "^33.2.4",
     "ag-grid-react": "^33.2.4",
     "animate.css": "^4.1.1",

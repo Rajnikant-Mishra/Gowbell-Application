@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Paper,
@@ -22,7 +22,12 @@ import Swal from "sweetalert2";
 import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 
-// Reusable Dropdown Component
+const formatDateForInput = (dateString) => {
+  const date = new Date(dateString);
+  if (isNaN(date)) return "";
+  return date.toISOString().split("T")[0];
+};
+
 const Dropdown = ({ label, value, options, onChange, disabled }) => (
   <TextField
     select
@@ -43,8 +48,7 @@ const Dropdown = ({ label, value, options, onChange, disabled }) => (
   </TextField>
 );
 
-const ExaminationForm = () => {
-  // State variables
+const ExamUpdatedForm = () => {
   const [schools, setSchools] = useState([]);
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -52,48 +56,40 @@ const ExaminationForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { id } = useParams();
 
-  // Location data states
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
 
-  // Selected location values
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
-  // Filtered location options
   const [filteredStates, setFilteredStates] = useState([]);
   const [filteredDistricts, setFilteredDistricts] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
 
-  // Classes and Subjects states
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [selectedClassIds, setSelectedClassIds] = useState([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
 
-  // Fetch location data on component mount
+  // Fetch location data
   useEffect(() => {
     const fetchLocationData = async () => {
       try {
-        const [countriesRes, statesRes, districtsRes, citiesRes] =
-          await Promise.all([
-            axios.get(`${API_BASE_URL}/api/countries`),
-            axios.get(`${API_BASE_URL}/api/states`),
-            axios.get(`${API_BASE_URL}/api/districts`),
-            axios.get(`${API_BASE_URL}/api/cities/all/c1`),
-          ]);
-        setCountries(
-          Array.isArray(countriesRes?.data) ? countriesRes.data : []
-        );
+        const [countriesRes, statesRes, districtsRes, citiesRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/countries`),
+          axios.get(`${API_BASE_URL}/api/states`),
+          axios.get(`${API_BASE_URL}/api/districts`),
+          axios.get(`${API_BASE_URL}/api/cities/all/c1`),
+        ]);
+        setCountries(Array.isArray(countriesRes?.data) ? countriesRes.data : []);
         setStates(Array.isArray(statesRes?.data) ? statesRes.data : []);
-        setDistricts(
-          Array.isArray(districtsRes?.data) ? districtsRes.data : []
-        );
+        setDistricts(Array.isArray(districtsRes?.data) ? districtsRes.data : []);
         setCities(Array.isArray(citiesRes?.data) ? citiesRes.data : []);
       } catch (error) {
         console.error("Error fetching location data:", error);
@@ -101,6 +97,12 @@ const ExaminationForm = () => {
         setStates([]);
         setDistricts([]);
         setCities([]);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch location data. Please try again.",
+          confirmButtonColor: "#d33",
+        });
       }
     };
     fetchLocationData();
@@ -114,7 +116,7 @@ const ExaminationForm = () => {
         if (response.data && Array.isArray(response.data)) {
           setClasses(
             response.data.map((cls) => ({
-              value: cls.id, // e.g., "01", "02", "03"
+              value: cls.id,
               label: cls.name,
             }))
           );
@@ -135,7 +137,7 @@ const ExaminationForm = () => {
         if (response.data && Array.isArray(response.data)) {
           setSubjects(
             response.data.map((sub) => ({
-              value: sub.id, // e.g., "gimo", "sijo"
+              value: sub.id,
               label: sub.name,
             }))
           );
@@ -148,71 +150,63 @@ const ExaminationForm = () => {
     fetchSubjects();
   }, []);
 
-  // Function to fetch schools based on location filters
-  const fetchSchoolsByLocation = async () => {
-    if (
-      !selectedCountry ||
-      !selectedState ||
-      !selectedDistrict ||
-      !selectedCity
-    ) {
-      setSchools([]);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const response = await axios.get(
-        `${API_BASE_URL}/api/get/school-filter`,
-        {
-          params: {
-            country: selectedCountry,
-            state: selectedState,
-            district: selectedDistrict,
-            city: selectedCity,
-          },
-        }
-      );
-      if (response.data.success) {
-        const schoolList = response.data.data.flatMap((location) =>
-          location.schools.map((school) => ({
-            id: school.id,
-            name: school.name,
-            country_name: location.country,
-            state_name: location.state,
-            district_name: location.district,
-            city_name: location.city,
-          }))
-        );
-        setSchools(schoolList);
-      } else {
-        setSchools([]);
-        Swal.fire({
-          icon: "warning",
-          title: "No Schools Found",
-          text: "No schools found for the selected location.",
-          confirmButtonColor: "#d33",
-        });
+  // Fetch exam data
+  useEffect(() => {
+    const fetchExamData = async () => {
+      if (!id) {
+        setError("No exam ID provided.");
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching schools:", error);
-      setSchools([]);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch schools. Please try again.",
-        confirmButtonColor: "#d33",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/e1/get/exam/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
-  // Handle country change
+        const examData = response.data.data || response.data;
+
+        setSelectedSchoolId(examData.school || "");
+        setSelectedLevel(examData.level || "");
+        setExamDate(formatDateForInput(examData.exam_date));
+        setSelectedClassIds(
+          examData.classes ? JSON.parse(examData.classes) : []
+        );
+        setSelectedSubjectIds(
+          examData.subjects ? JSON.parse(examData.subjects) : []
+        );
+
+        // Set location IDs
+        setSelectedCountry(examData.country || "");
+        setSelectedState(examData.state || "");
+        setSelectedDistrict(examData.district || "");
+        setSelectedCity(examData.city || "");
+      } catch (error) {
+        setError(error.response?.data?.message || "Failed to load exam data.");
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error",
+          text: error.response?.data?.message || "Failed to load exam data.",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+          background: "#fff",
+          customClass: { popup: "small-swal" },
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchExamData();
+  }, [id]);
+
+  // Filter states
   useEffect(() => {
     if (selectedCountry && Array.isArray(states)) {
-      const filtered = states.filter(
-        (state) => state.country_id === selectedCountry
-      );
+      const filtered = states.filter((state) => state.country_id === selectedCountry);
       setFilteredStates(filtered);
     } else {
       setFilteredStates([]);
@@ -224,12 +218,10 @@ const ExaminationForm = () => {
     setSchools([]);
   }, [selectedCountry, states]);
 
-  // Handle state change
+  // Filter districts
   useEffect(() => {
     if (selectedState && Array.isArray(districts)) {
-      const filtered = districts.filter(
-        (district) => district.state_id === selectedState
-      );
+      const filtered = districts.filter((district) => district.state_id === selectedState);
       setFilteredDistricts(filtered);
     } else {
       setFilteredDistricts([]);
@@ -240,12 +232,10 @@ const ExaminationForm = () => {
     setSchools([]);
   }, [selectedState, districts]);
 
-  // Handle district change
+  // Filter cities
   useEffect(() => {
     if (selectedDistrict && Array.isArray(cities)) {
-      const filtered = cities.filter(
-        (city) => city.district_id === selectedDistrict
-      );
+      const filtered = cities.filter((city) => city.district_id === selectedDistrict);
       setFilteredCities(filtered);
     } else {
       setFilteredCities([]);
@@ -255,32 +245,70 @@ const ExaminationForm = () => {
     setSchools([]);
   }, [selectedDistrict, cities]);
 
-  // Handle city change
+  // Fetch schools
   useEffect(() => {
+    const fetchSchoolsByLocation = async () => {
+      if (!selectedCountry || !selectedState || !selectedDistrict || !selectedCity) {
+        setSchools([]);
+        return;
+      }
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${API_BASE_URL}/api/get/school-filter`, {
+          params: {
+            country: selectedCountry,
+            state: selectedState,
+            district: selectedDistrict,
+            city: selectedCity,
+          },
+        });
+        if (response.data.success) {
+          const schoolList = response.data.data.flatMap((location) =>
+            location.schools.map((school) => ({
+              id: school.id,
+              name: school.name,
+              country_name: location.country,
+              state_name: location.state,
+              district_name: location.district,
+              city_name: location.city,
+            }))
+          );
+          setSchools(schoolList);
+        } else {
+          setSchools([]);
+          Swal.fire({
+            icon: "warning",
+            title: "No Schools Found",
+            text: "No schools found for the selected location.",
+            confirmButtonColor: "#d33",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching schools:", error);
+        setSchools([]);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch schools. Please try again.",
+          confirmButtonColor: "#d33",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (selectedCity) {
       fetchSchoolsByLocation();
-    } else {
-      setSchools([]);
-      setSelectedSchoolId("");
     }
   }, [selectedCity]);
 
-  // Handle school change
-  const handleSchoolChange = (e) => {
-    setSelectedSchoolId(e.target.value);
-  };
+  // Handlers
+  const handleSchoolChange = (e) => setSelectedSchoolId(e.target.value);
+  const handleClassesChange = (e) => setSelectedClassIds(e.target.value);
+  const handleSubjectsChange = (e) => setSelectedSubjectIds(e.target.value);
+  const handleExamDateChange = (e) => setExamDate(e.target.value);
 
-  // Handle classes change
-  const handleClassesChange = (event) => {
-    setSelectedClassIds(event.target.value); // Stores array like ["01", "02", "03"]
-  };
-
-  // Handle subjects change
-  const handleSubjectsChange = (event) => {
-    setSelectedSubjectIds(event.target.value); // Stores array like ["gimo", "sijo"]
-  };
-
-  // Prepare options for dropdowns with null checks
+  // Prepare dropdown options
   const countryOptions = Array.isArray(countries)
     ? countries.map((country) => ({
         value: country.id,
@@ -306,14 +334,8 @@ const ExaminationForm = () => {
       }))
     : [];
 
-    
-  // Handle exam date change
-  const handleExamDateChange = (event) => {
-    setExamDate(event.target.value);
-  };
-
-  // Handle save button click
-  const handleSave = async () => {
+  // Handle update
+  const handleUpdate = async () => {
     if (
       !selectedSchoolId ||
       !examDate ||
@@ -330,25 +352,22 @@ const ExaminationForm = () => {
         position: "top-end",
         icon: "error",
         title: "Unauthorized",
-        text: "Please log in to create an exam.",
+        text: "Please log in to update the exam.",
         showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
+        timer: 1500,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       });
       return;
     }
 
     const examData = {
-      school_id: selectedSchoolId,
+      school: selectedSchoolId,
       level: selectedLevel,
       exam_date: examDate,
-      classes_id: JSON.stringify(selectedClassIds), // Stores as ["01", "02", "03"]
-      subjects_id: JSON.stringify(selectedSubjectIds), // Stores as ["gimo", "sijo"]
+      classes: JSON.stringify(selectedClassIds),
+      subjects: JSON.stringify(selectedSubjectIds),
       country: selectedCountry,
       state: selectedState,
       district: selectedDistrict,
@@ -358,48 +377,32 @@ const ExaminationForm = () => {
     try {
       setIsLoading(true);
       setError(null);
-      await axios.post(`${API_BASE_URL}/api/e1/create-exam`, examData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.put(`${API_BASE_URL}/api/e1/update-exam/${id}`, examData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       Swal.fire({
         position: "top-end",
         icon: "success",
         title: "Success!",
-        text: "Exam created successfully!",
+        text: "Exam updated successfully!",
         showConfirmButton: false,
         timer: 1000,
-        timerProgressBar: true,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       });
       navigate("/examList");
-      // Reset form
-      setSelectedSchoolId("");
-      setSelectedLevel("");
-      setExamDate("");
-      setSelectedClassIds([]);
-      setSelectedSubjectIds([]);
     } catch (error) {
       Swal.fire({
         position: "top-end",
         icon: "error",
         title: "Error",
-        text:
-          error.response?.data?.error ||
-          "Failed to create exam. Please try again.",
+        text: error.response?.data?.error || "Failed to update exam. Please try again.",
         showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
+        timer: 1500,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       });
     } finally {
       setIsLoading(false);
@@ -412,7 +415,7 @@ const ExaminationForm = () => {
         <Breadcrumb
           data={[
             { name: "Exam", link: "/examList" },
-            { name: "Create Exam Schedule" },
+            { name: "Update Exam Schedule" },
           ]}
         />
       </div>
@@ -431,7 +434,7 @@ const ExaminationForm = () => {
           style={{ padding: "20px", marginTop: "16px" }}
         >
           <Typography className={styles.formTitle} sx={{ mb: 4 }}>
-            Create Exam Schedule
+            Update Exam Schedule
           </Typography>
           <form noValidate autoComplete="off">
             <Grid container spacing={2}>
@@ -442,6 +445,7 @@ const ExaminationForm = () => {
                   value={selectedCountry}
                   options={countryOptions}
                   onChange={(e) => setSelectedCountry(e.target.value)}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -450,7 +454,7 @@ const ExaminationForm = () => {
                   value={selectedState}
                   options={stateOptions}
                   onChange={(e) => setSelectedState(e.target.value)}
-                  disabled={!selectedCountry}
+                  disabled={isLoading || !selectedCountry}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -459,7 +463,7 @@ const ExaminationForm = () => {
                   value={selectedDistrict}
                   options={districtOptions}
                   onChange={(e) => setSelectedDistrict(e.target.value)}
-                  disabled={!selectedState}
+                  disabled={isLoading || !selectedState}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -468,7 +472,7 @@ const ExaminationForm = () => {
                   value={selectedCity}
                   options={cityOptions}
                   onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!selectedDistrict}
+                  disabled={isLoading || !selectedDistrict}
                 />
               </Grid>
             </Grid>
@@ -480,9 +484,7 @@ const ExaminationForm = () => {
                   value={selectedSchoolId}
                   options={schools.map((school) => ({
                     value: school.id,
-                    label: `${school.name} ${
-                      school.city_name ? `(${school.city_name})` : ""
-                    }`,
+                    label: `${school.name} ${school.city_name ? `(${school.city_name})` : ""}`,
                   }))}
                   onChange={handleSchoolChange}
                   disabled={isLoading || !selectedCity}
@@ -502,21 +504,18 @@ const ExaminationForm = () => {
                     renderValue={(selected) => (
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => {
-                          const selectedClass = classes.find(
-                            (c) => c.value === value
-                          );
+                          const selectedClass = classes.find((c) => c.value === value);
                           return (
                             <Chip
                               key={value}
-                              label={
-                                selectedClass ? selectedClass.label : value
-                              }
+                              label={selectedClass ? selectedClass.label : value}
                               size="small"
                             />
                           );
                         })}
                       </Box>
                     )}
+                    disabled={isLoading}
                   >
                     {classes.map((cls) => (
                       <MenuItem key={cls.value} value={cls.value}>
@@ -540,21 +539,18 @@ const ExaminationForm = () => {
                     renderValue={(selected) => (
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => {
-                          const selectedSubject = subjects.find(
-                            (s) => s.value === value
-                          );
+                          const selectedSubject = subjects.find((s) => s.value === value);
                           return (
                             <Chip
                               key={value}
-                              label={
-                                selectedSubject ? selectedSubject.label : value
-                              }
+                              label={selectedSubject ? selectedSubject.label : value}
                               size="small"
                             />
                           );
                         })}
                       </Box>
                     )}
+                    disabled={isLoading}
                   >
                     {subjects.map((sub) => (
                       <MenuItem key={sub.value} value={sub.value}>
@@ -602,7 +598,7 @@ const ExaminationForm = () => {
               {error}
             </Typography>
           )}
-          {/* Save Button */}
+          {/* Update and Cancel Buttons */}
           <Box
             className={styles.buttonContainer}
             sx={{ display: "flex", gap: 2, mt: 4 }}
@@ -611,7 +607,7 @@ const ExaminationForm = () => {
               variant="contained"
               color="primary"
               style={{ marginTop: "20px" }}
-              onClick={handleSave}
+              onClick={handleUpdate}
               disabled={
                 !selectedSchoolId ||
                 !examDate ||
@@ -619,7 +615,7 @@ const ExaminationForm = () => {
                 selectedSubjectIds.length === 0 ||
                 isLoading
               }
-              text={isLoading ? "Processing..." : "Submit"}
+              text={isLoading ? "Processing..." : "Update"}
               sx={{ flexGrow: 1 }}
             />
             <ButtonComp
@@ -636,4 +632,6 @@ const ExaminationForm = () => {
   );
 };
 
-export default ExaminationForm;
+export default ExamUpdatedForm;
+
+

@@ -197,7 +197,7 @@ const AttendanceSheet = ({
           <h2 className="d-flex gap-1" style={{ marginBottom: "-1px" }}>
            
             <h2 id="subject" style={{ color: "black" }}>
-              {subject} OLYMPIAD ATTENDANCE-SHEET (2024-25)
+              {subject}  ATTENDANCE-SHEET (2025-26)
             </h2>
             
           </h2>

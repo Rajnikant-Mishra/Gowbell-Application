@@ -1,0 +1,138 @@
+/* Page container styled like a PDF */
+.page {
+  width: 100%; /* Responsive width for smaller screens */
+  margin: 0px auto; /* Center horizontally with top/bottom spacing */
+  padding: 0px;
+  background: #fff; /* White page background */
+}
+
+/* Header section */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.leftLogo {
+  width: 230px;
+  font-weight: bold;
+}
+.rightLogo {
+  width: 150px;
+}
+.leftLogo > img,
+.rightLogo > img {
+  width: 100%;
+}
+.centerInfo {
+  text-align: center;
+}
+
+.centerInfo h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.centerInfo h3 {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.address p {
+  text-align: left;
+  font-size: 20px;
+  font-weight: bold;
+  color: #3f3da9;
+  line-height: 25px;
+}
+
+.resultsBox {
+  display: inline-block;
+  background-color: #3f3da9;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 20px;
+  font-size: 18px;
+
+  align-items: center;
+}
+
+.sectionTitle {
+  margin-top: 30px;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.tableWrapper {
+  margin-top: 20px;
+  overflow-x: auto; /* Horizontal scroll for tables on small screens */
+}
+
+.cutoffTable,
+.studentTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.cutoffTable th,
+.cutoffTable td,
+.studentTable th,
+.studentTable td {
+  border: 1px solid #000;
+  padding: 6px 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.cutoffTable th,
+.studentTable th {
+  background-color: #f0f0f0;
+}
+.secondcont {
+  margin-top: -60px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page {
+    width: 95%; /* Slightly more width on smaller screens */
+    padding: 15px; /* Reduced padding */
+  }
+
+  .leftLogo,
+  .rightLogo {
+    font-size: 20px; /* Smaller logos */
+  }
+
+  .centerInfo h2 {
+    font-size: 18px;
+  }
+
+  .centerInfo h3 {
+    font-size: 14px;
+  }
+
+  .centerInfo p {
+    font-size: 12px;
+  }
+
+  .resultsBox {
+    font-size: 16px;
+    padding: 8px 16px;
+  }
+
+  .sectionTitle {
+    font-size: 14px;
+  }
+
+  .cutoffTable th,
+  .cutoffTable td,
+  .studentTable th,
+  .studentTable td {
+    font-size: 12px; /* Smaller text for tables */
+    padding: 4px 6px; /* Reduced padding */
+  }
+}

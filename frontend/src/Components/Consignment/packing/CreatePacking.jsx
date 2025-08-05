@@ -2042,7 +2042,7 @@ const Extra = () => {
     doc.setFontSize(16);
     doc.text("PACKING LIST", 105, 35, { align: "center" });
     doc.setFontSize(14);
-    doc.text(`SOF2425063980`, 105, 42, { align: "center" });
+    doc.text(`GOW2425063980`, 105, 42, { align: "center" });
 
     // Barcode
     const barcodeCanvas = document.createElement("canvas");

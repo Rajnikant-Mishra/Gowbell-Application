@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import {
@@ -42,13 +41,13 @@ export default function StudentUpdateForm() {
   const [filteredCities, setFilteredCities] = useState([]);
 
   const validationSchema = Yup.object({
-    school_name: Yup.string().required("School Name is required"),
+    school_id: Yup.string().required("School Name is required"),
     student_name: Yup.string().required("Student Name is required"),
     country: Yup.string().required("Country is required"),
     state: Yup.string().required("State is required"),
     district: Yup.string().required("District is required"),
     city: Yup.string().required("City is required"),
-    class_name: Yup.string().required("Class Name is required"),
+    class_id: Yup.string().required("Class Name is required"),
     student_section: Yup.string().required("Section is required"),
     mobile_number: Yup.string()
       .required("Mobile Number is required")
@@ -61,15 +60,82 @@ export default function StudentUpdateForm() {
       .required("Subject is required"),
   });
 
+  // const formik = useFormik({
+  //   initialValues: {
+  //     school_id: "",
+  //     student_name: "",
+  //     country: "",
+  //     state: "",
+  //     district: "",
+  //     city: "",
+  //     class_id: "",
+  //     student_section: "",
+  //     mobile_number: "",
+  //     whatsapp_number: "",
+  //     student_subject: [],
+  //   },
+  //   validationSchema: validationSchema,
+  //   onSubmit: async (values) => {
+  //     try {
+  //       const token = localStorage.getItem("token");
+
+  //       const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`, {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //         body: JSON.stringify(values),
+  //       });
+
+  //       if (response.ok) {
+  //         Swal.fire({
+  //           position: "top-end",
+  //           icon: "success",
+  //           title: "Success!",
+  //           text: `Student updated successfully!`,
+  //           showConfirmButton: false,
+  //           timer: 1000,
+  //           timerProgressBar: true,
+  //           toast: true,
+  //           background: "#fff",
+  //           customClass: {
+  //             popup: "small-swal",
+  //           },
+  //         }).then(() => {
+  //           navigate("/studentList");
+  //         });
+  //       } else {
+  //         throw new Error("Failed to update student");
+  //       }
+  //     } catch (error) {
+  //       Swal.fire({
+  //         position: "top-end",
+  //         icon: "error",
+  //         title: "Error!",
+  //         text: error.message || "An unexpected error occurred.",
+  //         showConfirmButton: false,
+  //         timer: 1000,
+  //         timerProgressBar: true,
+  //         toast: true,
+  //         background: "#fff",
+  //         customClass: {
+  //           popup: "small-swal",
+  //         },
+  //       });
+  //     }
+  //   },
+  // });
+
   const formik = useFormik({
     initialValues: {
-      school_name: "",
+      school_id: "",
       student_name: "",
       country: "",
       state: "",
       district: "",
       city: "",
-      class_name: "",
+      class_id: "",
       student_section: "",
       mobile_number: "",
       whatsapp_number: "",
@@ -79,44 +145,49 @@ export default function StudentUpdateForm() {
     onSubmit: async (values) => {
       try {
         const token = localStorage.getItem("token");
-
-        const response = await fetch(`${API_BASE_URL}/api/get/student/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(values),
-        });
-
-        if (response.ok) {
-          Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: "Success!",
-            text: `Student updated successfully!`,
-            showConfirmButton: false,
-            timer: 1000,
-            timerProgressBar: true,
-            toast: true,
-            background: "#fff",
-            customClass: {
-              popup: "small-swal",
-            },
-          }).then(() => {
-            navigate("/studentList");
-          });
-        } else {
-          throw new Error("Failed to update student");
+        if (!token) {
+          throw new Error("Authentication token is missing.");
         }
+        console.log("Sending request with payload:", values);
+
+        const response = await axios.put(
+          `${API_BASE_URL}/api/get/student/${id}`,
+          values,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: `Student updated successfully!`,
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        }).then(() => {
+          navigate("/studentList");
+        });
       } catch (error) {
+        console.error("Error updating student:", error.response || error);
         Swal.fire({
           position: "top-end",
           icon: "error",
           title: "Error!",
-          text: error.message || "An unexpected error occurred.",
+          text:
+            error.response?.data?.message ||
+            error.message ||
+            "An unexpected error occurred.",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 2000,
           timerProgressBar: true,
           toast: true,
           background: "#fff",
@@ -159,7 +230,7 @@ export default function StudentUpdateForm() {
 
         setSchoolOptions(
           schoolsData.map((school) => ({
-            value: school.school_name,
+            value: school.id,
             label: school.school_name,
           }))
         );
@@ -187,13 +258,13 @@ export default function StudentUpdateForm() {
 
           // Set form values with the fetched data
           formik.setValues({
-            school_name: studentData.school_name || "",
+            school_id: studentData.school_id || "",
             student_name: studentData.student_name || "",
             country: studentData.country || "",
             state: studentData.state || "",
             district: studentData.district || "",
             city: studentData.city || "",
-            class_name: studentData.class_name || "",
+            class_id: studentData.class_id || "",
             student_section: studentData.student_section || "",
             mobile_number: studentData.mobile_number || "",
             whatsapp_number: studentData.whatsapp_number || "",
@@ -315,19 +386,18 @@ export default function StudentUpdateForm() {
     label: city.name,
   }));
 
-
-    if (loading) {
-      return (
-        <Mainlayout>
-          <Box
-            className="d-flex justify-content-center align-items-center"
-            style={{ height: "80vh" }}
-          >
-            <Typography variant="h6">Loading school data...</Typography>
-          </Box>
-        </Mainlayout>
-      );
-    }
+  if (loading) {
+    return (
+      <Mainlayout>
+        <Box
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "80vh" }}
+        >
+          <Typography variant="h6">Loading school data...</Typography>
+        </Box>
+      </Mainlayout>
+    );
+  }
 
   return (
     <Mainlayout>
@@ -350,7 +420,6 @@ export default function StudentUpdateForm() {
           </div>
           <form className={styles.formContent} onSubmit={formik.handleSubmit}>
             <Grid container spacing={3}>
-              
               {/* Location fields */}
               <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
@@ -416,17 +485,16 @@ export default function StudentUpdateForm() {
               <Grid item xs={12} sm={6} md={6}>
                 <SelectDrop
                   label="School Name"
-                  name="school_name"
+                  name="school_id"
                   options={schoolOptions}
-                  value={formik.values.school_name}
+                  value={formik.values.school_id}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   error={
-                    formik.touched.school_name &&
-                    Boolean(formik.errors.school_name)
+                    formik.touched.school_id && Boolean(formik.errors.school_id)
                   }
                   helperText={
-                    formik.touched.school_name && formik.errors.school_name
+                    formik.touched.school_id && formik.errors.school_id
                   }
                   fullWidth
                 />
@@ -468,18 +536,15 @@ export default function StudentUpdateForm() {
               <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
                   label="Class"
-                  name="class_name"
+                  name="class_id"
                   options={classOptions}
-                  value={formik.values.class_name}
+                  value={formik.values.class_id}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   error={
-                    formik.touched.class_name &&
-                    Boolean(formik.errors.class_name)
+                    formik.touched.class_id && Boolean(formik.errors.class_id)
                   }
-                  helperText={
-                    formik.touched.class_name && formik.errors.class_name
-                  }
+                  helperText={formik.touched.class_id && formik.errors.class_id}
                   fullWidth
                 />
               </Grid>

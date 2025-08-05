@@ -95,6 +95,11 @@ import UpdateRole from "./Components/Role/UpdateRole";
 //exam
 import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
+import UpdateExam from "./Components/Exam/CreateExam/UpdateExam";
+
+
+//prize
+import PrizeList from "./Components/Exam/Prize-distribution/PrizeList";
 
 // wildcard
 import WildcardList from "./Components/Exam/Wildcard/WildcardList";
@@ -423,11 +428,20 @@ function App() {
             path="/examList"
             element={<ProtectedRoute element={<ExamList />} />}
           />
+          <Route
+            path="/exam/update/:id"
+            element={<ProtectedRoute element={<UpdateExam />} />}
+          />
 
+          {/* //prize */}
+         
+           <Route path="/prize-distribution" element={<ProtectedRoute element={<PrizeList/>} />} />
 
           {/* wildcard */}
-          <Route path="/wildcard" element={<ProtectedRoute element={<WildcardList/>} />} />
-
+          <Route
+            path="/wildcard"
+            element={<ProtectedRoute element={<WildcardList />} />}
+          />
 
           {/* //menu */}
           <Route path="/menu" element={<ProtectedRoute element={<Menu />} />} />
