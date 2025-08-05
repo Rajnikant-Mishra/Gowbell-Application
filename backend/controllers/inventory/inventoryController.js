@@ -1,25 +1,6 @@
 import inventoryModel from "../../models/Inventory/inventoryModel.js";
 
 // Create a new inventory item
-// export const createInventory = (req, res) => {
-//   const { date, created_by, invoice_no, item, quantity, unit, price, remarks, manufacturer_details } = req.body;
-
-//   if (!date || !invoice_no || !item || !quantity || !unit || !price) {
-//     return res.status(400).json({ error: 'Missing required fields' });
-//   }
-
-//   const inventoryData = { date, created_by, invoice_no, item, quantity, unit, price, remarks, manufacturer_details };
-
-//   inventoryModel.createInventory(inventoryData, (error, results) => {
-//     if (error) {
-//       console.error('Error creating inventory:', error);
-//       return res.status(500).json({ error: 'Error creating inventory' });
-//     }
-
-//     res.status(201).json({ message: 'Inventory item created successfully', results });
-//   });
-// };
-
 export const createInventory = (req, res) => {
   const { date, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details } = req.body;
   
@@ -54,6 +35,21 @@ export const getInventory = (req, res) => {
     res.status(200).json(results);
   });
 };
+
+
+//paginate and get all sercch
+export const getInventorypaginate = (req, res) => {
+  const { page = 1, limit = 10, search = "" } = req.query;
+
+  inventoryModel.getInventoryWithPagination(parseInt(page), parseInt(limit), search, (error, data) => {
+    if (error) {
+      console.error("Error fetching inventory:", error);
+      return res.status(500).json({ error: "Error fetching inventory" });
+    }
+    res.status(200).json(data);
+  });
+};
+
 
 // Get inventory item by ID
 export const getInventoryById = (req, res) => {

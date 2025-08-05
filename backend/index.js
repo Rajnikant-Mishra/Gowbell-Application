@@ -193,13 +193,19 @@ import subitem from "./routes/configuration/subitemRoutes.js";
 //question
 import questionRoutes from "./routes/question/questionRoutes.js";
 
+//session
+import sessionRoutes from "./routes/session/sessionRoutes.js";
+
 const app = express();
 
 dotenv.config();
 
 // Middleware
-app.use(express.json());
-app.use(bodyParser.json());
+// app.use(express.json());
+// app.use(bodyParser.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // CORS
 app.use(cors({
@@ -260,6 +266,9 @@ app.use('/api/s1', subitem);
 
 //question
 app.use('/api/q1', questionRoutes);
+
+//session
+app.use('/api/session', sessionRoutes);
 
 // ✅ Cron Job: Runs every day at 1 AM
 // cron.schedule('* * * * * *', () => {

@@ -1,25 +1,6 @@
 import Consignment from "../../models/Consignment/consignmentModel.js";
 
-// export const createConsignment = (req, res) => {
-//     const data = req.body;
 
-//     // Ensure date is valid or set to NULL
-//     data.date = data.date || null;
-//     data.delivery_date = data.delivery_date || null;
-//     data.postal_delivery_date = data.postal_delivery_date || null;
-
-//     // Validate date formats
-//     const isValidDate = (date) => !date || !isNaN(new Date(date).getTime());
-
-//     if (!isValidDate(data.date) || !isValidDate(data.delivery_date) || !isValidDate(data.postal_delivery_date)) {
-//         return res.status(400).json({ error: 'Invalid date format' });
-//     }
-
-//     Consignment.create(data, (err, results) => {
-//         if (err) return res.status(500).json({ error: err.message });
-//         res.status(201).json({ message: 'Consignment created successfully', results });
-//     });
-// };
 
 export const createConsignment = (req, res) => {
   const data = req.body;
@@ -60,6 +41,18 @@ export const getAllConsignments = (req, res) => {
     res.status(200).json(results);
   });
 };
+
+
+//paginate with serch get all
+export const getAllConsignmentspaginate = (req, res) => {
+  const { page = 1, limit = 10, search = "" } = req.query;
+
+  Consignment.findAllWithPagination(parseInt(page), parseInt(limit), search, (err, data) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json(data);
+  });
+};
+
 
 export const getConsignmentById = (req, res) => {
   const { id } = req.params;

@@ -515,8 +515,9 @@ export const updateStatusApproved = async (req, res) => {
   }
 };
 
-// Filter schools-id by location
 
+
+// Filter schools-id by location
 export const filterschoolIDByLocation = (req, res) => {
   const { country, state, district, city } = req.query;
 

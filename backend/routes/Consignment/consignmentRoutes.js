@@ -2,6 +2,7 @@ import express from 'express';
 import {
     createConsignment,
     getAllConsignments,
+    getAllConsignmentspaginate ,
     getConsignmentById,
     updateConsignment,
     deleteConsignment
@@ -14,6 +15,9 @@ router.post('/consignments',authenticateToken, createConsignment);
 
 // Get all consignments
 router.get('/consignments', getAllConsignments);
+
+// Get all consignments with paginate serach also 
+router.get('/paginate-consignments',  getAllConsignmentspaginate);
 
 // Get a single consignment by ID
 router.get('/consignments/:id', getConsignmentById);
