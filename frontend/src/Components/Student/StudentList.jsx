@@ -2509,8 +2509,6 @@ export default function DataTable() {
     });
   };
 
- 
-
   const uploadStudentsData = async (students) => {
     // Validate input array
     if (!Array.isArray(students) || students.length === 0) {
@@ -2539,9 +2537,7 @@ export default function DataTable() {
       );
       if (missingFields.length > 0) {
         acc.push(
-          `Student at Row ${
-            index + 1
-          }: required - ${missingFields.join(", ")}`
+          `Student at Row ${index + 1}: required - ${missingFields.join(", ")}`
         );
       }
       return acc;

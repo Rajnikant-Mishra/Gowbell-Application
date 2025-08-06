@@ -923,7 +923,6 @@
 
 // export default ExaminationForm;
 
-
 //=========================================================================================================
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -1405,7 +1404,6 @@ const ExaminationForm = () => {
   const handleRollClassSubjectChange = (e) =>
     setSelectedRollClassSubject(e.target.value || null);
 
-  
   const handlePreviousPage = () => {
     if (page > 1) setPage(page - 1);
   };

@@ -1,8 +1,19 @@
-import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { UilTrashAlt, UilEditAlt, UilAngleRightB, UilAngleLeftB } from "@iconscout/react-unicons";
+import {
+  UilTrashAlt,
+  UilEditAlt,
+  UilAngleRightB,
+  UilAngleLeftB,
+} from "@iconscout/react-unicons";
 import Mainlayout from "../../Layouts/Mainlayout";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -63,7 +74,11 @@ export default function DataTable() {
 
         console.log("Exam API response:", examResponse.data);
 
-        const { exams = [], totalRecords = 0, totalPages = 0 } = examResponse.data || {};
+        const {
+          exams = [],
+          totalRecords = 0,
+          totalPages = 0,
+        } = examResponse.data || {};
 
         if (!Array.isArray(exams)) {
           throw new Error("Expected 'exams' to be an array");
@@ -78,7 +93,9 @@ export default function DataTable() {
               const userName = userResponse.data?.username || "Unknown User";
               return {
                 ...record,
-                exam_date: record.exam_date ? record.exam_date.split("T")[0] : "",
+                exam_date: record.exam_date
+                  ? record.exam_date.split("T")[0]
+                  : "",
                 created_at: formatTimestamp(record.created_at),
                 updated_at: formatTimestamp(record.updated_at),
                 created_by: userName,
@@ -90,7 +107,9 @@ export default function DataTable() {
               );
               return {
                 ...record,
-                exam_date: record.exam_date ? record.exam_date.split("T")[0] : "",
+                exam_date: record.exam_date
+                  ? record.exam_date.split("T")[0]
+                  : "",
                 created_at: formatTimestamp(record.created_at),
                 updated_at: formatTimestamp(record.updated_at),
                 created_by: "Unknown User",
@@ -105,7 +124,11 @@ export default function DataTable() {
 
         setTimeout(sizeColumnsToFit, 0);
       } catch (error) {
-        console.error("Error fetching exam data:", error.message, error.response);
+        console.error(
+          "Error fetching exam data:",
+          error.message,
+          error.response
+        );
         Swal.fire({
           position: "top-end",
           icon: "error",

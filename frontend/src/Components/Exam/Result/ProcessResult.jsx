@@ -1717,9 +1717,6 @@
 
 // export default ExaminationForm;
 
-
-
-
 // import React, { useState, useEffect, useCallback } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { debounce } from "lodash";
@@ -2627,8 +2624,6 @@
 
 // export default ExaminationForm;
 
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
@@ -2826,7 +2821,11 @@ const ExaminationForm = () => {
   // Fetch students
   const fetchStudents = useCallback(
     async (updatePending = false) => {
-      if (!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length) {
+      if (
+        !selectedSchool ||
+        !selectedClassIds.length ||
+        !selectedSubjectIds.length
+      ) {
         setStudents([]);
         setTotalCount(0);
         setFetchError(null);
@@ -2845,7 +2844,8 @@ const ExaminationForm = () => {
         const schoolResponse = await axios.get(
           `${API_BASE_URL}/api/get/schools/${selectedSchool}`
         );
-        const fetchedSchoolAddress = schoolResponse.data?.school_address || "N/A";
+        const fetchedSchoolAddress =
+          schoolResponse.data?.school_address || "N/A";
         setSchoolAddress(fetchedSchoolAddress);
 
         const studentResponse = await axios.post(
@@ -2871,11 +2871,18 @@ const ExaminationForm = () => {
         }));
 
         setStudents(updatedStudents);
-        setTotalCount(studentResponse.data.totalCount || updatedStudents.length);
+        setTotalCount(
+          studentResponse.data.totalCount || updatedStudents.length
+        );
         setFetchError(null);
-        toast.success(studentResponse.data.message || "Students fetched successfully.");
+        toast.success(
+          studentResponse.data.message || "Students fetched successfully."
+        );
       } catch (error) {
-        console.error("Error fetching data:", error.response?.data || error.message);
+        console.error(
+          "Error fetching data:",
+          error.response?.data || error.message
+        );
         const errorMessage =
           error.response?.data?.error ||
           error.message ||
@@ -2893,7 +2900,11 @@ const ExaminationForm = () => {
 
   // Handle Generate Rank
   const handleGenerateRank = async () => {
-    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length) {
+    if (
+      !selectedSchool ||
+      !selectedClassIds.length ||
+      !selectedSubjectIds.length
+    ) {
       toast.error("Please select school, classes, and subjects first");
       return;
     }
@@ -2902,8 +2913,14 @@ const ExaminationForm = () => {
 
   // Handle Download PDF
   const handleDownloadPDF = async () => {
-    if (!selectedSchool || !selectedClassIds.length || !selectedSubjectIds.length) {
-      toast.error("Please select school, classes, and subjects to download PDF");
+    if (
+      !selectedSchool ||
+      !selectedClassIds.length ||
+      !selectedSubjectIds.length
+    ) {
+      toast.error(
+        "Please select school, classes, and subjects to download PDF"
+      );
       return;
     }
 
@@ -2914,7 +2931,8 @@ const ExaminationForm = () => {
 
     // Group percentages by subject for cutoff calculation
     const subjectPercentages = selectedSubjectIds.reduce((acc, subjectId) => {
-      const subjectName = subjects.find((sub) => sub.value === subjectId)?.label || "N/A";
+      const subjectName =
+        subjects.find((sub) => sub.value === subjectId)?.label || "N/A";
       acc[subjectName] = students
         .filter((student) => student.student_subject.includes(subjectName))
         .map((student) => {
@@ -2928,16 +2946,26 @@ const ExaminationForm = () => {
 
     // Calculate cutoff percentages per subject and class
     const classCutoff = selectedSubjectIds.flatMap((subjectId) => {
-      const subjectName = subjects.find((sub) => sub.value === subjectId)?.label || "N/A";
+      const subjectName =
+        subjects.find((sub) => sub.value === subjectId)?.label || "N/A";
       const percentages = subjectPercentages[subjectName] || [];
       const sortedPercentages = [...new Set(percentages)].sort((a, b) => b - a);
 
       return selectedClassIds.map((classId) => ({
         class: classes.find((cls) => cls.value === classId)?.label || classId,
         subjects: subjectName,
-        gold: sortedPercentages[0] !== undefined ? sortedPercentages[0].toFixed(2) + "%" : "N/A",
-        silver: sortedPercentages[1] !== undefined ? sortedPercentages[1].toFixed(2) + "%" : "N/A",
-        bronze: sortedPercentages[2] !== undefined ? sortedPercentages[2].toFixed(2) + "%" : "N/A",
+        gold:
+          sortedPercentages[0] !== undefined
+            ? sortedPercentages[0].toFixed(2) + "%"
+            : "N/A",
+        silver:
+          sortedPercentages[1] !== undefined
+            ? sortedPercentages[1].toFixed(2) + "%"
+            : "N/A",
+        bronze:
+          sortedPercentages[2] !== undefined
+            ? sortedPercentages[2].toFixed(2) + "%"
+            : "N/A",
       }));
     });
 
@@ -2995,7 +3023,9 @@ const ExaminationForm = () => {
         <MedalsWinnersList
           winnersList={winnersList}
           classCutoff={classCutoff}
-          schoolName={schools.find((s) => s.id === selectedSchool)?.school_name || "N/A"}
+          schoolName={
+            schools.find((s) => s.id === selectedSchool)?.school_name || "N/A"
+          }
           schoolAddress={schoolAddress}
           classId={selectedClassIds.join(",")}
           subjectIds={selectedSubjectIds}
@@ -3050,7 +3080,9 @@ const ExaminationForm = () => {
     doc.save(
       `Result_${
         schools.find((s) => s.id === selectedSchool)?.school_name || "School"
-      }_Classes${selectedClassIds.join("_")}_Subjects${subjectNames.join("_")}.pdf`
+      }_Classes${selectedClassIds.join("_")}_Subjects${subjectNames.join(
+        "_"
+      )}.pdf`
     );
   };
 
@@ -3409,14 +3441,18 @@ const ExaminationForm = () => {
                         </option>
                       ))}
                     </select>
-                    <Typography sx={{ ml: 1 }} variant="body2" color="textSecondary">
+                    <Typography
+                      sx={{ ml: 1 }}
+                      variant="body2"
+                      color="textSecondary"
+                    >
                       Records per page
                     </Typography>
                   </Box>
 
                   <Typography variant="body2" color="textSecondary">
-                    Showing {students.length} of {totalCount} records (Page {page} of{" "}
-                    {Math.ceil(totalCount / pageSize)})
+                    Showing {students.length} of {totalCount} records (Page{" "}
+                    {page} of {Math.ceil(totalCount / pageSize)})
                   </Typography>
 
                   <Box display="flex" alignItems="center">

@@ -1,6 +1,60 @@
 import Student from "../../models/Student/studentModel.js";
 
 // Create a single student
+// export const createStudent = (req, res) => {
+//   const {
+//     school_id,
+//     student_name,
+//     class_id,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//     country,
+//     state,
+//     district,
+//     city,
+//   } = req.body;
+
+//   const userId = req.user?.id;
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized. Please log in." });
+//   }
+
+//   const newStudent = {
+//     school_id,
+//     student_name,
+//     class_id,
+//     student_section,
+//     mobile_number,
+//     whatsapp_number,
+//     student_subject,
+//     approved,
+//     approved_by,
+//     country,
+//     state,
+//     district,
+//     city,
+//   };
+
+//   console.log("Received student data:", newStudent);
+
+//   Student.create(newStudent, userId, (err, result) => {
+//     if (err) {
+//       console.error("Insert error:", err);
+//       return res.status(500).json({ message: "Insert failed", error: err });
+//     }
+
+//     console.log("Insert success:", result);
+//     res.status(201).json({
+//       message: "Student Created Successfully.",
+//       studentId: result?.insertId || null,
+//     });
+//   });
+// };
+
 export const createStudent = (req, res) => {
   const {
     school_id,
@@ -16,6 +70,8 @@ export const createStudent = (req, res) => {
     state,
     district,
     city,
+    level = 1, // default
+    level_status = "continue", //default
   } = req.body;
 
   const userId = req.user?.id;
@@ -37,6 +93,8 @@ export const createStudent = (req, res) => {
     state,
     district,
     city,
+    level,
+    level_status,
   };
 
   console.log("Received student data:", newStudent);
@@ -44,7 +102,9 @@ export const createStudent = (req, res) => {
   Student.create(newStudent, userId, (err, result) => {
     if (err) {
       console.error("Insert error:", err);
-      return res.status(500).json({ message: "Insert failed", error: err });
+      return res
+        .status(500)
+        .json({ message: "Insert failed", error: err.message });
     }
 
     console.log("Insert success:", result);
@@ -54,6 +114,35 @@ export const createStudent = (req, res) => {
     });
   });
 };
+
+// export const bulkUploadStudents = async (req, res) => {
+//   const students = req.body;
+
+//   if (!Array.isArray(students) || students.length === 0) {
+//     return res.status(400).json({ message: "No student data provided" });
+//   }
+
+//   const userId = req.user?.id;
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized. Please log in." });
+//   }
+
+//   try {
+//     const result = await Student.bulkCreate(students, userId);
+//     res.status(201).json({
+//       message: "Students uploaded successfully",
+//       insertedCount: result.affectedRows,
+//       errors: result.errors,
+//     });
+//   } catch (err) {
+//     console.error("Error inserting students:", err);
+//     res.status(400).json({
+//       message: "Error uploading students",
+//       error: err.message,
+//       errors: err.cause, // Include detailed errors (e.g., inconsistencies)
+//     });
+//   }
+// };
 
 export const bulkUploadStudents = async (req, res) => {
   const students = req.body;
@@ -79,7 +168,7 @@ export const bulkUploadStudents = async (req, res) => {
     res.status(400).json({
       message: "Error uploading students",
       error: err.message,
-      errors: err.cause, // Include detailed errors (e.g., inconsistencies)
+      errors: err.cause,
     });
   }
 };

@@ -1,0 +1,15 @@
+import React from 'react';
+import type { GridCtrl } from 'ag-grid-community';
+export interface TabGuardCompCallback {
+    forceFocusOutOfContainer(up?: boolean): void;
+}
+interface TabGuardProps {
+    children: React.ReactNode;
+    eFocusableElement: HTMLDivElement;
+    forceFocusOutWhenTabGuardsAreEmpty?: boolean;
+    gridCtrl: GridCtrl;
+    onTabKeyDown: (e: KeyboardEvent) => void;
+    isEmpty?: () => boolean;
+}
+declare const _default: React.MemoExoticComponent<React.ForwardRefExoticComponent<TabGuardProps & React.RefAttributes<TabGuardCompCallback>>>;
+export default _default;

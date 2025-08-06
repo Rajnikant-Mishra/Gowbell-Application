@@ -306,7 +306,6 @@ const ExaminationForm = () => {
       }))
     : [];
 
-    
   // Handle exam date change
   const handleExamDateChange = (event) => {
     setExamDate(event.target.value);

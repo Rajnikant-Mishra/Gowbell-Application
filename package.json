@@ -4,6 +4,8 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.6",
     "@mui/styled-engine-sc": "^6.1.6",
+    "ag-grid-community": "^33.2.4",
+    "ag-grid-react": "^33.2.4",
     "react-router-dom": "^6.28.0",
     "styled-components": "^6.1.13"
   }

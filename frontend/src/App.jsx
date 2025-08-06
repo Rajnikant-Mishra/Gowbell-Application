@@ -97,7 +97,6 @@ import Exam from "./Components/Exam/CreateExam/Exam";
 import ExamList from "./Components/Exam/CreateExam/ExamList";
 import UpdateExam from "./Components/Exam/CreateExam/UpdateExam";
 
-
 //prize
 import PrizeList from "./Components/Exam/Prize-distribution/PrizeList";
 
@@ -434,8 +433,10 @@ function App() {
           />
 
           {/* //prize */}
-         
-           <Route path="/prize-distribution" element={<ProtectedRoute element={<PrizeList/>} />} />
+          <Route
+            path="/prize-distribution"
+            element={<ProtectedRoute element={<PrizeList />} />}
+          />
 
           {/* wildcard */}
           <Route

@@ -81,6 +81,99 @@ export const Student = {
   //   });
   // },
 
+  // create: (studentData, userId, callback) => {
+  //   const {
+  //     school_id,
+  //     student_name,
+  //     class_id,
+  //     student_section,
+  //     mobile_number,
+  //     whatsapp_number,
+  //     student_subject,
+  //     approved,
+  //     approved_by,
+  //     country,
+  //     state,
+  //     district,
+  //     city,
+  //   } = studentData;
+
+  //   // ✅ Step 0: Get the latest active session ID
+  //   const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+  //   db.query(sessionQuery, (err, sessionResult) => {
+  //     if (err) return callback(err);
+
+  //     if (sessionResult.length === 0) {
+  //       return callback(new Error("No active session found"));
+  //     }
+
+  //     const session_id = sessionResult[0].id;
+
+  //     // ✅ Step 1: Get school_code from school table using school_id
+  //     const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
+
+  //     db.query(schoolQuery, [school_id], (err, schoolResult) => {
+  //       if (err) return callback(err);
+
+  //       if (schoolResult.length === 0) {
+  //         return callback(new Error("School not found"));
+  //       }
+
+  //       const school_code = schoolResult[0].school_code;
+
+  //       // ✅ Step 2: Get the last roll_no for this school_code and class_name
+  //       const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
+  //       const rollPrefix = `${school_code}${class_id}%`;
+
+  //       db.query(rollQuery, [rollPrefix], (err, rollResult) => {
+  //         if (err) return callback(err);
+
+  //         let newRollNumber = 1;
+  //         if (rollResult.length > 0) {
+  //           const lastRoll = rollResult[0].roll_no;
+  //           const lastRollNumber = parseInt(lastRoll.slice(-2), 10); // Extract last 2 digits
+  //           newRollNumber = lastRollNumber + 1;
+  //         }
+
+  //         const formattedRollNo = `${school_code}${class_id}${String(
+  //           newRollNumber
+  //         ).padStart(2, "0")}`;
+
+  //         // ✅ Step 3: Insert the new student record
+  //         const insertQuery = `
+  //         INSERT INTO student
+  //         (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, session_id, created_by, updated_by, created_at, updated_at)
+  //         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+  //       `;
+
+  //         db.query(
+  //           insertQuery,
+  //           [
+  //             school_id,
+  //             student_name,
+  //             formattedRollNo,
+  //             class_id,
+  //             student_section,
+  //             mobile_number,
+  //             whatsapp_number,
+  //             JSON.stringify(student_subject || []) || null,
+  //             approved,
+  //             approved_by,
+  //             country,
+  //             state,
+  //             district,
+  //             city,
+  //             session_id, // ✅ Insert the auto-generated session_id
+  //             userId,
+  //             userId,
+  //           ],
+  //           callback
+  //         );
+  //       });
+  //     });
+  //   });
+  // },
+
   create: (studentData, userId, callback) => {
     const {
       school_id,
@@ -96,9 +189,10 @@ export const Student = {
       state,
       district,
       city,
+      level = 1, // ✅ Default level
+      level_status = "continue", // ✅ Default status
     } = studentData;
 
-    // ✅ Step 0: Get the latest active session ID
     const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
     db.query(sessionQuery, (err, sessionResult) => {
       if (err) return callback(err);
@@ -109,41 +203,35 @@ export const Student = {
 
       const session_id = sessionResult[0].id;
 
-      // ✅ Step 1: Get school_code from school table using school_id
       const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
-
       db.query(schoolQuery, [school_id], (err, schoolResult) => {
         if (err) return callback(err);
-
         if (schoolResult.length === 0) {
           return callback(new Error("School not found"));
         }
 
         const school_code = schoolResult[0].school_code;
+        const rollPrefix = `${school_code}${class_id}${level}%`;
 
-        // ✅ Step 2: Get the last roll_no for this school_code and class_name
         const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
-        const rollPrefix = `${school_code}${class_id}%`;
-
         db.query(rollQuery, [rollPrefix], (err, rollResult) => {
           if (err) return callback(err);
 
           let newRollNumber = 1;
           if (rollResult.length > 0) {
             const lastRoll = rollResult[0].roll_no;
-            const lastRollNumber = parseInt(lastRoll.slice(-2), 10); // Extract last 2 digits
+            const lastRollNumber = parseInt(lastRoll.slice(-2), 10);
             newRollNumber = lastRollNumber + 1;
           }
 
-          const formattedRollNo = `${school_code}${class_id}${String(
+          const formattedRollNo = `${school_code}${class_id}${level}${String(
             newRollNumber
           ).padStart(2, "0")}`;
 
-          // ✅ Step 3: Insert the new student record
           const insertQuery = `
           INSERT INTO student 
-          (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, session_id, created_by, updated_by, created_at, updated_at) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+          (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, session_id, created_by, updated_by, created_at, updated_at, level, level_status) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
         `;
 
           db.query(
@@ -163,9 +251,11 @@ export const Student = {
               state,
               district,
               city,
-              session_id, // ✅ Insert the auto-generated session_id
+              session_id,
               userId,
               userId,
+              level,
+              level_status,
             ],
             callback
           );
@@ -474,6 +564,236 @@ export const Student = {
   //   });
   // },
 
+  // bulkCreate: (students, userId) => {
+  //   return new Promise((resolve, reject) => {
+  //     const requiredFields = [
+  //       "school_id",
+  //       "class_id",
+  //       "student_name",
+  //       "student_section",
+  //     ];
+  //     const missingFields = students.reduce((acc, student, index) => {
+  //       const missing = requiredFields.filter(
+  //         (field) => student[field] == null || student[field] === ""
+  //       );
+  //       if (missing.length > 0) {
+  //         acc.push(
+  //           `Student at index ${index} missing fields: ${missing.join(", ")}`
+  //         );
+  //       }
+  //       return acc;
+  //     }, []);
+  //     if (missingFields.length > 0) {
+  //       return reject(
+  //         new Error("Missing required fields", { cause: missingFields })
+  //       );
+  //     }
+
+  //     const getIdByName = (table, name) => {
+  //       return new Promise((resolve, reject) => {
+  //         const validTables = {
+  //           countries: "name",
+  //           states: "name",
+  //           districts: "name",
+  //           cities: "name",
+  //           class: "name",
+  //           subject_master: "name",
+  //           school: "school_name",
+  //         };
+  //         const column = validTables[table];
+  //         if (!column) return reject(new Error(`Invalid table: ${table}`));
+  //         db.query(
+  //           `SELECT id FROM ${table} WHERE ${column} = ? LIMIT 1`,
+  //           [name.trim()],
+  //           (err, result) => {
+  //             if (err) return reject(err);
+  //             if (result.length === 0)
+  //               return reject(new Error(`${table} not found: ${name}`));
+  //             resolve(result[0].id);
+  //           }
+  //         );
+  //       });
+  //     };
+
+  //     const getSubjectIds = async (subjects) => {
+  //       return Promise.all(
+  //         subjects.map((s) => getIdByName("subject_master", s))
+  //       );
+  //     };
+
+  //     const normalizeStudent = async (student) => {
+  //       const [schoolId, classId, countryId, stateId, districtId, cityId] =
+  //         await Promise.all([
+  //           getIdByName("school", student.school_id),
+  //           getIdByName("class", student.class_id),
+  //           getIdByName("countries", student.country),
+  //           getIdByName("states", student.state),
+  //           getIdByName("districts", student.district),
+  //           getIdByName("cities", student.city),
+  //         ]);
+
+  //       let subjects = student.student_subject;
+  //       if (typeof subjects === "string") {
+  //         subjects = subjects.trim().split(/\s+/);
+  //       }
+
+  //       const subjectIds = await getSubjectIds(subjects);
+
+  //       return {
+  //         ...student,
+  //         school_id: schoolId,
+  //         class_id: classId,
+  //         country: countryId,
+  //         state: stateId,
+  //         district: districtId,
+  //         city: cityId,
+  //         student_subject: subjectIds,
+  //       };
+  //     };
+
+  //     const processStudents = async () => {
+  //       const normalized = [];
+  //       const errors = [];
+
+  //       for (const student of students) {
+  //         try {
+  //           const normalizedStudent = await normalizeStudent(student);
+  //           normalized.push(normalizedStudent);
+  //         } catch (err) {
+  //           errors.push({ student: student.student_name, error: err.message });
+  //         }
+  //       }
+
+  //       if (normalized.length === 0) {
+  //         throw new Error("All student records failed validation", {
+  //           cause: errors,
+  //         });
+  //       }
+
+  //       // Group by school_id and class_id
+  //       const grouped = normalized.reduce((acc, student) => {
+  //         const key = `${student.school_id}-${student.class_id}`;
+  //         acc[key] = acc[key] || [];
+  //         acc[key].push(student);
+  //         return acc;
+  //       }, {});
+
+  //       return { grouped, errors };
+  //     };
+
+  //     const assignRollNumbers = async (group, school_id, class_id) => {
+  //       const rollPrefix = await new Promise((resolve, reject) =>
+  //         db.query(
+  //           `SELECT school_code FROM school WHERE id = ?`,
+  //           [school_id],
+  //           (err, result) => {
+  //             if (err) return reject(err);
+  //             if (result.length === 0)
+  //               return reject(new Error("School code not found"));
+  //             resolve(result[0].school_code + class_id);
+  //           }
+  //         )
+  //       );
+
+  //       const lastRollResult = await new Promise((resolve, reject) =>
+  //         db.query(
+  //           `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`,
+  //           [`${rollPrefix}%`],
+  //           (err, result) => (err ? reject(err) : resolve(result))
+  //         )
+  //       );
+
+  //       let rollNum =
+  //         lastRollResult.length > 0
+  //           ? parseInt(lastRollResult[0].roll_no.slice(-2)) + 1
+  //           : 1;
+
+  //       return group.map((student) => {
+  //         const rollNo = `${rollPrefix}${String(rollNum++).padStart(2, "0")}`;
+  //         return { ...student, roll_no: rollNo };
+  //       });
+  //     };
+
+  //     const insertStudents = (studentsToInsert) => {
+  //       const query = `
+  //       INSERT INTO student
+  //       (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject,
+  //       country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at)
+  //       VALUES ?`;
+
+  //       const values = studentsToInsert.map((s) => [
+  //         s.school_id,
+  //         s.student_name,
+  //         s.roll_no,
+  //         s.class_id,
+  //         s.student_section,
+  //         s.mobile_number ?? null,
+  //         s.whatsapp_number ?? null,
+  //         JSON.stringify(s.student_subject),
+  //         s.country,
+  //         s.state,
+  //         s.district,
+  //         s.city,
+  //         s.approved ?? 0,
+  //         s.approved_by ?? null,
+  //         userId,
+  //         userId,
+  //         new Date(),
+  //         new Date(),
+  //       ]);
+
+  //       return new Promise((resolve, reject) => {
+  //         db.beginTransaction((err) => {
+  //           if (err) return reject(err);
+  //           db.query(query, [values], (err, result) => {
+  //             if (err) return db.rollback(() => reject(err));
+  //             db.commit((err) => {
+  //               if (err) return db.rollback(() => reject(err));
+  //               resolve(result);
+  //             });
+  //           });
+  //         });
+  //       });
+  //     };
+
+  //     // Main execution
+  //     processStudents()
+  //       .then(async ({ grouped, errors }) => {
+  //         const allToInsert = [];
+
+  //         for (const key of Object.keys(grouped)) {
+  //           const [school_id, class_id] = key.split("-").map(Number);
+  //           const group = grouped[key];
+  //           const withRoll = await assignRollNumbers(
+  //             group,
+  //             school_id,
+  //             class_id
+  //           );
+  //           allToInsert.push(...withRoll);
+  //         }
+
+  //         if (allToInsert.length === 0) {
+  //           return reject(
+  //             new Error("No valid students to insert", { cause: errors })
+  //           );
+  //         }
+
+  //         const result = await insertStudents(allToInsert);
+  //         resolve({
+  //           insertedCount: result.affectedRows,
+  //           errors: errors.length > 0 ? errors : undefined,
+  //         });
+  //       })
+  //       .catch((err) =>
+  //         reject(
+  //           err.cause
+  //             ? err
+  //             : new Error("Student processing failed", { cause: [err.message] })
+  //         )
+  //       );
+  //   });
+  // },
+
   bulkCreate: (students, userId) => {
     return new Promise((resolve, reject) => {
       const requiredFields = [
@@ -482,6 +802,7 @@ export const Student = {
         "student_name",
         "student_section",
       ];
+
       const missingFields = students.reduce((acc, student, index) => {
         const missing = requiredFields.filter(
           (field) => student[field] == null || student[field] === ""
@@ -493,6 +814,7 @@ export const Student = {
         }
         return acc;
       }, []);
+
       if (missingFields.length > 0) {
         return reject(
           new Error("Missing required fields", { cause: missingFields })
@@ -525,6 +847,20 @@ export const Student = {
         });
       };
 
+      const getSession = () => {
+        return new Promise((resolve, reject) => {
+          db.query(
+            `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`,
+            (err, result) => {
+              if (err) return reject(err);
+              if (result.length === 0)
+                return reject(new Error("No active session found"));
+              resolve(result[0].id);
+            }
+          );
+        });
+      };
+
       const getSubjectIds = async (subjects) => {
         return Promise.all(
           subjects.map((s) => getIdByName("subject_master", s))
@@ -532,17 +868,33 @@ export const Student = {
       };
 
       const normalizeStudent = async (student) => {
-        const [schoolId, classId, countryId, stateId, districtId, cityId] =
-          await Promise.all([
-            getIdByName("school", student.school_id),
-            getIdByName("class", student.class_id),
-            getIdByName("countries", student.country),
-            getIdByName("states", student.state),
-            getIdByName("districts", student.district),
-            getIdByName("cities", student.city),
-          ]);
+        const [
+          schoolId,
+          classId,
+          countryId,
+          stateId,
+          districtId,
+          cityId,
+          sessionId,
+        ] = await Promise.all([
+          getIdByName("school", student.school_id),
+          getIdByName("class", student.class_id),
+          student.country
+            ? getIdByName("countries", student.country)
+            : Promise.resolve(null),
+          student.state
+            ? getIdByName("states", student.state)
+            : Promise.resolve(null),
+          student.district
+            ? getIdByName("districts", student.district)
+            : Promise.resolve(null),
+          student.city
+            ? getIdByName("cities", student.city)
+            : Promise.resolve(null),
+          getSession(),
+        ]);
 
-        let subjects = student.student_subject;
+        let subjects = student.student_subject || [];
         if (typeof subjects === "string") {
           subjects = subjects.trim().split(/\s+/);
         }
@@ -557,7 +909,10 @@ export const Student = {
           state: stateId,
           district: districtId,
           city: cityId,
+          session_id: sessionId,
           student_subject: subjectIds,
+          level: student.level || 1,
+          level_status: student.level_status || "continue",
         };
       };
 
@@ -580,9 +935,10 @@ export const Student = {
           });
         }
 
-        // Group by school_id and class_id
         const grouped = normalized.reduce((acc, student) => {
-          const key = `${student.school_id}-${student.class_id}`;
+          const key = `${student.school_id}-${student.class_id}-${
+            student.level || 1
+          }`;
           acc[key] = acc[key] || [];
           acc[key].push(student);
           return acc;
@@ -591,7 +947,7 @@ export const Student = {
         return { grouped, errors };
       };
 
-      const assignRollNumbers = async (group, school_id, class_id) => {
+      const assignRollNumbers = async (group, school_id, class_id, level) => {
         const rollPrefix = await new Promise((resolve, reject) =>
           db.query(
             `SELECT school_code FROM school WHERE id = ?`,
@@ -600,7 +956,7 @@ export const Student = {
               if (err) return reject(err);
               if (result.length === 0)
                 return reject(new Error("School code not found"));
-              resolve(result[0].school_code + class_id);
+              resolve(result[0].school_code + class_id + level);
             }
           )
         );
@@ -626,9 +982,9 @@ export const Student = {
 
       const insertStudents = (studentsToInsert) => {
         const query = `
-        INSERT INTO student 
-        (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, 
-        country, state, district, city, approved, approved_by, created_by, updated_by, created_at, updated_at)
+        INSERT INTO student
+        (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject,
+         country, state, district, city, session_id, approved, approved_by, created_by, updated_by, created_at, updated_at, level, level_status)
         VALUES ?`;
 
         const values = studentsToInsert.map((s) => [
@@ -644,12 +1000,15 @@ export const Student = {
           s.state,
           s.district,
           s.city,
+          s.session_id,
           s.approved ?? 0,
           s.approved_by ?? null,
           userId,
           userId,
           new Date(),
           new Date(),
+          s.level,
+          s.level_status,
         ]);
 
         return new Promise((resolve, reject) => {
@@ -666,18 +1025,18 @@ export const Student = {
         });
       };
 
-      // Main execution
       processStudents()
         .then(async ({ grouped, errors }) => {
           const allToInsert = [];
 
           for (const key of Object.keys(grouped)) {
-            const [school_id, class_id] = key.split("-").map(Number);
+            const [school_id, class_id, level] = key.split("-").map(Number);
             const group = grouped[key];
             const withRoll = await assignRollNumbers(
               group,
               school_id,
-              class_id
+              class_id,
+              level
             );
             allToInsert.push(...withRoll);
           }
