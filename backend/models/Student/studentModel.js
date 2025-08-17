@@ -1120,6 +1120,7 @@ export const Student = {
   //     );
   //   });
   // },
+
   getAll: (page = 1, limit = 10, search = "", callback) => {
     const offset = (page - 1) * limit;
     let whereClause = "";
@@ -1531,62 +1532,6 @@ export const Student = {
   },
 
   //student attendance
-  // getStudentforAttendance: (schoolName, classList, subjectList, callback) => {
-  //   if (!classList.length || !subjectList.length) {
-  //     return callback(null, { students: [], totalCount: 0 });
-  //   }
-
-  //   const classPlaceholders = classList.map(() => "?").join(",");
-  //   const subjectJsonConditions = subjectList
-  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
-  //     .join(" OR ");
-
-  //   const dataQuery = `
-  //     SELECT
-  //       s.id,
-  //       s.roll_no,
-  //       s.student_name,
-  //       s.school_id,
-  //       c.name AS class_name,
-  //       GROUP_CONCAT(DISTINCT sub.name) AS subject_names
-  //     FROM student s
-  //     LEFT JOIN class c ON s.class_name = c.id
-  //     LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //       ON TRUE
-  //     LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-  //     WHERE s.school_id = ?
-  //       AND s.class_name IN (${classPlaceholders})
-  //       AND (${subjectJsonConditions})
-  //     GROUP BY s.id
-  //   `;
-
-  //   const countQuery = `
-  //     SELECT COUNT(DISTINCT s.id) as total_count
-  //     FROM student s
-  //     WHERE s.school_id = ?
-  //       AND s.class_id IN (${classPlaceholders})
-  //       AND (${subjectJsonConditions})
-  //   `;
-
-  //   const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
-  //   const dataParams = [schoolName, ...classList, ...jsonSubjectParams];
-  //   const countParams = [schoolName, ...classList, ...jsonSubjectParams];
-
-  //   db.query(dataQuery, dataParams, (err, students) => {
-  //     if (err) {
-  //       return callback(err);
-  //     }
-
-  //     db.query(countQuery, countParams, (countErr, countResult) => {
-  //       if (countErr) {
-  //         return callback(countErr);
-  //       }
-
-  //       const totalCount = countResult[0]?.total_count || 0;
-  //       callback(null, { students, totalCount });
-  //     });
-  //   });
-  // },
   getStudentforAttendance: (schoolId, classList, subjectList, callback) => {
     if (!classList.length || !subjectList.length) {
       return callback(null, { students: [], totalCount: 0 });
@@ -1598,7 +1543,7 @@ export const Student = {
       .join(" OR ");
 
     const dataQuery = `
-    SELECT 
+    SELECT
       s.id,
       s.roll_no,
       s.student_name,
@@ -1607,20 +1552,20 @@ export const Student = {
       GROUP_CONCAT(DISTINCT sub.name) AS subject_names
     FROM student s
     LEFT JOIN class c ON s.class_id = c.id
-    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
+    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
       ON TRUE
     LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-    WHERE s.school_id = ? 
-      AND s.class_id IN (${classPlaceholders}) 
+    WHERE s.school_id = ?
+      AND s.class_id IN (${classPlaceholders})
       AND (${subjectJsonConditions})
     GROUP BY s.id
   `;
 
     const countQuery = `
-    SELECT COUNT(DISTINCT s.id) AS total_count 
+    SELECT COUNT(DISTINCT s.id) AS total_count
     FROM student s
-    WHERE s.school_id = ? 
-      AND s.class_id IN (${classPlaceholders}) 
+    WHERE s.school_id = ?
+      AND s.class_id IN (${classPlaceholders})
       AND (${subjectJsonConditions})
   `;
 
@@ -1648,8 +1593,8 @@ export const Student = {
     if (!classIds.length) return callback(null, []);
     const placeholders = classIds.map(() => "?").join(",");
     const query = `
-      SELECT id, name AS class_name 
-      FROM class 
+      SELECT id, name AS class_name
+      FROM class
       WHERE id IN (${placeholders})
     `;
     db.query(query, classIds, callback);
@@ -1659,8 +1604,8 @@ export const Student = {
     if (!subjectIds.length) return callback(null, []);
     const placeholders = subjectIds.map(() => "?").join(",");
     const query = `
-      SELECT id, name AS subject_name 
-      FROM subject_master 
+      SELECT id, name AS subject_name
+      FROM subject_master
       WHERE id IN (${placeholders})
     `;
     db.query(query, subjectIds, callback);

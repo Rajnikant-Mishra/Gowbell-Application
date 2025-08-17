@@ -109,90 +109,7 @@ const ExamParent = {
   },
 
   //pagination and serch and get all
-  // getAllwithpaginate: (page = 1, limit = 10, search = "", callback) => {
-  //   const offset = (page - 1) * limit;
-  //   let whereClause = "";
-  //   let queryParams = [];
 
-  //   if (search && search.trim() !== "") {
-  //     whereClause = `
-  //     WHERE
-  //       e.school_id LIKE ? OR
-  //       e.level LIKE ? OR
-  //       e.classes_id LIKE ? OR
-  //       e.subjects_id LIKE ?
-  //   `;
-  //     for (let i = 0; i < 4; i++) queryParams.push(`%${search}%`);
-  //   }
-
-  //   const dataQuery = `
-  //   SELECT
-  //       e.id,
-  //       e.created_by,
-  //       e.school_id,
-  //       e.classes_id,
-  //       e.subjects_id,
-  //       e.level,
-  //       e.exam_date,
-  //       e.country AS country_id,
-  //       c1.name AS country_name,
-  //       e.state AS state_id,
-  //       s1.name AS state_name,
-  //       e.district AS district_id,
-  //       d.name AS district_name,
-  //       e.city AS city_id,
-  //       c2.name AS city_name,
-  //       e.created_at,
-  //       e.updated_at,
-  //       e.updated_by
-  //   FROM exam e
-  //   LEFT JOIN countries c1 ON e.country = c1.id
-  //   LEFT JOIN states s1 ON e.state = s1.id
-  //   LEFT JOIN districts d ON e.district = d.id
-  //   LEFT JOIN cities c2 ON e.city = c2.id
-  //   ${whereClause}
-  //   ORDER BY e.exam_date DESC
-  //   LIMIT ? OFFSET ?;
-  // `;
-
-  //   const countQuery = `
-  //   SELECT COUNT(*) AS total
-  //   FROM exam e
-  //   ${whereClause};
-  // `;
-
-  //   db.query(countQuery, queryParams, (err, countResult) => {
-  //     if (err) return callback(err);
-
-  //     const totalRecords = countResult[0].total;
-  //     const totalPages = Math.ceil(totalRecords / limit);
-  //     const nextPage = page < totalPages ? page + 1 : null;
-  //     const prevPage = page > 1 ? page - 1 : null;
-
-  //     db.query(
-  //       dataQuery,
-  //       [...queryParams, parseInt(limit), parseInt(offset)],
-  //       (err, results) => {
-  //         if (err) return callback(err);
-
-  //         const parsedResults = results.map((row) => ({
-  //           ...row,
-  //           classes: safeJsonParse(row.classes),
-  //           subjects: safeJsonParse(row.subjects),
-  //         }));
-
-  //         callback(null, {
-  //           exams: parsedResults,
-  //           currentPage: page,
-  //           nextPage,
-  //           prevPage,
-  //           totalPages,
-  //           totalRecords,
-  //         });
-  //       }
-  //     );
-  //   });
-  // },
   getAllwithpaginate: (page = 1, limit = 10, search = "", callback) => {
     const offset = (page - 1) * limit;
     let whereClause = "";
@@ -322,57 +239,9 @@ const ExamParent = {
     db.query(query, [id], callback);
   },
 
-  // update: (id, examData, callback) => {
-  //   const {
-  //     school_id,
-  //     classes_id,
-  //     subjects_id,
-  //     level,
-  //     exam_date,
-  //     country,
-  //     state,
-  //     district,
-  //     city,
-  //   } = examData;
-
-  //   const classesArray = ensureArray(classes_id);
-  //   const subjectsArray = ensureArray(subjects_id);
-
-  //   const query = `
-  //   UPDATE exam SET
-  //     school_id = ?,
-  //     classes_id = ?,
-  //     subjects_id = ?,
-  //     level = ?,
-  //     exam_date = ?,
-  //     country = ?,
-  //     state = ?,
-  //     district = ?,
-  //     city = ?,
-  //     updated_at = NOW()
-  //   WHERE id = ?
-  // `;
-
-  //   db.query(
-  //     query,
-  //     [
-  //       school_id,
-  //       JSON.stringify(classesArray),
-  //       JSON.stringify(subjectsArray),
-  //       level,
-  //       exam_date,
-  //       country,
-  //       state,
-  //       district,
-  //       city,
-  //       id,
-  //     ],
-  //     callback
-  //   );
-  // },
-
-  update: (examId, updatedData, callback) => {
+  update: (id, examData, callback) => {
     const {
+      created_by,
       school_id,
       classes_id,
       subjects_id,
@@ -382,48 +251,38 @@ const ExamParent = {
       state,
       district,
       city,
-    } = updatedData;
+    } = examData;
 
     const query = `
     UPDATE exam SET 
+      created_by = ?, 
       school_id = ?, 
       classes_id = ?, 
       subjects_id = ?, 
       level = ?, 
       exam_date = ?, 
-      country = ?, 
+      country = ?,
       state = ?, 
       district = ?, 
       city = ?, 
-      updated_at = NOW() 
-    WHERE id = ?`;
-
-    // Ensure classes and subjects are stored as JSON arrays (even if a single value is passed)
-    const classesStr = JSON.stringify(
-      Array.isArray(classes_id)
-        ? classes_id.map(Number) // Convert values to integers
-        : [Number(classes_id)]
-    );
-
-    const subjectsStr = JSON.stringify(
-      Array.isArray(subjects_id)
-        ? subjects_id.map(Number)
-        : [Number(subjects_id)]
-    );
+      updated_at = NOW()
+    WHERE id = ?
+  `;
 
     db.query(
       query,
       [
+        created_by,
         school_id,
-        classesStr,
-        subjectsStr,
+        JSON.stringify(classes_id), // already normalized as numbers
+        JSON.stringify(subjects_id),
         level,
         exam_date,
         country,
         state,
         district,
         city,
-        examId,
+        id,
       ],
       callback
     );

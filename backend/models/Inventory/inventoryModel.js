@@ -9,6 +9,7 @@ const inventoryModel = {
       invoice_no,
       item,
       sub_item,
+      sub_item_name,
       quantity,
       unit,
       price,
@@ -20,8 +21,8 @@ const inventoryModel = {
       return callback(new Error("Missing required fields"), null);
     }
 
-    const query = `INSERT INTO inventory (date, created_by, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO inventory (date, created_by, invoice_no, item, sub_item, sub_item_name, quantity, unit, price, remarks, manufacturer_details) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(
       query,
@@ -31,6 +32,7 @@ const inventoryModel = {
         invoice_no,
         item,
         sub_item,
+        sub_item_name,
         quantity,
         unit,
         price,
@@ -137,6 +139,8 @@ const inventoryModel = {
       created_by,
       invoice_no,
       item,
+      sub_item,
+      sub_item_name,
       quantity,
       unit,
       price,
@@ -145,13 +149,17 @@ const inventoryModel = {
     } = inventoryData;
 
     const query = `UPDATE inventory 
-                   SET date = ?, created_by = ?, invoice_no = ?, item = ?, quantity = ?, unit = ?, price = ?, remarks = ?, manufacturer_details = ?
-                   WHERE id = ?`;
+                 SET date = ?, created_by = ?, invoice_no = ?, item = ?, sub_item = ?, sub_item_name = ?, 
+                     quantity = ?, unit = ?, price = ?, remarks = ?, manufacturer_details = ?
+                 WHERE id = ?`;
+
     const values = [
       date,
       created_by,
       invoice_no,
       item,
+      sub_item,
+      sub_item_name,
       quantity,
       unit,
       price,

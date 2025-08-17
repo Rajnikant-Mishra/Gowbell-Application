@@ -2,28 +2,23 @@ import inventoryModel from "../../models/Inventory/inventoryModel.js";
 
 // Create a new inventory item
 export const createInventory = (req, res) => {
-  const { date, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details } = req.body;
-  
-  // Ensure the request contains a valid user ID from the token
-  const created_by = req.user.id; 
+  const { date, invoice_no, item, sub_item, sub_item_name, quantity, unit, price, remarks, manufacturer_details } = req.body;
+  const created_by = req.user.id;
 
   if (!date || !invoice_no || !item || !quantity || !unit || !price) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const inventoryData = { date, created_by, invoice_no, item, sub_item, quantity, unit, price, remarks, manufacturer_details };
+  const inventoryData = { date, created_by, invoice_no, item, sub_item, sub_item_name, quantity, unit, price, remarks, manufacturer_details };
 
   inventoryModel.createInventory(inventoryData, (error, results) => {
     if (error) {
       console.error('Error creating inventory:', error);
       return res.status(500).json({ error: 'Error creating inventory' });
     }
-
     res.status(201).json({ message: 'Inventory item created successfully', results });
   });
 };
-
-
 
 // Get all inventory items
 export const getInventory = (req, res) => {
@@ -35,7 +30,6 @@ export const getInventory = (req, res) => {
     res.status(200).json(results);
   });
 };
-
 
 //paginate and get all sercch
 export const getInventorypaginate = (req, res) => {
@@ -49,7 +43,6 @@ export const getInventorypaginate = (req, res) => {
     res.status(200).json(data);
   });
 };
-
 
 // Get inventory item by ID
 export const getInventoryById = (req, res) => {
@@ -75,6 +68,8 @@ export const updateInventory = (req, res) => {
     created_by,
     invoice_no,
     item,
+    sub_item,
+    sub_item_name,
     quantity,
     unit,
     price,
@@ -101,6 +96,8 @@ export const updateInventory = (req, res) => {
     created_by,
     invoice_no,
     item,
+    sub_item,
+    sub_item_name,
     quantity,
     unit,
     price,
@@ -119,6 +116,7 @@ export const updateInventory = (req, res) => {
     }
   });
 };
+
 
 // Delete inventory item
 export const deleteInventory = (req, res) => {
