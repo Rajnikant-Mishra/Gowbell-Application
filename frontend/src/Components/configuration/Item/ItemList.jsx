@@ -498,7 +498,7 @@ export default function DataTable() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${API_BASE_URL}/api/item/delete/${id}`)
+          .delete(`${API_BASE_URL}/api/t1/delete/${id}`)
           .then(() => {
             setRecords((prev) => prev.filter((record) => record.id !== id));
             setFilteredRecords((prev) =>
@@ -701,10 +701,10 @@ export default function DataTable() {
                     <Link to={`/item/update/${row.id}`}>
                       <UilEditAlt className={styles.FaEdit} />
                     </Link>
-                    {/* <UilTrashAlt
+                    <UilTrashAlt
                       onClick={() => handleDelete(row.id)}
                       className={`${styles.FaTrash}`}
-                    /> */}
+                    />
                   </div>
                 </td>
               </tr>
