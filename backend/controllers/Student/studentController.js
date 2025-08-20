@@ -524,3 +524,55 @@ export const getFilteredStudentsforattendance = (req, res) => {
     }
   );
 };
+
+
+// student report 
+export const getFilteredStudentsforReport= (req, res) => {
+  const { schoolId, classList, subjectList } = req.body;
+
+  // Validate input
+  if (!schoolId || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({ error: "Invalid input data" });
+  }
+
+  // Step 1: Get students based on filters
+  Student.getStudentforReport(
+    schoolId,
+    classList,
+    subjectList,
+    (err, result) => {
+      if (err) {
+        console.error("Error fetching students:", err);
+        return res.status(500).json({ error: "Failed to fetch students" });
+      }
+
+      const { students, totalCount } = result;
+
+      // Step 2: Get class names
+      Student.getClassNames(classList, (classErr, classNames) => {
+        if (classErr) {
+          console.error("Error fetching class names:", classErr);
+          return res.status(500).json({ error: "Failed to fetch class names" });
+        }
+
+        // Step 3: Get subject names
+        Student.getSubjectNames(subjectList, (subErr, subjectNames) => {
+          if (subErr) {
+            console.error("Error fetching subject names:", subErr);
+            return res
+              .status(500)
+              .json({ error: "Failed to fetch subject names" });
+          }
+
+          // Final response
+          return res.status(200).json({
+            students,
+            totalCount,
+            classNames,
+            subjectNames,
+          });
+        });
+      });
+    }
+  );
+};

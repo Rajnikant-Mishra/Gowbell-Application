@@ -96,113 +96,6 @@ ORDER BY s.id DESC;
     db.query(sql, [id], callback);
   },
 
-  // create: (data) => {
-  //   return new Promise((resolve, reject) => {
-  //     const { state, city } = data; //Get state and city codes from input
-
-  //     if (!state || !city) {
-  //       return reject(new Error("State code and city code are required"));
-  //     }
-
-  //     // Query to get the latest school code for the given state and city
-  //     const sqlGetLatestCode = `
-  //       SELECT school_code FROM school
-  //       WHERE school_code LIKE ?
-  //       ORDER BY school_code DESC LIMIT 1
-  //     `;
-
-  //     const stateCityPrefix = `${state}${city}`;
-
-  //     db.query(sqlGetLatestCode, [`${stateCityPrefix}%`], (err, results) => {
-  //       if (err) {
-  //         return reject(err);
-  //       }
-
-  //       let schoolCode;
-  //       if (results.length > 0) {
-  //         // Extract the numeric part of the latest school code
-  //         const latestCode = results[0].school_code;
-  //         const numericPart = parseInt(latestCode.substring(4), 10); // Get the incremental number
-  //         const newNumericPart = numericPart + 1;
-  //         schoolCode = `${stateCityPrefix}${String(newNumericPart).padStart(
-  //           2,
-  //           "0"
-  //         )}`;
-  //       } else {
-  //         // If no school exists for the state & city, start from '01'
-  //         schoolCode = `${stateCityPrefix}01`;
-  //       }
-
-  //       // SQL for inserting the new school data
-  //       const sql = `
-  //       INSERT INTO school (
-  //         board, school_name, school_email, school_contact_number, school_landline_number,
-  //         school_address, state, district, city, pincode, country,
-  //         principal_name, principal_contact_number, principal_whatsapp,
-  //         vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp,
-  //         manager_name, manager_contact_number, manager_whatsapp_number,
-  //         first_incharge_name, first_incharge_number, first_incharge_whatsapp,
-  //         second_incharge_name, second_incharge_number, second_incharge_whatsapp,
-  //         junior_student_strength, senior_student_strength, classes,
-  //         status, status_approved, school_code, created_by, updated_by
-  //       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  //     `;
-
-  //       const values = [
-  //         data.board,
-  //         data.school_name,
-  //         data.school_email,
-  //         data.school_contact_number,
-  //         data.school_landline_number || null,
-  //         data.school_address,
-  //         data.state,
-  //         data.district,
-  //         data.city,
-  //         data.pincode,
-  //         data.country, // Added country field
-  //         data.principal_name,
-  //         data.principal_contact_number,
-  //         data.principal_whatsapp,
-  //         data.vice_principal_name,
-  //         data.vice_principal_contact_number,
-  //         data.vice_principal_whatsapp,
-  //         data.manager_name,
-  //         data.manager_contact_number,
-  //         data.manager_whatsapp_number,
-  //         data.first_incharge_name,
-  //         data.first_incharge_number,
-  //         data.first_incharge_whatsapp,
-  //         data.second_incharge_name,
-  //         data.second_incharge_number,
-  //         data.second_incharge_whatsapp,
-  //         // data.junior_student_strength,
-  //         // data.senior_student_strength,
-  //         data.junior_student_strength === ""
-  //           ? 0
-  //           : Number(data.junior_student_strength),
-  //         data.senior_student_strength === ""
-  //           ? 0
-  //           : Number(data.senior_student_strength),
-  //         JSON.stringify(data.classes || []),
-  //         data.status || null,
-  //         data.status_approved,
-  //         schoolCode,
-  //         data.created_by,
-  //         data.updated_by,
-  //       ];
-
-  //       // Insert the new school data
-  //       db.query(sql, values, (err, results) => {
-  //         if (err) {
-  //           reject(err);
-  //         } else {
-  //           resolve({ ...results, school_code: schoolCode });
-  //         }
-  //       });
-  //     });
-  //   });
-  // },
-
   create: (data) => {
     return new Promise((resolve, reject) => {
       const { state, city } = data; // Get state and city codes from input
@@ -309,754 +202,266 @@ ORDER BY s.id DESC;
     });
   },
 
+  bulkCreate: (schools) => {
+    return new Promise((resolve, reject) => {
+      // Track school codes per state_id and city_id combination
+      const codeTrackers = new Map(); // Map of prefix (stateId + cityId) to next available number
 
-  // bulkCreate: (schools) => {
-  //   return new Promise((resolve, reject) => {
-  //     const generateSchoolCode = (stateId, cityId) => {
-  //       return new Promise((resolve, reject) => {
-  //         const prefix = `${stateId}${cityId}`;
-  //         const sql = `
-  //           SELECT school_code FROM school 
-  //           WHERE school_code LIKE ? 
-  //           ORDER BY school_code DESC LIMIT 1
-  //         `;
-  //         db.query(sql, [`${prefix}%`], (err, results) => {
-  //           if (err) return reject(err);
-  //           let schoolCode;
-  //           if (results.length > 0) {
-  //             const latest = results[0].school_code;
-  //             const num = parseInt(latest.substring(prefix.length), 10) + 1;
-  //             schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
-  //           } else {
-  //             schoolCode = `${prefix}01`;
-  //           }
-  //           if (schoolCode.length > 20) {
-  //             schoolCode = schoolCode.substring(0, 20);
-  //           }
-  //           resolve(schoolCode);
-  //         });
-  //       });
-  //     };
+      const generateSchoolCode = (stateId, cityId) => {
+        return new Promise((resolve, reject) => {
+          const prefix = `${stateId}${cityId}`;
 
-  //     const checkDuplicateEmail = (email) => {
-  //       return new Promise((resolve, reject) => {
-  //         if (!email) return resolve(true);
-  //         const sql = `SELECT id FROM school WHERE school_email = ?`;
-  //         db.query(sql, [email], (err, results) => {
-  //           if (err) return reject(err);
-  //           if (results.length > 0) {
-  //             return reject(new Error(`Duplicate email: ${email}`));
-  //           }
-  //           resolve(true);
-  //         });
-  //       });
-  //     };
+          // Initialize tracker for this prefix if not exists
+          if (!codeTrackers.has(prefix)) {
+            codeTrackers.set(prefix, { nextNum: 1, existingCodes: new Set() });
+          }
 
-  //     const validateLocation = (country, state, district, city) => {
-  //       return new Promise((resolve, reject) => {
-  //         const countrySql = `SELECT id FROM countries WHERE name = ?`;
-  //         db.query(countrySql, [country], (err, countryResults) => {
-  //           if (err)
-  //             return reject(
-  //               new Error("Database error while validating country")
-  //             );
-  //           if (countryResults.length === 0)
-  //             return reject(new Error(`Invalid country: ${country}`));
-  //           const countryId = countryResults[0].id;
-
-  //           const stateSql = `SELECT id FROM states WHERE name = ? AND country_id = ?`;
-  //           db.query(stateSql, [state, countryId], (err, stateResults) => {
-  //             if (err)
-  //               return reject(
-  //                 new Error("Database error while validating state")
-  //               );
-  //             if (stateResults.length === 0)
-  //               return reject(
-  //                 new Error(`Invalid state: ${state} for country ${country}`)
-  //               );
-  //             const stateId = stateResults[0].id;
-
-  //             const districtSql = `SELECT id FROM districts WHERE name = ? AND state_id = ?`;
-  //             db.query(
-  //               districtSql,
-  //               [district, stateId],
-  //               (err, districtResults) => {
-  //                 if (err)
-  //                   return reject(
-  //                     new Error("Database error while validating district")
-  //                   );
-  //                 if (districtResults.length === 0)
-  //                   return reject(
-  //                     new Error(
-  //                       `Invalid district: ${district} for state ${state}`
-  //                     )
-  //                   );
-  //                 const districtId = districtResults[0].id;
-
-  //                 const citySql = `SELECT id FROM cities WHERE name = ? AND district_id = ?`;
-  //                 db.query(citySql, [city, districtId], (err, cityResults) => {
-  //                   if (err)
-  //                     return reject(
-  //                       new Error("Database error while validating city")
-  //                     );
-  //                   if (cityResults.length === 0)
-  //                     return reject(
-  //                       new Error(
-  //                         `Invalid city: ${city} for district ${district}`
-  //                       )
-  //                     );
-  //                   const cityId = cityResults[0].id;
-
-  //                   resolve({
-  //                     country_id: countryId,
-  //                     state_id: stateId,
-  //                     district_id: districtId,
-  //                     city_id: cityId,
-  //                   });
-  //                 });
-  //               }
-  //             );
-  //           });
-  //         });
-  //       });
-  //     };
-
-  //     const processSchools = async () => {
-  //       try {
-  //         const values = [];
-  //         const insertedSchools = [];
-  //         const errors = [];
-
-  //         for (const school of schools) {
-  //           const {
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             created_by,
-  //             updated_by,
-  //             school_email,
-  //             ...optionalFields
-  //           } = school;
-
-  //           const requiredFields = {
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             created_by,
-  //             updated_by,
-  //           };
-
-  //           const missingFields = Object.keys(requiredFields).filter(
-  //             (key) => !requiredFields[key]
-  //           );
-
-  //           if (missingFields.length > 0) {
-  //             errors.push({
-  //               school: school_name || "Unnamed",
-  //               error: `Missing required fields: ${missingFields.join(", ")}`,
-  //             });
-  //             continue;
-  //           }
-
-  //           try {
-  //             await checkDuplicateEmail(school_email);
-  //             const location = await validateLocation(
-  //               country,
-  //               state,
-  //               district,
-  //               city
-  //             );
-  //             const schoolCode = await generateSchoolCode(
-  //               location.state_id,
-  //               location.city_id
-  //             );
-
-  //             const schoolData = [
-  //               board,
-  //               school_name,
-  //               school_address,
-  //               pincode,
-  //               location.country_id,
-  //               location.state_id,
-  //               location.district_id,
-  //               location.city_id,
-  //               schoolCode,
-  //               school_email || null,
-  //               optionalFields.principal_contact_number || null,
-  //               created_by,
-  //               updated_by,
-  //               optionalFields.school_contact_number || null,
-  //               optionalFields.school_landline_number || null,
-  //               optionalFields.principal_name || null,
-  //               optionalFields.principal_whatsapp || null,
-  //               optionalFields.vice_principal_name || null,
-  //               optionalFields.vice_principal_contact_number || null,
-  //               optionalFields.vice_principal_whatsapp || null,
-  //               optionalFields.manager_name || null,
-  //               optionalFields.manager_contact_number || null,
-  //               optionalFields.manager_whatsapp_number || null,
-  //               optionalFields.first_incharge_name || null,
-  //               optionalFields.first_incharge_number || null,
-  //               optionalFields.first_incharge_whatsapp || null,
-  //               optionalFields.second_incharge_name || null,
-  //               optionalFields.second_incharge_number || null,
-  //               optionalFields.second_incharge_whatsapp || null,
-  //               optionalFields.junior_student_strength || null,
-  //               optionalFields.senior_student_strength || null,
-  //               optionalFields.classes
-  //                 ? JSON.stringify(optionalFields.classes)
-  //                 : null,
-  //               optionalFields.status || null,
-  //             ];
-
-  //             values.push(schoolData);
-
-  //             insertedSchools.push({
-  //               ...school,
-  //               school_code: schoolCode,
-  //               country_id: location.country_id,
-  //               state_id: location.state_id,
-  //               district_id: location.district_id,
-  //               city_id: location.city_id,
-  //             });
-  //           } catch (err) {
-  //             errors.push({
-  //               school: school_name || "Unnamed",
-  //               error: err.message,
-  //             });
-  //           }
-  //         }
-
-  //         if (values.length === 0) {
-  //           return reject({ message: "No valid schools to insert", errors });
-  //         }
-
-  //         const sql = `
-  //           INSERT INTO school (
-  //             board, school_name, school_address, pincode,
-  //             country, state, district, city, school_code,
-  //             school_email, principal_contact_number,
-  //             created_by, updated_by,
-  //             school_contact_number, school_landline_number,
-  //             principal_name, principal_whatsapp,
-  //             vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp,
-  //             manager_name, manager_contact_number, manager_whatsapp_number,
-  //             first_incharge_name, first_incharge_number, first_incharge_whatsapp,
-  //             second_incharge_name, second_incharge_number, second_incharge_whatsapp,
-  //             junior_student_strength, senior_student_strength, classes, status
-  //           ) VALUES ?
-  //         `;
-
-  //         db.query(sql, [values], (err, result) => {
-  //           if (err)
-  //             return reject(
-  //               new Error(`Database error during insertion: ${err.message}`)
-  //             );
-  //           resolve({
-  //             affectedRows: result.affectedRows,
-  //             schools: insertedSchools,
-  //             errors: errors.length > 0 ? errors : undefined,
-  //           });
-  //         });
-  //       } catch (err) {
-  //         reject(new Error(`Processing error: ${err.message}`));
-  //       }
-  //     };
-
-  //     processSchools();
-  //   });
-  // },
-
-
-  // bulkCreate: (schools) => {
-  //   return new Promise((resolve, reject) => {
-  //     const generateSchoolCode = (stateId, cityId, existingCodes = new Set()) => {
-  //       return new Promise((resolve, reject) => {
-  //         const prefix = `${stateId}${cityId}`;
-  //         const sql = `
-  //           SELECT school_code 
-  //           FROM school 
-  //           WHERE school_code LIKE ? 
-  //           ORDER BY school_code DESC LIMIT 1
-  //         `;
-  //         db.query(sql, [`${prefix}%`], (err, results) => {
-  //           if (err) return reject(err);
-
-  //           let schoolCode;
-  //           if (results.length > 0) {
-  //             const latest = results[0].school_code;
-  //             const numPart = latest.substring(prefix.length);
-  //             let num = numPart ? parseInt(numPart, 10) + 1 : 1;
-              
-  //             // Ensure unique code by checking against existingCodes
-  //             while (existingCodes.has(`${prefix}${String(num).padStart(2, "0")}`)) {
-  //               num++;
-  //             }
-  //             schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
-  //           } else {
-  //             schoolCode = `${prefix}01`;
-  //           }
-
-  //           // Ensure school code doesn't exceed 20 characters
-  //           if (schoolCode.length > 20) {
-  //             schoolCode = schoolCode.substring(0, 20);
-  //           }
-
-  //           // Add generated code to existingCodes to track within this batch
-  //           existingCodes.add(schoolCode);
-  //           resolve(schoolCode);
-  //         });
-  //       });
-  //     };
-
-  //     const checkDuplicateEmail = (email) => {
-  //       return new Promise((resolve, reject) => {
-  //         if (!email) return resolve(true);
-  //         const sql = `SELECT id FROM school WHERE school_email = ?`;
-  //         db.query(sql, [email], (err, results) => {
-  //           if (err) return reject(err);
-  //           if (results.length > 0) {
-  //             return reject(new Error(`Duplicate email: ${email}`));
-  //           }
-  //           resolve(true);
-  //         });
-  //       });
-  //     };
-
-  //     const validateLocation = (country, state, district, city) => {
-  //       return new Promise((resolve, reject) => {
-  //         const countrySql = `SELECT id FROM countries WHERE name = ?`;
-  //         db.query(countrySql, [country], (err, countryResults) => {
-  //           if (err)
-  //             return reject(new Error("Database error while validating country"));
-  //           if (countryResults.length === 0)
-  //             return reject(new Error(`Invalid country: ${country}`));
-  //           const countryId = countryResults[0].id;
-
-  //           const stateSql = `SELECT id FROM states WHERE name = ? AND country_id = ?`;
-  //           db.query(stateSql, [state, countryId], (err, stateResults) => {
-  //             if (err)
-  //               return reject(new Error("Database error while validating state"));
-  //             if (stateResults.length === 0)
-  //               return reject(new Error(`Invalid state: ${state} for country ${country}`));
-  //             const stateId = stateResults[0].id;
-
-  //             const districtSql = `SELECT id FROM districts WHERE name = ? AND state_id = ?`;
-  //             db.query(districtSql, [district, stateId], (err, districtResults) => {
-  //               if (err)
-  //                 return reject(new Error("Database error while validating district"));
-  //               if (districtResults.length === 0)
-  //                 return reject(new Error(`Invalid district: ${district} for state ${state}`));
-  //               const districtId = districtResults[0].id;
-
-  //               const citySql = `SELECT id FROM cities WHERE name = ? AND district_id = ?`;
-  //               db.query(citySql, [city, districtId], (err, cityResults) => {
-  //                 if (err)
-  //                   return reject(new Error("Database error while validating city"));
-  //                 if (cityResults.length === 0)
-  //                   return reject(new Error(`Invalid city: ${city} for district ${district}`));
-  //                 const cityId = cityResults[0].id;
-
-  //                 resolve({
-  //                   country_id: countryId,
-  //                   state_id: stateId,
-  //                   district_id: districtId,
-  //                   city_id: cityId,
-  //                 });
-  //               });
-  //             });
-  //           });
-  //         });
-  //       });
-  //     };
-
-  //     const processSchools = async () => {
-  //       try {
-  //         const values = [];
-  //         const insertedSchools = [];
-  //         const errors = [];
-  //         const existingCodes = new Set(); // Track codes within this batch
-
-  //         for (const school of schools) {
-  //           const {
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             created_by,
-  //             updated_by,
-  //             school_email,
-  //             ...optionalFields
-  //           } = school;
-
-  //           const requiredFields = {
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             board,
-  //             school_name,
-  //             school_address,
-  //             pincode,
-  //             created_by,
-  //             updated_by,
-  //           };
-
-  //           const missingFields = Object.keys(requiredFields).filter(
-  //             (key) => !requiredFields[key]
-  //           );
-
-  //           if (missingFields.length > 0) {
-  //             errors.push({
-  //               school: school_name || "Unnamed",
-  //               error: `Missing required fields: ${missingFields.join(", ")}`,
-  //             });
-  //             continue;
-  //           }
-
-  //           try {
-  //             await checkDuplicateEmail(school_email);
-  //             const location = await validateLocation(country, state, district, city);
-  //             const schoolCode = await generateSchoolCode(
-  //               location.state_id,
-  //               location.city_id,
-  //               existingCodes
-  //             );
-
-  //             const schoolData = [
-  //               board,
-  //               school_name,
-  //               school_address,
-  //               pincode,
-  //               location.country_id,
-  //               location.state_id,
-  //               location.district_id,
-  //               location.city_id,
-  //               schoolCode,
-  //               school_email || null,
-  //               optionalFields.principal_contact_number || null,
-  //               created_by,
-  //               updated_by,
-  //               optionalFields.school_contact_number || null,
-  //               optionalFields.school_landline_number || null,
-  //               optionalFields.principal_name || null,
-  //               optionalFields.principal_whatsapp || null,
-  //               optionalFields.vice_principal_name || null,
-  //               optionalFields.vice_principal_contact_number || null,
-  //               optionalFields.vice_principal_whatsapp || null,
-  //               optionalFields.manager_name || null,
-  //               optionalFields.manager_contact_number || null,
-  //               optionalFields.manager_whatsapp_number || null,
-  //               optionalFields.first_incharge_name || null,
-  //               optionalFields.first_incharge_number || null,
-  //               optionalFields.first_incharge_whatsapp || null,
-  //               optionalFields.second_incharge_name || null,
-  //               optionalFields.second_incharge_number || null,
-  //               optionalFields.second_incharge_whatsapp || null,
-  //               optionalFields.junior_student_strength || null,
-  //               optionalFields.senior_student_strength || null,
-  //               optionalFields.classes ? JSON.stringify(optionalFields.classes) : null,
-  //               optionalFields.status || null,
-  //             ];
-
-  //             values.push(schoolData);
-
-  //             insertedSchools.push({
-  //               ...school,
-  //               school_code: schoolCode,
-  //               country_id: location.country_id,
-  //               state_id: location.state_id,
-  //               district_id: location.district_id,
-  //               city_id: location.city_id,
-  //             });
-  //           } catch (err) {
-  //             errors.push({
-  //               school: school_name || "Unnamed",
-  //               error: err.message,
-  //             });
-  //           }
-  //         }
-
-  //         if (values.length === 0) {
-  //           return reject({ message: "No valid schools to insert", errors });
-  //         }
-
-  //         const sql = `
-  //           INSERT INTO school (
-  //             board, school_name, school_address, pincode,
-  //             country, state, district, city, school_code,
-  //             school_email, principal_contact_number,
-  //             created_by, updated_by,
-  //             school_contact_number, school_landline_number,
-  //             principal_name, principal_whatsapp,
-  //             vice_principal_name, vice_principal_contact_number, vice_principal_whatsapp,
-  //             manager_name, manager_contact_number, manager_whatsapp_number,
-  //             first_incharge_name, first_incharge_number, first_incharge_whatsapp,
-  //             second_incharge_name, second_incharge_number, second_incharge_whatsapp,
-  //             junior_student_strength, senior_student_strength, classes, status
-  //           ) VALUES ?
-  //         `;
-
-  //         db.query(sql, [values], (err, result) => {
-  //           if (err)
-  //             return reject(new Error(`Database error during insertion: ${err.message}`));
-  //           resolve({
-  //             affectedRows: result.affectedRows,
-  //             schools: insertedSchools,
-  //             errors: errors.length > 0 ? errors : undefined,
-  //           });
-  //         });
-  //       } catch (err) {
-  //         reject(new Error(`Processing error: ${err.message}`));
-  //       }
-  //     };
-
-  //     processSchools();
-  //   });
-  // },
-
-bulkCreate: (schools) => {
-  return new Promise((resolve, reject) => {
-    // Track school codes per state_id and city_id combination
-    const codeTrackers = new Map(); // Map of prefix (stateId + cityId) to next available number
-
-    const generateSchoolCode = (stateId, cityId) => {
-      return new Promise((resolve, reject) => {
-        const prefix = `${stateId}${cityId}`;
-        
-        // Initialize tracker for this prefix if not exists
-        if (!codeTrackers.has(prefix)) {
-          codeTrackers.set(prefix, { nextNum: 1, existingCodes: new Set() });
-        }
-        
-        const tracker = codeTrackers.get(prefix);
-        const sql = `
+          const tracker = codeTrackers.get(prefix);
+          const sql = `
           SELECT school_code 
           FROM school 
           WHERE school_code LIKE ? 
           ORDER BY school_code DESC LIMIT 1
         `;
-        
-        db.query(sql, [`${prefix}%`], (err, results) => {
-          if (err) return reject(err);
 
-          let num = tracker.nextNum;
-          
-          // If there's a record in the database, start from the next number
-          if (results.length > 0) {
-            const latest = results[0].school_code;
-            const numPart = latest.substring(prefix.length);
-            const dbNum = numPart ? parseInt(numPart, 10) + 1 : 1;
-            num = Math.max(num, dbNum); // Use the higher number to avoid conflicts
-          }
+          db.query(sql, [`${prefix}%`], (err, results) => {
+            if (err) return reject(err);
 
-          // Ensure unique code within this batch
-          let schoolCode;
-          do {
-            schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
-            num++;
-          } while (tracker.existingCodes.has(schoolCode));
+            let num = tracker.nextNum;
 
-          // Update tracker
-          tracker.existingCodes.add(schoolCode);
-          tracker.nextNum = num;
-          
-          // Ensure school code doesn't exceed 20 characters
-          if (schoolCode.length > 20) {
-            schoolCode = schoolCode.substring(0, 20);
-          }
+            // If there's a record in the database, start from the next number
+            if (results.length > 0) {
+              const latest = results[0].school_code;
+              const numPart = latest.substring(prefix.length);
+              const dbNum = numPart ? parseInt(numPart, 10) + 1 : 1;
+              num = Math.max(num, dbNum); // Use the higher number to avoid conflicts
+            }
 
-          resolve(schoolCode);
+            // Ensure unique code within this batch
+            let schoolCode;
+            do {
+              schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
+              num++;
+            } while (tracker.existingCodes.has(schoolCode));
+
+            // Update tracker
+            tracker.existingCodes.add(schoolCode);
+            tracker.nextNum = num;
+
+            // Ensure school code doesn't exceed 20 characters
+            if (schoolCode.length > 20) {
+              schoolCode = schoolCode.substring(0, 20);
+            }
+
+            resolve(schoolCode);
+          });
         });
-      });
-    };
+      };
 
-    const checkDuplicateEmail = (email) => {
-      return new Promise((resolve, reject) => {
-        if (!email) return resolve(true);
-        const sql = `SELECT id FROM school WHERE school_email = ?`;
-        db.query(sql, [email], (err, results) => {
-          if (err) return reject(err);
-          if (results.length > 0) {
-            return reject(new Error(`Duplicate email: ${email}`));
-          }
-          resolve(true);
+      const checkDuplicateEmail = (email) => {
+        return new Promise((resolve, reject) => {
+          if (!email) return resolve(true);
+          const sql = `SELECT id FROM school WHERE school_email = ?`;
+          db.query(sql, [email], (err, results) => {
+            if (err) return reject(err);
+            if (results.length > 0) {
+              return reject(new Error(`Duplicate email: ${email}`));
+            }
+            resolve(true);
+          });
         });
-      });
-    };
+      };
 
-    const validateLocation = (country, state, district, city) => {
-      return new Promise((resolve, reject) => {
-        const countrySql = `SELECT id FROM countries WHERE name = ?`;
-        db.query(countrySql, [country], (err, countryResults) => {
-          if (err)
-            return reject(new Error("Database error while validating country"));
-          if (countryResults.length === 0)
-            return reject(new Error(`Invalid country: ${country}`));
-          const countryId = countryResults[0].id;
-
-          const stateSql = `SELECT id FROM states WHERE name = ? AND country_id = ?`;
-          db.query(stateSql, [state, countryId], (err, stateResults) => {
+      const validateLocation = (country, state, district, city) => {
+        return new Promise((resolve, reject) => {
+          const countrySql = `SELECT id FROM countries WHERE name = ?`;
+          db.query(countrySql, [country], (err, countryResults) => {
             if (err)
-              return reject(new Error("Database error while validating state"));
-            if (stateResults.length === 0)
-              return reject(new Error(`Invalid state: ${state} for country ${country}`));
-            const stateId = stateResults[0].id;
+              return reject(
+                new Error("Database error while validating country")
+              );
+            if (countryResults.length === 0)
+              return reject(new Error(`Invalid country: ${country}`));
+            const countryId = countryResults[0].id;
 
-            const districtSql = `SELECT id FROM districts WHERE name = ? AND state_id = ?`;
-            db.query(districtSql, [district, stateId], (err, districtResults) => {
+            const stateSql = `SELECT id FROM states WHERE name = ? AND country_id = ?`;
+            db.query(stateSql, [state, countryId], (err, stateResults) => {
               if (err)
-                return reject(new Error("Database error while validating district"));
-              if (districtResults.length === 0)
-                return reject(new Error(`Invalid district: ${district} for state ${state}`));
-              const districtId = districtResults[0].id;
+                return reject(
+                  new Error("Database error while validating state")
+                );
+              if (stateResults.length === 0)
+                return reject(
+                  new Error(`Invalid state: ${state} for country ${country}`)
+                );
+              const stateId = stateResults[0].id;
 
-              const citySql = `SELECT id FROM cities WHERE name = ? AND district_id = ?`;
-              db.query(citySql, [city, districtId], (err, cityResults) => {
-                if (err)
-                  return reject(new Error("Database error while validating city"));
-                if (cityResults.length === 0)
-                  return reject(new Error(`Invalid city: ${city} for district ${district}`));
-                const cityId = cityResults[0].id;
+              const districtSql = `SELECT id FROM districts WHERE name = ? AND state_id = ?`;
+              db.query(
+                districtSql,
+                [district, stateId],
+                (err, districtResults) => {
+                  if (err)
+                    return reject(
+                      new Error("Database error while validating district")
+                    );
+                  if (districtResults.length === 0)
+                    return reject(
+                      new Error(
+                        `Invalid district: ${district} for state ${state}`
+                      )
+                    );
+                  const districtId = districtResults[0].id;
 
-                resolve({
-                  country_id: countryId,
-                  state_id: stateId,
-                  district_id: districtId,
-                  city_id: cityId,
-                });
-              });
+                  const citySql = `SELECT id FROM cities WHERE name = ? AND district_id = ?`;
+                  db.query(citySql, [city, districtId], (err, cityResults) => {
+                    if (err)
+                      return reject(
+                        new Error("Database error while validating city")
+                      );
+                    if (cityResults.length === 0)
+                      return reject(
+                        new Error(
+                          `Invalid city: ${city} for district ${district}`
+                        )
+                      );
+                    const cityId = cityResults[0].id;
+
+                    resolve({
+                      country_id: countryId,
+                      state_id: stateId,
+                      district_id: districtId,
+                      city_id: cityId,
+                    });
+                  });
+                }
+              );
             });
           });
         });
-      });
-    };
+      };
 
-    const processSchools = async () => {
-      try {
-        const values = [];
-        const insertedSchools = [];
-        const errors = [];
+      const processSchools = async () => {
+        try {
+          const values = [];
+          const insertedSchools = [];
+          const errors = [];
 
-        for (const school of schools) {
-          const {
-            country,
-            state,
-            district,
-            city,
-            board,
-            school_name,
-            school_address,
-            pincode,
-            created_by,
-            updated_by,
-            school_email,
-            ...optionalFields
-          } = school;
-
-          const requiredFields = {
-            country,
-            state,
-            district,
-            city,
-            board,
-            school_name,
-            school_address,
-            pincode,
-            created_by,
-            updated_by,
-          };
-
-          const missingFields = Object.keys(requiredFields).filter(
-            (key) => !requiredFields[key]
-          );
-
-          if (missingFields.length > 0) {
-            errors.push({
-              school: school_name || "Unnamed",
-              error: `Missing required fields: ${missingFields.join(", ")}`,
-            });
-            continue;
-          }
-
-          try {
-            await checkDuplicateEmail(school_email);
-            const location = await validateLocation(country, state, district, city);
-            const schoolCode = await generateSchoolCode(location.state_id, location.city_id);
-
-            const schoolData = [
+          for (const school of schools) {
+            const {
+              country,
+              state,
+              district,
+              city,
               board,
               school_name,
               school_address,
               pincode,
-              location.country_id,
-              location.state_id,
-              location.district_id,
-              location.city_id,
-              schoolCode,
-              school_email || null,
-              optionalFields.principal_contact_number || null,
               created_by,
               updated_by,
-              optionalFields.school_contact_number || null,
-              optionalFields.school_landline_number || null,
-              optionalFields.principal_name || null,
-              optionalFields.principal_whatsapp || null,
-              optionalFields.vice_principal_name || null,
-              optionalFields.vice_principal_contact_number || null,
-              optionalFields.vice_principal_whatsapp || null,
-              optionalFields.manager_name || null,
-              optionalFields.manager_contact_number || null,
-              optionalFields.manager_whatsapp_number || null,
-              optionalFields.first_incharge_name || null,
-              optionalFields.first_incharge_number || null,
-              optionalFields.first_incharge_whatsapp || null,
-              optionalFields.second_incharge_name || null,
-              optionalFields.second_incharge_number || null,
-              optionalFields.second_incharge_whatsapp || null,
-              optionalFields.junior_student_strength || null,
-              optionalFields.senior_student_strength || null,
-              optionalFields.classes ? JSON.stringify(optionalFields.classes) : null,
-              optionalFields.status || null,
-            ];
+              school_email,
+              ...optionalFields
+            } = school;
 
-            values.push(schoolData);
+            const requiredFields = {
+              country,
+              state,
+              district,
+              city,
+              board,
+              school_name,
+              school_address,
+              pincode,
+              created_by,
+              updated_by,
+            };
 
-            insertedSchools.push({
-              ...school,
-              school_code: schoolCode,
-              country_id: location.country_id,
-              state_id: location.state_id,
-              district_id: location.district_id,
-              city_id: location.city_id,
-            });
-          } catch (err) {
-            errors.push({
-              school: school_name || "Unnamed",
-              error: err.message,
-            });
+            const missingFields = Object.keys(requiredFields).filter(
+              (key) => !requiredFields[key]
+            );
+
+            if (missingFields.length > 0) {
+              errors.push({
+                school: school_name || "Unnamed",
+                error: `Missing required fields: ${missingFields.join(", ")}`,
+              });
+              continue;
+            }
+
+            try {
+              await checkDuplicateEmail(school_email);
+              const location = await validateLocation(
+                country,
+                state,
+                district,
+                city
+              );
+              const schoolCode = await generateSchoolCode(
+                location.state_id,
+                location.city_id
+              );
+
+              const schoolData = [
+                board,
+                school_name,
+                school_address,
+                pincode,
+                location.country_id,
+                location.state_id,
+                location.district_id,
+                location.city_id,
+                schoolCode,
+                school_email || null,
+                optionalFields.principal_contact_number || null,
+                created_by,
+                updated_by,
+                optionalFields.school_contact_number || null,
+                optionalFields.school_landline_number || null,
+                optionalFields.principal_name || null,
+                optionalFields.principal_whatsapp || null,
+                optionalFields.vice_principal_name || null,
+                optionalFields.vice_principal_contact_number || null,
+                optionalFields.vice_principal_whatsapp || null,
+                optionalFields.manager_name || null,
+                optionalFields.manager_contact_number || null,
+                optionalFields.manager_whatsapp_number || null,
+                optionalFields.first_incharge_name || null,
+                optionalFields.first_incharge_number || null,
+                optionalFields.first_incharge_whatsapp || null,
+                optionalFields.second_incharge_name || null,
+                optionalFields.second_incharge_number || null,
+                optionalFields.second_incharge_whatsapp || null,
+                optionalFields.junior_student_strength || null,
+                optionalFields.senior_student_strength || null,
+                optionalFields.classes
+                  ? JSON.stringify(optionalFields.classes)
+                  : null,
+                optionalFields.status || null,
+              ];
+
+              values.push(schoolData);
+
+              insertedSchools.push({
+                ...school,
+                school_code: schoolCode,
+                country_id: location.country_id,
+                state_id: location.state_id,
+                district_id: location.district_id,
+                city_id: location.city_id,
+              });
+            } catch (err) {
+              errors.push({
+                school: school_name || "Unnamed",
+                error: err.message,
+              });
+            }
           }
-        }
 
-        if (values.length === 0) {
-          return reject({ message: "No valid schools to insert", errors });
-        }
+          if (values.length === 0) {
+            return reject({ message: "No valid schools to insert", errors });
+          }
 
-        const sql = `
+          const sql = `
           INSERT INTO school (
             board, school_name, school_address, pincode,
             country, state, district, city, school_code,
@@ -1072,23 +477,25 @@ bulkCreate: (schools) => {
           ) VALUES ?
         `;
 
-        db.query(sql, [values], (err, result) => {
-          if (err)
-            return reject(new Error(`Database error during insertion: ${err.message}`));
-          resolve({
-            affectedRows: result.affectedRows,
-            schools: insertedSchools,
-            errors: errors.length > 0 ? errors : undefined,
+          db.query(sql, [values], (err, result) => {
+            if (err)
+              return reject(
+                new Error(`Database error during insertion: ${err.message}`)
+              );
+            resolve({
+              affectedRows: result.affectedRows,
+              schools: insertedSchools,
+              errors: errors.length > 0 ? errors : undefined,
+            });
           });
-        });
-      } catch (err) {
-        reject(new Error(`Processing error: ${err.message}`));
-      }
-    };
+        } catch (err) {
+          reject(new Error(`Processing error: ${err.message}`));
+        }
+      };
 
-    processSchools();
-  });
-},
+      processSchools();
+    });
+  },
 
   update: (id, data, callback) => {
     // Ensure 'classes' is a valid JSON string
@@ -1202,24 +609,8 @@ bulkCreate: (schools) => {
       });
     });
   },
-  
+
   // school approved code
-  // updateStatusApprovedById: (id, status_approved) => {
-  //   return new Promise((resolve, reject) => {
-  //     const sql = `
-  //       UPDATE school
-  //       SET status_approved = ?
-  //       WHERE id = ?
-  //     `;
-  //     db.query(sql, [status_approved, id], (err, results) => {
-  //       if (err) {
-  //         reject(err);
-  //       } else {
-  //         resolve(results);
-  //       }
-  //     });
-  //   });
-  // },
   updateStatusApprovedById: (id, status_approved, approved_by) => {
     return new Promise((resolve, reject) => {
       const sql = `
@@ -1288,6 +679,17 @@ bulkCreate: (schools) => {
     });
   },
 
+  //school- report section
+  getByReportId: (id, callback) => {
+    const sql = `
+      SELECT * FROM school 
+      WHERE id = ? OR school_code = ?
+    `;
+    db.query(sql, [id, id], (err, results) => {
+      if (err) return callback(err, null);
+      callback(null, results.length > 0 ? results[0] : null);
+    });
+  },
 };
 
 export default School;

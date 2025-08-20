@@ -285,7 +285,7 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
               totalCount,
               classNames,
               subjectNames,
-              message: `Pending ${totalCount} students for school ID: ${schoolId} successfully fetched`,
+              message: `Successfully retrieved ${totalCount} students for School `,
             });
           });
         });
@@ -332,13 +332,13 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
 
 //medal updated
 export const updateMedal = (req, res) => {
-  const { id, medals } = req.body;
+  const { id, certificate  } = req.body;
 
-  if (!id || !medals) {
+  if (!id || !certificate ) {
     return res.status(400).json({ message: "id and medal are required" });
   }
 
-  ResultModel.updateMedal(id, medals, (err, data) => {
+  ResultModel.updateMedal(id, certificate , (err, data) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }

@@ -223,151 +223,6 @@ export const filterByLocation = (req, res) => {
 
 //approvede code
 ///////-----------------------
-// export const updateStatusApproved = async (req, res) => {
-//   try {
-//     const { id: userId } = req.user; // logged-in user's ID
-//     if (!userId) {
-//       return res.status(401).json({ error: "User ID is missing from token" });
-//     }
-
-//     const { id: schoolId } = req.params;
-//     const { status_approved } = req.body;
-
-//     if (!status_approved) {
-//       return res.status(400).json({ message: "status_approved is required" });
-//     }
-
-//     // ✅ Fetch user and role
-//     const sqlUser = `
-//       SELECT users.*, roles.role_name
-//       FROM users
-//       JOIN roles ON users.role = roles.id
-//       WHERE users.id = ?
-//     `;
-
-//     db.query(sqlUser, [userId], async (err, results) => {
-//       if (err) {
-//         console.error("Error querying user and role:", err);
-//         return res.status(500).json({ error: "Database error" });
-//       }
-
-//       const user = results[0];
-
-//       if (!user) {
-//         return res.status(404).json({ message: "User not found" });
-//       }
-
-//       const { role_name, username } = user;
-
-//       // ✅ Role-based access control
-//       if (status_approved === "approved") {
-//         if (role_name !== "admin" && role_name !== "checker") {
-//           return res.status(403).json({
-//             message: "Only admin or checker can approve",
-//           });
-//         }
-//       } else if (status_approved === "rejected") {
-//         if (role_name !== "admin") {
-//           return res.status(403).json({
-//             message: "Only admin can reject",
-//           });
-//         }
-//       } else if (status_approved === "pending") {
-//         if (role_name !== "admin") {
-//           return res.status(403).json({
-//             message: "Only admin can set to pending",
-//           });
-//         }
-//       } else {
-//         return res.status(400).json({
-//           message: "Invalid status_approved value",
-//         });
-//       }
-
-//       // ✅ Fetch school email, name, and contact number
-//       const sqlSchool = `
-//         SELECT school_email, school_name, school_contact_number
-//         FROM school
-//         WHERE id = ?
-//       `;
-
-//       db.query(sqlSchool, [schoolId], async (err, schoolResults) => {
-//         if (err) {
-//           console.error("Error querying school details:", err);
-//           return res.status(500).json({ error: "Database error" });
-//         }
-
-//         if (!schoolResults[0]) {
-//           return res.status(404).json({ message: "School not found" });
-//         }
-
-//         const { school_email, school_name, school_contact_number } =
-//           schoolResults[0];
-
-//         // ✅ Update school status
-//         try {
-//           const result = await School.updateStatusApprovedById(
-//             schoolId,
-//             status_approved,
-//             username
-//           );
-
-//           if (result.affectedRows === 0) {
-//             return res.status(404).json({ message: "School not found" });
-//           }
-
-//           // ✅ Send email notification with school name
-//           const subject = `School Status Update: ${
-//             status_approved.charAt(0).toUpperCase() + status_approved.slice(1)
-//           }`;
-//           const text = `Dear School Administrator,\n\nThe status of your school, ${school_name}, has been updated to "${status_approved}".\n\nBest regards,\nThe Approval Team`;
-//           const html = `
-//             <h3>School Status Update</h3>
-//             <p>Dear School Administrator,</p>
-//             <p>The status of your school, <strong>${school_name}</strong>, has been updated to <strong>${status_approved}</strong>.</p>
-//             <p>Best regards,<br>The Approval Team</p>
-//           `;
-
-//           try {
-//             await sendEmail(school_email, subject, text, html);
-//             console.log(`Email sent to ${school_email} for ${school_name}`);
-//           } catch (emailError) {
-//             console.error("Error sending email:", emailError);
-//             // Note: Not failing the request if email fails, just logging
-//           }
-
-//           // ✅ Send SMS notification if school_contact_number exists
-//           if (school_contact_number) {
-//             const smsMessage = `Dear Administrator, the status of ${school_name} has been updated to ${status_approved}. Regards, Approval Team`;
-//             try {
-//               await sendSms(school_contact_number, smsMessage);
-//               console.log(
-//                 `SMS sent to ${school_contact_number} for ${school_name}`
-//               );
-//             } catch (smsError) {
-//               console.error("Error sending SMS:", smsError);
-//               // Note: Not failing the request if SMS fails, just logging
-//             }
-//           } else {
-//             console.log(
-//               `No contact number available for ${school_name}, SMS not sent`
-//             );
-//           }
-
-//           return res.json({
-//             message: `Status updated to ${status_approved} successfully`,
-//           });
-//         } catch (updateError) {
-//           console.error("Error updating status:", updateError);
-//           return res.status(500).json({ error: updateError.message });
-//         }
-//       });
-//     });
-//   } catch (error) {
-//     console.error("Error in updateStatusApproved:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 export const updateStatusApproved = async (req, res) => {
   try {
     const { id: userId } = req.user; // logged-in user's ID
@@ -515,8 +370,6 @@ export const updateStatusApproved = async (req, res) => {
   }
 };
 
-
-
 // Filter schools-id by location
 export const filterschoolIDByLocation = (req, res) => {
   const { country, state, district, city } = req.query;
@@ -571,3 +424,33 @@ export const filterschoolIDByLocation = (req, res) => {
     });
 };
 
+
+
+
+//Report-school section
+export const getReportSchoolById = (req, res) => {
+  const schoolId = req.params.id;
+
+  if (!schoolId) {
+    return res.status(400).json({ error: "School ID or code is required" });
+  }
+
+  School.getByReportId(schoolId, (err, school) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+    if (!school) {
+      return res.status(404).json({ error: "School not found" });
+    }
+
+    // If you stored classes as JSON string, parse them before sending
+    try {
+      school.classes = JSON.parse(school.classes || "[]");
+    } catch (e) {
+      school.classes = [];
+    }
+
+    res.status(200).json({ success: true, data: school });
+  });
+};

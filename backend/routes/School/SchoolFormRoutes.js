@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllSchools, getAll  , getSchoolById, createSchool, updateSchool, deleteSchool, bulkUploadSchools, filterByLocation, filterschoolIDByLocation, updateStatusApproved } from '../../controllers/School/SchoolFormController.js';
+import { getAllSchools, getAll  , getSchoolById, createSchool, updateSchool, deleteSchool, bulkUploadSchools, filterByLocation, filterschoolIDByLocation, updateStatusApproved, getReportSchoolById } from '../../controllers/School/SchoolFormController.js';
 import { authenticateToken  } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
@@ -21,6 +21,10 @@ router.get('/school-filter', filterschoolIDByLocation);
 
 // PUT route for updating status_approved by id
 router.put('/school/:id/status-approved' ,authenticateToken , updateStatusApproved);
+
+
+// GET school by ID or school_code
+router.get("/school-report/:id", getReportSchoolById);
 
 export default router;
   

@@ -10,6 +10,7 @@ import {
   getFilteredStudents,
   getFilteredStudentsomrreceipt,
   getFilteredStudentsforattendance,
+  getFilteredStudentsforReport,
 } from "../../controllers/Student/studentController.js";
 import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
@@ -42,5 +43,8 @@ router.post("/filter/omr-receipt", getFilteredStudentsomrreceipt);
 
 //attendance
 router.post("/student-attendance", getFilteredStudentsforattendance);
+
+//student report 
+router.post("/student-report", getFilteredStudentsforReport);
 
 export default router;

@@ -31,6 +31,6 @@ router.post('/getFilteredStudentreceipt', getFilteredStudentsomrreceipt);
 // router.post("/update-pending-percentages", updatePendingPercentages);
 
 // PUT depending on preference
-router.put("/update-medal", updateMedal);
+router.put("/update-certificate", updateMedal);
 
 export default router;

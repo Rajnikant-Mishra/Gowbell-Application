@@ -742,15 +742,15 @@ const ResultModel = {
   },
 
   //updated medals
-  updateMedal: (id, medals, callback) => {
+  updateMedal: (id, certificate , callback) => {
     const query = `
       UPDATE result
-      SET medals = ?
+      SET certificate  = ?
       WHERE id = ?
     `;
-    db.query(query, [medals, id], (err, result) => {
+    db.query(query, [certificate , id], (err, result) => {
       if (err) return callback(err);
-      callback(null, { message: "Medal updated successfully" });
+      callback(null, { message: "Wild card entry successfully" });
     });
   },
 };
