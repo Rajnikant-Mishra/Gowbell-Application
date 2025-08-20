@@ -1,4 +1,3 @@
-
 import React from "react";
 // import OMRGenerator from "./OMRGenerator";
 import OMRGenerator from "./OMRGenerate60";
@@ -48,8 +47,6 @@ export default function OMRSheet({
         )}
       </div>
 
-      
-
       <div className="mt-0">
         {/* Header */}
         <div className={`mx-auto text-center ${styles.header}`}>
@@ -91,8 +88,9 @@ export default function OMRSheet({
                 style={{
                   fontFamily: "Arial",
                   fontWeight: "bold",
+                  textTransform: "uppercase",
                 }}
-                value={student}
+                value={student.toUpperCase()}
               />
             </div>
 
@@ -109,10 +107,11 @@ export default function OMRSheet({
                 id="school-name"
                 className={`${styles.inputField1}`}
                 type="text"
-                value={schoolName}
+                value={schoolName.toUpperCase()}
                 style={{
                   fontFamily: "Arial",
                   fontSize: "12px",
+                  textTransform: "uppercase",
                 }}
               />
             </div>
@@ -233,33 +232,32 @@ export default function OMRSheet({
                 >
                   <ol className={`${styles.ruleBox} my-2`}>
                     <li>
-                      Use only a  <b>BLACK or BLUE </b> ballpoint pen to darken the appropriate circle.
-                      
+                      Use only a <b>BLACK or BLUE </b> ballpoint pen to darken
+                      the appropriate circle.
                     </li>
                     <li>
-                     Do not use 
-                      <b>
-                        gel pens, ink removers, or whiteners.
-                      </b>
-                     
+                      Do not use
+                      <b>gel pens, ink removers, or whiteners.</b>
                     </li>
                     <li>
-                     Fill the circle completely and neatly. Do not tick or cross the circles.
+                      Fill the circle completely and neatly. Do not tick or
+                      cross the circles.
                     </li>
                     <li>Mark only one answer for each question.</li>
+                    <li>Changing an answer is not allowed.</li>
                     <li>
-                     Changing an answer is not allowed.
+                      Any overwriting or stray marks may lead to wrong
+                      evaluation.
                     </li>
+
                     <li>
-                      Any overwriting or stray marks may lead to wrong evaluation.
+                      Any overwriting or stray marks may lead to wrong
+                      evaluation.
                     </li>
-                   
-                     <li>
-                      Any overwriting or stray marks may lead to wrong evaluation.
-                    </li>
-                   
+
                     <li>
-                      Submit your OMR Sheet only to the Invigilator at the end of the exam.
+                      Submit your OMR Sheet only to the Invigilator at the end
+                      of the exam.
                     </li>
                   </ol>
                 </div>
@@ -477,7 +475,7 @@ export default function OMRSheet({
                   </th>
                 </tr>
               </thead>
-              <tbody >
+              <tbody>
                 {Array(10)
                   .fill()
                   .map((item, index) => (

@@ -49,6 +49,8 @@ import Updateinventory from "./Components/Inventory/Updateinventory";
 import SchoolForm from "./Components/School/createschool/SchoolForm";
 import SchoolList from "./Components/School/createschool/SchoolList";
 import SchoolUpdate from "./Components/School/createschool/SchoolUpdate";
+import ViewSchool from "./Components/School/createschool/ViewSchool";
+
 
 import InchargeForm from "./Components/School/incharge/InchargeForm";
 import InchargeList from "./Components/School/incharge/InchargeList";
@@ -281,6 +283,10 @@ function App() {
           <Route
             path="/school/update/:id"
             element={<ProtectedRoute element={<SchoolUpdate />} />}
+          />
+          <Route
+            path="/school/view/:id" 
+            element={<ProtectedRoute element={<ViewSchool />} />}
           />
           {/* incharge route */}
           <Route

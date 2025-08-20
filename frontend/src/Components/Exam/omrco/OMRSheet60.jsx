@@ -1144,8 +1144,9 @@ export default function OMRSheet({
                 style={{
                   fontFamily: "Arial",
                   fontWeight: "bold",
+                  textTransform: "uppercase",
                 }}
-                value={student}
+                value={student.toUpperCase()}
               />
             </div>
 
@@ -1162,10 +1163,11 @@ export default function OMRSheet({
                 id="school-name"
                 className={`${styles.inputField1}`}
                 type="text"
-                value={schoolName}
+                value={schoolName.toUpperCase()}
                 style={{
                   fontFamily: "Arial",
                   fontSize: "12px",
+                  textTransform: "uppercase",
                 }}
               />
             </div>
@@ -1303,12 +1305,12 @@ export default function OMRSheet({
                       Any overwriting or stray marks may lead to wrong
                       evaluation.
                     </li>
-                    
-                      <li>
-                        Any overwriting or stray marks may lead to wrong
-                        evaluation.
-                      </li>
-                 
+
+                    <li>
+                      Any overwriting or stray marks may lead to wrong
+                      evaluation.
+                    </li>
+
                     <li>
                       Submit your OMR Sheet only to the Invigilator at the end
                       of the exam.

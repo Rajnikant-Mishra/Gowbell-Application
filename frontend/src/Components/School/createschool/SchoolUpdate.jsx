@@ -830,7 +830,7 @@ export default function SchoolUpdateForm() {
               {/* Principal Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Whatsapp Number"
+                  label="WhatsApp Number"
                   name="principal_whatsapp"
                   value={formik.values.principal_whatsapp}
                   onChange={(e) => {
@@ -938,7 +938,7 @@ export default function SchoolUpdateForm() {
               {/* Vice Principal Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Whatsapp Number"
+                  label="WhatsApp Number"
                   name="vice_principal_whatsapp"
                   value={formik.values.vice_principal_whatsapp}
                   onChange={formik.handleChange}
@@ -1039,7 +1039,7 @@ export default function SchoolUpdateForm() {
               {/* Manager Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Whatsapp Number"
+                  label="WhatsApp Number"
                   name="manager_whatsapp_number"
                   value={formik.values.manager_whatsapp_number}
                   onChange={formik.handleChange}
@@ -1141,7 +1141,7 @@ export default function SchoolUpdateForm() {
               {/* 1st Olympiad Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Whatsapp Number"
+                  label="WhatsApp Number"
                   name="first_incharge_whatsapp"
                   value={formik.values.first_incharge_whatsapp}
                   onChange={formik.handleChange}
@@ -1243,7 +1243,7 @@ export default function SchoolUpdateForm() {
               {/* 2nd Olympiad Whatsapp Number */}
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
-                  label="Whatsapp Number"
+                  label="WhatsApp Number"
                   name="second_incharge_whatsapp"
                   value={formik.values.second_incharge_whatsapp}
                   onChange={formik.handleChange}

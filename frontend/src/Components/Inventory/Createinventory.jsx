@@ -570,4 +570,4 @@ export default function InventoryForm() {
       </Box>
     </Mainlayout>
   );
-}
+}   

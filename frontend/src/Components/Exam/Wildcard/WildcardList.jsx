@@ -1,3 +1,4 @@
+// // File: frontend/src/Components/Exam/Wildcard/WildcardList.jsx
 // import React, { useState, useEffect, useCallback } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { debounce } from "lodash";
@@ -65,7 +66,7 @@
 //   const [isLoading, setIsLoading] = useState(false);
 //   const [page, setPage] = useState(1);
 //   const [pageSize, setPageSize] = useState(5);
-//   const pageSizes = [5, 10, 25, 50];
+//   const pageSizes = [5, 10, 25, 50]; // Added to fix ReferenceError
 //   const [totalCount, setTotalCount] = useState(0);
 //   const [fetchError, setFetchError] = useState(null);
 //   const [countries, setCountries] = useState([]);
@@ -79,8 +80,17 @@
 //   const [filteredStates, setFilteredStates] = useState([]);
 //   const [filteredDistricts, setFilteredDistricts] = useState([]);
 //   const [filteredCities, setFilteredCities] = useState([]);
+//   const [medalSelections, setMedalSelections] = useState({}); // Track medal selections for each student
 
 //   const navigate = useNavigate();
+
+//   // Medal options for dropdown
+//   const medalOptions = [
+//     { value: "Gold(WC)", label: "Gold" },
+//     { value: "Silver(WC)", label: "Silver" },
+//     { value: "Bronze(WC)", label: "Bronze" },
+//     { value: "None", label: "None" },
+//   ];
 
 //   // Fetch initial location data
 //   useEffect(() => {
@@ -194,6 +204,7 @@
 //         setStudents([]);
 //         setTotalCount(0);
 //         setFetchError(null);
+//         setMedalSelections({}); // Reset medal selections
 //         return;
 //       }
 
@@ -210,7 +221,8 @@
 //         const schoolResponse = await axios.get(
 //           `${API_BASE_URL}/api/get/schools/${selectedSchool}`
 //         );
-//         const fetchedSchoolAddress = schoolResponse.data?.school_address || "N/A";
+//         const fetchedSchoolAddress =
+//           schoolResponse.data?.school_address || "N/A";
 //         setSchoolAddress(fetchedSchoolAddress);
 
 //         // Fetch student data
@@ -236,12 +248,22 @@
 //             : ["N/A"],
 //           status: student.status || "N/A",
 //           school_address: fetchedSchoolAddress,
+//           medals: student.medals || "None", // Ensure medals field is present
 //         }));
 
 //         setStudents(updatedStudents);
 //         setTotalCount(
 //           studentResponse.data.totalCount || updatedStudents.length
 //         );
+//         // Initialize medal selections with current medals
+//         const initialMedalSelections = updatedStudents.reduce(
+//           (acc, student) => {
+//             acc[student.id] = student.medals || "None";
+//             return acc;
+//           },
+//           {}
+//         );
+//         setMedalSelections(initialMedalSelections);
 //         setFetchError(null);
 //         toast.success(
 //           studentResponse.data.message || "Students fetched successfully."
@@ -249,15 +271,16 @@
 //       } catch (error) {
 //         console.error(
 //           "Error fetching data:",
-//           error.transaction?.data || error.message
+//           error.response?.data || error.message
 //         );
 //         const errorMessage =
-//           error.transaction?.data?.error ||
+//           error.response?.data?.error ||
 //           error.message ||
 //           "Failed to fetch students or school data.";
 //         setFetchError(errorMessage);
 //         setStudents([]);
 //         setTotalCount(0);
+//         setMedalSelections({});
 //         toast.error(errorMessage);
 //       } finally {
 //         setIsLoading(false);
@@ -275,6 +298,40 @@
 //     return () => debouncedFetchStudents.cancel();
 //   }, [debouncedFetchStudents]);
 
+//   // Handle medal selection change
+//   const handleMedalChange = (studentId, value) => {
+//     setMedalSelections((prev) => ({
+//       ...prev,
+//       [studentId]: value,
+//     }));
+//   };
+
+//   // Handle medal update
+//   const handleUpdateMedal = async (studentId) => {
+//     const selectedMedal = medalSelections[studentId] || "None";
+//     try {
+//       setIsLoading(true);
+//       const response = await axios.put(`${API_BASE_URL}/api/update-medal`, {
+//         id: studentId,
+//         medals: selectedMedal,
+//       });
+//       toast.success(response.data.message || "Medal updated successfully.");
+//       // Update the student list to reflect the new medal
+//       setStudents((prevStudents) =>
+//         prevStudents.map((student) =>
+//           student.id === studentId
+//             ? { ...student, medals: selectedMedal }
+//             : student
+//         )
+//       );
+//     } catch (error) {
+//       console.error("Error updating medal:", error);
+//       toast.error(error.response?.data?.message || "Failed to update medal.");
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
 //   // Location filter effects
 //   useEffect(() => {
 //     if (selectedCountry) {
@@ -289,6 +346,7 @@
 //     setSelectedSchool("");
 //     setStudents([]);
 //     setSchoolAddress("");
+//     setMedalSelections({});
 //   }, [selectedCountry, states]);
 
 //   useEffect(() => {
@@ -306,6 +364,7 @@
 //     setSelectedSchool("");
 //     setStudents([]);
 //     setSchoolAddress("");
+//     setMedalSelections({});
 //   }, [selectedState, districts]);
 
 //   useEffect(() => {
@@ -323,6 +382,7 @@
 //     setSelectedSchool("");
 //     setStudents([]);
 //     setSchoolAddress("");
+//     setMedalSelections({});
 //   }, [selectedDistrict, cities]);
 
 //   useEffect(() => {
@@ -337,6 +397,7 @@
 //     setSelectedSchool("");
 //     setStudents([]);
 //     setSchoolAddress("");
+//     setMedalSelections({});
 //   }, [selectedCity]);
 
 //   // Dropdown options using IDs
@@ -437,16 +498,14 @@
 //               </Grid>
 //             </Grid>
 
-//             <Grid container spacing={2} >
+//             <Grid container spacing={2}>
 //               <Grid item xs={12} sm={6} md={3}>
 //                 <Dropdown
 //                   label="School"
 //                   value={selectedSchool}
 //                   options={schools.map((school) => ({
 //                     value: school.id,
-//                     label: `${school.school_name} (${
-//                       school.city_name || school.district_name || "N/A"
-//                     })`,
+//                     label: `${school.school_name}`,
 //                   }))}
 //                   onChange={handleSchoolChange}
 //                   disabled={isLoading || !selectedCity}
@@ -482,13 +541,13 @@
 //               alignItems="center"
 //               mb={1}
 //             >
-//               <Typography variant="h6" gutterBottom >
+//               <Typography variant="h6" gutterBottom>
 //                 Wild Card Student
 //               </Typography>
 //             </Box>
 //             <Table>
 //               <TableHead>
-//                 <TableRow style={{ backgroundColor: "#bbdefb"}}>
+//                 <TableRow style={{ backgroundColor: "#bbdefb" }}>
 //                   <TableCell align="center">STUDENT</TableCell>
 //                   <TableCell align="center">CLASS</TableCell>
 //                   <TableCell align="center">SUBJECT</TableCell>
@@ -498,22 +557,24 @@
 //                   <TableCell align="center">PERCENTAGE</TableCell>
 //                   <TableCell align="center">RANKING</TableCell>
 //                   <TableCell align="center">MEDAL</TableCell>
+
 //                   <TableCell align="center">REMARK</TableCell>
 //                   <TableCell align="center">CERTIFICATE</TableCell>
 //                   <TableCell align="center">LEVEL</TableCell>
 //                   <TableCell align="center">STATUS</TableCell>
+//                   <TableCell align="center">UPDATE</TableCell>
 //                 </TableRow>
 //               </TableHead>
 //               <TableBody>
 //                 {isLoading ? (
 //                   <TableRow>
-//                     <TableCell colSpan={13} align="center">
+//                     <TableCell colSpan={14} align="center">
 //                       Loading students...
 //                     </TableCell>
 //                   </TableRow>
 //                 ) : paginatedStudents.length > 0 ? (
 //                   paginatedStudents.map((student, index) => (
-//                     <TableRow key={student.roll_no || index}>
+//                     <TableRow key={student.id || index}>
 //                       <TableCell align="center">
 //                         {student.student_name || "N/A"}
 //                       </TableCell>
@@ -547,8 +608,17 @@
 //                         {student.ranking || "N/A"}
 //                       </TableCell>
 //                       <TableCell align="center">
-//                         {student.medals || "N/A"}
+//                         <Dropdown
+//                           //   label="Medal"
+//                           value={medalSelections[student.id] || "None"}
+//                           options={medalOptions}
+//                           onChange={(e) =>
+//                             handleMedalChange(student.id, e.target.value)
+//                           }
+//                           disabled={isLoading}
+//                         />
 //                       </TableCell>
+
 //                       <TableCell align="center">
 //                         {student.remarks || "N/A"}
 //                       </TableCell>
@@ -564,11 +634,22 @@
 //                       >
 //                         {student.status || "N/A"}
 //                       </TableCell>
+//                       <TableCell align="center">
+//                         <Button
+//                           variant="contained"
+//                           color="primary"
+//                           size="small"
+//                           onClick={() => handleUpdateMedal(student.id)}
+//                           disabled={isLoading}
+//                         >
+//                           Entry
+//                         </Button>
+//                       </TableCell>
 //                     </TableRow>
 //                   ))
 //                 ) : (
 //                   <TableRow>
-//                     <TableCell colSpan={13} align="center">
+//                     <TableCell colSpan={14} align="center">
 //                       {selectedSchool &&
 //                       selectedClassIds.length &&
 //                       selectedSubjectId
@@ -603,14 +684,18 @@
 //                         </option>
 //                       ))}
 //                     </select>
-//                     <Typography sx={{ ml: 1 }} variant="body2" color="textSecondary">
+//                     <Typography
+//                       sx={{ ml: 1 }}
+//                       variant="body2"
+//                       color="textSecondary"
+//                     >
 //                       Records per page
 //                     </Typography>
 //                   </Box>
 
 //                   <Typography variant="body2" color="textSecondary">
-//                     Showing {students.length} of {totalCount} records (Page {page} of{" "}
-//                     {Math.ceil(totalCount / pageSize)})
+//                     Showing {students.length} of {totalCount} records (Page{" "}
+//                     {page} of {Math.ceil(totalCount / pageSize)})
 //                   </Typography>
 
 //                   <Box display="flex" alignItems="center">
@@ -666,10 +751,6 @@
 
 // export default ExaminationForm;
 
-
-
-
-// File: frontend/src/Components/Exam/Wildcard/WildcardList.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
@@ -737,7 +818,7 @@ const ExaminationForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const pageSizes = [5, 10, 25, 50]; // Added to fix ReferenceError
+  const pageSizes = [5, 10, 25, 50];
   const [totalCount, setTotalCount] = useState(0);
   const [fetchError, setFetchError] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -751,15 +832,14 @@ const ExaminationForm = () => {
   const [filteredStates, setFilteredStates] = useState([]);
   const [filteredDistricts, setFilteredDistricts] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
-  const [medalSelections, setMedalSelections] = useState({}); // Track medal selections for each student
+  const [certificateSelections, setCertificateSelections] = useState({});
 
   const navigate = useNavigate();
 
-  // Medal options for dropdown
-  const medalOptions = [
-    { value: "Gold(WC)", label: "Gold" },
-    { value: "Silver(WC)", label: "Silver" },
-    { value: "Bronze(WC)", label: "Bronze" },
+  // Certificate options for dropdown
+  const certificateOptions = [
+    { value: "Achievement", label: "Achievement" },
+    { value: "Participation", label: "Participation" },
     { value: "None", label: "None" },
   ];
 
@@ -875,7 +955,7 @@ const ExaminationForm = () => {
         setStudents([]);
         setTotalCount(0);
         setFetchError(null);
-        setMedalSelections({}); // Reset medal selections
+        setCertificateSelections({});
         return;
       }
 
@@ -902,7 +982,7 @@ const ExaminationForm = () => {
           {
             schoolId: selectedSchool,
             classIds,
-            subjectId,
+            subjectIds: [subjectId],
             updatePending,
           }
         );
@@ -919,31 +999,35 @@ const ExaminationForm = () => {
             : ["N/A"],
           status: student.status || "N/A",
           school_address: fetchedSchoolAddress,
-          medals: student.medals || "None", // Ensure medals field is present
+          certificate: student.certificate || "None",
         }));
 
         setStudents(updatedStudents);
         setTotalCount(
           studentResponse.data.totalCount || updatedStudents.length
         );
-        // Initialize medal selections with current medals
-        const initialMedalSelections = updatedStudents.reduce(
+        const initialCertificateSelections = updatedStudents.reduce(
           (acc, student) => {
-            acc[student.id] = student.medals || "None";
+            acc[student.id] = student.certificate || "None";
             return acc;
           },
           {}
         );
-        setMedalSelections(initialMedalSelections);
+        setCertificateSelections(initialCertificateSelections);
         setFetchError(null);
         toast.success(
           studentResponse.data.message || "Students fetched successfully."
         );
       } catch (error) {
-        console.error(
-          "Error fetching data:",
-          error.response?.data || error.message
-        );
+        console.error("Error fetching data:", {
+          error: error.response?.data || error.message,
+          payload: {
+            schoolId: selectedSchool,
+            classIds,
+            subjectIds: [subjectId],
+            updatePending,
+          },
+        });
         const errorMessage =
           error.response?.data?.error ||
           error.message ||
@@ -951,7 +1035,7 @@ const ExaminationForm = () => {
         setFetchError(errorMessage);
         setStudents([]);
         setTotalCount(0);
-        setMedalSelections({});
+        setCertificateSelections({});
         toast.error(errorMessage);
       } finally {
         setIsLoading(false);
@@ -969,35 +1053,41 @@ const ExaminationForm = () => {
     return () => debouncedFetchStudents.cancel();
   }, [debouncedFetchStudents]);
 
-  // Handle medal selection change
-  const handleMedalChange = (studentId, value) => {
-    setMedalSelections((prev) => ({
+  // Handle certificate selection change
+  const handleCertificateChange = (studentId, value) => {
+    setCertificateSelections((prev) => ({
       ...prev,
       [studentId]: value,
     }));
   };
 
-  // Handle medal update
-  const handleUpdateMedal = async (studentId) => {
-    const selectedMedal = medalSelections[studentId] || "None";
+  // Handle certificate update
+  const handleUpdateCertificate = async (studentId) => {
+    const selectedCertificate = certificateSelections[studentId] || "None";
     try {
       setIsLoading(true);
-      const response = await axios.put(`${API_BASE_URL}/api/update-medal`, {
-        id: studentId,
-        medals: selectedMedal,
-      });
-      toast.success(response.data.message || "Medal updated successfully.");
-      // Update the student list to reflect the new medal
+      const response = await axios.put(
+        `${API_BASE_URL}/api/update-certificate`,
+        {
+          id: studentId,
+          certificate: selectedCertificate,
+        }
+      );
+      toast.success(
+        response.data.message || "Certificate updated successfully."
+      );
       setStudents((prevStudents) =>
         prevStudents.map((student) =>
           student.id === studentId
-            ? { ...student, medals: selectedMedal }
+            ? { ...student, certificate: selectedCertificate }
             : student
         )
       );
     } catch (error) {
-      console.error("Error updating medal:", error);
-      toast.error(error.response?.data?.message || "Failed to update medal.");
+      console.error("Error updating certificate:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to update certificate."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -1017,7 +1107,7 @@ const ExaminationForm = () => {
     setSelectedSchool("");
     setStudents([]);
     setSchoolAddress("");
-    setMedalSelections({});
+    setCertificateSelections({});
   }, [selectedCountry, states]);
 
   useEffect(() => {
@@ -1035,7 +1125,7 @@ const ExaminationForm = () => {
     setSelectedSchool("");
     setStudents([]);
     setSchoolAddress("");
-    setMedalSelections({});
+    setCertificateSelections({});
   }, [selectedState, districts]);
 
   useEffect(() => {
@@ -1053,7 +1143,7 @@ const ExaminationForm = () => {
     setSelectedSchool("");
     setStudents([]);
     setSchoolAddress("");
-    setMedalSelections({});
+    setCertificateSelections({});
   }, [selectedDistrict, cities]);
 
   useEffect(() => {
@@ -1068,7 +1158,7 @@ const ExaminationForm = () => {
     setSelectedSchool("");
     setStudents([]);
     setSchoolAddress("");
-    setMedalSelections({});
+    setCertificateSelections({});
   }, [selectedCity]);
 
   // Dropdown options using IDs
@@ -1176,9 +1266,7 @@ const ExaminationForm = () => {
                   value={selectedSchool}
                   options={schools.map((school) => ({
                     value: school.id,
-                    label: `${school.school_name} (${
-                      school.city_name || school.district_name || "N/A"
-                    })`,
+                    label: `${school.school_name}`,
                   }))}
                   onChange={handleSchoolChange}
                   disabled={isLoading || !selectedCity}
@@ -1229,9 +1317,6 @@ const ExaminationForm = () => {
                   <TableCell align="center">MARK SECURED</TableCell>
                   <TableCell align="center">PERCENTAGE</TableCell>
                   <TableCell align="center">RANKING</TableCell>
-                  <TableCell align="center">MEDAL</TableCell>
-
-                  <TableCell align="center">REMARK</TableCell>
                   <TableCell align="center">CERTIFICATE</TableCell>
                   <TableCell align="center">LEVEL</TableCell>
                   <TableCell align="center">STATUS</TableCell>
@@ -1241,7 +1326,7 @@ const ExaminationForm = () => {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={14} align="center">
+                    <TableCell colSpan={12} align="center">
                       Loading students...
                     </TableCell>
                   </TableRow>
@@ -1282,21 +1367,13 @@ const ExaminationForm = () => {
                       </TableCell>
                       <TableCell align="center">
                         <Dropdown
-                          //   label="Medal"
-                          value={medalSelections[student.id] || "None"}
-                          options={medalOptions}
+                          value={certificateSelections[student.id] || "None"}
+                          options={certificateOptions}
                           onChange={(e) =>
-                            handleMedalChange(student.id, e.target.value)
+                            handleCertificateChange(student.id, e.target.value)
                           }
                           disabled={isLoading}
                         />
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {student.remarks || "N/A"}
-                      </TableCell>
-                      <TableCell align="center">
-                        {student.certificate || "N/A"}
                       </TableCell>
                       <TableCell align="center">
                         {student.level || "N/A"}
@@ -1312,17 +1389,17 @@ const ExaminationForm = () => {
                           variant="contained"
                           color="primary"
                           size="small"
-                          onClick={() => handleUpdateMedal(student.id)}
+                          onClick={() => handleUpdateCertificate(student.id)}
                           disabled={isLoading}
                         >
-                          Entry
+                          Update
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={14} align="center">
+                    <TableCell colSpan={12} align="center">
                       {selectedSchool &&
                       selectedClassIds.length &&
                       selectedSubjectId
@@ -1365,12 +1442,10 @@ const ExaminationForm = () => {
                       Records per page
                     </Typography>
                   </Box>
-
                   <Typography variant="body2" color="textSecondary">
                     Showing {students.length} of {totalCount} records (Page{" "}
                     {page} of {Math.ceil(totalCount / pageSize)})
                   </Typography>
-
                   <Box display="flex" alignItems="center">
                     <Button
                       onClick={handlePreviousPage}

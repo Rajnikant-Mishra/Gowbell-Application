@@ -734,7 +734,7 @@ const ExaminationForm = () => {
     cities: filteredCities.map((c) => ({ value: c.id, label: c.name })),
     schools: schools.map((s) => ({
       value: s.school_name,
-      label: `${s.school_name} (${s.city_name || ""})`,
+      label: `${s.school_name}`,
     })),
     classes: classes.map((c) => ({ value: c.id, label: c.name })),
     subjects: subjects.map((s) => ({ value: s.id, label: s.name })),
@@ -923,7 +923,7 @@ const ExaminationForm = () => {
                   disabled={isLoading}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              {/* <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   label="Exam Date"
                   type="date"
@@ -935,7 +935,7 @@ const ExaminationForm = () => {
                   InputLabelProps={{ shrink: true }}
                   disabled={isLoading}
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             <Box mt={3} mb={3}>
