@@ -1,179 +1,7 @@
 import { db } from "../../config/db.js";
 
 export const Student = {
-  // create: (studentData, userId, callback) => {
-  //   const {
-  //     school_id,
-  //     student_name,
-  //     class_id,
-  //     student_section,
-  //     mobile_number,
-  //     whatsapp_number,
-  //     student_subject,
-  //     approved,
-  //     approved_by,
-  //     country,
-  //     state,
-  //     district,
-  //     city,
-  //   } = studentData;
-
-  //   // Step 1: Get school_code from school table using school_id
-  //   const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
-
-  //   db.query(schoolQuery, [school_id], (err, schoolResult) => {
-  //     if (err) return callback(err);
-
-  //     if (schoolResult.length === 0) {
-  //       return callback(new Error("School not found"));
-  //     }
-
-  //     const school_code = schoolResult[0].school_code;
-
-  //     // Step 2: Get the last roll_no for this school_code and class_name
-  //     const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
-  //     const rollPrefix = `${school_code}${class_id}%`;
-
-  //     db.query(rollQuery, [rollPrefix], (err, rollResult) => {
-  //       if (err) return callback(err);
-
-  //       let newRollNumber = 1;
-  //       if (rollResult.length > 0) {
-  //         const lastRoll = rollResult[0].roll_no;
-  //         const lastRollNumber = parseInt(lastRoll.slice(-2), 10); // Extract last 2 digits
-  //         newRollNumber = lastRollNumber + 1;
-  //       }
-
-  //       const formattedRollNo = `${school_code}${class_id}${String(
-  //         newRollNumber
-  //       ).padStart(2, "0")}`;
-
-  //       // Step 3: Insert the new student record
-  //       const insertQuery = `
-  //       INSERT INTO student
-  //       (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, created_by, updated_by, created_at, updated_at)
-  //       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-  //     `;
-
-  //       db.query(
-  //         insertQuery,
-  //         [
-  //           school_id,
-  //           student_name,
-  //           formattedRollNo,
-  //           class_id,
-  //           student_section,
-  //           mobile_number,
-  //           whatsapp_number,
-  //           JSON.stringify(student_subject || []) || null, // Convert JSON array to string
-  //           approved,
-  //           approved_by,
-  //           country,
-  //           state,
-  //           district,
-  //           city,
-  //           userId, // Created by logged-in user
-  //           userId, // Updated by logged-in user
-  //         ],
-  //         callback
-  //       );
-  //     });
-  //   });
-  // },
-
-  // create: (studentData, userId, callback) => {
-  //   const {
-  //     school_id,
-  //     student_name,
-  //     class_id,
-  //     student_section,
-  //     mobile_number,
-  //     whatsapp_number,
-  //     student_subject,
-  //     approved,
-  //     approved_by,
-  //     country,
-  //     state,
-  //     district,
-  //     city,
-  //   } = studentData;
-
-  //   // ✅ Step 0: Get the latest active session ID
-  //   const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
-  //   db.query(sessionQuery, (err, sessionResult) => {
-  //     if (err) return callback(err);
-
-  //     if (sessionResult.length === 0) {
-  //       return callback(new Error("No active session found"));
-  //     }
-
-  //     const session_id = sessionResult[0].id;
-
-  //     // ✅ Step 1: Get school_code from school table using school_id
-  //     const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
-
-  //     db.query(schoolQuery, [school_id], (err, schoolResult) => {
-  //       if (err) return callback(err);
-
-  //       if (schoolResult.length === 0) {
-  //         return callback(new Error("School not found"));
-  //       }
-
-  //       const school_code = schoolResult[0].school_code;
-
-  //       // ✅ Step 2: Get the last roll_no for this school_code and class_name
-  //       const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
-  //       const rollPrefix = `${school_code}${class_id}%`;
-
-  //       db.query(rollQuery, [rollPrefix], (err, rollResult) => {
-  //         if (err) return callback(err);
-
-  //         let newRollNumber = 1;
-  //         if (rollResult.length > 0) {
-  //           const lastRoll = rollResult[0].roll_no;
-  //           const lastRollNumber = parseInt(lastRoll.slice(-2), 10); // Extract last 2 digits
-  //           newRollNumber = lastRollNumber + 1;
-  //         }
-
-  //         const formattedRollNo = `${school_code}${class_id}${String(
-  //           newRollNumber
-  //         ).padStart(2, "0")}`;
-
-  //         // ✅ Step 3: Insert the new student record
-  //         const insertQuery = `
-  //         INSERT INTO student
-  //         (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, session_id, created_by, updated_by, created_at, updated_at)
-  //         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-  //       `;
-
-  //         db.query(
-  //           insertQuery,
-  //           [
-  //             school_id,
-  //             student_name,
-  //             formattedRollNo,
-  //             class_id,
-  //             student_section,
-  //             mobile_number,
-  //             whatsapp_number,
-  //             JSON.stringify(student_subject || []) || null,
-  //             approved,
-  //             approved_by,
-  //             country,
-  //             state,
-  //             district,
-  //             city,
-  //             session_id, // ✅ Insert the auto-generated session_id
-  //             userId,
-  //             userId,
-  //           ],
-  //           callback
-  //         );
-  //       });
-  //     });
-  //   });
-  // },
-
+  //===============================================
   create: (studentData, userId, callback) => {
     const {
       school_id,
@@ -182,85 +10,190 @@ export const Student = {
       student_section,
       mobile_number,
       whatsapp_number,
+      aadhaar_number,
       student_subject,
-      approved,
-      approved_by,
+      approved = 0,
+      approved_by = null,
       country,
       state,
       district,
       city,
-      level = 1, // ✅ Default level
-      level_status = "continue", // ✅ Default status
+      level = 1,
+      level_status = "continue",
+      session_id,
     } = studentData;
 
-    const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
-    db.query(sessionQuery, (err, sessionResult) => {
-      if (err) return callback(err);
-
-      if (sessionResult.length === 0) {
-        return callback(new Error("No active session found"));
-      }
-
-      const session_id = sessionResult[0].id;
-
-      const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
-      db.query(schoolQuery, [school_id], (err, schoolResult) => {
-        if (err) return callback(err);
-        if (schoolResult.length === 0) {
-          return callback(new Error("School not found"));
-        }
-
-        const school_code = schoolResult[0].school_code;
-        const rollPrefix = `${school_code}${class_id}${level}%`;
-
-        const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
-        db.query(rollQuery, [rollPrefix], (err, rollResult) => {
+    // Step 1: Resolve session_id (same as before)
+    const resolveSessionId = (next) => {
+      if (session_id) {
+        const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
+        db.query(verifyQuery, [session_id], (err, result) => {
           if (err) return callback(err);
+          if (result.length === 0)
+            return callback(new Error("Invalid session ID selected"));
+          return next(session_id);
+        });
+      } else {
+        const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+        db.query(sessionQuery, (err, result) => {
+          if (err) return callback(err);
+          if (result.length === 0)
+            return callback(new Error("No active session found"));
+          return next(result[0].id);
+        });
+      }
+    };
 
-          let newRollNumber = 1;
-          if (rollResult.length > 0) {
-            const lastRoll = rollResult[0].roll_no;
-            const lastRollNumber = parseInt(lastRoll.slice(-2), 10);
-            newRollNumber = lastRollNumber + 1;
+    resolveSessionId((finalSessionId) => {
+      // Step 2: Check if Aadhaar exists in SAME session → block insert
+      const sameSessionCheck = `
+      SELECT student_code FROM student 
+      WHERE aadhaar_number = ? AND session_id = ?
+      LIMIT 1
+    `;
+      db.query(
+        sameSessionCheck,
+        [aadhaar_number, finalSessionId],
+        (err, sameSessionResult) => {
+          if (err) return callback(err);
+          if (sameSessionResult.length > 0) {
+            return callback(
+              new Error("This Aadhaar is already registered in this session")
+            );
           }
 
-          const formattedRollNo = `${school_code}${class_id}${level}${String(
-            newRollNumber
-          ).padStart(2, "0")}`;
-
-          const insertQuery = `
-          INSERT INTO student 
-          (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject, approved, approved_by, country, state, district, city, session_id, created_by, updated_by, created_at, updated_at, level, level_status) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
-        `;
-
+          // Step 3: Check if Aadhaar exists in ANY session → reuse student_code
+          const anySessionCheck = `
+        SELECT student_code FROM student 
+        WHERE aadhaar_number = ?
+        ORDER BY id ASC LIMIT 1
+      `;
           db.query(
-            insertQuery,
-            [
-              school_id,
-              student_name,
-              formattedRollNo,
-              class_id,
-              student_section,
-              mobile_number,
-              whatsapp_number,
-              JSON.stringify(student_subject || []) || null,
-              approved,
-              approved_by,
-              country,
-              state,
-              district,
-              city,
-              session_id,
-              userId,
-              userId,
-              level,
-              level_status,
-            ],
-            callback
+            anySessionCheck,
+            [aadhaar_number],
+            (err, anySessionResult) => {
+              if (err) return callback(err);
+
+              const reuseStudentCode =
+                anySessionResult.length > 0
+                  ? anySessionResult[0].student_code
+                  : null;
+
+              // Step 4: Fetch school code
+              const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
+              db.query(schoolQuery, [school_id], (err, schoolResult) => {
+                if (err) return callback(err);
+                if (schoolResult.length === 0)
+                  return callback(new Error("School not found"));
+
+                const school_code = schoolResult[0].school_code;
+                const rollPrefix = `${school_code}${class_id}${level}%`;
+
+                // Step 5: Generate roll_no as before
+                const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
+                db.query(rollQuery, [rollPrefix], (err, rollResult) => {
+                  if (err) return callback(err);
+
+                  let newRollNumber = 1;
+                  if (rollResult.length > 0) {
+                    const lastRoll = rollResult[0].roll_no || "";
+                    const lastRollNumber = parseInt(lastRoll.slice(-2), 10);
+                    if (!isNaN(lastRollNumber))
+                      newRollNumber = lastRollNumber + 1;
+                  }
+
+                  const formattedRollNo = `${school_code}${class_id}${level}${String(
+                    newRollNumber
+                  ).padStart(2, "0")}`;
+                  const subjectValue = student_subject
+                    ? JSON.stringify(student_subject)
+                    : null;
+
+                  // Step 6: Generate NEW student_code only if Aadhaar not found anywhere
+                  const generateStudentCode = (cb) => {
+                    if (reuseStudentCode) return cb(null, reuseStudentCode);
+
+                    const studentCodePrefix = `GB-${finalSessionId}-`;
+                    const studentCodeQuery = `
+                SELECT student_code FROM student 
+                WHERE session_id = ? AND student_code LIKE ? 
+                ORDER BY id DESC LIMIT 1
+              `;
+                    db.query(
+                      studentCodeQuery,
+                      [finalSessionId, `${studentCodePrefix}%`],
+                      (err, result) => {
+                        if (err) return cb(err);
+
+                        let newStudentCodeNumber = 1;
+                        if (result.length > 0) {
+                          const lastStudentCode = result[0].student_code;
+                          const lastNumber = parseInt(
+                            lastStudentCode.split("-").pop(),
+                            10
+                          );
+                          if (!isNaN(lastNumber))
+                            newStudentCodeNumber = lastNumber + 1;
+                        }
+
+                        const generatedStudentCode = `${studentCodePrefix}${String(
+                          newStudentCodeNumber
+                        ).padStart(3, "0")}`;
+                        cb(null, generatedStudentCode);
+                      }
+                    );
+                  };
+
+                  generateStudentCode((err, finalStudentCode) => {
+                    if (err) return callback(err);
+
+                    // Step 7: Insert student record
+                    const insertQuery = `
+                INSERT INTO student 
+                (student_code, school_id, student_name, roll_no, class_id, student_section, 
+                 mobile_number, whatsapp_number, aadhaar_number, student_subject, approved, 
+                 approved_by, country, state, district, city, session_id, created_by, updated_by, 
+                 created_at, updated_at, level, level_status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
+              `;
+
+                    db.query(
+                      insertQuery,
+                      [
+                        finalStudentCode,
+                        school_id,
+                        student_name,
+                        formattedRollNo,
+                        class_id,
+                        student_section,
+                        mobile_number,
+                        whatsapp_number,
+                        aadhaar_number,
+                        subjectValue,
+                        approved,
+                        approved_by,
+                        country,
+                        state,
+                        district,
+                        city,
+                        finalSessionId,
+                        userId,
+                        userId,
+                        level,
+                        level_status,
+                      ],
+                      (err, result) => {
+                        if (err) return callback(err);
+                        callback(null, result);
+                      }
+                    );
+                  });
+                });
+              });
+            }
           );
-        });
-      });
+        }
+      );
     });
   },
 
@@ -272,8 +205,10 @@ export const Student = {
         "class_id",
         "student_name",
         "student_section",
+        "aadhaar_number", // required now
       ];
 
+      // Validate required fields
       const missingFields = students.reduce((acc, student, index) => {
         const missing = requiredFields.filter(
           (field) => student[field] == null || student[field] === ""
@@ -292,6 +227,7 @@ export const Student = {
         );
       }
 
+      // Utility: Get ID by name
       const getIdByName = (table, name) => {
         return new Promise((resolve, reject) => {
           const validTables = {
@@ -305,6 +241,7 @@ export const Student = {
           };
           const column = validTables[table];
           if (!column) return reject(new Error(`Invalid table: ${table}`));
+
           db.query(
             `SELECT id FROM ${table} WHERE ${column} = ? LIMIT 1`,
             [name.trim()],
@@ -318,7 +255,7 @@ export const Student = {
         });
       };
 
-      const getSession = () => {
+      const getActiveSession = () => {
         return new Promise((resolve, reject) => {
           db.query(
             `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`,
@@ -338,6 +275,26 @@ export const Student = {
         );
       };
 
+      const resolveSessionId = (manualSessionId) => {
+        return new Promise((resolve, reject) => {
+          if (manualSessionId) {
+            db.query(
+              `SELECT id FROM gowvell_session WHERE id = ?`,
+              [manualSessionId],
+              (err, result) => {
+                if (err) return reject(err);
+                if (result.length === 0)
+                  return reject(new Error("Invalid session ID selected"));
+                resolve(result[0].id);
+              }
+            );
+          } else {
+            getActiveSession().then(resolve).catch(reject);
+          }
+        });
+      };
+
+      // Normalize single student
       const normalizeStudent = async (student) => {
         const [
           schoolId,
@@ -362,14 +319,13 @@ export const Student = {
           student.city
             ? getIdByName("cities", student.city)
             : Promise.resolve(null),
-          getSession(),
+          resolveSessionId(student.session_id),
         ]);
 
         let subjects = student.student_subject || [];
         if (typeof subjects === "string") {
           subjects = subjects.trim().split(/\s+/);
         }
-
         const subjectIds = await getSubjectIds(subjects);
 
         return {
@@ -387,17 +343,59 @@ export const Student = {
         };
       };
 
+      // Main process
       const processStudents = async () => {
+        const aadhaarList = students.map((s) => s.aadhaar_number);
+
+        // Fetch Aadhaar matches with session_id and student_code
+        const aadhaarMatches = await new Promise((resolve, reject) => {
+          const query = `
+          SELECT aadhaar_number, session_id, student_code 
+          FROM student 
+          WHERE aadhaar_number IN (?)`;
+          db.query(query, [aadhaarList], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+          });
+        });
+
+        const aadhaarMap = {}; // aadhaar_number → student_code
+        const sessionDup = new Set(); // aadhaar numbers already in same session
+
+        for (const row of aadhaarMatches) {
+          aadhaarMap[row.aadhaar_number] = row.student_code;
+        }
+
         const normalized = [];
         const errors = [];
 
         for (const student of students) {
           try {
             const normalizedStudent = await normalizeStudent(student);
+
+            // Check if Aadhaar exists in SAME session → reject
+            const found = aadhaarMatches.find(
+              (m) =>
+                m.aadhaar_number === normalizedStudent.aadhaar_number &&
+                m.session_id === normalizedStudent.session_id
+            );
+            if (found) {
+              sessionDup.add(normalizedStudent.aadhaar_number);
+              throw new Error(
+                `Aadhaar ${normalizedStudent.aadhaar_number} already exists in this session`
+              );
+            }
+
             normalized.push(normalizedStudent);
           } catch (err) {
             errors.push({ student: student.student_name, error: err.message });
           }
+        }
+
+        if (sessionDup.size > 0) {
+          throw new Error("Duplicate Aadhaar numbers found in this session", {
+            cause: Array.from(sessionDup),
+          });
         }
 
         if (normalized.length === 0) {
@@ -406,6 +404,7 @@ export const Student = {
           });
         }
 
+        // Group by school-class-level
         const grouped = normalized.reduce((acc, student) => {
           const key = `${student.school_id}-${student.class_id}-${
             student.level || 1
@@ -415,10 +414,18 @@ export const Student = {
           return acc;
         }, {});
 
-        return { grouped, errors };
+        return { grouped, errors, aadhaarMap };
       };
 
-      const assignRollNumbers = async (group, school_id, class_id, level) => {
+      // Assign roll numbers and student_code
+      const assignRollNumbersAndCodes = async (
+        group,
+        school_id,
+        class_id,
+        level,
+        session_id,
+        aadhaarMap
+      ) => {
         const rollPrefix = await new Promise((resolve, reject) =>
           db.query(
             `SELECT school_code FROM school WHERE id = ?`,
@@ -439,26 +446,49 @@ export const Student = {
             (err, result) => (err ? reject(err) : resolve(result))
           )
         );
-
         let rollNum =
           lastRollResult.length > 0
             ? parseInt(lastRollResult[0].roll_no.slice(-2)) + 1
             : 1;
 
+        const studentCodePrefix = `GB-${session_id}-`;
+        const lastCodeResult = await new Promise((resolve, reject) =>
+          db.query(
+            `SELECT student_code FROM student 
+           WHERE session_id = ? AND student_code LIKE ? 
+           ORDER BY id DESC LIMIT 1`,
+            [session_id, `${studentCodePrefix}%`],
+            (err, result) => (err ? reject(err) : resolve(result))
+          )
+        );
+        let studentCodeNum =
+          lastCodeResult.length > 0
+            ? parseInt(lastCodeResult[0].student_code.split("-").pop(), 10) + 1
+            : 1;
+
         return group.map((student) => {
-          const rollNo = `${rollPrefix}${String(rollNum++).padStart(2, "0")}`;
-          return { ...student, roll_no: rollNo };
+          const roll_no = `${rollPrefix}${String(rollNum++).padStart(2, "0")}`;
+          const student_code = aadhaarMap[student.aadhaar_number]
+            ? aadhaarMap[student.aadhaar_number] // reuse if Aadhaar exists in another session
+            : `${studentCodePrefix}${String(studentCodeNum++).padStart(
+                3,
+                "0"
+              )}`; // new code
+          return { ...student, roll_no, student_code };
         });
       };
 
       const insertStudents = (studentsToInsert) => {
         const query = `
-        INSERT INTO student
-        (school_id, student_name, roll_no, class_id, student_section, mobile_number, whatsapp_number, student_subject,
-         country, state, district, city, session_id, approved, approved_by, created_by, updated_by, created_at, updated_at, level, level_status)
+        INSERT INTO student 
+        (student_code, school_id, student_name, roll_no, class_id, student_section, 
+         mobile_number, whatsapp_number, aadhaar_number, student_subject, country, 
+         state, district, city, session_id, approved, approved_by, 
+         created_by, updated_by, created_at, updated_at, level, level_status)
         VALUES ?`;
 
         const values = studentsToInsert.map((s) => [
+          s.student_code,
           s.school_id,
           s.student_name,
           s.roll_no,
@@ -466,6 +496,7 @@ export const Student = {
           s.student_section,
           s.mobile_number ?? null,
           s.whatsapp_number ?? null,
+          s.aadhaar_number ?? null,
           JSON.stringify(s.student_subject),
           s.country,
           s.state,
@@ -496,20 +527,22 @@ export const Student = {
         });
       };
 
+      // Execute processStudents()
       processStudents()
-        .then(async ({ grouped, errors }) => {
+        .then(async ({ grouped, errors, aadhaarMap }) => {
           const allToInsert = [];
-
           for (const key of Object.keys(grouped)) {
             const [school_id, class_id, level] = key.split("-").map(Number);
-            const group = grouped[key];
-            const withRoll = await assignRollNumbers(
-              group,
+            const session_id = grouped[key][0].session_id;
+            const withRollAndCodes = await assignRollNumbersAndCodes(
+              grouped[key],
               school_id,
               class_id,
-              level
+              level,
+              session_id,
+              aadhaarMap
             );
-            allToInsert.push(...withRoll);
+            allToInsert.push(...withRollAndCodes);
           }
 
           if (allToInsert.length === 0) {
@@ -524,19 +557,53 @@ export const Student = {
             errors: errors.length > 0 ? errors : undefined,
           });
         })
-        .catch((err) =>
+        .catch((err) => {
+          if (
+            err.message === "Duplicate Aadhaar numbers found in this session"
+          ) {
+            return reject(
+              new Error("Duplicate Aadhaar numbers found in this session", {
+                cause: err.cause,
+              })
+            );
+          }
           reject(
             err.cause
               ? err
               : new Error("Student processing failed", { cause: [err.message] })
-          )
-        );
+          );
+        });
     });
   },
 
   getAllStudent: (callback) => {
     const query = "SELECT * FROM student";
     db.query(query, callback);
+  },
+
+  //aadhaar number  get stduent
+  getByAadhaar: (aadhaar_number, callback) => {
+    const query = `
+    SELECT 
+      s.*,
+      sch.school_name,
+      c.name as country_name,
+      st.name as state_name,
+      d.name as district_name,
+      ci.name as city_name
+    FROM student s
+    LEFT JOIN school sch ON s.school_id = sch.id
+    LEFT JOIN countries c ON s.country = c.id
+    LEFT JOIN states st ON s.state = st.id
+    LEFT JOIN districts d ON s.district = d.id
+    LEFT JOIN cities ci ON s.city = ci.id
+    WHERE s.aadhaar_number = ?
+  `;
+
+    db.query(query, [aadhaar_number], (err, results) => {
+      if (err) return callback(err);
+      callback(null, results);
+    });
   },
 
   //pagination and serch and get all data
@@ -547,21 +614,28 @@ export const Student = {
 
   //   if (search && search.trim() !== "") {
   //     whereClause = `WHERE
-  //     student_name LIKE ? OR
-  //     roll_no LIKE ?`;
+  //     s.student_name LIKE ? OR
+  //     s.roll_no LIKE ? OR
+  //     sc.school_name LIKE ?`;
 
-  //     for (let i = 0; i < 2; i++) queryParams.push(`%${search}%`);
+  //     for (let i = 0; i < 3; i++) queryParams.push(`%${search}%`);
   //   }
 
   //   const query = `
-  //   SELECT * FROM student
+  //   SELECT
+  //     s.*,
+  //     sc.school_name
+  //   FROM student s
+  //   JOIN school sc ON s.school_id = sc.id
   //   ${whereClause}
-  //   ORDER BY id DESC
+  //   ORDER BY s.id DESC
   //   LIMIT ? OFFSET ?;
   // `;
 
   //   const countQuery = `
-  //   SELECT COUNT(*) AS total FROM student
+  //   SELECT COUNT(*) AS total
+  //   FROM student s
+  //   JOIN school sc ON s.school_id = sc.id
   //   ${whereClause};
   // `;
 
@@ -592,35 +666,95 @@ export const Student = {
   //   });
   // },
 
-  getAll: (page = 1, limit = 10, search = "", callback) => {
+  // pagination, search, and get all students by session_id
+  // getAll: (page = 1, limit = 10, search = "", session_id, callback) => {
+  //   const offset = (page - 1) * limit;
+  //   let whereClause = "WHERE s.session_id = ?"; // Always filter by session_id
+  //   let queryParams = [session_id];
+
+  //   if (search && search.trim() !== "") {
+  //     whereClause += ` AND (s.student_name LIKE ? OR s.roll_no LIKE ? OR sc.school_name LIKE ?)`;
+  //     for (let i = 0; i < 3; i++) queryParams.push(`%${search}%`);
+  //   }
+
+  //   const query = `
+  //   SELECT s.*, sc.school_name
+  //   FROM student s
+  //   JOIN school sc ON s.school_id = sc.id
+  //   ${whereClause}
+  //   ORDER BY s.id DESC
+  //   LIMIT ? OFFSET ?;
+  // `;
+
+  //   const countQuery = `
+  //   SELECT COUNT(*) AS total
+  //   FROM student s
+  //   JOIN school sc ON s.school_id = sc.id
+  //   ${whereClause};
+  // `;
+
+  //   db.query(countQuery, queryParams, (err, countResult) => {
+  //     if (err) return callback(err);
+
+  //     const totalRecords = countResult[0].total;
+  //     const totalPages = Math.ceil(totalRecords / limit);
+  //     const nextPage = page < totalPages ? page + 1 : null;
+  //     const prevPage = page > 1 ? page - 1 : null;
+
+  //     db.query(
+  //       query,
+  //       [...queryParams, parseInt(limit), parseInt(offset)],
+  //       (err, result) => {
+  //         if (err) return callback(err);
+  //         callback(null, {
+  //           students: result,
+  //           currentPage: page,
+  //           nextPage,
+  //           prevPage,
+  //           totalPages,
+  //           totalRecords,
+  //         });
+  //       }
+  //     );
+  //   });
+  // },
+
+  getAll: (page = 1, limit = 10, search = "", session_id = null, callback) => {
     const offset = (page - 1) * limit;
+
+    // Base where clause to handle both cases
     let whereClause = "";
     let queryParams = [];
 
-    if (search && search.trim() !== "") {
-      whereClause = `WHERE 
-      s.student_name LIKE ? OR 
-      s.roll_no LIKE ? OR 
-      sc.school_name LIKE ?`;
+    if (session_id) {
+      // Explicit session filter
+      whereClause = "WHERE s.session_id = ?";
+      queryParams.push(session_id);
+    } else {
+      // Automatically pick active session
+      whereClause = "WHERE gs.status = 'active'";
+    }
 
+    if (search && search.trim() !== "") {
+      whereClause += ` AND (s.student_name LIKE ? OR s.roll_no LIKE ? OR sc.school_name LIKE ?)`;
       for (let i = 0; i < 3; i++) queryParams.push(`%${search}%`);
     }
 
     const query = `
-    SELECT 
-      s.*, 
-      sc.school_name 
+    SELECT s.*, sc.school_name, gs.session
     FROM student s
     JOIN school sc ON s.school_id = sc.id
+    JOIN gowvell_session gs ON s.session_id = gs.id
     ${whereClause}
     ORDER BY s.id DESC
     LIMIT ? OFFSET ?;
   `;
 
     const countQuery = `
-    SELECT COUNT(*) AS total 
+    SELECT COUNT(*) AS total
     FROM student s
     JOIN school sc ON s.school_id = sc.id
+    JOIN gowvell_session gs ON s.session_id = gs.id
     ${whereClause};
   `;
 
@@ -637,7 +771,6 @@ export const Student = {
         [...queryParams, parseInt(limit), parseInt(offset)],
         (err, result) => {
           if (err) return callback(err);
-
           callback(null, {
             students: result,
             currentPage: page,
@@ -664,6 +797,7 @@ export const Student = {
       student_section,
       mobile_number,
       whatsapp_number,
+      aadhaar_number,
       student_subject,
       approved,
       approved_by,
@@ -676,7 +810,7 @@ export const Student = {
     const query = `
         UPDATE student 
         SET school_id = ?, student_name = ?, class_id = ?, student_section = ?, 
-            mobile_number = ?, whatsapp_number = ?, student_subject = ?, 
+            mobile_number = ?, whatsapp_number = ?, aadhaar_number = ?, student_subject = ?, 
             approved = ?, approved_by = ?, country = ?, state = ?, district = ?, city = ?, 
             updated_at = NOW() 
         WHERE id = ?
@@ -691,6 +825,7 @@ export const Student = {
         student_section,
         mobile_number,
         whatsapp_number,
+        aadhaar_number,
         student_subject,
         approved,
         approved_by,
@@ -710,9 +845,71 @@ export const Student = {
   },
 
   //for omr issues student data by school class subject
+  // getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
+  //   if (!classList.length || !subjectList.length) {
+  //     return callback(null, { students: [], totalCount: 0 });
+  //   }
+
+  //   const placeholders = classList.map(() => "?").join(",");
+  //   const subjectPlaceholders = subjectList.map(() => "?").join(",");
+
+  //   const subjectJsonConditions = subjectList
+  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
+  //     .join(" OR ");
+
+  //   const dataQuery = `
+  //     SELECT
+  //       s.id,
+  //       s.roll_no,
+  //       s.student_name,
+  //       s.school_id,
+  //       c.name AS class_name,
+  //       sub.name AS subject_name
+  //     FROM student s
+  //     LEFT JOIN class c ON s.class_id = c.id
+  //     LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
+  //       ON TRUE
+  //     LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+  //     WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+  //       AND s.class_id IN (${placeholders})
+  //       AND (${subjectJsonConditions})
+  //       AND sub.id IN (${subjectPlaceholders})
+  //     ORDER BY s.id
+  //   `;
+
+  //   const countQuery = `
+  //     SELECT COUNT(DISTINCT s.id) as total_count
+  //     FROM student s
+  //     LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
+  //       ON TRUE
+  //     WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+  //       AND s.class_id IN (${placeholders})
+  //       AND (${subjectJsonConditions})
+  //   `;
+
+  //   const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
+  //   const dataParams = [
+  //     schoolName,
+  //     ...classList,
+  //     ...jsonSubjectParams,
+  //     ...subjectList,
+  //   ];
+  //   const countParams = [schoolName, ...classList, ...jsonSubjectParams];
+
+  //   db.query(dataQuery, dataParams, (err, students) => {
+  //     if (err) return callback(err);
+
+  //     db.query(countQuery, countParams, (countErr, countResult) => {
+  //       if (countErr) return callback(countErr);
+
+  //       const totalCount = countResult[0].total_count || 0;
+  //       callback(null, { students, totalCount });
+  //     });
+  //   });
+  // },
   getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
     if (!classList.length || !subjectList.length) {
-      return callback(null, { students: [], totalCount: 0 });
+      return callback(null, { students: [], totalCount: 0, exam_date: null });
     }
 
     const placeholders = classList.map(() => "?").join(",");
@@ -723,34 +920,43 @@ export const Student = {
       .join(" OR ");
 
     const dataQuery = `
-      SELECT 
-        s.id,
-        s.roll_no,
-        s.student_name,
-        s.school_id,
-        c.name AS class_name,
-        sub.name AS subject_name
-      FROM student s
-      LEFT JOIN class c ON s.class_id = c.id
-      LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
-        ON TRUE
-      LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-      WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-        AND s.class_id IN (${placeholders})
-        AND (${subjectJsonConditions})
-        AND sub.id IN (${subjectPlaceholders})
-      ORDER BY s.id
-    `;
+    SELECT 
+      s.id,
+      s.roll_no,
+      s.student_name,
+      s.school_id,
+      c.name AS class_name,
+      sub.name AS subject_name
+    FROM student s
+    LEFT JOIN class c ON s.class_id = c.id
+    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
+      ON TRUE
+    LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+    WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+      AND s.class_id IN (${placeholders})
+      AND (${subjectJsonConditions})
+      AND sub.id IN (${subjectPlaceholders})
+    ORDER BY s.id
+  `;
 
     const countQuery = `
-      SELECT COUNT(DISTINCT s.id) as total_count 
-      FROM student s
-      LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
-        ON TRUE
-      WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-        AND s.class_id IN (${placeholders})
-        AND (${subjectJsonConditions})
-    `;
+    SELECT COUNT(DISTINCT s.id) as total_count 
+    FROM student s
+    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
+      ON TRUE
+    WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+      AND s.class_id IN (${placeholders})
+      AND (${subjectJsonConditions})
+  `;
+
+    // New query to fetch exam_date for this school
+    const examQuery = `
+    SELECT DATE(exam_date) AS exam_date
+    FROM exam
+    WHERE school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+    ORDER BY exam_date DESC
+    LIMIT 1
+  `;
 
     const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
     const dataParams = [
@@ -761,14 +967,23 @@ export const Student = {
     ];
     const countParams = [schoolName, ...classList, ...jsonSubjectParams];
 
-    db.query(dataQuery, dataParams, (err, students) => {
-      if (err) return callback(err);
+    // Step 1 → Get exam_date first
+    db.query(examQuery, [schoolName], (examErr, examResult) => {
+      if (examErr) return callback(examErr);
 
-      db.query(countQuery, countParams, (countErr, countResult) => {
-        if (countErr) return callback(countErr);
+      const exam_date = examResult.length > 0 ? examResult[0].exam_date : null;
 
-        const totalCount = countResult[0].total_count || 0;
-        callback(null, { students, totalCount });
+      // Step 2 → Fetch students
+      db.query(dataQuery, dataParams, (err, students) => {
+        if (err) return callback(err);
+
+        // Step 3 → Fetch count
+        db.query(countQuery, countParams, (countErr, countResult) => {
+          if (countErr) return callback(countErr);
+
+          const totalCount = countResult[0]?.total_count || 0;
+          callback(null, { students, totalCount, exam_date });
+        });
       });
     });
   },
@@ -913,32 +1128,105 @@ export const Student = {
   },
 
   //student attendance
+  // getStudentforAttendance: (schoolId, classList, subjectList, callback) => {
+  //   if (!classList.length || !subjectList.length) {
+  //     return callback(null, { students: [], totalCount: 0, exam_date: null });
+  //   }
+
+  //   const classPlaceholders = classList.map(() => "?").join(",");
+  //   const studentSubjectConditions = subjectList
+  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
+  //     .join(" OR ");
+  //   const examClassConditions = classList
+  //     .map(() => `JSON_CONTAINS(e.classes_id, ?)`)
+  //     .join(" OR ");
+  //   const examSubjectConditions = subjectList
+  //     .map(() => `JSON_CONTAINS(e.subjects_id, ?)`)
+  //     .join(" OR ");
+
+  //   const dataQuery = `
+  //   SELECT s.id, s.roll_no, s.student_name, s.school_id, c.name AS class_name,
+  //          GROUP_CONCAT(DISTINCT sub.name) AS subject_names
+  //   FROM student s
+  //   LEFT JOIN class c ON s.class_id = c.id
+  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss ON TRUE
+  //   LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+  //   WHERE s.school_id = ?
+  //     AND s.class_id IN (${classPlaceholders})
+  //     AND (${studentSubjectConditions})
+  //   GROUP BY s.id
+  // `;
+
+  //   const countQuery = `
+  //   SELECT COUNT(DISTINCT s.id) AS total_count
+  //   FROM student s
+  //   WHERE s.school_id = ?
+  //     AND s.class_id IN (${classPlaceholders})
+  //     AND (${studentSubjectConditions})
+  // `;
+
+  //   const examQuery = `
+  //   SELECT e.id, e.exam_date
+  //   FROM exam e
+  //   WHERE e.school_id = ?
+  //     AND (${examClassConditions})
+  //     AND (${examSubjectConditions})
+  //   ORDER BY e.exam_date DESC
+  //   LIMIT 1
+  // `;
+
+  //   const jsonSubjectParamsStudents = subjectList.map((sub) =>
+  //     JSON.stringify(sub)
+  //   );
+  //   const jsonClassParamsExam = classList.map((cls) => JSON.stringify(cls));
+  //   const jsonSubjectParamsExam = subjectList.map((sub) => JSON.stringify(sub));
+
+  //   const dataParams = [schoolId, ...classList, ...jsonSubjectParamsStudents];
+  //   const countParams = [schoolId, ...classList, ...jsonSubjectParamsStudents];
+  //   const examParams = [
+  //     schoolId,
+  //     ...jsonClassParamsExam,
+  //     ...jsonSubjectParamsExam,
+  //   ];
+
+  //   db.query(examQuery, examParams, (examErr, examResult) => {
+  //     if (examErr) return callback(examErr);
+
+  //     const exam_id = examResult.length > 0 ? examResult[0].id : null;
+  //     const exam_date = examResult.length > 0 ? examResult[0].exam_date : null;
+
+  //     db.query(dataQuery, dataParams, (err, students) => {
+  //       if (err) return callback(err);
+
+  //       db.query(countQuery, countParams, (countErr, countResult) => {
+  //         if (countErr) return callback(countErr);
+
+  //         const totalCount = countResult[0]?.total_count || 0;
+  //         callback(null, { students, totalCount, exam_id, exam_date });
+  //       });
+  //     });
+  //   });
+  // },
   getStudentforAttendance: (schoolId, classList, subjectList, callback) => {
     if (!classList.length || !subjectList.length) {
-      return callback(null, { students: [], totalCount: 0 });
+      return callback(null, { students: [], totalCount: 0, exam_dates: [] });
     }
 
     const classPlaceholders = classList.map(() => "?").join(",");
-    const subjectJsonConditions = subjectList
+    const studentSubjectConditions = subjectList
       .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
       .join(" OR ");
 
     const dataQuery = `
-    SELECT
-      s.id,
-      s.roll_no,
-      s.student_name,
-      s.school_id,
-      c.name AS class_name,
-      GROUP_CONCAT(DISTINCT sub.name) AS subject_names
+    SELECT s.id, s.roll_no, s.student_name, s.school_id, c.name AS class_name,
+           GROUP_CONCAT(DISTINCT sub.name) AS subject_names
     FROM student s
     LEFT JOIN class c ON s.class_id = c.id
-    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-      ON TRUE
+    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss ON TRUE
     LEFT JOIN subject_master sub ON ss.subject_id = sub.id
     WHERE s.school_id = ?
       AND s.class_id IN (${classPlaceholders})
-      AND (${subjectJsonConditions})
+      AND (${studentSubjectConditions})
     GROUP BY s.id
   `;
 
@@ -947,25 +1235,44 @@ export const Student = {
     FROM student s
     WHERE s.school_id = ?
       AND s.class_id IN (${classPlaceholders})
-      AND (${subjectJsonConditions})
+      AND (${studentSubjectConditions})
   `;
 
-    const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
-    const dataParams = [schoolId, ...classList, ...jsonSubjectParams];
-    const countParams = [schoolId, ...classList, ...jsonSubjectParams];
+    // New query to fetch exam dates per class + subject combination
+    const examQuery = `
+    SELECT 
+      e.id AS exam_id, 
+      e.exam_date,
+      ec.value AS class_id, 
+      es.value AS subject_id
+    FROM exam e
+    JOIN JSON_TABLE(e.classes_id, '$[*]' COLUMNS (value INT PATH '$')) ec
+    JOIN JSON_TABLE(e.subjects_id, '$[*]' COLUMNS (value INT PATH '$')) es
+    WHERE e.school_id = ?
+      AND ec.value IN (${classPlaceholders})
+      AND es.value IN (${subjectList.map(() => "?").join(",")})
+    ORDER BY e.exam_date DESC
+  `;
+
+    const jsonSubjectParamsStudents = subjectList.map((sub) =>
+      JSON.stringify(sub)
+    );
+    const dataParams = [schoolId, ...classList, ...jsonSubjectParamsStudents];
+    const countParams = [schoolId, ...classList, ...jsonSubjectParamsStudents];
+    const examParams = [schoolId, ...classList, ...subjectList];
 
     db.query(dataQuery, dataParams, (err, students) => {
-      if (err) {
-        return callback(err);
-      }
+      if (err) return callback(err);
 
       db.query(countQuery, countParams, (countErr, countResult) => {
-        if (countErr) {
-          return callback(countErr);
-        }
-
+        if (countErr) return callback(countErr);
         const totalCount = countResult[0]?.total_count || 0;
-        callback(null, { students, totalCount });
+
+        db.query(examQuery, examParams, (examErr, examResult) => {
+          if (examErr) return callback(examErr);
+
+          callback(null, { students, totalCount, exam_dates: examResult });
+        });
       });
     });
   },
@@ -1001,6 +1308,7 @@ export const Student = {
   //       s.id,
   //       s.roll_no,
   //       s.student_name,
+  //       s.mobile_number,
   //       s.school_id,
   //       c.name AS class_name,
   //       GROUP_CONCAT(DISTINCT sub.name) AS subject_names
@@ -1038,6 +1346,7 @@ export const Student = {
   //       s.id,
   //       s.roll_no,
   //       s.student_name,
+  //       s.mobile_number,
   //       s.school_id,
   //       c.name AS class_name,
   //       GROUP_CONCAT(DISTINCT sub.name) AS subject_names
@@ -1085,6 +1394,7 @@ export const Student = {
   //     s.id,
   //     s.roll_no,
   //     s.student_name,
+  //     s.mobile_number,
   //     s.school_id,
   //     c.name AS class_name,
   //     GROUP_CONCAT(DISTINCT sub.name) AS subject_names
@@ -1121,47 +1431,134 @@ export const Student = {
   //   });
   // },
 
-  getStudentforReport: (schoolId, classList, subjectList, callback) => {
-    // Case 1: Only schoolId → get ALL students under the school
-    if (!classList.length && !subjectList.length) {
-      const dataQuery = `
-      SELECT
-        s.id,
-        s.roll_no,
-        s.student_name,
-        s.mobile_number,
-        s.school_id,
-        c.name AS class_name,
-        GROUP_CONCAT(DISTINCT sub.name) AS subject_names
-      FROM student s
-      LEFT JOIN class c ON s.class_id = c.id
-      LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-        ON TRUE
-      LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-      WHERE s.school_id = ?
-      GROUP BY s.id
-    `;
-
-      const countQuery = `
-      SELECT COUNT(DISTINCT s.id) AS total_count
-      FROM student s
-      WHERE s.school_id = ?
-    `;
-
-      db.query(dataQuery, [schoolId], (err, students) => {
-        if (err) return callback(err);
-        db.query(countQuery, [schoolId], (countErr, countResult) => {
-          if (countErr) return callback(countErr);
-          const totalCount = countResult[0]?.total_count || 0;
-          callback(null, { students, totalCount });
+  getStudentforReport: (
+    schoolId,
+    classList,
+    subjectList,
+    session_id,
+    callback
+  ) => {
+    // Step 1: Resolve session_id first
+    const resolveSessionId = (next) => {
+      if (session_id) {
+        const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
+        db.query(verifyQuery, [session_id], (err, result) => {
+          if (err) return callback(err);
+          if (result.length === 0)
+            return callback(new Error("Invalid session ID selected"));
+          return next(session_id);
         });
-      });
-      return;
-    }
+      } else {
+        const sessionQuery = `
+        SELECT id 
+        FROM gowvell_session 
+        WHERE status = 'active' 
+        ORDER BY id DESC 
+        LIMIT 1
+      `;
+        db.query(sessionQuery, (err, result) => {
+          if (err) return callback(err);
+          if (result.length === 0)
+            return callback(new Error("No active session found"));
+          return next(result[0].id);
+        });
+      }
+    };
 
-    // Case 2: schoolId + classList only → get all students in those classes (no subject filter)
-    if (classList.length && !subjectList.length) {
+    // Step 2: Once session_id is resolved, run student queries
+    resolveSessionId((resolvedSessionId) => {
+      // Case 1: Only schoolId → get ALL students under the school
+      if (!classList.length && !subjectList.length) {
+        const dataQuery = `
+        SELECT
+          s.id,
+          s.roll_no,
+          s.student_name,
+          s.mobile_number,
+          s.school_id,
+          c.name AS class_name,
+          GROUP_CONCAT(DISTINCT sub.name) AS subject_names
+        FROM student s
+        LEFT JOIN class c ON s.class_id = c.id
+        LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
+          ON TRUE
+        LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+        WHERE s.school_id = ? AND s.session_id = ?
+        GROUP BY s.id
+      `;
+
+        const countQuery = `
+        SELECT COUNT(DISTINCT s.id) AS total_count
+        FROM student s
+        WHERE s.school_id = ? AND s.session_id = ?
+      `;
+
+        db.query(dataQuery, [schoolId, resolvedSessionId], (err, students) => {
+          if (err) return callback(err);
+          db.query(
+            countQuery,
+            [schoolId, resolvedSessionId],
+            (countErr, countResult) => {
+              if (countErr) return callback(countErr);
+              const totalCount = countResult[0]?.total_count || 0;
+              callback(null, { students, totalCount });
+            }
+          );
+        });
+        return;
+      }
+
+      // Case 2: schoolId + classList only → all students in those classes
+      if (classList.length && !subjectList.length) {
+        const classPlaceholders = classList.map(() => "?").join(",");
+        const dataQuery = `
+        SELECT
+          s.id,
+          s.roll_no,
+          s.student_name,
+          s.mobile_number,
+          s.school_id,
+          c.name AS class_name,
+          GROUP_CONCAT(DISTINCT sub.name) AS subject_names
+        FROM student s
+        LEFT JOIN class c ON s.class_id = c.id
+        LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
+          ON TRUE
+        LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+        WHERE s.school_id = ? AND s.session_id = ?
+          AND s.class_id IN (${classPlaceholders})
+        GROUP BY s.id
+      `;
+
+        const countQuery = `
+        SELECT COUNT(DISTINCT s.id) AS total_count
+        FROM student s
+        WHERE s.school_id = ? AND s.session_id = ?
+          AND s.class_id IN (${classPlaceholders})
+      `;
+
+        const params = [schoolId, resolvedSessionId, ...classList];
+        db.query(dataQuery, params, (err, students) => {
+          if (err) return callback(err);
+          db.query(countQuery, params, (countErr, countResult) => {
+            if (countErr) return callback(countErr);
+            const totalCount = countResult[0]?.total_count || 0;
+            callback(null, { students, totalCount });
+          });
+        });
+        return;
+      }
+
+      // Case 3: schoolId + classList + subjectList → subject filtering
+      if (!classList.length || !subjectList.length) {
+        return callback(null, { students: [], totalCount: 0 });
+      }
+
       const classPlaceholders = classList.map(() => "?").join(",");
+      const subjectJsonConditions = subjectList
+        .map(() => `JSON_CONTAINS(s.student_subject, ? )`)
+        .join(" OR ");
+
       const dataQuery = `
       SELECT
         s.id,
@@ -1176,78 +1573,41 @@ export const Student = {
       LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
         ON TRUE
       LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-      WHERE s.school_id = ?
+      WHERE s.school_id = ? AND s.session_id = ?
         AND s.class_id IN (${classPlaceholders})
+        AND (${subjectJsonConditions})
       GROUP BY s.id
     `;
 
       const countQuery = `
       SELECT COUNT(DISTINCT s.id) AS total_count
       FROM student s
-      WHERE s.school_id = ?
+      WHERE s.school_id = ? AND s.session_id = ?
         AND s.class_id IN (${classPlaceholders})
+        AND (${subjectJsonConditions})
     `;
 
-      const params = [schoolId, ...classList];
-      db.query(dataQuery, params, (err, students) => {
+      const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
+      const dataParams = [
+        schoolId,
+        resolvedSessionId,
+        ...classList,
+        ...jsonSubjectParams,
+      ];
+      const countParams = [
+        schoolId,
+        resolvedSessionId,
+        ...classList,
+        ...jsonSubjectParams,
+      ];
+
+      db.query(dataQuery, dataParams, (err, students) => {
         if (err) return callback(err);
-        db.query(countQuery, params, (countErr, countResult) => {
+        db.query(countQuery, countParams, (countErr, countResult) => {
           if (countErr) return callback(countErr);
           const totalCount = countResult[0]?.total_count || 0;
           callback(null, { students, totalCount });
         });
-      });
-      return;
-    }
-
-    // Case 3: schoolId + classList + subjectList → original filtering logic
-    if (!classList.length || !subjectList.length) {
-      return callback(null, { students: [], totalCount: 0 });
-    }
-
-    const classPlaceholders = classList.map(() => "?").join(",");
-    const subjectJsonConditions = subjectList
-      .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
-      .join(" OR ");
-
-    const dataQuery = `
-    SELECT
-      s.id,
-      s.roll_no,
-      s.student_name,
-      s.mobile_number,
-      s.school_id,
-      c.name AS class_name,
-      GROUP_CONCAT(DISTINCT sub.name) AS subject_names
-    FROM student s
-    LEFT JOIN class c ON s.class_id = c.id
-    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-      ON TRUE
-    LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-    WHERE s.school_id = ?
-      AND s.class_id IN (${classPlaceholders})
-      AND (${subjectJsonConditions})
-    GROUP BY s.id
-  `;
-
-    const countQuery = `
-    SELECT COUNT(DISTINCT s.id) AS total_count
-    FROM student s
-    WHERE s.school_id = ?
-      AND s.class_id IN (${classPlaceholders})
-      AND (${subjectJsonConditions})
-  `;
-
-    const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
-    const dataParams = [schoolId, ...classList, ...jsonSubjectParams];
-    const countParams = [schoolId, ...classList, ...jsonSubjectParams];
-
-    db.query(dataQuery, dataParams, (err, students) => {
-      if (err) return callback(err);
-      db.query(countQuery, countParams, (countErr, countResult) => {
-        if (countErr) return callback(countErr);
-        const totalCount = countResult[0]?.total_count || 0;
-        callback(null, { students, totalCount });
       });
     });
   },

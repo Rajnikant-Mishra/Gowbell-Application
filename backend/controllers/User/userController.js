@@ -49,13 +49,13 @@ dotenv.config(); // Load environment variables
 
     User.getUserByEmail(email, (err, users) => {
       if (err || users.length === 0) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        return res.status(401).json({ error: "Invalid Email Please try again." });
       }
 
       const user = users[0];
       bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
         if (bcryptErr || !isMatch) {
-          return res.status(401).json({ error: "Invalid credentials" });
+          return res.status(401).json({ error: "Invalid password Please try again." });
         }
 
         const token = jwt.sign(

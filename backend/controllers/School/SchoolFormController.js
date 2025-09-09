@@ -129,6 +129,7 @@ export const getAll = (req, res) => {
   });
 };
 
+//pagination get all
 export const getAllSchools = (req, res) => {
   let { page = 1, limit = 10, search = "" } = req.query;
   page = parseInt(page);
@@ -140,6 +141,17 @@ export const getAllSchools = (req, res) => {
     res.status(200).json(data);
   });
 };
+
+// export const getAllSchools = (req, res) => {
+//   let { page = 1, limit = 10, search = "", session_id = null } = req.query;
+//   page = parseInt(page);
+//   limit = parseInt(limit);
+
+//   School.getAll(page, limit, search, session_id, (err, data) => {
+//     if (err) return res.status(500).json({ error: err.message });
+//     res.status(200).json({ session_id: session_id || "active", ...data });
+//   });
+// };
 
 // Get school by ID
 export const getSchoolById = (req, res) => {
@@ -423,9 +435,6 @@ export const filterschoolIDByLocation = (req, res) => {
       });
     });
 };
-
-
-
 
 //Report-school section
 export const getReportSchoolById = (req, res) => {

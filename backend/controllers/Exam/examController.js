@@ -1,18 +1,17 @@
 import Exam from "../../models/Exam/ExamModel.js";
 
-
 // Helper to ensure value is an array
-const ensureArray = (value) => Array.isArray(value) ? value : [value];
+const ensureArray = (value) => (Array.isArray(value) ? value : [value]);
 
 function normalizeArray(value) {
   if (Array.isArray(value)) {
-    return value.map(v => (isNaN(v) ? v : Number(v)));
+    return value.map((v) => (isNaN(v) ? v : Number(v)));
   }
   if (typeof value === "string") {
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
-        return parsed.map(v => (isNaN(v) ? v : Number(v)));
+        return parsed.map((v) => (isNaN(v) ? v : Number(v)));
       }
       return [isNaN(parsed) ? parsed : Number(parsed)];
     } catch {
@@ -22,6 +21,66 @@ function normalizeArray(value) {
   if (value == null) return [];
   return [isNaN(value) ? value : Number(value)];
 }
+
+// export const createExam = (req, res) => {
+//   const {
+//     school_id,
+//     classes_id,
+//     subjects_id,
+//     level,
+//     exam_date,
+//     country,
+//     state,
+//     district,
+//     city,
+//   } = req.body;
+//   const userId = req.user?.id;
+
+//   if (!userId) {
+//     return res.status(401).json({ error: "Unauthorized. Please log in." });
+//   }
+
+//   // Since frontend sends JSON strings, parse them to validate and pass as arrays
+//   let classesArray, subjectsArray;
+//   try {
+//     classesArray = JSON.parse(classes_id);
+//     subjectsArray = JSON.parse(subjects_id);
+//     if (!Array.isArray(classesArray) || !Array.isArray(subjectsArray)) {
+//       throw new Error("Invalid array format");
+//     }
+//   } catch (error) {
+//     return res
+//       .status(400)
+//       .json({ error: "Invalid classes or subjects format" });
+//   }
+
+//   Exam.create(
+//     {
+//       created_by: userId,
+//       school_id,
+//       classes_id: classesArray, // Pass parsed array
+//       subjects_id: subjectsArray, // Pass parsed array
+//       level,
+//       exam_date,
+//       country,
+//       state,
+//       district,
+//       city,
+//     },
+//     (err, result) => {
+//       if (err) {
+//         console.error("Exam creation error:", err);
+//         return res
+//           .status(500)
+//           .json({ error: "Failed to create exam", details: err.message });
+//       }
+//       res.status(201).json({
+//         message: "Exam created successfully",
+//         examId: result.insertId,
+//       });
+//     }
+//   );
+// };
 
 export const createExam = (req, res) => {
   const {
@@ -34,22 +93,23 @@ export const createExam = (req, res) => {
     state,
     district,
     city,
+    session_id, // optional
   } = req.body;
-  const userId = req.user?.id;
 
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ error: "Unauthorized. Please log in." });
   }
 
-  // Since frontend sends JSON strings, parse them to validate and pass as arrays
+  // Validate and parse classes_id and subjects_id
   let classesArray, subjectsArray;
   try {
     classesArray = JSON.parse(classes_id);
     subjectsArray = JSON.parse(subjects_id);
     if (!Array.isArray(classesArray) || !Array.isArray(subjectsArray)) {
-      throw new Error("Invalid array format");
+      throw new Error();
     }
-  } catch (error) {
+  } catch {
     return res
       .status(400)
       .json({ error: "Invalid classes or subjects format" });
@@ -59,21 +119,23 @@ export const createExam = (req, res) => {
     {
       created_by: userId,
       school_id,
-      classes_id: classesArray, // Pass parsed array
-      subjects_id: subjectsArray, // Pass parsed array
+      classes_id: classesArray,
+      subjects_id: subjectsArray,
       level,
       exam_date,
       country,
       state,
       district,
       city,
+      session_id, // passed if frontend sends, else model resolves
     },
     (err, result) => {
       if (err) {
         console.error("Exam creation error:", err);
-        return res
-          .status(500)
-          .json({ error: "Failed to create exam", details: err.message });
+        return res.status(500).json({
+          error: "Failed to create exam",
+          details: err.message,
+        });
       }
       res.status(201).json({
         message: "Exam created successfully",
@@ -97,21 +159,44 @@ export const getExams = (req, res) => {
 };
 
 //pagination and serch and get all
+// export const getExamswithpagination = (req, res) => {
+//   const { page = 1, limit = 10, search = "" } = req.query;
+
+//   Exam.getAllwithpaginate(
+//     parseInt(page),
+//     parseInt(limit),
+//     search,
+//     (err, examsData) => {
+//       if (err) {
+//         console.error("Fetch exams error:", err);
+//         return res
+//           .status(500)
+//           .json({ error: "Failed to fetch exams", details: err.message });
+//       }
+//       res.status(200).json(examsData);
+//     }
+//   );
+// };
+
 export const getExamswithpagination = (req, res) => {
-  const { page = 1, limit = 10, search = "" } = req.query;
+  let { page = 1, limit = 10, search = "", session_id = null } = req.query;
 
   Exam.getAllwithpaginate(
     parseInt(page),
     parseInt(limit),
     search,
+    session_id,
     (err, examsData) => {
       if (err) {
         console.error("Fetch exams error:", err);
-        return res
-          .status(500)
-          .json({ error: "Failed to fetch exams", details: err.message });
+        return res.status(500).json({
+          error: "Failed to fetch exams",
+          details: err.message,
+        });
       }
-      res.status(200).json(examsData);
+      res
+        .status(200)
+        .json({ session_id: session_id || "active", ...examsData });
     }
   );
 };
@@ -131,7 +216,6 @@ export const getExamById = (req, res) => {
     res.status(200).json({ data: result[0] });
   });
 };
-
 
 export const updateExam = (req, res) => {
   const examId = req.params.id;
@@ -166,7 +250,9 @@ export const updateExam = (req, res) => {
 
     const exam = exams[0];
     if (exam.created_by !== userId) {
-      return res.status(403).json({ error: "Forbidden. You are not the creator of this exam." });
+      return res
+        .status(403)
+        .json({ error: "Forbidden. You are not the creator of this exam." });
     }
 
     // Step 2: Prepare normalized update data
@@ -193,8 +279,6 @@ export const updateExam = (req, res) => {
     });
   });
 };
-
-
 
 export const deleteExam = (req, res) => {
   const { id } = req.params;

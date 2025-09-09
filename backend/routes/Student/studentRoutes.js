@@ -3,6 +3,7 @@ import {
   createStudent,
   bulkUploadStudents,
   getAllStudents,
+  getStudentByAadhaar,
   getStudentById,
   updateStudent,
   deleteStudent,
@@ -23,6 +24,10 @@ router.post("/student/bulk-upload", authenticateToken, bulkUploadStudents); // B
 
 // Get all students
 router.get("/student", getAllStudents);
+
+//get aadhaar number
+// GET student data by Aadhaar number
+router.get('/students/:aadhaar_number', getStudentByAadhaar);
 
 // Get a single student by ID
 router.get("/student/:id", getStudentById);

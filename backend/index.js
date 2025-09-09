@@ -182,6 +182,10 @@ import questionRoutes from "./routes/question/questionRoutes.js";
 //session
 import sessionRoutes from "./routes/session/sessionRoutes.js";
 
+//activity 
+import activityRoute from "./routes/dashboard/activityRoute.js";
+
+
 const app = express();
 
 dotenv.config();
@@ -256,6 +260,10 @@ app.use("/api/q1", questionRoutes);
 
 //session
 app.use("/api/session", sessionRoutes);
+
+
+//activity
+app.use("/api/ac1", activityRoute);
 
 // ✅ Cron Job: Runs every day at 1 AM
 // cron.schedule('* * * * * *', () => {

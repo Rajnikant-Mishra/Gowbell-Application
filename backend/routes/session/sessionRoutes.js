@@ -3,7 +3,7 @@ import { getAllSessions, getSessionById , createSession, updateSession, deleteSe
 
 const router = express.Router();
 
-router.get('/', getAllSessions);
+router.get('/get-all', getAllSessions);
 router.get('/:id', getSessionById);
 router.post('/', createSession);
 router.put('/:id', updateSession);

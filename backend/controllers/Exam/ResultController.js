@@ -1,9 +1,19 @@
 import ResultModel from "../../models/Exam/ResultModel.js";
+import { db } from "../../config/db.js";
 
 // Create a single result
+// export const createResult = (req, res) => {
+//   ResultModel.create(req.body, (err, result) => {
+//     if (err) return res.status(500).json({ error: err.message });
+//     res.status(201).json(result);
+//   });
+// };
+
 export const createResult = (req, res) => {
   ResultModel.create(req.body, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
     res.status(201).json(result);
   });
 };
@@ -126,13 +136,30 @@ export const bulkUploadResults = (req, res) => {
     });
 };
 
-// Get all results
+// Get all results paginate serach also
+// export const getAllResults = (req, res) => {
+//   let { page = 1, limit = 10 } = req.query;
+//   page = parseInt(page);
+//   limit = parseInt(limit);
+
+//   ResultModel.getAllResults(page, limit, (err, data) => {
+//     if (err) {
+//       return res.status(500).json({
+//         success: false,
+//         message: "Error fetching results",
+//         error: err.message,
+//       });
+//     }
+//     res.status(200).json({ success: true, ...data });
+//   });
+// };
+
 export const getAllResults = (req, res) => {
-  let { page = 1, limit = 10 } = req.query;
+  let { page = 1, limit = 10, session_id = null } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
 
-  ResultModel.getAllResults(page, limit, (err, data) => {
+  ResultModel.getAllResults(page, limit, session_id, (err, data) => {
     if (err) {
       return res.status(500).json({
         success: false,
@@ -140,7 +167,9 @@ export const getAllResults = (req, res) => {
         error: err.message,
       });
     }
-    res.status(200).json({ success: true, ...data });
+    res
+      .status(200)
+      .json({ success: true, session_id: session_id || "active", ...data });
   });
 };
 
@@ -158,25 +187,27 @@ export const deleteResultById = (req, res) => {
   });
 };
 
+// get student by school, class, subject
 // export const getFilteredStudentsomrreceipt = (req, res) => {
 //   try {
-//     const { schoolId, classIds, subjectId, updatePending = false } = req.body;
+//     const { schoolId, classIds, subjectIds, updatePending = false } = req.body;
 
 //     // Validate inputs
 //     if (
 //       !schoolId ||
 //       !Array.isArray(classIds) ||
 //       classIds.length === 0 ||
-//       !subjectId
+//       !Array.isArray(subjectIds) ||
+//       subjectIds.length === 0
 //     ) {
 //       return res.status(400).json({
 //         error:
-//           "Invalid input data: schoolId, classIds (array), and subjectId are required",
+//           "Invalid input data: schoolId, classIds (array), and subjectIds (array) are required",
 //       });
 //     }
 
 //     const fetchStudents = () => {
-//       ResultModel.getStudents(schoolId, classIds, subjectId, (err, result) => {
+//       ResultModel.getStudents(schoolId, classIds, subjectIds, (err, result) => {
 //         if (err) {
 //           return res.status(500).json({
 //             error: "Failed to fetch students",
@@ -193,7 +224,7 @@ export const deleteResultById = (req, res) => {
 //             });
 //           }
 
-//           ResultModel.getSubjectNames([subjectId], (err, subjectNames) => {
+//           ResultModel.getSubjectNames(subjectIds, (err, subjectNames) => {
 //             if (err) {
 //               return res.status(500).json({
 //                 error: "Failed to fetch subject names",
@@ -206,7 +237,7 @@ export const deleteResultById = (req, res) => {
 //               totalCount,
 //               classNames,
 //               subjectNames,
-//               message: `Pending ${totalCount} students for school ID: ${schoolId} successfully fetched`,
+//               message: `Successfully retrieved ${totalCount} students for School `,
 //             });
 //           });
 //         });
@@ -217,7 +248,7 @@ export const deleteResultById = (req, res) => {
 //       ResultModel.updatePendingPercentages(
 //         schoolId,
 //         classIds,
-//         subjectId,
+//         subjectIds,
 //         (err, result) => {
 //           if (err) {
 //             return res.status(500).json({
@@ -238,7 +269,13 @@ export const deleteResultById = (req, res) => {
 
 export const getFilteredStudentsomrreceipt = (req, res) => {
   try {
-    const { schoolId, classIds, subjectIds, updatePending = false } = req.body;
+    const {
+      schoolId,
+      classIds,
+      subjectIds,
+      updatePending = false,
+      session_id,
+    } = req.body;
 
     // Validate inputs
     if (
@@ -254,62 +291,105 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
       });
     }
 
-    const fetchStudents = () => {
-      ResultModel.getStudents(schoolId, classIds, subjectIds, (err, result) => {
-        if (err) {
-          return res.status(500).json({
-            error: "Failed to fetch students",
-            details: err.message,
-          });
-        }
-        const { students, totalCount } = result;
+    // Step 1: Resolve session_id
+    const resolveSessionId = (next) => {
+      if (session_id) {
+        const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
+        db.query(verifyQuery, [session_id], (err, result) => {
+          if (err)
+            return res
+              .status(500)
+              .json({ error: "DB error", details: err.message });
+          if (result.length === 0) {
+            return res
+              .status(400)
+              .json({ error: "Invalid session ID selected" });
+          }
+          return next(session_id);
+        });
+      } else {
+        const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+        db.query(sessionQuery, (err, result) => {
+          if (err)
+            return res
+              .status(500)
+              .json({ error: "DB error", details: err.message });
+          if (result.length === 0) {
+            return res.status(400).json({ error: "No active session found" });
+          }
+          return next(result[0].id);
+        });
+      }
+    };
 
-        ResultModel.getClassNames(classIds, (err, classNames) => {
+    // Step 2: Core student fetch logic
+    const fetchStudents = (resolvedSessionId) => {
+      ResultModel.getStudents(
+        schoolId,
+        classIds,
+        subjectIds,
+        resolvedSessionId,
+        (err, result) => {
           if (err) {
             return res.status(500).json({
-              error: "Failed to fetch class names",
+              error: "Failed to fetch students",
               details: err.message,
             });
           }
 
-          ResultModel.getSubjectNames(subjectIds, (err, subjectNames) => {
+          const { students, totalCount } = result;
+
+          ResultModel.getClassNames(classIds, (err, classNames) => {
             if (err) {
               return res.status(500).json({
-                error: "Failed to fetch subject names",
+                error: "Failed to fetch class names",
                 details: err.message,
               });
             }
 
-            res.json({
-              students,
-              totalCount,
-              classNames,
-              subjectNames,
-              message: `Successfully retrieved ${totalCount} students for School `,
+            ResultModel.getSubjectNames(subjectIds, (err, subjectNames) => {
+              if (err) {
+                return res.status(500).json({
+                  error: "Failed to fetch subject names",
+                  details: err.message,
+                });
+              }
+
+              res.json({
+                students,
+                totalCount,
+                classNames,
+                subjectNames,
+                session_id: resolvedSessionId,
+                message: `Successfully retrieved ${totalCount} students for School ${schoolId}`,
+              });
             });
           });
-        });
-      });
-    };
-
-    if (updatePending) {
-      ResultModel.updatePendingPercentages(
-        schoolId,
-        classIds,
-        subjectIds,
-        (err, result) => {
-          if (err) {
-            return res.status(500).json({
-              error: "Failed to update pending records",
-              details: err.message,
-            });
-          }
-          fetchStudents(); // After update, fetch again
         }
       );
-    } else {
-      fetchStudents();
-    }
+    };
+
+    // Step 3: Update pending percentages first if required
+    resolveSessionId((resolvedSessionId) => {
+      if (updatePending) {
+        ResultModel.updatePendingPercentages(
+          schoolId,
+          classIds,
+          subjectIds,
+          (err) => {
+            if (err) {
+              return res.status(500).json({
+                error: "Failed to update pending records",
+                details: err.message,
+              });
+            }
+            fetchStudents(resolvedSessionId);
+          }
+        );
+      } else {
+        fetchStudents(resolvedSessionId);
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: "Server error", details: err.message });
   }
@@ -332,13 +412,13 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
 
 //medal updated
 export const updateMedal = (req, res) => {
-  const { id, certificate  } = req.body;
+  const { id, certificate } = req.body;
 
-  if (!id || !certificate ) {
+  if (!id || !certificate) {
     return res.status(400).json({ message: "id and medal are required" });
   }
 
-  ResultModel.updateMedal(id, certificate , (err, data) => {
+  ResultModel.updateMedal(id, certificate, (err, data) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
