@@ -1,4 +1,4 @@
-// import React, { useState, useEffect, useCallback } from "react";
+// import React, { useState, useEffect, useCallback, useRef } from "react";
 // import { useNavigate } from "react-router-dom";
 // import {
 //   Container,
@@ -27,13 +27,13 @@
 // import html2canvas from "html2canvas";
 // import * as XLSX from "xlsx";
 // import Mainlayout from "../Layouts/Mainlayout";
-// import Breadcrumb from "../CommonButton/Breadcrumb";0.
+// import Breadcrumb from "../CommonButton/Breadcrumb";
 // import styles from "./studentReport.module.css";
 // import axios from "axios";
 // import { API_BASE_URL } from "../ApiConfig/APIConfig";
 // import Swal from "sweetalert2";
 // import "../Common-Css/Swallfire.css";
-// // import studentPdf from "../Reports/StudentPdf";
+// import StudentPdf from "./StudentPdf ";
 
 // // Reusable Dropdown Component
 // const Dropdown = ({ label, value, options, onChange, disabled, multiple }) => (
@@ -105,6 +105,7 @@
 //   const [anchorEl, setAnchorEl] = useState(null);
 //   const open = Boolean(anchorEl);
 //   const navigate = useNavigate();
+//   const pdfRef = useRef();
 
 //   useEffect(() => {
 //     let isMounted = true;
@@ -345,25 +346,10 @@
 //   };
 
 //   const handleGenerateProfessionalPDF = async () => {
-//     const schoolName =
-//       schools.find((s) => s.id === selectedSchool)?.school_name ||
-//       "School Name";
 //     const pdf = new jsPDF("p", "mm", "a4");
 
-//     // Professional header: Logo placeholder on top left, school name aligned next to it
-//     pdf.setFontSize(12);
-//     pdf.setFont("helvetica", "bold");
-//     pdf.setFontSize(16);
-//     pdf.text(schoolName, 40, 15);
-
-//     // Report title centered
-//     pdf.setFontSize(14);
-//     const title = "Student Report";
-//     const titleWidth = pdf.getTextWidth(title);
-//     pdf.text(title, (pdf.internal.pageSize.width - titleWidth) / 2, 30);
-
-//     // Capture the table content (excluding buttons and pagination for clean report)
-//     const content = document.getElementById("table-content");
+//     // Capture the custom PDF component
+//     const content = pdfRef.current;
 //     if (content) {
 //       const canvas = await html2canvas(content, { scale: 2 });
 //       const imgData = canvas.toDataURL("image/png");
@@ -371,26 +357,16 @@
 //       const pageHeight = pdf.internal.pageSize.height;
 //       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 //       let heightLeft = imgHeight;
-//       let position = 40; // Start below header
+//       let position = 0; // No additional header space
 
 //       pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-//       heightLeft -= pageHeight - position;
+//       heightLeft -= pageHeight;
 
 //       while (heightLeft > 0) {
 //         pdf.addPage();
-
-//         // Add header on every page for professional look
-//         pdf.setFontSize(12);
-//         pdf.setFont("helvetica", "bold");
-//         pdf.text("[Logo]", 10, 15);
-//         pdf.setFontSize(16);
-//         pdf.text(schoolName, 40, 15);
-//         pdf.setFontSize(14);
-//         pdf.text(title, (pdf.internal.pageSize.width - titleWidth) / 2, 30);
-
-//         position = -(imgHeight - heightLeft) + 40; // Adjust shift to account for header on new pages
+//         position = -(imgHeight - heightLeft);
 //         pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-//         heightLeft -= pageHeight - 40;
+//         heightLeft -= pageHeight;
 //       }
 
 //       // Add footer on every page (professional touch: page number and date)
@@ -710,11 +686,45 @@
 //           )}
 //         </Paper>
 //       </Container>
+//       <Box
+//         ref={pdfRef}
+//         sx={{
+//           position: "absolute",
+//           left: "-9999px",
+//           width: "1000px", // Adjust width for better capture
+//           p: 2,
+//         }}
+//       >
+//         <StudentPdf
+//           schoolName={
+//             schools.find((s) => s.id === selectedSchool)?.school_name ||
+//             "School Name"
+//           }
+//           students={studentDataByClassSubject.flatMap(
+//             (group) => group.students
+//           )}
+//           cityName={
+//             cities.find((c) => c.id === selectedCity)?.name || "Unknown City"
+//           }
+//           districtName={
+//             districts.find((d) => d.id === selectedDistrict)?.name ||
+//             "Unknown District"
+//           }
+//           stateName={
+//             states.find((s) => s.id === selectedState)?.name || "Unknown State"
+//           }
+//           countryName={
+//             countries.find((c) => c.id === selectedCountry)?.name ||
+//             "Unknown Country"
+//           }
+//         />
+//       </Box>
 //     </Mainlayout>
 //   );
 // };
 
 // export default StudentReport;
+
 
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -745,13 +755,13 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import * as XLSX from "xlsx";
-import Mainlayout from "../Layouts/Mainlayout";
-import Breadcrumb from "../CommonButton/Breadcrumb";
-import styles from "./studentReport.module.css";
+import Mainlayout from "../Layouts/Mainlayout"; // Adjust path as needed
+import Breadcrumb from "../CommonButton/Breadcrumb"; // Adjust path as needed
+import styles from "./studentReport.module.css"; // Adjust path as needed
 import axios from "axios";
-import { API_BASE_URL } from "../ApiConfig/APIConfig";
+import { API_BASE_URL } from "../ApiConfig/APIConfig"; // Adjust path as needed
 import Swal from "sweetalert2";
-import "../Common-Css/Swallfire.css";
+import "../Common-Css/Swallfire.css"; // Adjust path as needed
 import StudentPdf from "./StudentPdf ";
 
 // Reusable Dropdown Component
@@ -816,9 +826,7 @@ const StudentReport = () => {
   const [subjects, setSubjects] = useState([]);
   const [selectedClassIds, setSelectedClassIds] = useState([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
-  const [studentDataByClassSubject, setStudentDataByClassSubject] = useState(
-    []
-  );
+  const [studentDataByClassSubject, setStudentDataByClassSubject] = useState([]);
   const [canGenerateReport, setCanGenerateReport] = useState(false);
   const [pageByGroup, setPageByGroup] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
@@ -826,6 +834,7 @@ const StudentReport = () => {
   const navigate = useNavigate();
   const pdfRef = useRef();
 
+  // Fetch initial data (countries, states, districts, cities, classes, subjects)
   useEffect(() => {
     let isMounted = true;
 
@@ -855,14 +864,14 @@ const StudentReport = () => {
           setCities(citiesRes.data || []);
           setClasses(
             (classesRes.data || []).map((cls) => ({
-              id: cls.id,
-              name: cls.name,
+              value: cls.id,
+              label: cls.name,
             }))
           );
           setSubjects(
             (subjectsRes.data || []).map((sub) => ({
-              id: sub.id,
-              name: sub.name,
+              value: sub.id,
+              label: sub.name,
             }))
           );
         }
@@ -880,6 +889,7 @@ const StudentReport = () => {
     };
   }, []);
 
+  // Filter states, districts, cities based on selections
   useEffect(() => {
     setFilteredStates(states.filter((s) => s.country_id === selectedCountry));
     setSelectedState("");
@@ -913,6 +923,7 @@ const StudentReport = () => {
     setCanGenerateReport(false);
   }, [selectedDistrict, cities]);
 
+  // Fetch schools based on location
   const fetchSchoolsByLocation = useCallback(async () => {
     if (
       !selectedCountry ||
@@ -942,8 +953,8 @@ const StudentReport = () => {
       if (response.data.success) {
         const schoolList = response.data.data.flatMap((location) =>
           location.schools.map((school) => ({
-            id: school.id,
-            school_name: school.name,
+            value: school.id,
+            label: school.name,
             country_name: location.country,
             state_name: location.state,
             district_name: location.district,
@@ -967,7 +978,7 @@ const StudentReport = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to fetch schools. Please try again.",
+        text: error.response?.data?.error || "Failed to fetch schools",
         confirmButtonColor: "#1230AE",
       });
     } finally {
@@ -987,8 +998,24 @@ const StudentReport = () => {
     fetchSchoolsByLocation,
   ]);
 
+  // Fetch students based on selected filters
   useEffect(() => {
     const fetchStudents = async () => {
+      const session_id = localStorage.getItem("currentSessionId");
+
+      if (!session_id) {
+        setFetchError("No session selected. Please select a session from the header.");
+        setStudentDataByClassSubject([]);
+        setCanGenerateReport(false);
+        Swal.fire({
+          icon: "error",
+          title: "No Session Selected",
+          text: "Please select a session from the header.",
+          confirmButtonColor: "#1230AE",
+        });
+        return;
+      }
+
       if (selectedSchool) {
         try {
           setIsLoading(true);
@@ -999,6 +1026,7 @@ const StudentReport = () => {
               schoolId: selectedSchool,
               classList: selectedClassIds,
               subjectList: selectedSubjectIds,
+              session_id: session_id,
             }
           );
 
@@ -1017,7 +1045,7 @@ const StudentReport = () => {
             mobileNumber: student.mobile_number || "N/A",
           }));
 
-          const groupKey = selectedSchool; // Use schoolId as groupKey when no class/subject filters
+          const groupKey = selectedSchool;
           setStudentDataByClassSubject([
             {
               classIds: selectedClassIds,
@@ -1039,13 +1067,13 @@ const StudentReport = () => {
           }
         } catch (error) {
           console.error("Error fetching students:", error);
-          setFetchError("Failed to fetch students");
+          setFetchError(error.response?.data?.error || "Failed to fetch students");
           setStudentDataByClassSubject([]);
           setCanGenerateReport(false);
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Failed to fetch students. Please try again.",
+            text: error.response?.data?.error || "Failed to fetch students",
             confirmButtonColor: "#1230AE",
           });
         } finally {
@@ -1060,14 +1088,15 @@ const StudentReport = () => {
     fetchStudents();
   }, [selectedSchool, selectedClassIds, selectedSubjectIds]);
 
+  // Handle pagination
   const handleChangePage = (groupKey, newPage) => {
     setPageByGroup((prev) => ({ ...prev, [groupKey]: newPage }));
   };
 
+  // Generate PDF
   const handleGenerateProfessionalPDF = async () => {
     const pdf = new jsPDF("p", "mm", "a4");
 
-    // Capture the custom PDF component
     const content = pdfRef.current;
     if (content) {
       const canvas = await html2canvas(content, { scale: 2 });
@@ -1076,7 +1105,7 @@ const StudentReport = () => {
       const pageHeight = pdf.internal.pageSize.height;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-      let position = 0; // No additional header space
+      let position = 0;
 
       pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
@@ -1088,7 +1117,6 @@ const StudentReport = () => {
         heightLeft -= pageHeight;
       }
 
-      // Add footer on every page (professional touch: page number and date)
       const pageCount = pdf.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i);
@@ -1111,6 +1139,7 @@ const StudentReport = () => {
     setAnchorEl(null);
   };
 
+  // Generate Excel
   const handleGenerateExcel = () => {
     const wb = XLSX.utils.book_new();
     studentDataByClassSubject.forEach((group) => {
@@ -1132,6 +1161,7 @@ const StudentReport = () => {
     setAnchorEl(null);
   };
 
+  // Download menu handlers
   const handleDownloadClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -1140,17 +1170,18 @@ const StudentReport = () => {
     setAnchorEl(null);
   };
 
+  // Dropdown options
   const dropdownOptions = {
     countries: countries.map((c) => ({ value: c.id, label: c.name })),
     states: filteredStates.map((s) => ({ value: s.id, label: s.name })),
     districts: filteredDistricts.map((d) => ({ value: d.id, label: d.name })),
     cities: filteredCities.map((c) => ({ value: c.id, label: c.name })),
     schools: schools.map((s) => ({
-      value: s.id,
-      label: `${s.school_name}`,
+      value: s.value,
+      label: `${s.label}`,
     })),
-    classes: classes.map((c) => ({ value: c.id, label: c.name })),
-    subjects: subjects.map((s) => ({ value: s.id, label: s.name })),
+    classes: classes.map((c) => ({ value: c.value, label: c.label })),
+    subjects: subjects.map((s) => ({ value: s.value, label: s.label })),
   };
 
   return (
@@ -1333,7 +1364,7 @@ const StudentReport = () => {
                   <TableBody>
                     {studentDataByClassSubject.length > 0 ? (
                       studentDataByClassSubject.flatMap((group) => {
-                        const groupKey = selectedSchool; // Use schoolId as groupKey
+                         const groupKey = selectedSchool; // Use schoolId as groupKey
                         const page = pageByGroup[groupKey] || 0;
                         const rowsPerPage = 10;
                         const paginatedStudents = group.students.slice(
@@ -1410,7 +1441,7 @@ const StudentReport = () => {
         sx={{
           position: "absolute",
           left: "-9999px",
-          width: "1000px", // Adjust width for better capture
+          width: "1000px",
           p: 2,
         }}
       >

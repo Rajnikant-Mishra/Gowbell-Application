@@ -1,5 +1,3 @@
-
-
 // import React, { useEffect, useState, useMemo, useRef } from "react";
 // import { AgGridReact } from "ag-grid-react";
 // import "ag-grid-community/styles/ag-grid.css";
@@ -45,17 +43,6 @@
 //         );
 //         const { inventory, totalRecords, totalPages } = inventoryResponse.data;
 
-//         // Create maps for faster lookup
-//         const itemsMap = {};
-//         itemsData.forEach((item) => {
-//           itemsMap[item.id] = item.name;
-//         });
-
-//         const subItemsMap = {};
-//         subItemsData.forEach((subItem) => {
-//           subItemsMap[subItem.id] = subItem.name;
-//         });
-
 //         // Format inventory data
 //         const formattedData = await Promise.all(
 //           inventory.map(async (record) => {
@@ -67,10 +54,8 @@
 
 //               return {
 //                 ...record,
-//                 date: record.date ? record.date.split("T")[0] : "", // Format date
+//                 date: record.date ? record.date.split("T")[0] : "",
 //                 created_by: userName,
-//                 item: itemsMap[record.item] || "Unknown Item",
-//                 sub_item: subItemsMap[record.sub_item] || "Unknown Sub Item",
 //               };
 //             } catch (userError) {
 //               console.error(
@@ -81,8 +66,6 @@
 //                 ...record,
 //                 date: record.date ? record.date.split("T")[0] : "",
 //                 created_by: "Unknown User",
-//                 item: itemsMap[record.item] || "Unknown Item",
-//                 sub_item: subItemsMap[record.sub_item] || "Unknown Sub Item",
 //               };
 //             }
 //           })
@@ -184,7 +167,12 @@
 //         field: "sub_item",
 //         sortable: true,
 //         filter: "agTextColumnFilter",
-//         // Removed width to allow auto-sizing
+//       },
+//       {
+//         headerName: "SUB ITEM NAME",
+//         field: "sub_item_name",
+//         sortable: true,
+//         filter: "agTextColumnFilter",
 //       },
 //       {
 //         headerName: "QUANTITY",
@@ -205,7 +193,6 @@
 //         field: "price",
 //         sortable: true,
 //         filter: "agNumberColumnFilter",
-//         // Removed width to allow auto-sizing
 //       },
 //       {
 //         headerName: "SUPPLIER",
@@ -401,7 +388,7 @@
 //                     fontWeight: "bold",
 //                     outline: "none",
 //                     transition: "all 0.3s ease",
-//                     fontFamily: '"Poppins", sans-serif',
+//                     fontFamily: "'Poppins', sans-serif",
 //                   }}
 //                 >
 //                   {pageSizes.map((size) => (
@@ -414,7 +401,7 @@
 //                   style={{
 //                     margin: "auto",
 //                     color: "#6C757D",
-//                     fontFamily: '"Poppins", sans-serif',
+//                     fontFamily: "'Poppins', sans-serif",
 //                     fontSize: "14px",
 //                   }}
 //                 >
@@ -434,7 +421,7 @@
 //                     style={{
 //                       margin: "auto",
 //                       color: "#6C757D",
-//                       fontFamily: '"Poppins", sans-serif',
+//                       fontFamily: "'Poppins', sans-serif",
 //                       fontSize: "14px",
 //                     }}
 //                   >
@@ -463,7 +450,7 @@
 //                     cursor: page === 1 ? "not-allowed" : "pointer",
 //                     transition: "all 0.3s ease",
 //                     margin: "0 4px",
-//                     fontFamily: '"Poppins", sans-serif',
+//                     fontFamily: "'Poppins', sans-serif",
 //                   }}
 //                 >
 //                   <UilAngleLeftB />
@@ -480,7 +467,7 @@
 //                           style={{
 //                             color: "#aaa",
 //                             fontSize: "14px",
-//                             fontFamily: '"Poppins", sans-serif',
+//                             fontFamily: "'Poppins', sans-serif",
 //                           }}
 //                         >
 //                           ...
@@ -502,7 +489,7 @@
 //                           transition: "all 0.3s ease",
 //                           margin: "0 4px",
 //                           fontWeight: page === pg ? "bold" : "normal",
-//                           fontFamily: '"Poppins", sans-serif',
+//                           fontFamily: "'Poppins', sans-serif",
 //                           fontSize: "14px",
 //                         }}
 //                       >
@@ -512,7 +499,7 @@
 //                   ))}
 //                 <button
 //                   onClick={handleNextPage}
-//                   disabled={page === totalPages}
+//                   disabled={totalPages}
 //                   style={{
 //                     backgroundColor:
 //                       page === totalPages ? "#E0E0E0" : "#F5F5F5",
@@ -525,7 +512,7 @@
 //                     cursor: page === totalPages ? "not-allowed" : "pointer",
 //                     transition: "all 0.3s ease",
 //                     margin: "0 4px",
-//                     fontFamily: '"Poppins", sans-serif',
+//                     fontFamily: "'Poppins', sans-serif",
 //                   }}
 //                 >
 //                   <UilAngleRightB />
@@ -538,7 +525,6 @@
 //     </Mainlayout>
 //   );
 // }
-
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
@@ -572,15 +558,30 @@ export default function DataTable() {
   const pageSizes = [10, 20, 50, 100];
   const [rowSelection, setRowSelection] = useState({});
 
+  // Format timestamp for display
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch inventory records with pagination and search
+        const sessionId = localStorage.getItem("currentSessionId") || null;
+        // Fetch inventory records with pagination, search, and session_id
         const inventoryResponse = await axios.get(
           `${API_BASE_URL}/api/v1/inventory-paginate`,
           {
-            params: { page, limit: pageSize, search: searchTerm },
+            params: {
+              page,
+              limit: pageSize,
+              search: searchTerm,
+              session_id: sessionId,
+            },
           }
         );
         const { inventory, totalRecords, totalPages } = inventoryResponse.data;
@@ -597,6 +598,7 @@ export default function DataTable() {
               return {
                 ...record,
                 date: record.date ? record.date.split("T")[0] : "",
+                created_at: formatTimestamp(record.created_at),
                 created_by: userName,
               };
             } catch (userError) {
@@ -607,6 +609,7 @@ export default function DataTable() {
               return {
                 ...record,
                 date: record.date ? record.date.split("T")[0] : "",
+                created_at: formatTimestamp(record.created_at),
                 created_by: "Unknown User",
               };
             }
@@ -622,7 +625,8 @@ export default function DataTable() {
           position: "top-end",
           icon: "error",
           title: "Error!",
-          text: "Failed to fetch inventory data.",
+          text:
+            error.response?.data?.error || "Failed to fetch inventory data.",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
@@ -632,7 +636,11 @@ export default function DataTable() {
       }
     };
 
-    fetchData();
+    const debounceTimeout = setTimeout(() => {
+      fetchData();
+    }, 500);
+
+    return () => clearTimeout(debounceTimeout);
   }, [page, pageSize, searchTerm]);
 
   const handleDelete = (id) => {
@@ -669,7 +677,9 @@ export default function DataTable() {
               position: "top-end",
               icon: "error",
               title: "Error!",
-              text: "There was an issue deleting the inventory.",
+              text:
+                error.response?.data?.error ||
+                "There was an issue deleting the inventory.",
               showConfirmButton: false,
               timer: 2000,
               toast: true,
@@ -710,7 +720,7 @@ export default function DataTable() {
         sortable: true,
         filter: "agTextColumnFilter",
       },
-        {
+      {
         headerName: "SUB ITEM NAME",
         field: "sub_item_name",
         sortable: true,
@@ -874,7 +884,26 @@ export default function DataTable() {
         }}
       >
         {loading ? (
-          <div>Loading...</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div
+              className="spinner"
+              style={{
+                border: "4px solid #f3f3f3",
+                borderTop: "4px solid #1230AE",
+                borderRadius: "50%",
+                width: "24px",
+                height: "24px",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            <span>Loading...</span>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
         ) : (
           <>
             <div
@@ -1041,7 +1070,7 @@ export default function DataTable() {
                   ))}
                 <button
                   onClick={handleNextPage}
-                  disabled={totalPages}
+                  disabled={page === totalPages}
                   style={{
                     backgroundColor:
                       page === totalPages ? "#E0E0E0" : "#F5F5F5",

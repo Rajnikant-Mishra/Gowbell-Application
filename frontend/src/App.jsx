@@ -46,10 +46,12 @@ import Createinventory from "./Components/Inventory/Createinventory";
 import Listinventory from "./Components/Inventory/listinventory";
 import Updateinventory from "./Components/Inventory/Updateinventory";
 
+//schools
 import SchoolForm from "./Components/School/createschool/SchoolForm";
 import SchoolList from "./Components/School/createschool/SchoolList";
 import SchoolUpdate from "./Components/School/createschool/SchoolUpdate";
 import ViewSchool from "./Components/School/createschool/ViewSchool";
+import SchoolTest from "./Components/School/createschool/SchoolTest";
 
 
 import InchargeForm from "./Components/School/incharge/InchargeForm";
@@ -285,8 +287,13 @@ function App() {
             element={<ProtectedRoute element={<SchoolUpdate />} />}
           />
           <Route
-            path="/school/view/:id" 
+            path="/school/view/:id"
             element={<ProtectedRoute element={<ViewSchool />} />}
+          />
+          
+          <Route
+            path="/school-test"
+            element={<ProtectedRoute element={<SchoolTest/>} />}
           />
           {/* incharge route */}
           <Route
@@ -352,7 +359,6 @@ function App() {
             path="/resultprocess-list"
             element={<ProtectedRoute element={<ProcessResult />} />}
           />
-
           {/* //question */}
           <Route
             path="/question-list"
@@ -362,12 +368,10 @@ function App() {
             path="/question-create"
             element={<ProtectedRoute element={<QuestionCreate />} />}
           />
-
           <Route
             path="/question/update/:id"
             element={<ProtectedRoute element={<QuestionUpdated />} />}
           />
-
           {/* //conginments */}
           <Route
             path="/consignment-list"
@@ -437,19 +441,16 @@ function App() {
             path="/exam/update/:id"
             element={<ProtectedRoute element={<UpdateExam />} />}
           />
-
           {/* //prize */}
           <Route
             path="/prize-distribution"
             element={<ProtectedRoute element={<PrizeList />} />}
           />
-
           {/* wildcard */}
           <Route
             path="/wildcard"
             element={<ProtectedRoute element={<WildcardList />} />}
           />
-
           {/* //menu */}
           <Route path="/menu" element={<ProtectedRoute element={<Menu />} />} />
           <Route

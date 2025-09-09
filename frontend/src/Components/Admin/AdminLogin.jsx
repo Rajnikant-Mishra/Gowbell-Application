@@ -190,7 +190,7 @@ import image from "../../../public/Group 3196.svg";
 import logo from "../../../public/logo GOWBELL.png";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
 import "../Common-Css/Swallfire.css";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");

@@ -144,6 +144,7 @@ const ExaminationForm = () => {
     setSelectedDistrict("");
     setSelectedCity("");
     setSelectedSchool("");
+    setExamDate(null);
   }, [selectedCountry, states]);
 
   useEffect(() => {
@@ -151,12 +152,14 @@ const ExaminationForm = () => {
     setSelectedDistrict("");
     setSelectedCity("");
     setSelectedSchool("");
+    setExamDate(null);
   }, [selectedState, districts]);
 
   useEffect(() => {
     setFilteredCities(cities.filter((c) => c.district_id === selectedDistrict));
     setSelectedCity("");
     setSelectedSchool("");
+    setExamDate(null);
   }, [selectedDistrict, cities]);
 
   // Fetch schools
@@ -216,6 +219,8 @@ const ExaminationForm = () => {
       setTotalCount(0);
       setClassWiseCounts({});
       setFetchError(null);
+     setExamDate(null);
+      
       return;
     }
 
@@ -245,12 +250,14 @@ const ExaminationForm = () => {
 
       setTotalCount(response.data.totalCount || 0);
       setClassWiseCounts(classCounts);
+      setExamDate(response.data.exam_date || null);
       setFetchError(null);
     } catch (error) {
       console.error("Error fetching student count:", error);
       setFetchError("Failed to fetch student count");
       setTotalCount(0);
       setClassWiseCounts({});
+      setExamDate(null);
     } finally {
       setIsLoading(false);
     }
@@ -260,125 +267,6 @@ const ExaminationForm = () => {
     const timeoutId = setTimeout(fetchStudentCount, 500);
     return () => clearTimeout(timeoutId);
   }, [fetchStudentCount]);
-
-  // PDF generation function updated to process in batches
-  // const generatePDF = async (students, recordId) => {
-  //   const doc = new jsPDF({
-  //     orientation: "portrait",
-  //     unit: "mm",
-  //     format: "a4",
-  //   });
-
-  //   let validStudents = 0;
-  //   const totalStudents = students.length;
-  //   const batchSize = 10;
-  //   const totalBatches = Math.ceil(totalStudents / batchSize);
-  //   let currentBatch = 0;
-
-  //   // Process students in batches
-  //   for (
-  //     let batchStart = 0;
-  //     batchStart < totalStudents;
-  //     batchStart += batchSize
-  //   ) {
-  //     const batchStudents = students.slice(batchStart, batchStart + batchSize);
-  //     currentBatch++;
-
-  //     const progress = Math.min((currentBatch / totalBatches) * 80 + 10, 90);
-  //     localStorage.setItem("pdfProgress", JSON.stringify({ progress }));
-  //     window.dispatchEvent(new Event("storage"));
-
-  //     for (const student of batchStudents) {
-  //       if (
-  //         !student.id ||
-  //         !student.student_name ||
-  //         !student.roll_no ||
-  //         !student.class_name
-  //       ) {
-  //         console.warn(`Skipping invalid student data:`, student);
-  //         continue;
-  //       }
-
-  //       validStudents++;
-  //       if (validStudents > 1) doc.addPage();
-
-  //       const OMRComponent = getOMRSheetComponent(student.class_name);
-  //       const tempDiv = document.createElement("div");
-  //       tempDiv.style.width = "210mm";
-  //       tempDiv.style.height = "297mm";
-  //       tempDiv.style.backgroundColor = "white";
-  //       document.body.appendChild(tempDiv);
-
-  //       const subjectIds = student.subject_names
-  //         ? student.subject_names
-  //             .split(",")
-  //             .map((name) => {
-  //               const subject = subjects.find((s) => s.name === name.trim());
-  //               return subject ? subject.id : name;
-  //             })
-  //             .filter(Boolean)
-  //             .join(", ")
-  //         : selectedSubjectIds.join(", ");
-
-  //       const classId = student.class_name
-  //         ? classes.find((c) => c.name === student.class_name)?.id ||
-  //           student.class_name
-  //         : selectedClassIds[0];
-
-  //       ReactDOM.render(
-  //         <OMRComponent
-  //           schoolName={selectedSchool}
-  //           student={student.student_name}
-  //           studentId={student.id}
-  //           level={selectedLevel}
-  //           subject={student.subject_names || ""}
-  //           subjectIds={subjectIds}
-  //           className={student.class_name}
-  //           classId={classId}
-  //           // date={examDate || new Date().toLocaleDateString()}
-  //           rollNumber={student.roll_no}
-  //           omrSet={omrSet}
-  //         />,
-  //         tempDiv
-  //       );
-
-  //       const canvas = await html2canvas(tempDiv, { scale: 4, useCORS: true });
-  //       const imgData = canvas.toDataURL("image/jpeg", 0.98);
-  //       const imgWidth = doc.internal.pageSize.getWidth() - 10;
-  //       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  //       doc.addImage(imgData, "JPEG", 5, 5, imgWidth, imgHeight);
-  //       document.body.removeChild(tempDiv);
-  //     }
-  //   }
-
-  //   if (validStudents === 0) {
-  //     throw new Error("No valid student data to generate PDF");
-  //   }
-
-  //   const filename = `OMR_Sheets_${selectedSchool.replace(
-  //     / /g,
-  //     "_"
-  //   )}_${new Date().toISOString().slice(0, 10)}.pdf`;
-  //   const pdfBlob = doc.output("blob");
-
-  //   const pdfDataUrl = await new Promise((resolve) => {
-  //     const reader = new FileReader();
-  //     reader.onload = () => resolve(reader.result);
-  //     reader.readAsDataURL(pdfBlob);
-  //   });
-
-  //   localStorage.setItem("pdfProgress", JSON.stringify({ progress: 100 }));
-  //   window.dispatchEvent(new Event("storage"));
-
-  //   const link = document.createElement("a");
-  //   link.href = pdfDataUrl;
-  //   link.download = filename;
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-
-  //   return { validStudents, filename, pdfBlob, recordId };
-  // };
 
   // PDF generation function updated to create one OMR sheet per subject per student
   const generatePDF = async (students, recordId) => {
@@ -475,6 +363,7 @@ const ExaminationForm = () => {
                 }
                 rollNumber={student.roll_no}
                 omrSet={omrSet}
+                examDate={examDate || "Not Available"}
               />,
               tempDiv
             );

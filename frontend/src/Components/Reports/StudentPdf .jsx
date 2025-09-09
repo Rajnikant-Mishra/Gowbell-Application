@@ -211,7 +211,6 @@
 //   );
 // }
 
-
 import React from "react";
 import {
   Box,
@@ -457,7 +456,8 @@ export default function StudentPdf({
                   wordWrap: "break-word",
                 }}
               >
-                {student.mobileNumber} {/* Assuming same as mobile; adjust if separate field available */}
+                {student.mobileNumber}{" "}
+                {/* Assuming same as mobile; adjust if separate field available */}
               </TableCell>
               <TableCell
                 sx={{

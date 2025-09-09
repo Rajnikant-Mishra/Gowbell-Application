@@ -55,6 +55,9 @@ export default function StudentUpdateForm() {
     whatsapp_number: Yup.string()
       .required("WhatsApp Number is required")
       .matches(/^\d{10}$/, "WhatsApp Number must be exactly 10 digits"),
+    aadhaar_number: Yup.string()
+      .required("Aadhaar number is required")
+      .matches(/^\d{12}$/, "Aadhaar number must be exactly 12 digits"),
     student_subject: Yup.array()
       .min(1, "Select at least one subject")
       .required("Subject is required"),
@@ -139,6 +142,7 @@ export default function StudentUpdateForm() {
       student_section: "",
       mobile_number: "",
       whatsapp_number: "",
+      aadhaar_number: "",
       student_subject: [],
     },
     validationSchema: validationSchema,
@@ -268,6 +272,7 @@ export default function StudentUpdateForm() {
             student_section: studentData.student_section || "",
             mobile_number: studentData.mobile_number || "",
             whatsapp_number: studentData.whatsapp_number || "",
+            aadhaar_number: studentData.aadhaar_number || "",
             student_subject: studentData.student_subject || [],
           });
         }
@@ -700,6 +705,42 @@ export default function StudentUpdateForm() {
                       }}
                     />
                   )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={6}>
+                <TextField
+                  className={styles.textInput}
+                  label="Aadhaar Number"
+                  name="aadhaar_number"
+                  value={formik.values.aadhaar_number}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.aadhaar_number &&
+                    Boolean(formik.errors.aadhaar_number)
+                  }
+                  helperText={
+                    formik.touched.aadhaar_number &&
+                    formik.errors.aadhaar_number
+                  }
+                  fullWidth
+                  disabled=""
                 />
               </Grid>
             </Grid>

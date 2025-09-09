@@ -1071,6 +1071,7 @@ export default function OMRSheet({
   rollNumber,
   subjectIds,
   classId,
+  examDate,
 }) {
   return (
     <div
@@ -1194,7 +1195,7 @@ export default function OMRSheet({
                       fontSize: "12px",
                     }}
                   >
-                    {date}
+                    {examDate}
                   </p>
                 </div>
               </div>

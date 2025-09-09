@@ -31,6 +31,7 @@
 //   const [totalPages, setTotalPages] = useState(0);
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [loading, setLoading] = useState(false);
+//   const [searchLoading, setSearchLoading] = useState(false); // New state for search loading
 //   const [anchorEl, setAnchorEl] = useState(null);
 //   const [isAllChecked, setIsAllChecked] = useState(false);
 //   const [checkedRows, setCheckedRows] = useState({});
@@ -56,6 +57,7 @@
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       setLoading(true);
+//       setSearchLoading(true); // Show search loading
 //       try {
 //         const response = await axios.get(`${API_BASE_URL}/api/get/student`, {
 //           params: { page, limit: pageSize, search: searchTerm },
@@ -75,15 +77,15 @@
 
 //               // Fetch class details
 //               let className = "Unknown Class";
-//               if (record.class_name) {
+//               if (record.class_id) {
 //                 try {
 //                   const classResponse = await axios.get(
-//                     `${API_BASE_URL}/api/class/${record.class_name}`
+//                     `${API_BASE_URL}/api/class/${record.class_id}`
 //                   );
 //                   className = classResponse.data.name || "Unknown Class";
 //                 } catch (error) {
 //                   console.error(
-//                     `Failed to fetch class details for class_id: ${record.class_name}`,
+//                     `Failed to fetch class details for class_id: ${record.class_id}`,
 //                     error
 //                   );
 //                 }
@@ -167,13 +169,14 @@
 //           position: "top-end",
 //           icon: "error",
 //           title: "Error!",
-//           text: "Failed to fetch student data.",
+//           text: error.response?.data?.error || "Failed to fetch student data.",
 //           showConfirmButton: false,
 //           timer: 2000,
 //           toast: true,
 //         });
 //       } finally {
 //         setLoading(false);
+//         setSearchLoading(false); // Hide search loading
 //       }
 //     };
 
@@ -219,7 +222,9 @@
 //               position: "top-end",
 //               icon: "error",
 //               title: "Error!",
-//               text: "There was an issue deleting the student.",
+//               text:
+//                 error.response?.data?.error ||
+//                 "There was an issue deleting the student.",
 //               showConfirmButton: false,
 //               timer: 2000,
 //               toast: true,
@@ -323,21 +328,48 @@
 //           return;
 //         }
 
-//         const students = result.data.map((row) => ({
-//           school_name: row.school_name?.trim() || "",
-//           student_name: row.student_name?.trim() || "",
-//           class_name: formatClassName(row.class_name?.trim() || ""),
-//           student_section: row.student_section?.trim() || "",
-//           mobile_number: row.mobile_number?.trim() || "",
-//           whatsapp_number: row.whatsapp_number?.trim() || "",
-//           student_subject: row.student_subject
-//             ? row.student_subject.split(",").map((s) => s.trim())
-//             : [],
-//           country: row.country?.trim() || "",
-//           state: row.state?.trim() || "",
-//           district: row.district?.trim() || "",
-//           city: row.city?.trim() || "",
-//         }));
+//         const students = result.data
+//           .filter((row) => {
+//             const schoolName = row.school_id?.trim();
+//             const studentName = row.student_name?.trim();
+//             const className = row.class_id?.trim();
+//             return schoolName && studentName && className;
+//           })
+//           .map((row) => ({
+//             school_id: row.school_id?.trim() || "",
+//             student_name: row.student_name?.trim() || "",
+//             class_id: formatClassName(row.class_id?.trim() || ""),
+//             student_section: row.student_section?.trim() || null,
+//             mobile_number: row.mobile_number?.trim() || null,
+//             whatsapp_number: row.whatsapp_number?.trim() || null,
+//             student_subject: row.student_subject
+//               ? row.student_subject
+//                   .split(",")
+//                   .map((s) => s.trim())
+//                   .filter((s) => s)
+//               : [],
+//             country: row.country?.trim() || "",
+//             state: row.state?.trim() || "",
+//             district: row.district?.trim() || "",
+//             city: row.city?.trim() || "",
+//             approved: row.approved
+//               ? row.approved.trim().toLowerCase() === "true"
+//               : false,
+//             approved_by: row.approved_by?.trim() || null,
+//           }));
+
+//         if (students.length === 0) {
+//           Swal.fire({
+//             position: "top-end",
+//             icon: "warning",
+//             title: "Invalid Data",
+//             text: "No valid student records found in the CSV file. Ensure school_name, student_name, and class_name are non-empty.",
+//             showConfirmButton: false,
+//             timer: 3000,
+//             toast: true,
+//           });
+//           return;
+//         }
 
 //         uploadStudentsData(students);
 //       },
@@ -347,6 +379,7 @@
 //   };
 
 //   const uploadStudentsData = async (students) => {
+//     // Validate input array
 //     if (!Array.isArray(students) || students.length === 0) {
 //       Swal.fire({
 //         position: "top-end",
@@ -359,6 +392,39 @@
 //       });
 //       return;
 //     }
+
+//     // Validate required fields for each student
+//     const requiredFields = [
+//       "school_id",
+//       "class_id",
+//       "student_section",
+//       "student_name",
+//     ];
+//     const validationErrors = students.reduce((acc, student, index) => {
+//       const missingFields = requiredFields.filter(
+//         (field) => student[field] == null || student[field] === ""
+//       );
+//       if (missingFields.length > 0) {
+//         acc.push(
+//           `Student at Row ${index + 1}: required - ${missingFields.join(", ")}`
+//         );
+//       }
+//       return acc;
+//     }, []);
+
+//     if (validationErrors.length > 0) {
+//       Swal.fire({
+//         position: "top-end",
+//         icon: "error",
+//         title: "Validation Failed",
+//         text: validationErrors.join("\n"),
+//         showConfirmButton: true,
+//         toast: true,
+//         customClass: { popup: "small-swal" },
+//       });
+//       return;
+//     }
+
 //     setLoading(true);
 
 //     try {
@@ -381,7 +447,7 @@
 //         title: "Upload Successful",
 //         text: `Successfully uploaded ${response.data.insertedCount} students.`,
 //         showConfirmButton: false,
-//         timer: 1000,
+//         timer: 1500,
 //         timerProgressBar: true,
 //         toast: true,
 //         background: "#fff",
@@ -391,29 +457,45 @@
 //       });
 //     } catch (error) {
 //       console.error("Upload Error:", error);
-//       let errorMessage = "An error occurred.";
+//       let errorMessage = "An error occurred while uploading students.";
+
 //       if (error.response?.data) {
 //         const { message, errors } = error.response.data;
 //         if (errors) {
 //           if (typeof errors === "object" && !Array.isArray(errors)) {
-//             errorMessage = Object.values(errors).join("\n");
-//           } else if (Array.isArray(errors)) {
-//             errorMessage = errors
-//               .map((err) => err.message || "Unknown error")
+//             // Handle inconsistencies from backend validation (e.g., mismatched fields)
+//             errorMessage = Object.entries(errors)
+//               .map(([field, msg]) => `${field}: ${msg}`)
+//               .filter((msg, index, self) => self.indexOf(msg) === index)
 //               .join("\n");
+//           } else if (Array.isArray(errors)) {
+//             // Handle group processing errors
+//             errorMessage = Array.from(
+//               new Set(
+//                 errors.map((err) => `${err.group || "General"}: ${err.message}`)
+//               )
+//             ).join("\n");
+//           } else {
+//             errorMessage = message || errorMessage;
 //           }
 //         } else {
 //           errorMessage = message || errorMessage;
 //         }
+//       } else if (error.message.includes("School not found")) {
+//         errorMessage =
+//           "The specified school_name does not exist in the database.";
+//       } else if (error.message.includes("Unauthorized")) {
+//         errorMessage = "Session expired. Please log in again.";
 //       }
+
 //       Swal.fire({
 //         position: "top-end",
 //         icon: "error",
 //         title: "Upload Failed",
 //         text: errorMessage,
-//         showConfirmButton: false,
-//         timer: 2000,
-//         toast: true,
+//         showConfirmButton: true,
+//         toast: false,
+//         customClass: { popup: "small-swal" },
 //       });
 //     } finally {
 //       setLoading(false);
@@ -422,9 +504,9 @@
 
 //   const handleDownloadClick = () => {
 //     const headers = [
-//       "school_name",
+//       "school_id",
 //       "student_name",
-//       "class_name",
+//       "class_id",
 //       "student_section",
 //       "mobile_number",
 //       "whatsapp_number",
@@ -444,13 +526,13 @@
 //         "A",
 //         "1234567890",
 //         "1234567890",
-//         "math",
+//         "GIMO",
 //         "India",
 //         "Odisha",
 //         "Cuttack",
 //         "Aliabad",
 //         "false",
-//         "null",
+//         "admin",
 //       ],
 //     ];
 
@@ -469,7 +551,6 @@
 //   // AG-Grid column definitions
 //   const columnDefs = useMemo(
 //     () => [
-
 //       {
 //         headerName: "SCHOOL",
 //         field: "school_name",
@@ -559,8 +640,6 @@
 //         width: 100,
 //         cellRenderer: (params) => (
 //           <div
-//             Rhode
-//             Island
 //             style={{
 //               display: "flex",
 //               gap: "8px",
@@ -593,7 +672,6 @@
 //       resizable: true,
 //       filter: "agTextColumnFilter",
 //       sortable: true,
-//       // floatingFilter: true,
 //       minWidth: 100,
 //     }),
 //     []
@@ -648,12 +726,14 @@
 //         <div role="presentation">
 //           <Breadcrumb data={[{ name: "Student" }]} />
 //         </div>
-//         <div style={{ display: "flex", gap: "10px" }}>
+//         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
 //           <div
 //             style={{
 //               display: "flex",
 //               alignItems: "center",
+//               justifyContent: "center",
 //               padding: "10px",
+//               flexDirection: "column",
 //               borderRadius: "15px",
 //             }}
 //           >
@@ -668,7 +748,8 @@
 //                 fontSize: "14px",
 //                 borderRadius: "5px",
 //                 color: "#1230AE",
-//                 fontFamily: "'Poppins', sans-serif",
+//                 textDecoration: "none",
+//                 fontFamily: '"Poppins", sans-serif',
 //               }}
 //             >
 //               <img
@@ -684,23 +765,29 @@
 //               onClose={handleClose}
 //               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
 //               transformOrigin={{ vertical: "top", horizontal: "left" }}
+//               style={{ padding: "0px", margin: "0px" }}
 //             >
 //               <div
 //                 style={{
 //                   fontFamily: "Poppins, sans-serif",
+//                   gap: "15px",
+//                   borderRadius: "10px",
 //                   padding: "0px 10px",
 //                 }}
 //               >
 //                 <div style={{ display: "flex", gap: "6px" }}>
 //                   <button
 //                     type="button"
-//                     className="btn"
-//                     onClick={handleUploadClick}
 //                     style={{
 //                       fontSize: "13px",
 //                       backgroundColor: "#4A4545",
 //                       color: "white",
+//                       fontWeight: "500",
+//                       border: "none",
+//                       padding: "6px 12px",
+//                       borderRadius: "4px",
 //                     }}
+//                     onClick={handleUploadClick}
 //                   >
 //                     <img
 //                       src={excelImg}
@@ -715,15 +802,28 @@
 //                   </button>
 //                   <button
 //                     type="button"
-//                     className="btn btn-success"
+//                     style={{
+//                       fontSize: "13px",
+//                       backgroundColor: "#28A745",
+//                       color: "white",
+//                       fontWeight: "500",
+//                       border: "none",
+//                       padding: "6px 12px",
+//                       borderRadius: "4px",
+//                     }}
 //                     onClick={handleDownloadClick}
-//                     style={{ fontSize: "13px" }}
 //                   >
 //                     <UilDownloadAlt /> Download Sample File
 //                   </button>
 //                 </div>
-//                 <div className="mt-2">
-//                   <p style={{ color: "#4A4545" }} className="fw-bold mb-0">
+//                 <div style={{ marginTop: "8px" }}>
+//                   <p
+//                     style={{
+//                       color: "#4A4545",
+//                       fontWeight: "bold",
+//                       marginBottom: "0",
+//                     }}
+//                   >
 //                     Note:
 //                     <UilInfoCircle
 //                       style={{ height: "20px", width: "20px", color: "blue" }}
@@ -756,7 +856,16 @@
 //               onChange={handleFileChange}
 //             />
 //           </div>
-//           <CreateButton link="/student-create" />
+//           <div
+//             style={{
+//               display: "flex",
+//               justifyContent: "center",
+//               alignItems: "center",
+//               height: "45px",
+//             }}
+//           >
+//             <CreateButton link="/student-create" style={{ margin: "auto" }} />
+//           </div>
 //         </div>
 //       </div>
 //       <div
@@ -768,13 +877,66 @@
 //         }}
 //       >
 //         {loading ? (
-//           <div>Loading...</div>
+//           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+//             <div
+//               className="spinner"
+//               style={{
+//                 border: "4px solid #f3f3f3",
+//                 borderTop: "4px solid #1230AE",
+//                 borderRadius: "50%",
+//                 width: "24px",
+//                 height: "24px",
+//                 animation: "spin 1s linear infinite",
+//               }}
+//             />
+//             <span>Loading...</span>
+//             <style>{`
+//               @keyframes spin {
+//                 0% { transform: rotate(0deg); }
+//                 100% { transform: rotate(360deg); }
+//               }
+//             `}</style>
+//           </div>
 //         ) : (
 //           <>
 //             <div
 //               className="ag-theme-alpine"
-//               style={{ height: "500px", width: "100%", overflowX: "auto" }}
+//               style={{
+//                 height: "500px",
+//                 width: "100%",
+//                 overflowX: "auto",
+//                 position: "relative",
+//               }}
 //             >
+//               {searchLoading && (
+//                 <div
+//                   style={{
+//                     position: "absolute",
+//                     top: "10px",
+//                     right: "10px",
+//                     display: "flex",
+//                     alignItems: "center",
+//                     gap: "8px",
+//                     background: "#fff",
+//                     padding: "5px 10px",
+//                     borderRadius: "5px",
+//                     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+//                   }}
+//                 >
+//                   <div
+//                     className="spinner"
+//                     style={{
+//                       border: "3px solid #f3f3f3",
+//                       borderTop: "3px solid #1230AE",
+//                       borderRadius: "50%",
+//                       width: "16px",
+//                       height: "16px",
+//                       animation: "spin 1s linear infinite",
+//                     }}
+//                   />
+//                   <span>Searching...</span>
+//                 </div>
+//               )}
 //               <AgGridReact
 //                 columnDefs={columnDefs}
 //                 rowData={students}
@@ -1001,6 +1163,7 @@
 //   const [totalPages, setTotalPages] = useState(0);
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [loading, setLoading] = useState(false);
+//   const [searchLoading, setSearchLoading] = useState(false);
 //   const [anchorEl, setAnchorEl] = useState(null);
 //   const [isAllChecked, setIsAllChecked] = useState(false);
 //   const [checkedRows, setCheckedRows] = useState({});
@@ -1026,9 +1189,16 @@
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       setLoading(true);
+//       setSearchLoading(true);
 //       try {
+//         const sessionId = localStorage.getItem("currentSessionId") || null;
 //         const response = await axios.get(`${API_BASE_URL}/api/get/student`, {
-//           params: { page, limit: pageSize, search: searchTerm },
+//           params: {
+//             page,
+//             limit: pageSize,
+//             search: searchTerm,
+//             session_id: sessionId,
+//           },
 //         });
 
 //         const { students, totalRecords, totalPages } = response.data;
@@ -1045,15 +1215,15 @@
 
 //               // Fetch class details
 //               let className = "Unknown Class";
-//               if (record.class_name) {
+//               if (record.class_id) {
 //                 try {
 //                   const classResponse = await axios.get(
-//                     `${API_BASE_URL}/api/class/${record.class_name}`
+//                     `${API_BASE_URL}/api/class/${record.class_id}`
 //                   );
 //                   className = classResponse.data.name || "Unknown Class";
 //                 } catch (error) {
 //                   console.error(
-//                     `Failed to fetch class details for class_id: ${record.class_name}`,
+//                     `Failed to fetch class details for class_id: ${record.class_id}`,
 //                     error
 //                   );
 //                 }
@@ -1137,13 +1307,14 @@
 //           position: "top-end",
 //           icon: "error",
 //           title: "Error!",
-//           text: "Failed to fetch student data.",
+//           text: error.response?.data?.error || "Failed to fetch student data.",
 //           showConfirmButton: false,
 //           timer: 2000,
 //           toast: true,
 //         });
 //       } finally {
 //         setLoading(false);
+//         setSearchLoading(false);
 //       }
 //     };
 
@@ -1153,6 +1324,16 @@
 
 //     return () => clearTimeout(debounceTimeout);
 //   }, [page, pageSize, searchTerm]);
+
+//   // Listen for session changes
+//   useEffect(() => {
+//     const handleSessionChange = () => {
+//       setPage(1); // Reset to first page on session change
+//       // The fetchData function will automatically use the new session_id from localStorage
+//     };
+//     window.addEventListener("storage", handleSessionChange);
+//     return () => window.removeEventListener("storage", handleSessionChange);
+//   }, []);
 
 //   // Handle row deletion
 //   const handleDelete = (id) => {
@@ -1189,7 +1370,9 @@
 //               position: "top-end",
 //               icon: "error",
 //               title: "Error!",
-//               text: "There was an issue deleting the student.",
+//               text:
+//                 error.response?.data?.error ||
+//                 "There was an issue deleting the student.",
 //               showConfirmButton: false,
 //               timer: 2000,
 //               toast: true,
@@ -1293,20 +1476,22 @@
 //           return;
 //         }
 
+//         const sessionId = localStorage.getItem("currentSessionId") || null;
 //         const students = result.data
 //           .filter((row) => {
-//             const schoolName = row.school_name?.trim();
+//             const schoolName = row.school_id?.trim();
 //             const studentName = row.student_name?.trim();
-//             const className = row.class_name?.trim();
+//             const className = row.class_id?.trim();
 //             return schoolName && studentName && className;
 //           })
 //           .map((row) => ({
-//             school_name: row.school_name?.trim() || "",
+//             school_id: row.school_id?.trim() || "",
 //             student_name: row.student_name?.trim() || "",
-//             class_name: formatClassName(row.class_name?.trim() || ""),
+//             class_id: formatClassName(row.class_id?.trim() || ""),
 //             student_section: row.student_section?.trim() || null,
 //             mobile_number: row.mobile_number?.trim() || null,
 //             whatsapp_number: row.whatsapp_number?.trim() || null,
+//             aadhaar_number: row.aadhaar_number?.trim() || null,
 //             student_subject: row.student_subject
 //               ? row.student_subject
 //                   .split(",")
@@ -1321,6 +1506,7 @@
 //               ? row.approved.trim().toLowerCase() === "true"
 //               : false,
 //             approved_by: row.approved_by?.trim() || null,
+//             session_id: sessionId,
 //           }));
 
 //         if (students.length === 0) {
@@ -1356,6 +1542,39 @@
 //       });
 //       return;
 //     }
+
+//     const requiredFields = [
+//       "school_id",
+//       "class_id",
+//       "student_section",
+//       "student_name",
+//       "session_id",
+//     ];
+//     const validationErrors = students.reduce((acc, student, index) => {
+//       const missingFields = requiredFields.filter(
+//         (field) => student[field] == null || student[field] === ""
+//       );
+//       if (missingFields.length > 0) {
+//         acc.push(
+//           `Student at Row ${index + 1}: required - ${missingFields.join(", ")}`
+//         );
+//       }
+//       return acc;
+//     }, []);
+
+//     if (validationErrors.length > 0) {
+//       Swal.fire({
+//         position: "top-end",
+//         icon: "error",
+//         title: "Validation Failed",
+//         text: validationErrors.join("\n"),
+//         showConfirmButton: true,
+//         toast: true,
+//         customClass: { popup: "small-swal" },
+//       });
+//       return;
+//     }
+
 //     setLoading(true);
 
 //     try {
@@ -1389,17 +1608,16 @@
 //     } catch (error) {
 //       console.error("Upload Error:", error);
 //       let errorMessage = "An error occurred while uploading students.";
+
 //       if (error.response?.data) {
 //         const { message, errors } = error.response.data;
 //         if (errors) {
 //           if (typeof errors === "object" && !Array.isArray(errors)) {
-//             // Handle inconsistencies (e.g., mismatched school_name, class_name)
 //             errorMessage = Object.entries(errors)
 //               .map(([field, msg]) => `${field}: ${msg}`)
-//               .filter((msg, index, self) => self.indexOf(msg) === index) // Remove duplicates
+//               .filter((msg, index, self) => self.indexOf(msg) === index)
 //               .join("\n");
 //           } else if (Array.isArray(errors)) {
-//             // Handle group-specific errors (e.g., School not found)
 //             errorMessage = Array.from(
 //               new Set(
 //                 errors.map((err) => `${err.group || "General"}: ${err.message}`)
@@ -1414,15 +1632,18 @@
 //       } else if (error.message.includes("School not found")) {
 //         errorMessage =
 //           "The specified school_name does not exist in the database.";
+//       } else if (error.message.includes("Unauthorized")) {
+//         errorMessage = "Session expired. Please log in again.";
 //       }
+
 //       Swal.fire({
 //         position: "top-end",
 //         icon: "error",
 //         title: "Upload Failed",
 //         text: errorMessage,
-//         showConfirmButton: false,
-//         timer: 3000,
-//         toast: true,
+//         showConfirmButton: true,
+//         toast: false,
+//         customClass: { popup: "small-swal" },
 //       });
 //     } finally {
 //       setLoading(false);
@@ -1430,13 +1651,15 @@
 //   };
 
 //   const handleDownloadClick = () => {
+//     const sessionId = localStorage.getItem("currentSessionId") || "";
 //     const headers = [
-//       "school_name",
+//       "school_id",
 //       "student_name",
-//       "class_name",
+//       "class_id",
 //       "student_section",
 //       "mobile_number",
 //       "whatsapp_number",
+//       "aadhaar_number",
 //       "student_subject",
 //       "country",
 //       "state",
@@ -1444,6 +1667,7 @@
 //       "city",
 //       "approved",
 //       "approved_by",
+//       "session_id",
 //     ];
 //     const rows = [
 //       [
@@ -1453,6 +1677,7 @@
 //         "A",
 //         "1234567890",
 //         "1234567890",
+//         "",
 //         "GIMO",
 //         "India",
 //         "Odisha",
@@ -1460,8 +1685,8 @@
 //         "Aliabad",
 //         "false",
 //         "admin",
+//         sessionId,
 //       ],
-
 //     ];
 
 //     const csvContent = [
@@ -1643,130 +1868,6 @@
 
 //   return (
 //     <Mainlayout>
-//       {/* <div
-//         style={{
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//           marginBottom: "16px",
-//         }}
-//       >
-//         <div role="presentation">
-//           <Breadcrumb data={[{ name: "Student" }]} />
-//         </div>
-//         <div style={{ display: "flex", gap: "10px" }}>
-//           <div
-//             style={{
-//               display: "flex",
-//               alignItems: "center",
-//               padding: "10px",
-//               borderRadius: "15px",
-//             }}
-//           >
-//             <div
-//               onClick={handleClick}
-//               style={{
-//                 cursor: "pointer",
-//                 padding: "14px 12px",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 height: "27px",
-//                 fontSize: "14px",
-//                 borderRadius: "5px",
-//                 color: "#1230AE",
-//                 fontFamily: "'Poppins', sans-serif",
-//               }}
-//             >
-//               <img
-//                 src={excelImg}
-//                 alt="Upload"
-//                 style={{ width: "20px", height: "20px", marginRight: "8px" }}
-//               />
-//               Bulk Action
-//             </div>
-//             <Menu
-//               anchorEl={anchorEl}
-//               open={open}
-//               onClose={handleClose}
-//               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-//               transformOrigin={{ vertical: "top", horizontal: "left" }}
-//             >
-//               <div
-//                 style={{
-//                   fontFamily: "Poppins, sans-serif",
-//                   padding: "0px 10px",
-//                 }}
-//               >
-//                 <div style={{ display: "flex", gap: "6px" }}>
-//                   <button
-//                     type="button"
-//                     className="btn"
-//                     onClick={handleUploadClick}
-//                     style={{
-//                       fontSize: "13px",
-//                       backgroundColor: "#4A4545",
-//                       color: "white",
-//                     }}
-//                   >
-//                     <img
-//                       src={excelImg}
-//                       alt="Upload"
-//                       style={{
-//                         width: "30px",
-//                         height: "30px",
-//                         marginRight: "8px",
-//                       }}
-//                     />
-//                     Upload Excel
-//                   </button>
-//                   <button
-//                     type="button"
-//                     className="btn btn-success"
-//                     onClick={handleDownloadClick}
-//                     style={{ fontSize: "13px" }}
-//                   >
-//                     <UilDownloadAlt /> Download Sample File
-//                   </button>
-//                 </div>
-//                 <div className="mt-2">
-//                   <p style={{ color: "#4A4545" }} className="fw-bold mb-0">
-//                     Note:
-//                     <UilInfoCircle
-//                       style={{ height: "20px", width: "20px", color: "blue" }}
-//                     />
-//                   </p>
-//                   <ol
-//                     style={{
-//                       fontSize: "10px",
-//                       paddingLeft: "10px",
-//                       color: "gray",
-//                     }}
-//                   >
-//                     <li>Click Download Sample File to get the template.</li>
-//                     <li>Fill in the data as per the given columns.</li>
-//                     <li>Save the file in Excel format (XLSX or CSV).</li>
-//                     <li>Use Upload Excel to bulk upload your data.</li>
-//                     <li>
-//                       Ensure required fields (school_name, student_name, class_name) are non-empty.
-//                     </li>
-//                     <li>
-//                       school_name must match an existing school in the database.
-//                     </li>
-//                   </ol>
-//                 </div>
-//               </div>
-//             </Menu>
-//             <input
-//               id="fileInput"
-//               type="file"
-//               accept=".csv"
-//               style={{ display: "none" }}
-//               onChange={handleFileChange}
-//             />
-//           </div>
-//           <CreateButton link="/student-create" />
-//         </div>
-//       </div> */}
 //       <div
 //         style={{
 //           display: "flex",
@@ -1929,13 +2030,66 @@
 //         }}
 //       >
 //         {loading ? (
-//           <div>Loading...</div>
+//           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+//             <div
+//               className="spinner"
+//               style={{
+//                 border: "4px solid #f3f3f3",
+//                 borderTop: "4px solid #1230AE",
+//                 borderRadius: "50%",
+//                 width: "24px",
+//                 height: "24px",
+//                 animation: "spin 1s linear infinite",
+//               }}
+//             />
+//             <span>Loading...</span>
+//             <style>{`
+//               @keyframes spin {
+//                 0% { transform: rotate(0deg); }
+//                 100% { transform: rotate(360deg); }
+//               }
+//             `}</style>
+//           </div>
 //         ) : (
 //           <>
 //             <div
 //               className="ag-theme-alpine"
-//               style={{ height: "500px", width: "100%", overflowX: "auto" }}
+//               style={{
+//                 height: "500px",
+//                 width: "100%",
+//                 overflowX: "auto",
+//                 position: "relative",
+//               }}
 //             >
+//               {searchLoading && (
+//                 <div
+//                   style={{
+//                     position: "absolute",
+//                     top: "10px",
+//                     right: "10px",
+//                     display: "flex",
+//                     alignItems: "center",
+//                     gap: "8px",
+//                     background: "#fff",
+//                     padding: "5px 10px",
+//                     borderRadius: "5px",
+//                     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+//                   }}
+//                 >
+//                   <div
+//                     className="spinner"
+//                     style={{
+//                       border: "3px solid #f3f3f3",
+//                       borderTop: "3px solid #1230AE",
+//                       borderRadius: "50%",
+//                       width: "16px",
+//                       height: "16px",
+//                       animation: "spin 1s linear infinite",
+//                     }}
+//                   />
+//                   <span>Searching...</span>
+//                 </div>
+//               )}
 //               <AgGridReact
 //                 columnDefs={columnDefs}
 //                 rowData={students}
@@ -2129,6 +2283,9 @@
 //   );
 // }
 
+
+
+
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -2162,7 +2319,7 @@ export default function DataTable() {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false); // New state for search loading
+  const [searchLoading, setSearchLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [checkedRows, setCheckedRows] = useState({});
@@ -2188,10 +2345,16 @@ export default function DataTable() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setSearchLoading(true); // Show search loading
+      setSearchLoading(true);
       try {
+        const sessionId = localStorage.getItem("currentSessionId") || null;
         const response = await axios.get(`${API_BASE_URL}/api/get/student`, {
-          params: { page, limit: pageSize, search: searchTerm },
+          params: {
+            page,
+            limit: pageSize,
+            search: searchTerm,
+            session_id: sessionId,
+          },
         });
 
         const { students, totalRecords, totalPages } = response.data;
@@ -2307,7 +2470,7 @@ export default function DataTable() {
         });
       } finally {
         setLoading(false);
-        setSearchLoading(false); // Hide search loading
+        setSearchLoading(false);
       }
     };
 
@@ -2317,6 +2480,16 @@ export default function DataTable() {
 
     return () => clearTimeout(debounceTimeout);
   }, [page, pageSize, searchTerm]);
+
+  // Listen for session changes
+  useEffect(() => {
+    const handleSessionChange = () => {
+      setPage(1); // Reset to first page on session change
+      // The fetchData function will automatically use the new session_id from localStorage
+    };
+    window.addEventListener("storage", handleSessionChange);
+    return () => window.removeEventListener("storage", handleSessionChange);
+  }, []);
 
   // Handle row deletion
   const handleDelete = (id) => {
@@ -2459,11 +2632,21 @@ export default function DataTable() {
           return;
         }
 
+        const sessionId = localStorage.getItem("currentSessionId") || null;
+        const validationErrors = [];
         const students = result.data
-          .filter((row) => {
+          .filter((row, index) => {
             const schoolName = row.school_id?.trim();
             const studentName = row.student_name?.trim();
             const className = row.class_id?.trim();
+            // Validate Aadhaar number: either empty or exactly 12 digits
+            const aadhaar = row.aadhaar_number?.trim();
+            if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
+              validationErrors.push(
+                `Student at Row ${index + 2}: Aadhaar number must be exactly 12 digits`
+              );
+              return false; // Exclude invalid rows
+            }
             return schoolName && studentName && className;
           })
           .map((row) => ({
@@ -2473,6 +2656,7 @@ export default function DataTable() {
             student_section: row.student_section?.trim() || null,
             mobile_number: row.mobile_number?.trim() || null,
             whatsapp_number: row.whatsapp_number?.trim() || null,
+            aadhaar_number: row.aadhaar_number?.trim() || null,
             student_subject: row.student_subject
               ? row.student_subject
                   .split(",")
@@ -2487,14 +2671,30 @@ export default function DataTable() {
               ? row.approved.trim().toLowerCase() === "true"
               : false,
             approved_by: row.approved_by?.trim() || null,
+            session_id: sessionId,
           }));
+
+        if (validationErrors.length > 0) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Validation Failed",
+            text: validationErrors.join("\n"),
+            showConfirmButton: true,
+            toast: false,
+            customClass: { popup: "small-swal" },
+            width: "auto",
+            whiteSpace: "pre-wrap",
+          });
+          return;
+        }
 
         if (students.length === 0) {
           Swal.fire({
             position: "top-end",
             icon: "warning",
             title: "Invalid Data",
-            text: "No valid student records found in the CSV file. Ensure school_name, student_name, and class_name are non-empty.",
+            text: "No valid student records found in the CSV file. Ensure school_name, student_name, and class_name are non-empty, and Aadhaar numbers are either empty or 12 digits.",
             showConfirmButton: false,
             timer: 3000,
             toast: true,
@@ -2510,7 +2710,6 @@ export default function DataTable() {
   };
 
   const uploadStudentsData = async (students) => {
-    // Validate input array
     if (!Array.isArray(students) || students.length === 0) {
       Swal.fire({
         position: "top-end",
@@ -2524,12 +2723,12 @@ export default function DataTable() {
       return;
     }
 
-    // Validate required fields for each student
     const requiredFields = [
       "school_id",
       "class_id",
       "student_section",
       "student_name",
+      "session_id",
     ];
     const validationErrors = students.reduce((acc, student, index) => {
       const missingFields = requiredFields.filter(
@@ -2537,7 +2736,9 @@ export default function DataTable() {
       );
       if (missingFields.length > 0) {
         acc.push(
-          `Student at Row ${index + 1}: required - ${missingFields.join(", ")}`
+          `Student at Row ${index + 2}: Missing required fields - ${missingFields.join(
+            ", "
+          )}`
         );
       }
       return acc;
@@ -2550,8 +2751,10 @@ export default function DataTable() {
         title: "Validation Failed",
         text: validationErrors.join("\n"),
         showConfirmButton: true,
-        toast: true,
+        toast: false,
         customClass: { popup: "small-swal" },
+        width: "auto",
+       
       });
       return;
     }
@@ -2589,44 +2792,55 @@ export default function DataTable() {
     } catch (error) {
       console.error("Upload Error:", error);
       let errorMessage = "An error occurred while uploading students.";
+      let errorTitle = "Upload Failed";
 
       if (error.response?.data) {
         const { message, errors } = error.response.data;
-        if (errors) {
-          if (typeof errors === "object" && !Array.isArray(errors)) {
-            // Handle inconsistencies from backend validation (e.g., mismatched fields)
-            errorMessage = Object.entries(errors)
-              .map(([field, msg]) => `${field}: ${msg}`)
-              .filter((msg, index, self) => self.indexOf(msg) === index)
-              .join("\n");
-          } else if (Array.isArray(errors)) {
-            // Handle group processing errors
-            errorMessage = Array.from(
-              new Set(
-                errors.map((err) => `${err.group || "General"}: ${err.message}`)
-              )
-            ).join("\n");
-          } else {
-            errorMessage = message || errorMessage;
-          }
+        if (errors && Array.isArray(errors)) {
+          // Group errors by type for better display
+          const errorGroups = errors.reduce((acc, err) => {
+            const type = err.type || "general_error";
+            if (!acc[type]) acc[type] = [];
+            acc[type].push(err.message);
+            return acc;
+          }, {});
+
+          // Format error messages based on type
+          const formattedErrors = Object.entries(errorGroups)
+            .map(([type, messages]) => {
+              if (type === "duplicate_aadhaar") {
+                return `Duplicate Aadhaar Numbers:\n${messages.join("\n")}`;
+              } else if (type === "missing_fields") {
+                return `Missing Fields:\n${messages.join("\n")}`;
+              } else if (type === "validation_error") {
+                return `Validation Errors:\n${messages.join("\n")}`;
+              } else {
+                return `Errors:\n${messages.join("\n")}`;
+              }
+            })
+            .join("\n\n");
+
+          errorMessage = formattedErrors || message || errorMessage;
         } else {
           errorMessage = message || errorMessage;
         }
       } else if (error.message.includes("School not found")) {
-        errorMessage =
-          "The specified school_name does not exist in the database.";
+        errorMessage = "The specified school_name does not exist in the database.";
       } else if (error.message.includes("Unauthorized")) {
         errorMessage = "Session expired. Please log in again.";
+        errorTitle = "Authentication Error";
       }
 
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: "Upload Failed",
+        title: errorTitle,
         text: errorMessage,
         showConfirmButton: true,
         toast: false,
         customClass: { popup: "small-swal" },
+        width: "auto",
+        whiteSpace: "pre-wrap",
       });
     } finally {
       setLoading(false);
@@ -2634,6 +2848,7 @@ export default function DataTable() {
   };
 
   const handleDownloadClick = () => {
+    const sessionId = localStorage.getItem("currentSessionId") || "";
     const headers = [
       "school_id",
       "student_name",
@@ -2641,6 +2856,7 @@ export default function DataTable() {
       "student_section",
       "mobile_number",
       "whatsapp_number",
+      "aadhaar_number",
       "student_subject",
       "country",
       "state",
@@ -2648,6 +2864,7 @@ export default function DataTable() {
       "city",
       "approved",
       "approved_by",
+      
     ];
     const rows = [
       [
@@ -2657,6 +2874,7 @@ export default function DataTable() {
         "A",
         "1234567890",
         "1234567890",
+        "123456789012",
         "GIMO",
         "India",
         "Odisha",
@@ -2664,6 +2882,7 @@ export default function DataTable() {
         "Aliabad",
         "false",
         "admin",
+       
       ],
     ];
 
@@ -2972,8 +3191,7 @@ export default function DataTable() {
                     <li>Save the file in Excel format (XLSX or CSV).</li>
                     <li>Use Upload Excel to bulk upload your data.</li>
                     <li>
-                      Ensure all required fields are filled correctly to avoid
-                      errors.
+                      Ensure all required fields are filled correctly and<br/> Aadhaar numbers are either empty or exactly 12 digits to avoid errors.
                     </li>
                   </ol>
                 </div>
