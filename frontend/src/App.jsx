@@ -41,6 +41,10 @@ import AffiliatedList from "./Components/Master/affiliated/AffiliatedList";
 import AffiliatedForm from "./Components/Master/affiliated/AffiliatedForm";
 import UpdateAffiliated from "./Components/Master/affiliated/UpdateAffiliated";
 
+import CenterForm from "./Components/Master/Center/CenterForm";
+import CenterList from "./Components/Master/Center/CenterList";
+
+
 //inventory
 import Createinventory from "./Components/Inventory/Createinventory";
 import Listinventory from "./Components/Inventory/listinventory";
@@ -52,7 +56,6 @@ import SchoolList from "./Components/School/createschool/SchoolList";
 import SchoolUpdate from "./Components/School/createschool/SchoolUpdate";
 import ViewSchool from "./Components/School/createschool/ViewSchool";
 import SchoolTest from "./Components/School/createschool/SchoolTest";
-
 
 import InchargeForm from "./Components/School/incharge/InchargeForm";
 import InchargeList from "./Components/School/incharge/InchargeList";
@@ -82,9 +85,12 @@ import ListPacking from "./Components/Consignment/packing/ListPacking";
 import CreatePacking from "./Components/Consignment/packing/CreatePacking";
 import UpdatePacking from "./Components/Consignment/packing/UpadatePacking";
 
+//reports
 import StudentReport from "./Components/Reports/StudentReport";
 import SchoolReport from "./Components/Reports/SchoolReport";
 import ExamReport from "./Components/Reports/ExamReport";
+import ActivityLog from "./Components/Reports/ActivityLog";
+import Rewards from "./Components/Reports/Rewards";
 
 import AdminProfile from "./Components/Pages/AdminProfile";
 
@@ -139,6 +145,12 @@ import SubItemList from "./Components/configuration/subitems/SubItemList";
 
 //attendance
 import AttendanceSheet from "./Components/Exam/Attendance/AttendanceSheet";
+
+//fees
+import FeesList from "./Components/Exam/Fees/FeesList";
+
+//subejct fees
+import FeeList from "./Components/Master/Fee-subject/FeeList";
 
 function App() {
   return (
@@ -260,6 +272,18 @@ function App() {
             path="/affiliated/update/:id"
             element={<ProtectedRoute element={<UpdateAffiliated />} />}
           />
+
+          {/* //center routes */}
+          <Route
+            path="/center-form"
+            element={<ProtectedRoute element={<CenterForm />} />}
+          />
+
+          <Route
+            path="/center-list"
+            element={<ProtectedRoute element={<CenterList />} />}
+          />
+
           {/* //inventory */}
           <Route
             path="/create-inventory"
@@ -290,10 +314,10 @@ function App() {
             path="/school/view/:id"
             element={<ProtectedRoute element={<ViewSchool />} />}
           />
-          
+
           <Route
             path="/school-test"
-            element={<ProtectedRoute element={<SchoolTest/>} />}
+            element={<ProtectedRoute element={<SchoolTest />} />}
           />
           {/* incharge route */}
           <Route
@@ -411,6 +435,17 @@ function App() {
             path="/exams-report"
             element={<ProtectedRoute element={<ExamReport />} />}
           />
+
+          <Route
+            path="/activity-log"
+            element={<ProtectedRoute element={<ActivityLog />} />}
+          />
+
+          <Route
+            path="/rewards-recognition"
+            element={<ProtectedRoute element={<Rewards />} />}
+          />
+
           {/* //user & role */}
           <Route path="/user" element={<ProtectedRoute element={<User />} />} />
           <Route
@@ -509,6 +544,18 @@ function App() {
           <Route
             path="/attendance"
             element={<ProtectedRoute element={<AttendanceSheet />} />}
+          />
+
+          {/* //fees */}
+          <Route
+            path="/fees-list"
+            element={<ProtectedRoute element={<FeesList />} />}
+          />
+
+          {/* subject fee */}
+          <Route
+            path="/subject-fee"
+            element={<ProtectedRoute element={<FeeList />} />}
           />
         </Routes>
       </Router>

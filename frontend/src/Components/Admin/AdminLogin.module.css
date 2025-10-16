@@ -76,6 +76,8 @@ h2 {
 }
 .footer {
   height: 5vh !important;
+  font-size: 0.9rem;
+  margin-top: 10%;
 }
 
 h3 {
@@ -297,4 +299,59 @@ a {
   width: 30%;
   border-radius: 6px;
   background-color: #0660fd;
+}
+
+/* ipad air------ */
+
+@media (min-width: 768px) and (max-width: 991px) {
+  /* container - auto	 of the main div */
+  .container {
+    /* display: flex; */
+    margin-top: auto !important;
+    height: auto !important;
+  }
+
+  .bgImage {
+    flex: 1.5;
+  }
+
+  .about {
+    position: absolute;
+
+    top: 18%;
+
+    padding: 0 0 0 40px;
+  }
+
+  .about h3 {
+    font-size: 48px;
+
+    margin-right: 3%;
+  }
+
+  .about p {
+    font-size: 20px;
+
+    margin-top: 2%;
+
+    margin-right: 3%;
+  }
+}
+
+/* surface duo------	 */
+
+@media (max-width: 767px) {
+  .container {
+    display: flex;
+
+    flex-direction: column;
+  }
+
+  .formContainer {
+    flex: 1.2;
+
+    display: flex;
+
+    margin-top: 5%;
+  }
 }

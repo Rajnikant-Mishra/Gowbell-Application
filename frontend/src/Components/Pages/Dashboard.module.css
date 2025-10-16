@@ -121,7 +121,6 @@
 
 .card:first-child h3,
 .card:first-child h1 {
-  color: #ed9023;
 }
 
 .card:first-child hr {
@@ -138,21 +137,6 @@
 
 .card:last-child hr {
   border-top: 2px solid #8cc17c;
-}
-
-.card:nth-child(2) h3,
-.card:nth-child(2) h1 {
-  color: #2c9ad9;
-}
-
-.card:nth-child(3) h3,
-.card:nth-child(3) h1 {
-  color: #6563ff;
-}
-
-.card:last-child h3,
-.card:last-child h1 {
-  color: #8cc17c;
 }
 
 .card div img {
@@ -179,7 +163,7 @@
 
 .chartContainer {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  width: 50%;
+  width: 100%;
 }
 
 .midSectionSecondDiv {
@@ -293,9 +277,12 @@
 }
 
 .scrollWrapper {
-  overflow: hidden;
   height: 88%;
   position: relative;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
 }
 
 .customlist {
@@ -438,7 +425,7 @@
     padding: 20px;
     height: 145px;
     background: white;
-    border-radius: 10px;
+    border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   }
 
@@ -479,4 +466,93 @@
   .recentActivity {
     height: 180px;
   }
+}
+
+.cardHeader {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+}
+
+.icon {
+  font-size: 24px !important;
+  color: #1230ae;
+}
+
+.title {
+  color: #1230ae;
+  margin: 0;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+.subtitle {
+  color: #ef8915;
+  font-size: 14px !important;
+}
+.value h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f1e1e;
+}
+.resetBtn {
+  height: 38px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 5px !important;
+  background-color: #c6c6c6 !important;
+}
+.icon1 {
+  color: #fff !important;
+  font-size: 19px !important;
+  font-weight: 700 !important;
+}
+
+.topcard {
+  height: 65px;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+}
+
+.fontSize {
+  color: #1230ae !important;
+  margin: 0;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+
+/* ipad air------ */
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .cardsContainer {
+    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+  }
+}
+
+/* surface duo------	 */
+@media (max-width: 767px) {
+  login page \\ .formWrapper {
+    width: 73%;
+  }
+
+  mainContent {
+    margin-left: 0px;
+    width: 100%;
+  }
+
+  .header .my-auto {
+    order: 2;
+  }
+  .header .d-flex.align-items-center.gap-3 {
+    order: 1;
+  }
+
+  .topcard {
+    height: 270px;
+    padding: 10px;
+  }
+
+  /* "chart container previous container chnage the class name from jsx file 
+MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6" */
 }

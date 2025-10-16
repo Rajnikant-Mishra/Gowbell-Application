@@ -69,3 +69,24 @@
 
 /* for using css progress bar */
 
+/* //responsive */
+.hamburgerIcon {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.notificationIcon {
+  position: relative;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.dropdowna {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .para {
+    display: none;
+  }
+}

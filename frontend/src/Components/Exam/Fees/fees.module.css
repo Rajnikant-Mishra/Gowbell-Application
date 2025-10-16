@@ -1,0 +1,58 @@
+.formTitle {
+  text-align: left;
+  color: #3b3e86;
+  font-weight: 500 !important;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.5rem !important;
+}
+.main {
+  padding: 20px;
+  margin-top: 13px;
+  margin-left: -23px;
+  margin-right: -27px;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+/* right side table css */
+.tableNowrap {
+  white-space: nowrap;
+  height: 45px !important;
+}
+.tableNowrapone {
+  white-space: nowrap;
+  /* background-color: #e1e8fb; */
+}
+.tableNowContainer {
+  border-radius: 5px !important;
+}
+
+/* 
+left side  */
+.tableNowrapheader {
+  height: 45px !important;
+  background-color: #1230ae;
+  color: #fff;
+  font-weight: bold !important;
+  font-size: 14px !important;
+}
+.tableNowraptwo {
+  background-color: #fcfcfc;
+}
+
+
+.tablecell{
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.43;
+    letter-spacing: 0.01071em;
+    display: table-cell;
+    vertical-align: inherit;
+    border-right: 1px solid rgb(184 198 253);
+    text-align: left;
+    padding: 10px !important;
+    color: rgba(0, 0, 0, 0.87);
+    border-top: 1px solid #c2cdfb;
+}
+

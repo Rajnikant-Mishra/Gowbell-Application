@@ -1,5 +1,3 @@
-
-
 // import React, { useEffect, useState, useMemo, useCallback } from "react";
 // import { AgGridReact } from "ag-grid-react";
 // import "ag-grid-community/styles/ag-grid.css";
@@ -1024,7 +1022,13 @@
 //   );
 // }
 
-import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -1110,15 +1114,27 @@ export default function DataTable() {
         const sessionId = localStorage.getItem("currentSessionId") || null;
 
         // Fetch schools for validation
-        const schoolsResponse = await axios.get(`${API_BASE_URL}/api/get/all-schools`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        const schoolsData = Array.isArray(schoolsResponse.data) ? schoolsResponse.data : [];
+        const schoolsResponse = await axios.get(
+          `${API_BASE_URL}/api/get/all-schools`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const schoolsData = Array.isArray(schoolsResponse.data)
+          ? schoolsResponse.data
+          : [];
         setSchools(schoolsData);
 
         // Fetch student results
         const response = await axios.get(`${API_BASE_URL}/api/all-results`, {
-          params: { page, limit: pageSize, search: searchTerm, session_id: sessionId },
+          params: {
+            page,
+            limit: pageSize,
+            search: searchTerm,
+            session_id: sessionId,
+          },
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 
@@ -1133,13 +1149,23 @@ export default function DataTable() {
             try {
               const classResponse = await axios.get(
                 `${API_BASE_URL}/api/class/${student.class_id}`,
-                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
               );
               const subjectResponse = await axios.get(
                 `${API_BASE_URL}/api/subject/${student.subject_id}`,
-                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
               );
-              const school = schoolsData.find((s) => s.id === student.school_id);
+              const school = schoolsData.find(
+                (s) => s.id === student.school_id
+              );
 
               return {
                 ...student,
@@ -1149,7 +1175,10 @@ export default function DataTable() {
                 created_at: formatTimestamp(student.created_at),
               };
             } catch (error) {
-              console.error(`Failed to fetch details for student ID: ${student.id}`, error);
+              console.error(
+                `Failed to fetch details for student ID: ${student.id}`,
+                error
+              );
               return {
                 ...student,
                 class_name: "Unknown Class",
@@ -1197,6 +1226,58 @@ export default function DataTable() {
   }, []);
 
   // Handle delete action
+  // const handleDelete = useCallback(
+  //   (id) => {
+  //     Swal.fire({
+  //       title: "Are you sure?",
+  //       text: "You won't be able to revert this!",
+  //       showCancelButton: true,
+  //       confirmButtonColor: "#3085D6",
+  //       cancelButtonColor: "#d33",
+  //       confirmButtonText: "Yes, delete it!",
+  //       customClass: { popup: "custom-swal-popup" },
+  //     }).then((result) => {
+  //       if (result.isConfirmed) {
+  //         axios
+  //           .delete(`${API_BASE_URL}/api/result/${id}`, {
+  //             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  //           })
+  //           .then(() => {
+  //             setRecords((prev) => prev.filter((record) => record.id !== id));
+  //             sizeColumnsToFit();
+  //             Swal.fire({
+  //               position: "top-end",
+  //               icon: "success",
+  //               title: "Success!",
+  //               text: "The result has been deleted.",
+  //               showConfirmButton: false,
+  //               timer: 1000,
+  //               timerProgressBar: true,
+  //               toast: true,
+  //               background: "#fff",
+  //               customClass: { popup: "small-swal" },
+  //             });
+  //           })
+  //           .catch((error) => {
+  //             console.error("Error deleting result:", error);
+  //             Swal.fire({
+  //               position: "top-end",
+  //               icon: "error",
+  //               title: "Error!",
+  //               text: error.response?.data?.message || "There was an issue deleting the result.",
+  //               showConfirmButton: false,
+  //               timer: 2000,
+  //               toast: true,
+  //               background: "#fff",
+  //               customClass: { popup: "small-swal" },
+  //             });
+  //           });
+  //       }
+  //     });
+  //   },
+  //   [sizeColumnsToFit]
+  // );
+
   const handleDelete = useCallback(
     (id) => {
       Swal.fire({
@@ -1209,9 +1290,23 @@ export default function DataTable() {
         customClass: { popup: "custom-swal-popup" },
       }).then((result) => {
         if (result.isConfirmed) {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            Swal.fire({
+              icon: "error",
+              title: "Error!",
+              text: "Authentication token is missing.",
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            return;
+          }
+
           axios
             .delete(`${API_BASE_URL}/api/result/${id}`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+              headers: { Authorization: `Bearer ${token}` },
             })
             .then(() => {
               setRecords((prev) => prev.filter((record) => record.id !== id));
@@ -1235,7 +1330,9 @@ export default function DataTable() {
                 position: "top-end",
                 icon: "error",
                 title: "Error!",
-                text: error.response?.data?.message || "There was an issue deleting the result.",
+                text:
+                  error.response?.data?.message ||
+                  "There was an issue deleting the result.",
                 showConfirmButton: false,
                 timer: 2000,
                 toast: true,
@@ -1267,7 +1364,9 @@ export default function DataTable() {
         filter: "agTextColumnFilter",
         minWidth: 200,
         valueFormatter: (params) =>
-          typeof params.value === "string" ? params.value.toUpperCase() : params.value || "N/A",
+          typeof params.value === "string"
+            ? params.value.toUpperCase()
+            : params.value || "N/A",
       },
       {
         headerName: "STUDENT",
@@ -1307,7 +1406,8 @@ export default function DataTable() {
         sortable: true,
         filter: "agNumberColumnFilter",
         minWidth: 120,
-        valueFormatter: (params) => params.value != null ? params.value : "N/A",
+        valueFormatter: (params) =>
+          params.value != null ? params.value : "N/A",
       },
       {
         headerName: "MARK SECURED",
@@ -1315,7 +1415,8 @@ export default function DataTable() {
         sortable: true,
         filter: "agNumberColumnFilter",
         minWidth: 120,
-        valueFormatter: (params) => params.value != null ? params.value : "N/A",
+        valueFormatter: (params) =>
+          params.value != null ? params.value : "N/A",
       },
       {
         headerName: "LEVEL",
@@ -1589,7 +1690,8 @@ export default function DataTable() {
         });
 
         const invalidSchools = uniqueStudents.filter(
-          (student) => !schools.find((s) => s.school_name === student.school_name)
+          (student) =>
+            !schools.find((s) => s.school_name === student.school_name)
         );
         if (invalidSchools.length > 0) {
           Swal.fire({
@@ -1709,7 +1811,8 @@ export default function DataTable() {
         position: "top-end",
         icon: "error",
         title: "Upload Failed",
-        text: error.response?.data?.message || "An error occurred during upload.",
+        text:
+          error.response?.data?.message || "An error occurred during upload.",
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
@@ -1762,7 +1865,8 @@ export default function DataTable() {
       ...sampleRows.map((row) =>
         row
           .map((field) =>
-            typeof field === "string" && (field.includes(",") || field.includes('"'))
+            typeof field === "string" &&
+            (field.includes(",") || field.includes('"'))
               ? `"${field.replace(/"/g, '""')}"`
               : field
           )
@@ -1869,8 +1973,17 @@ export default function DataTable() {
                 </Button>
               </div>
               <div style={{ marginTop: "8px" }}>
-                <p style={{ color: "#4A4545", fontWeight: "bold", marginBottom: "0" }}>
-                  Note: <UilInfoCircle style={{ height: "16px", width: "16px", color: "blue" }} />
+                <p
+                  style={{
+                    color: "#4A4545",
+                    fontWeight: "bold",
+                    marginBottom: "0",
+                  }}
+                >
+                  Note:{" "}
+                  <UilInfoCircle
+                    style={{ height: "16px", width: "16px", color: "blue" }}
+                  />
                 </p>
                 <ol
                   style={{
@@ -1879,12 +1992,25 @@ export default function DataTable() {
                     color: "gray",
                   }}
                 >
-                  <li>Download the sample CSV file to understand the required format.</li>
-                  <li>Ensure all required fields (school_name, student_name, class_name, subject) are filled.</li>
-                  <li>Use only letters, numbers, spaces, or hyphens for names.</li>
+                  <li>
+                    Download the sample CSV file to understand the required
+                    format.
+                  </li>
+                  <li>
+                    Ensure all required fields (school_name, student_name,
+                    class_name, subject) are filled.
+                  </li>
+                  <li>
+                    Use only letters, numbers, spaces, or hyphens for names.
+                  </li>
                   <li>Save the file in CSV format before uploading.</li>
-                  <li>Verify school names match existing records in the system.</li>
-                  <li>Duplicates will update existing records based on unique constraints.</li>
+                  <li>
+                    Verify school names match existing records in the system.
+                  </li>
+                  <li>
+                    Duplicates will update existing records based on unique
+                    constraints.
+                  </li>
                 </ol>
               </div>
             </div>
@@ -1932,13 +2058,22 @@ export default function DataTable() {
           <>
             {uploadProgress > 0 && uploadProgress < 100 && (
               <div style={{ marginBottom: "10px" }}>
-                <progress value={uploadProgress} max="100" style={{ width: "100%" }} />
+                <progress
+                  value={uploadProgress}
+                  max="100"
+                  style={{ width: "100%" }}
+                />
                 <p>Uploading: {uploadProgress}%</p>
               </div>
             )}
             <div
               className="ag-theme-alpine"
-              style={{ height: "500px", width: "100%", overflowX: "auto", position: "relative" }}
+              style={{
+                height: "500px",
+                width: "100%",
+                overflowX: "auto",
+                position: "relative",
+              }}
             >
               {searchLoading && (
                 <div
@@ -2109,7 +2244,9 @@ export default function DataTable() {
                           backgroundColor: page === pg ? "#007BFF" : "#F5F5F5",
                           color: page === pg ? "#fff" : "#333",
                           border:
-                            page === pg ? "1px solid #0056B3" : "1px solid #ccc",
+                            page === pg
+                              ? "1px solid #0056B3"
+                              : "1px solid #ccc",
                           borderRadius: "7px",
                           padding: "4px 13.5px",
                           height: "30px",
@@ -2129,7 +2266,8 @@ export default function DataTable() {
                   onClick={handleNextPage}
                   disabled={page === totalPages}
                   style={{
-                    backgroundColor: page === totalPages ? "#E0E0E0" : "#F5F5F5",
+                    backgroundColor:
+                      page === totalPages ? "#E0E0E0" : "#F5F5F5",
                     color: page === totalPages ? "#aaa" : "#333",
                     border: "1px solid #ccc",
                     borderRadius: "7px",

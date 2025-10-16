@@ -24,7 +24,7 @@ const UpdateResultForm = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Get the result ID from URL parameters
   const [formData, setFormData] = useState({
-    school_name: "",
+    school_id: "",
     student_name: "",
     class_id: "",
     roll_no: "",
@@ -144,14 +144,69 @@ const UpdateResultForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     setLoading(true);
+  //     const response = await axios.put(
+  //       `${API_BASE_URL}/api/result/update/${id}`,
+  //       formData
+  //     );
+  //     Swal.fire({
+  //       position: "top-end",
+  //       icon: "success",
+  //       title: "Success!",
+  //       text: `Result updated successfully!`,
+  //       showConfirmButton: false,
+  //       timer: 1000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: {
+  //         popup: "small-swal",
+  //       },
+  //     }).then(() => {
+  //       navigate("/result-list");
+  //     });
+  //   } catch (err) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text: err.response?.data?.error || "An error occurred",
+  //       confirmButtonColor: "#d33",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Authentication token is missing.",
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return;
+      }
+
       const response = await axios.put(
         `${API_BASE_URL}/api/result/update/${id}`,
-        formData
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` }, // Added token here
+        }
       );
+
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -162,9 +217,7 @@ const UpdateResultForm = () => {
         timerProgressBar: true,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
       }).then(() => {
         navigate("/result-list");
       });
@@ -202,9 +255,9 @@ const UpdateResultForm = () => {
               <TextField
                 fullWidth
                 label="School Name"
-                name="school_name"
+                name="school_id"
                 size="small"
-                value={formData.school_name}
+                value={formData.school_id}
                 onChange={handleChange}
                 required
                 variant="outlined"

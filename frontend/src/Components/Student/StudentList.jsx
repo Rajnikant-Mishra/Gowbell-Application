@@ -2283,9 +2283,6 @@
 //   );
 // }
 
-
-
-
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -2503,8 +2500,22 @@ export default function DataTable() {
       customClass: { popup: "custom-swal-popup" },
     }).then((result) => {
       if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          Swal.fire({
+            icon: "error",
+            title: "Authentication Error",
+            text: "Authentication token is missing. Please log in again.",
+          });
+          return; // 🚫 stop here if no token
+        }
+
         axios
-          .delete(`${API_BASE_URL}/api/get/student/${id}`)
+          .delete(`${API_BASE_URL}/api/get/student/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
           .then(() => {
             setStudents((prev) => prev.filter((student) => student.id !== id));
             Swal.fire({
@@ -2643,7 +2654,9 @@ export default function DataTable() {
             const aadhaar = row.aadhaar_number?.trim();
             if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
               validationErrors.push(
-                `Student at Row ${index + 2}: Aadhaar number must be exactly 12 digits`
+                `Student at Row ${
+                  index + 2
+                }: Aadhaar number must be exactly 12 digits`
               );
               return false; // Exclude invalid rows
             }
@@ -2736,9 +2749,9 @@ export default function DataTable() {
       );
       if (missingFields.length > 0) {
         acc.push(
-          `Student at Row ${index + 2}: Missing required fields - ${missingFields.join(
-            ", "
-          )}`
+          `Student at Row ${
+            index + 2
+          }: Missing required fields - ${missingFields.join(", ")}`
         );
       }
       return acc;
@@ -2754,7 +2767,6 @@ export default function DataTable() {
         toast: false,
         customClass: { popup: "small-swal" },
         width: "auto",
-       
       });
       return;
     }
@@ -2825,7 +2837,8 @@ export default function DataTable() {
           errorMessage = message || errorMessage;
         }
       } else if (error.message.includes("School not found")) {
-        errorMessage = "The specified school_name does not exist in the database.";
+        errorMessage =
+          "The specified school_name does not exist in the database.";
       } else if (error.message.includes("Unauthorized")) {
         errorMessage = "Session expired. Please log in again.";
         errorTitle = "Authentication Error";
@@ -2864,7 +2877,6 @@ export default function DataTable() {
       "city",
       "approved",
       "approved_by",
-      
     ];
     const rows = [
       [
@@ -2882,7 +2894,6 @@ export default function DataTable() {
         "Aliabad",
         "false",
         "admin",
-       
       ],
     ];
 
@@ -3191,7 +3202,9 @@ export default function DataTable() {
                     <li>Save the file in Excel format (XLSX or CSV).</li>
                     <li>Use Upload Excel to bulk upload your data.</li>
                     <li>
-                      Ensure all required fields are filled correctly and<br/> Aadhaar numbers are either empty or exactly 12 digits to avoid errors.
+                      Ensure all required fields are filled correctly and
+                      <br /> Aadhaar numbers are either empty or exactly 12
+                      digits to avoid errors.
                     </li>
                   </ol>
                 </div>

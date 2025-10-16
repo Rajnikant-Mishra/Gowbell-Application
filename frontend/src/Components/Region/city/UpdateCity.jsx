@@ -99,40 +99,157 @@ const UpdateCity = () => {
     }
   }, [selectedState]);
 
-
   //backend fetch---------------------------------//
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   // Input validation
+  //   if (!name || !selectedCountry || !selectedState || !selectedDistrict) {
+  //     Swal.fire({
+
+  //       position: "top-end",
+  //       icon: "error",
+  //       title: "Error!",
+  //       text: `Please fill all required fields`,
+  //       showConfirmButton: false,
+  //       timer: 2000,
+  //       timerProgressBar: true,
+  //       toast: true,
+  //       background: "#fff",
+  //       customClass: {
+  //         popup: "small-swal",
+  //       },
+  //     });
+  //     return;
+  //   }
+
+  //   // Send the PUT request to update the city
+  //   axios
+  //     .put(`${API_BASE_URL}/api/cities/${id}`, {
+  //       name,
+  //       status,
+  //       country_id: selectedCountry,
+  //       state_id: selectedState,
+  //       district_id: selectedDistrict,
+  //     })
+  //     .then((response) => {
+  //       Swal.fire({
+  //         position: "top-end",
+  //         icon: "success",
+  //         title: "Success!",
+  //         text: `City "${name}" updated successfully!`,
+  //         showConfirmButton: false,
+  //         timer: 1000,
+  //         timerProgressBar: true,
+  //         toast: true,
+  //         background: "#fff",
+  //         customClass: {
+  //           popup: "small-swal",
+  //         },
+  //       }).then(() => {
+  //         navigate("/region");
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       if (
+  //         error.response &&
+  //         error.response.data &&
+  //         error.response.data.error
+  //       ) {
+  //         const errorMessage = error.response.data.error;
+
+  //         // Check if the error is related to a duplicate city
+  //         if (errorMessage.includes("City already exists")) {
+  //           Swal.fire({
+  //             // title: "Error!",
+  //             // text: `A city with the same name already exists in this district.`,
+  //             // icon: "error",
+  //             // confirmButtonText: "OK",
+  //             position: "top-end",
+  //             icon: "error",
+  //             title: "Error!",
+  //             text: `A city with the same name already exists in this district.`,
+  //             showConfirmButton: false,
+  //             timer: 2000,
+  //             timerProgressBar: true,
+  //             toast: true,
+  //             background: "#fff",
+  //             customClass: {
+  //               popup: "small-swal",
+  //             },
+  //           });
+  //         } else {
+  //           Swal.fire({
+  //             title: "Error!",
+  //             text: "There was an issue updating the city. Please try again.",
+  //             icon: "error",
+  //             confirmButtonText: "OK",
+  //           });
+  //         }
+  //       } else {
+  //         Swal.fire({
+  //           title: "Error!",
+  //           text: "Something went wrong. Please try again later.",
+  //           icon: "error",
+  //           confirmButtonText: "OK",
+  //         });
+  //       }
+  //       console.error("Error updating city:", error);
+  //     });
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Input validation
     if (!name || !selectedCountry || !selectedState || !selectedDistrict) {
       Swal.fire({
-        
         position: "top-end",
         icon: "error",
         title: "Error!",
-        text: `Please fill all required fields`,
+        text: "Please fill all required fields",
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
         toast: true,
         background: "#fff",
-        customClass: {
-          popup: "small-swal",
-        },
+        customClass: { popup: "small-swal" },
+      });
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text: "Authentication token is missing.",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        toast: true,
+        background: "#fff",
+        customClass: { popup: "small-swal" },
       });
       return;
     }
 
     // Send the PUT request to update the city
     axios
-      .put(`${API_BASE_URL}/api/cities/${id}`, {
-        name,
-        status,
-        country_id: selectedCountry,
-        state_id: selectedState,
-        district_id: selectedDistrict,
-      })
+      .put(
+        `${API_BASE_URL}/api/cities/${id}`,
+        {
+          name,
+          status,
+          country_id: selectedCountry,
+          state_id: selectedState,
+          district_id: selectedDistrict,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }, // Add token here
+        }
+      )
       .then((response) => {
         Swal.fire({
           position: "top-end",
@@ -144,53 +261,33 @@ const UpdateCity = () => {
           timerProgressBar: true,
           toast: true,
           background: "#fff",
-          customClass: {
-            popup: "small-swal",
-          },
+          customClass: { popup: "small-swal" },
         }).then(() => {
           navigate("/region");
         });
       })
       .catch((error) => {
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          const errorMessage = error.response.data.error;
+        const errorMessage = error.response?.data?.error;
 
-          // Check if the error is related to a duplicate city
-          if (errorMessage.includes("City already exists")) {
-            Swal.fire({
-              // title: "Error!",
-              // text: `A city with the same name already exists in this district.`,
-              // icon: "error",
-              // confirmButtonText: "OK",
-              position: "top-end",
-              icon: "error",
-              title: "Error!",
-              text: `A city with the same name already exists in this district.`,
-              showConfirmButton: false,
-              timer: 2000,
-              timerProgressBar: true,
-              toast: true,
-              background: "#fff",
-              customClass: {
-                popup: "small-swal",
-              },
-            });
-          } else {
-            Swal.fire({
-              title: "Error!",
-              text: "There was an issue updating the city. Please try again.",
-              icon: "error",
-              confirmButtonText: "OK",
-            });
-          }
+        if (errorMessage?.includes("City already exists")) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Error!",
+            text: "A city with the same name already exists in this district.",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            toast: true,
+            background: "#fff",
+            customClass: { popup: "small-swal" },
+          });
         } else {
           Swal.fire({
             title: "Error!",
-            text: "Something went wrong. Please try again later.",
+            text:
+              errorMessage ||
+              "There was an issue updating the city. Please try again.",
             icon: "error",
             confirmButtonText: "OK",
           });

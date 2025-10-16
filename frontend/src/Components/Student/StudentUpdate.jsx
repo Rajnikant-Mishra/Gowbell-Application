@@ -426,6 +426,44 @@ export default function StudentUpdateForm() {
           <form className={styles.formContent} onSubmit={formik.handleSubmit}>
             <Grid container spacing={3}>
               {/* Location fields */}
+
+              <Grid item xs={12} sm={6} md={6}>
+                <TextField
+                  className={styles.textInput}
+                  label="Aadhaar Number"
+                  name="aadhaar_number"
+                  value={formik.values.aadhaar_number}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  size="small"
+                  InputProps={{
+                    className: styles.inputField,
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Nunito, sans-serif",
+                      fontSize: "0.85rem",
+                      fontWeight: "bolder",
+                    },
+                  }}
+                  error={
+                    formik.touched.aadhaar_number &&
+                    Boolean(formik.errors.aadhaar_number)
+                  }
+                  helperText={
+                    formik.touched.aadhaar_number &&
+                    formik.errors.aadhaar_number
+                  }
+                  fullWidth
+                  disabled=""
+                />
+              </Grid>
+              <Grid item xm={12} sm={6} md={6}></Grid>
+
               <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
                   label="Country"
@@ -705,42 +743,6 @@ export default function StudentUpdateForm() {
                       }}
                     />
                   )}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={6}>
-                <TextField
-                  className={styles.textInput}
-                  label="Aadhaar Number"
-                  name="aadhaar_number"
-                  value={formik.values.aadhaar_number}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  size="small"
-                  InputProps={{
-                    className: styles.inputField,
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Nunito, sans-serif",
-                      fontSize: "0.85rem",
-                      fontWeight: "bolder",
-                    },
-                  }}
-                  error={
-                    formik.touched.aadhaar_number &&
-                    Boolean(formik.errors.aadhaar_number)
-                  }
-                  helperText={
-                    formik.touched.aadhaar_number &&
-                    formik.errors.aadhaar_number
-                  }
-                  fullWidth
-                  disabled=""
                 />
               </Grid>
             </Grid>

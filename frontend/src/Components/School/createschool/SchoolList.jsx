@@ -1635,10 +1635,93 @@ export default function DataTable() {
   const pageSizes = [10, 20, 50, 100];
 
   // Fetch school data with session_id
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const sessionId = localStorage.getItem("currentSessionId") || null;
+  //       const schoolResponse = await axios.get(
+  //         `${API_BASE_URL}/api/get/schools`,
+  //         {
+  //           params: {
+  //             page,
+  //             limit: pageSize,
+  //             search: searchTerm,
+  //             session_id: sessionId,
+  //           },
+  //         }
+  //       );
+
+  //       const { schools, totalRecords, totalPages } = schoolResponse.data;
+
+  //       const formattedData = await Promise.all(
+  //         schools.map(async (record) => {
+  //           try {
+  //             const userResponse = await axios.get(
+  //               `${API_BASE_URL}/api/u1/users/${record.created_by}`
+  //             );
+  //             const { username, role } = userResponse.data;
+
+  //             let roleName = "Unknown Role";
+  //             try {
+  //               const roleResponse = await axios.get(
+  //                 `${API_BASE_URL}/api/r1/role/${role}`
+  //               );
+  //               roleName = roleResponse.data.role_name || "Unknown Role";
+  //             } catch (roleError) {
+  //               console.error(
+  //                 `Failed to fetch role name for role ID: ${role}`,
+  //                 roleError
+  //               );
+  //             }
+
+  //             return {
+  //               ...record,
+  //               created_by: `${username} (${roleName})`,
+  //               updated_by: `${username} (${roleName})`,
+  //             };
+  //           } catch (userError) {
+  //             console.error(
+  //               `Failed to fetch user details for created_by: ${record.created_by}`,
+  //               userError
+  //             );
+  //             return {
+  //               ...record,
+  //               created_by: "Unknown User (Unknown Role)",
+  //               updated_by: "Unknown User (Unknown Role)",
+  //             };
+  //           }
+  //         })
+  //       );
+
+  //       setRecords(formattedData);
+  //       setTotalRecords(totalRecords);
+  //       setTotalPages(totalPages);
+  //     } catch (error) {
+  //       Swal.fire({
+  //         position: "top-end",
+  //         icon: "error",
+  //         title: "Error!",
+  //         text: error.response?.data?.error || "Failed to fetch school data.",
+  //         showConfirmButton: false,
+  //         timer: 2000,
+  //         toast: true,
+  //       });
+  //     }
+  //   };
+
+  //   const debounceTimeout = setTimeout(() => {
+  //     fetchData();
+  //   }, 500);
+
+  //   return () => clearTimeout(debounceTimeout);
+  // }, [page, pageSize, searchTerm]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem("token"); // 🔑 Get token
         const sessionId = localStorage.getItem("currentSessionId") || null;
+
         const schoolResponse = await axios.get(
           `${API_BASE_URL}/api/get/schools`,
           {
@@ -1648,6 +1731,7 @@ export default function DataTable() {
               search: searchTerm,
               session_id: sessionId,
             },
+            headers: { Authorization: `Bearer ${token}` }, // ✅ Attach token
           }
         );
 
@@ -1657,14 +1741,16 @@ export default function DataTable() {
           schools.map(async (record) => {
             try {
               const userResponse = await axios.get(
-                `${API_BASE_URL}/api/u1/users/${record.created_by}`
+                `${API_BASE_URL}/api/u1/users/${record.created_by}`,
+                { headers: { Authorization: `Bearer ${token}` } } // ✅ token
               );
               const { username, role } = userResponse.data;
 
               let roleName = "Unknown Role";
               try {
                 const roleResponse = await axios.get(
-                  `${API_BASE_URL}/api/r1/role/${role}`
+                  `${API_BASE_URL}/api/r1/role/${role}`,
+                  { headers: { Authorization: `Bearer ${token}` } } // ✅ token
                 );
                 roleName = roleResponse.data.role_name || "Unknown Role";
               } catch (roleError) {
@@ -1726,6 +1812,53 @@ export default function DataTable() {
   }, []);
 
   // Handle row deletion
+  // const handleDelete = (id) => {
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085D6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, delete it!",
+  //     customClass: { popup: "custom-swal-popup" },
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       axios
+  //         .delete(`${API_BASE_URL}/api/get/schools/${id}`)
+  //         .then(() => {
+  //           setRecords((prev) => prev.filter((record) => record.id !== id));
+  //           setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
+  //           setSelectedRowsCount((prev) => prev - 1);
+  //           Swal.fire({
+  //             position: "top-end",
+  //             icon: "success",
+  //             title: "Success!",
+  //             text: "The school has been deleted.",
+  //             showConfirmButton: false,
+  //             timer: 1000,
+  //             toast: true,
+  //             background: "#fff",
+  //             customClass: { popup: "small-swal" },
+  //           });
+  //         })
+  //         .catch((error) => {
+  //           Swal.fire({
+  //             position: "top-end",
+  //             icon: "error",
+  //             title: "Error!",
+  //             text:
+  //               error.response?.data?.error ||
+  //               "There was an issue deleting the school.",
+  //             showConfirmButton: false,
+  //             timer: 2000,
+  //             toast: true,
+  //             background: "#fff",
+  //             customClass: { popup: "small-swal" },
+  //           });
+  //         });
+  //     }
+  //   });
+  // };
   const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -1737,8 +1870,28 @@ export default function DataTable() {
       customClass: { popup: "custom-swal-popup" },
     }).then((result) => {
       if (result.isConfirmed) {
+        const token = localStorage.getItem("token"); // Get token from localStorage
+        if (!token) {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "Error!",
+            text: "Authentication token is missing.",
+            showConfirmButton: false,
+            timer: 2000,
+            toast: true,
+            background: "#fff",
+            customClass: { popup: "small-swal" },
+          });
+          return;
+        }
+
         axios
-          .delete(`${API_BASE_URL}/api/get/schools/${id}`)
+          .delete(`${API_BASE_URL}/api/get/schools/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add token here
+            },
+          })
           .then(() => {
             setRecords((prev) => prev.filter((record) => record.id !== id));
             setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
