@@ -9,6 +9,7 @@ const OmrData = {
       school,
       classes,
       subjects,
+      center_id,
       country,
       state,
       district,
@@ -24,7 +25,7 @@ const OmrData = {
       class_count,
       omr_set,
       exam_date
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
     db.query(
@@ -33,6 +34,7 @@ const OmrData = {
         data.school,
         JSON.stringify(data.classes),
         JSON.stringify(data.subjects),
+        data.center_id,
         data.country,
         data.state,
         data.district,
@@ -53,9 +55,53 @@ const OmrData = {
     );
   },
 
+  // getAll: (callback) => {
+  //   const query = `
+  //   SELECT
+  //     o.id,
+  //     o.created_at,
+  //     o.school,
+  //      o.classes,
+  //     o.subjects,
+  //     o. level,
+  //     o.student_count,
+  //     o.filename,
+  //     c.name as country,
+  //     s.name as state,
+  //     d.name as district,
+  //     ci.name as city
+  //   FROM omr_data o
+  //   LEFT JOIN countries c ON o.country = c.id
+  //   LEFT JOIN states s ON o.state = s.id
+  //   LEFT JOIN districts d ON o.district = d.id
+  //   LEFT JOIN cities ci ON o.city = ci.id
+  //   ORDER BY o.created_at DESC
+  // `;
+  //   db.query(query, callback);
+  // },
+
   getAll: (callback) => {
     const query = `
-    SELECT * FROM omr_data ORDER BY created_at DESC
+    SELECT 
+      o.id,
+      o.created_at,
+      o.school,
+      o.classes,
+      o.subjects,
+      o.level,
+      o.student_count,
+      o.filename,
+      o.status,
+      c.name   AS country,
+      s.name   AS state,
+      d.name   AS district,
+      ci.name  AS city
+    FROM omr_data o
+    LEFT JOIN countries  c  ON o.country  = c.id
+    LEFT JOIN states     s  ON o.state    = s.id
+    LEFT JOIN districts  d  ON o.district = d.id
+    LEFT JOIN cities     ci ON o.city     = ci.id
+    ORDER BY o.created_at DESC
   `;
     db.query(query, callback);
   },

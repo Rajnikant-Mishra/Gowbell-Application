@@ -16,7 +16,7 @@ router.get("/get-exams-paginate", getExamswithpagination);
 router.get("/get-exams", getExams);
 router.get("/get/exam/:id", getExamById);
 router.put("/update-exam/:id", authenticateToken, updateExam);
-router.delete("/delete-exam/:id", deleteExam);
+router.delete("/delete-exam/:id",authenticateToken, deleteExam);
 
 //get exam date by school, classes, subject
 router.post("/exam-date",  getExamsBySchoolClassSubject);

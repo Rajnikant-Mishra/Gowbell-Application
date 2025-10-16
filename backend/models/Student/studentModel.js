@@ -2,6 +2,202 @@ import { db } from "../../config/db.js";
 
 export const Student = {
   //===============================================
+  // create: (studentData, userId, callback) => {
+  //   const {
+  //     school_id,
+  //     student_name,
+  //     class_id,
+  //     student_section,
+  //     mobile_number,
+  //     whatsapp_number,
+  //     aadhaar_number,
+  //     student_subject,
+  //     approved = 0,
+  //     approved_by = null,
+  //     country,
+  //     state,
+  //     district,
+  //     city,
+  //     level = 1,
+  //     level_status = "continue",
+  //     session_id,
+  //   } = studentData;
+
+  //   // Step 1: Resolve session_id (same as before)
+  //   const resolveSessionId = (next) => {
+  //     if (session_id) {
+  //       const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
+  //       db.query(verifyQuery, [session_id], (err, result) => {
+  //         if (err) return callback(err);
+  //         if (result.length === 0)
+  //           return callback(new Error("Invalid session ID selected"));
+  //         return next(session_id);
+  //       });
+  //     } else {
+  //       const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+  //       db.query(sessionQuery, (err, result) => {
+  //         if (err) return callback(err);
+  //         if (result.length === 0)
+  //           return callback(new Error("No active session found"));
+  //         return next(result[0].id);
+  //       });
+  //     }
+  //   };
+
+  //   resolveSessionId((finalSessionId) => {
+  //     // Step 2: Check if Aadhaar exists in SAME session → block insert
+  //     const sameSessionCheck = `
+  //     SELECT student_code FROM student
+  //     WHERE aadhaar_number = ? AND session_id = ?
+  //     LIMIT 1
+  //   `;
+  //     db.query(
+  //       sameSessionCheck,
+  //       [aadhaar_number, finalSessionId],
+  //       (err, sameSessionResult) => {
+  //         if (err) return callback(err);
+  //         if (sameSessionResult.length > 0) {
+  //           return callback(
+  //             new Error("This Aadhaar is already registered in this session")
+  //           );
+  //         }
+
+  //         // Step 3: Check if Aadhaar exists in ANY session → reuse student_code
+  //         const anySessionCheck = `
+  //       SELECT student_code FROM student
+  //       WHERE aadhaar_number = ?
+  //       ORDER BY id ASC LIMIT 1
+  //     `;
+  //         db.query(
+  //           anySessionCheck,
+  //           [aadhaar_number],
+  //           (err, anySessionResult) => {
+  //             if (err) return callback(err);
+
+  //             const reuseStudentCode =
+  //               anySessionResult.length > 0
+  //                 ? anySessionResult[0].student_code
+  //                 : null;
+
+  //             // Step 4: Fetch school code
+  //             const schoolQuery = `SELECT school_code FROM school WHERE id = ?`;
+  //             db.query(schoolQuery, [school_id], (err, schoolResult) => {
+  //               if (err) return callback(err);
+  //               if (schoolResult.length === 0)
+  //                 return callback(new Error("School not found"));
+
+  //               const school_code = schoolResult[0].school_code;
+  //               const rollPrefix = `${school_code}${class_id}${level}%`;
+
+  //               // Step 5: Generate roll_no as before
+  //               const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
+  //               db.query(rollQuery, [rollPrefix], (err, rollResult) => {
+  //                 if (err) return callback(err);
+
+  //                 let newRollNumber = 1;
+  //                 if (rollResult.length > 0) {
+  //                   const lastRoll = rollResult[0].roll_no || "";
+  //                   const lastRollNumber = parseInt(lastRoll.slice(-2), 10);
+  //                   if (!isNaN(lastRollNumber))
+  //                     newRollNumber = lastRollNumber + 1;
+  //                 }
+
+  //                 const formattedRollNo = `${school_code}${class_id}${level}${String(
+  //                   newRollNumber
+  //                 ).padStart(2, "0")}`;
+  //                 const subjectValue = student_subject
+  //                   ? JSON.stringify(student_subject)
+  //                   : null;
+
+  //                 // Step 6: Generate NEW student_code only if Aadhaar not found anywhere
+  //                 const generateStudentCode = (cb) => {
+  //                   if (reuseStudentCode) return cb(null, reuseStudentCode);
+
+  //                   const studentCodePrefix = `GB-${finalSessionId}-`;
+  //                   const studentCodeQuery = `
+  //               SELECT student_code FROM student
+  //               WHERE session_id = ? AND student_code LIKE ?
+  //               ORDER BY id DESC LIMIT 1
+  //             `;
+  //                   db.query(
+  //                     studentCodeQuery,
+  //                     [finalSessionId, `${studentCodePrefix}%`],
+  //                     (err, result) => {
+  //                       if (err) return cb(err);
+
+  //                       let newStudentCodeNumber = 1;
+  //                       if (result.length > 0) {
+  //                         const lastStudentCode = result[0].student_code;
+  //                         const lastNumber = parseInt(
+  //                           lastStudentCode.split("-").pop(),
+  //                           10
+  //                         );
+  //                         if (!isNaN(lastNumber))
+  //                           newStudentCodeNumber = lastNumber + 1;
+  //                       }
+
+  //                       const generatedStudentCode = `${studentCodePrefix}${String(
+  //                         newStudentCodeNumber
+  //                       ).padStart(3, "0")}`;
+  //                       cb(null, generatedStudentCode);
+  //                     }
+  //                   );
+  //                 };
+
+  //                 generateStudentCode((err, finalStudentCode) => {
+  //                   if (err) return callback(err);
+
+  //                   // Step 7: Insert student record
+  //                   const insertQuery = `
+  //               INSERT INTO student
+  //               (student_code, school_id, student_name, roll_no, class_id, student_section,
+  //                mobile_number, whatsapp_number, aadhaar_number, student_subject, approved,
+  //                approved_by, country, state, district, city, session_id, created_by, updated_by,
+  //                created_at, updated_at, level, level_status)
+  //               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
+  //             `;
+
+  //                   db.query(
+  //                     insertQuery,
+  //                     [
+  //                       finalStudentCode,
+  //                       school_id,
+  //                       student_name,
+  //                       formattedRollNo,
+  //                       class_id,
+  //                       student_section,
+  //                       mobile_number,
+  //                       whatsapp_number,
+  //                       aadhaar_number,
+  //                       subjectValue,
+  //                       approved,
+  //                       approved_by,
+  //                       country,
+  //                       state,
+  //                       district,
+  //                       city,
+  //                       finalSessionId,
+  //                       userId,
+  //                       userId,
+  //                       level,
+  //                       level_status,
+  //                     ],
+  //                     (err, result) => {
+  //                       if (err) return callback(err);
+
+  //                       callback(null, result);
+  //                     }
+  //                   );
+  //                 });
+  //               });
+  //             });
+  //           }
+  //         );
+  //       }
+  //     );
+  //   });
+  // },
+
   create: (studentData, userId, callback) => {
     const {
       school_id,
@@ -19,11 +215,14 @@ export const Student = {
       district,
       city,
       level = 1,
-      level_status = "continue",
+      level_1 = "pending",
+      level_2 = null,
+      level_3 = null,
+      level_4 = null,
       session_id,
     } = studentData;
 
-    // Step 1: Resolve session_id (same as before)
+    // Step 1: Resolve session_id (active or provided)
     const resolveSessionId = (next) => {
       if (session_id) {
         const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
@@ -45,7 +244,7 @@ export const Student = {
     };
 
     resolveSessionId((finalSessionId) => {
-      // Step 2: Check if Aadhaar exists in SAME session → block insert
+      // Step 2: Check duplicate Aadhaar in same session
       const sameSessionCheck = `
       SELECT student_code FROM student 
       WHERE aadhaar_number = ? AND session_id = ?
@@ -62,12 +261,12 @@ export const Student = {
             );
           }
 
-          // Step 3: Check if Aadhaar exists in ANY session → reuse student_code
+          // Step 3: Check if Aadhaar exists in any session → reuse student_code
           const anySessionCheck = `
-        SELECT student_code FROM student 
-        WHERE aadhaar_number = ?
-        ORDER BY id ASC LIMIT 1
-      `;
+          SELECT student_code FROM student 
+          WHERE aadhaar_number = ?
+          ORDER BY id ASC LIMIT 1
+        `;
           db.query(
             anySessionCheck,
             [aadhaar_number],
@@ -89,8 +288,11 @@ export const Student = {
                 const school_code = schoolResult[0].school_code;
                 const rollPrefix = `${school_code}${class_id}${level}%`;
 
-                // Step 5: Generate roll_no as before
-                const rollQuery = `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`;
+                // Step 5: Generate roll number
+                const rollQuery = `
+              SELECT roll_no FROM student 
+              WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1
+            `;
                 db.query(rollQuery, [rollPrefix], (err, rollResult) => {
                   if (err) return callback(err);
 
@@ -105,20 +307,21 @@ export const Student = {
                   const formattedRollNo = `${school_code}${class_id}${level}${String(
                     newRollNumber
                   ).padStart(2, "0")}`;
+
                   const subjectValue = student_subject
                     ? JSON.stringify(student_subject)
                     : null;
 
-                  // Step 6: Generate NEW student_code only if Aadhaar not found anywhere
+                  // Step 6: Generate NEW student_code if needed
                   const generateStudentCode = (cb) => {
                     if (reuseStudentCode) return cb(null, reuseStudentCode);
 
                     const studentCodePrefix = `GB-${finalSessionId}-`;
                     const studentCodeQuery = `
-                SELECT student_code FROM student 
-                WHERE session_id = ? AND student_code LIKE ? 
-                ORDER BY id DESC LIMIT 1
-              `;
+                  SELECT student_code FROM student 
+                  WHERE session_id = ? AND student_code LIKE ? 
+                  ORDER BY id DESC LIMIT 1
+                `;
                     db.query(
                       studentCodeQuery,
                       [finalSessionId, `${studentCodePrefix}%`],
@@ -147,15 +350,15 @@ export const Student = {
                   generateStudentCode((err, finalStudentCode) => {
                     if (err) return callback(err);
 
-                    // Step 7: Insert student record
+                    // Step 7: Insert student record with new level columns
                     const insertQuery = `
-                INSERT INTO student 
-                (student_code, school_id, student_name, roll_no, class_id, student_section, 
-                 mobile_number, whatsapp_number, aadhaar_number, student_subject, approved, 
-                 approved_by, country, state, district, city, session_id, created_by, updated_by, 
-                 created_at, updated_at, level, level_status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
-              `;
+                  INSERT INTO student 
+                  (student_code, school_id, student_name, roll_no, class_id, student_section, 
+                   mobile_number, whatsapp_number, aadhaar_number, student_subject, approved, 
+                   approved_by, country, state, district, city, session_id, created_by, updated_by, 
+                   created_at, updated_at, level, level_1, level_2, level_3, level_4) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?)
+                `;
 
                     db.query(
                       insertQuery,
@@ -180,7 +383,10 @@ export const Student = {
                         userId,
                         userId,
                         level,
-                        level_status,
+                        level_1,
+                        level_2,
+                        level_3,
+                        level_4,
                       ],
                       (err, result) => {
                         if (err) return callback(err);
@@ -198,6 +404,384 @@ export const Student = {
   },
 
   // BULK UPLOAD
+  // bulkCreate: (students, userId) => {
+  //   return new Promise((resolve, reject) => {
+  //     const requiredFields = [
+  //       "school_id",
+  //       "class_id",
+  //       "student_name",
+  //       "student_section",
+  //       "aadhaar_number", // required now
+  //     ];
+
+  //     // Validate required fields
+  //     const missingFields = students.reduce((acc, student, index) => {
+  //       const missing = requiredFields.filter(
+  //         (field) => student[field] == null || student[field] === ""
+  //       );
+  //       if (missing.length > 0) {
+  //         acc.push(
+  //           `Student at index ${index} missing fields: ${missing.join(", ")}`
+  //         );
+  //       }
+  //       return acc;
+  //     }, []);
+
+  //     if (missingFields.length > 0) {
+  //       return reject(
+  //         new Error("Missing required fields", { cause: missingFields })
+  //       );
+  //     }
+
+  //     // Utility: Get ID by name
+  //     const getIdByName = (table, name) => {
+  //       return new Promise((resolve, reject) => {
+  //         const validTables = {
+  //           countries: "name",
+  //           states: "name",
+  //           districts: "name",
+  //           cities: "name",
+  //           class: "name",
+  //           subject_master: "name",
+  //           school: "school_name",
+  //         };
+  //         const column = validTables[table];
+  //         if (!column) return reject(new Error(`Invalid table: ${table}`));
+
+  //         db.query(
+  //           `SELECT id FROM ${table} WHERE ${column} = ? LIMIT 1`,
+  //           [name.trim()],
+  //           (err, result) => {
+  //             if (err) return reject(err);
+  //             if (result.length === 0)
+  //               return reject(new Error(`${table} not found: ${name}`));
+  //             resolve(result[0].id);
+  //           }
+  //         );
+  //       });
+  //     };
+
+  //     const getActiveSession = () => {
+  //       return new Promise((resolve, reject) => {
+  //         db.query(
+  //           `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`,
+  //           (err, result) => {
+  //             if (err) return reject(err);
+  //             if (result.length === 0)
+  //               return reject(new Error("No active session found"));
+  //             resolve(result[0].id);
+  //           }
+  //         );
+  //       });
+  //     };
+
+  //     const getSubjectIds = async (subjects) => {
+  //       return Promise.all(
+  //         subjects.map((s) => getIdByName("subject_master", s))
+  //       );
+  //     };
+
+  //     const resolveSessionId = (manualSessionId) => {
+  //       return new Promise((resolve, reject) => {
+  //         if (manualSessionId) {
+  //           db.query(
+  //             `SELECT id FROM gowvell_session WHERE id = ?`,
+  //             [manualSessionId],
+  //             (err, result) => {
+  //               if (err) return reject(err);
+  //               if (result.length === 0)
+  //                 return reject(new Error("Invalid session ID selected"));
+  //               resolve(result[0].id);
+  //             }
+  //           );
+  //         } else {
+  //           getActiveSession().then(resolve).catch(reject);
+  //         }
+  //       });
+  //     };
+
+  //     // Normalize single student
+  //     const normalizeStudent = async (student) => {
+  //       const [
+  //         schoolId,
+  //         classId,
+  //         countryId,
+  //         stateId,
+  //         districtId,
+  //         cityId,
+  //         sessionId,
+  //       ] = await Promise.all([
+  //         getIdByName("school", student.school_id),
+  //         getIdByName("class", student.class_id),
+  //         student.country
+  //           ? getIdByName("countries", student.country)
+  //           : Promise.resolve(null),
+  //         student.state
+  //           ? getIdByName("states", student.state)
+  //           : Promise.resolve(null),
+  //         student.district
+  //           ? getIdByName("districts", student.district)
+  //           : Promise.resolve(null),
+  //         student.city
+  //           ? getIdByName("cities", student.city)
+  //           : Promise.resolve(null),
+  //         resolveSessionId(student.session_id),
+  //       ]);
+
+  //       let subjects = student.student_subject || [];
+  //       if (typeof subjects === "string") {
+  //         subjects = subjects.trim().split(/\s+/);
+  //       }
+  //       const subjectIds = await getSubjectIds(subjects);
+
+  //       return {
+  //         ...student,
+  //         school_id: schoolId,
+  //         class_id: classId,
+  //         country: countryId,
+  //         state: stateId,
+  //         district: districtId,
+  //         city: cityId,
+  //         session_id: sessionId,
+  //         student_subject: subjectIds,
+  //         level: student.level || 1,
+  //         // level_status: student.level_status || "continue",
+  //       };
+  //     };
+
+  //     // Main process
+  //     const processStudents = async () => {
+  //       const aadhaarList = students.map((s) => s.aadhaar_number);
+
+  //       // Fetch Aadhaar matches with session_id and student_code
+  //       const aadhaarMatches = await new Promise((resolve, reject) => {
+  //         const query = `
+  //         SELECT aadhaar_number, session_id, student_code
+  //         FROM student
+  //         WHERE aadhaar_number IN (?)`;
+  //         db.query(query, [aadhaarList], (err, result) => {
+  //           if (err) return reject(err);
+  //           resolve(result);
+  //         });
+  //       });
+
+  //       const aadhaarMap = {}; // aadhaar_number → student_code
+  //       const sessionDup = new Set(); // aadhaar numbers already in same session
+
+  //       for (const row of aadhaarMatches) {
+  //         aadhaarMap[row.aadhaar_number] = row.student_code;
+  //       }
+
+  //       const normalized = [];
+  //       const errors = [];
+
+  //       for (const student of students) {
+  //         try {
+  //           const normalizedStudent = await normalizeStudent(student);
+
+  //           // Check if Aadhaar exists in SAME session → reject
+  //           const found = aadhaarMatches.find(
+  //             (m) =>
+  //               m.aadhaar_number === normalizedStudent.aadhaar_number &&
+  //               m.session_id === normalizedStudent.session_id
+  //           );
+  //           if (found) {
+  //             sessionDup.add(normalizedStudent.aadhaar_number);
+  //             throw new Error(
+  //               `Aadhaar ${normalizedStudent.aadhaar_number} already exists in this session`
+  //             );
+  //           }
+
+  //           normalized.push(normalizedStudent);
+  //         } catch (err) {
+  //           errors.push({ student: student.student_name, error: err.message });
+  //         }
+  //       }
+
+  //       if (sessionDup.size > 0) {
+  //         throw new Error("Duplicate Aadhaar numbers found in this session", {
+  //           cause: Array.from(sessionDup),
+  //         });
+  //       }
+
+  //       if (normalized.length === 0) {
+  //         throw new Error("All student records failed validation", {
+  //           cause: errors,
+  //         });
+  //       }
+
+  //       // Group by school-class-level
+  //       const grouped = normalized.reduce((acc, student) => {
+  //         const key = `${student.school_id}-${student.class_id}-${
+  //           student.level || 1
+  //         }`;
+  //         acc[key] = acc[key] || [];
+  //         acc[key].push(student);
+  //         return acc;
+  //       }, {});
+
+  //       return { grouped, errors, aadhaarMap };
+  //     };
+
+  //     // Assign roll numbers and student_code
+  //     const assignRollNumbersAndCodes = async (
+  //       group,
+  //       school_id,
+  //       class_id,
+  //       level,
+  //       session_id,
+  //       aadhaarMap
+  //     ) => {
+  //       const rollPrefix = await new Promise((resolve, reject) =>
+  //         db.query(
+  //           `SELECT school_code FROM school WHERE id = ?`,
+  //           [school_id],
+  //           (err, result) => {
+  //             if (err) return reject(err);
+  //             if (result.length === 0)
+  //               return reject(new Error("School code not found"));
+  //             resolve(result[0].school_code + class_id + level);
+  //           }
+  //         )
+  //       );
+
+  //       const lastRollResult = await new Promise((resolve, reject) =>
+  //         db.query(
+  //           `SELECT roll_no FROM student WHERE roll_no LIKE ? ORDER BY roll_no DESC LIMIT 1`,
+  //           [`${rollPrefix}%`],
+  //           (err, result) => (err ? reject(err) : resolve(result))
+  //         )
+  //       );
+  //       let rollNum =
+  //         lastRollResult.length > 0
+  //           ? parseInt(lastRollResult[0].roll_no.slice(-2)) + 1
+  //           : 1;
+
+  //       const studentCodePrefix = `GB-${session_id}-`;
+  //       const lastCodeResult = await new Promise((resolve, reject) =>
+  //         db.query(
+  //           `SELECT student_code FROM student
+  //          WHERE session_id = ? AND student_code LIKE ?
+  //          ORDER BY id DESC LIMIT 1`,
+  //           [session_id, `${studentCodePrefix}%`],
+  //           (err, result) => (err ? reject(err) : resolve(result))
+  //         )
+  //       );
+  //       let studentCodeNum =
+  //         lastCodeResult.length > 0
+  //           ? parseInt(lastCodeResult[0].student_code.split("-").pop(), 10) + 1
+  //           : 1;
+
+  //       return group.map((student) => {
+  //         const roll_no = `${rollPrefix}${String(rollNum++).padStart(2, "0")}`;
+  //         const student_code = aadhaarMap[student.aadhaar_number]
+  //           ? aadhaarMap[student.aadhaar_number] // reuse if Aadhaar exists in another session
+  //           : `${studentCodePrefix}${String(studentCodeNum++).padStart(
+  //               3,
+  //               "0"
+  //             )}`; // new code
+  //         return { ...student, roll_no, student_code };
+  //       });
+  //     };
+
+  //     const insertStudents = (studentsToInsert) => {
+  //       const query = `
+  //       INSERT INTO student
+  //       (student_code, school_id, student_name, roll_no, class_id, student_section,
+  //        mobile_number, whatsapp_number, aadhaar_number, student_subject, country,
+  //        state, district, city, session_id, approved, approved_by,
+  //        created_by, updated_by, created_at, updated_at, level, level_status)
+  //       VALUES ?`;
+
+  //       const values = studentsToInsert.map((s) => [
+  //         s.student_code,
+  //         s.school_id,
+  //         s.student_name,
+  //         s.roll_no,
+  //         s.class_id,
+  //         s.student_section,
+  //         s.mobile_number ?? null,
+  //         s.whatsapp_number ?? null,
+  //         s.aadhaar_number ?? null,
+  //         JSON.stringify(s.student_subject),
+  //         s.country,
+  //         s.state,
+  //         s.district,
+  //         s.city,
+  //         s.session_id,
+  //         s.approved ?? 0,
+  //         s.approved_by ?? null,
+  //         userId,
+  //         userId,
+  //         new Date(),
+  //         new Date(),
+  //         s.level,
+  //         s.level_status,
+  //       ]);
+
+  //       return new Promise((resolve, reject) => {
+  //         db.beginTransaction((err) => {
+  //           if (err) return reject(err);
+  //           db.query(query, [values], (err, result) => {
+  //             if (err) return db.rollback(() => reject(err));
+  //             db.commit((err) => {
+  //               if (err) return db.rollback(() => reject(err));
+  //               resolve(result);
+  //             });
+  //           });
+  //         });
+  //       });
+  //     };
+
+  //     // Execute processStudents()
+  //     processStudents()
+  //       .then(async ({ grouped, errors, aadhaarMap }) => {
+  //         const allToInsert = [];
+  //         for (const key of Object.keys(grouped)) {
+  //           const [school_id, class_id, level] = key.split("-").map(Number);
+  //           const session_id = grouped[key][0].session_id;
+  //           const withRollAndCodes = await assignRollNumbersAndCodes(
+  //             grouped[key],
+  //             school_id,
+  //             class_id,
+  //             level,
+  //             session_id,
+  //             aadhaarMap
+  //           );
+  //           allToInsert.push(...withRollAndCodes);
+  //         }
+
+  //         if (allToInsert.length === 0) {
+  //           return reject(
+  //             new Error("No valid students to insert", { cause: errors })
+  //           );
+  //         }
+
+  //         const result = await insertStudents(allToInsert);
+  //         resolve({
+  //           insertedCount: result.affectedRows,
+  //           errors: errors.length > 0 ? errors : undefined,
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         if (
+  //           err.message === "Duplicate Aadhaar numbers found in this session"
+  //         ) {
+  //           return reject(
+  //             new Error("Duplicate Aadhaar numbers found in this session", {
+  //               cause: err.cause,
+  //             })
+  //           );
+  //         }
+  //         reject(
+  //           err.cause
+  //             ? err
+  //             : new Error("Student processing failed", { cause: [err.message] })
+  //         );
+  //       });
+  //   });
+  // },
+
   bulkCreate: (students, userId) => {
     return new Promise((resolve, reject) => {
       const requiredFields = [
@@ -205,7 +789,7 @@ export const Student = {
         "class_id",
         "student_name",
         "student_section",
-        "aadhaar_number", // required now
+        "aadhaar_number",
       ];
 
       // Validate required fields
@@ -339,7 +923,10 @@ export const Student = {
           session_id: sessionId,
           student_subject: subjectIds,
           level: student.level || 1,
-          level_status: student.level_status || "continue",
+          level_1: "pending",
+          level_2: null,
+          level_3: null,
+          level_4: null,
         };
       };
 
@@ -347,7 +934,6 @@ export const Student = {
       const processStudents = async () => {
         const aadhaarList = students.map((s) => s.aadhaar_number);
 
-        // Fetch Aadhaar matches with session_id and student_code
         const aadhaarMatches = await new Promise((resolve, reject) => {
           const query = `
           SELECT aadhaar_number, session_id, student_code 
@@ -359,8 +945,8 @@ export const Student = {
           });
         });
 
-        const aadhaarMap = {}; // aadhaar_number → student_code
-        const sessionDup = new Set(); // aadhaar numbers already in same session
+        const aadhaarMap = {};
+        const sessionDup = new Set();
 
         for (const row of aadhaarMatches) {
           aadhaarMap[row.aadhaar_number] = row.student_code;
@@ -373,7 +959,6 @@ export const Student = {
           try {
             const normalizedStudent = await normalizeStudent(student);
 
-            // Check if Aadhaar exists in SAME session → reject
             const found = aadhaarMatches.find(
               (m) =>
                 m.aadhaar_number === normalizedStudent.aadhaar_number &&
@@ -404,7 +989,6 @@ export const Student = {
           });
         }
 
-        // Group by school-class-level
         const grouped = normalized.reduce((acc, student) => {
           const key = `${student.school_id}-${student.class_id}-${
             student.level || 1
@@ -417,7 +1001,6 @@ export const Student = {
         return { grouped, errors, aadhaarMap };
       };
 
-      // Assign roll numbers and student_code
       const assignRollNumbersAndCodes = async (
         group,
         school_id,
@@ -469,11 +1052,11 @@ export const Student = {
         return group.map((student) => {
           const roll_no = `${rollPrefix}${String(rollNum++).padStart(2, "0")}`;
           const student_code = aadhaarMap[student.aadhaar_number]
-            ? aadhaarMap[student.aadhaar_number] // reuse if Aadhaar exists in another session
+            ? aadhaarMap[student.aadhaar_number]
             : `${studentCodePrefix}${String(studentCodeNum++).padStart(
                 3,
                 "0"
-              )}`; // new code
+              )}`;
           return { ...student, roll_no, student_code };
         });
       };
@@ -484,7 +1067,8 @@ export const Student = {
         (student_code, school_id, student_name, roll_no, class_id, student_section, 
          mobile_number, whatsapp_number, aadhaar_number, student_subject, country, 
          state, district, city, session_id, approved, approved_by, 
-         created_by, updated_by, created_at, updated_at, level, level_status)
+         created_by, updated_by, created_at, updated_at, 
+         level, level_1, level_2, level_3, level_4)
         VALUES ?`;
 
         const values = studentsToInsert.map((s) => [
@@ -510,7 +1094,10 @@ export const Student = {
           new Date(),
           new Date(),
           s.level,
-          s.level_status,
+          s.level_1,
+          s.level_2,
+          s.level_3,
+          s.level_4,
         ]);
 
         return new Promise((resolve, reject) => {
@@ -907,17 +1494,111 @@ export const Student = {
   //     });
   //   });
   // },
-  getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
+
+  // getStudentsByFilters: (schoolName, classList, subjectList, callback) => {
+  //   if (!classList.length || !subjectList.length) {
+  //     return callback(null, { students: [], totalCount: 0, exam_date: null });
+  //   }
+
+  //   const placeholders = classList.map(() => "?").join(",");
+  //   const subjectPlaceholders = subjectList.map(() => "?").join(",");
+
+  //   const subjectJsonConditions = subjectList
+  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
+  //     .join(" OR ");
+
+  //   const dataQuery = `
+  //   SELECT
+  //     s.id,
+  //     s.roll_no,
+  //     s.student_name,
+  //     s.school_id,
+  //     c.name AS class_name,
+  //     sub.name AS subject_name
+  //   FROM student s
+  //   LEFT JOIN class c ON s.class_id = c.id
+  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
+  //     ON TRUE
+  //   LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+  //   WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+  //     AND s.class_id IN (${placeholders})
+  //     AND (${subjectJsonConditions})
+  //     AND sub.id IN (${subjectPlaceholders})
+  //   ORDER BY s.id
+  // `;
+
+  //   const countQuery = `
+  //   SELECT COUNT(DISTINCT s.id) as total_count
+  //   FROM student s
+  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
+  //     ON TRUE
+  //   WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+  //     AND s.class_id IN (${placeholders})
+  //     AND (${subjectJsonConditions})
+  // `;
+
+  //   // New query to fetch exam_date for this school
+  //   const examQuery = `
+  //   SELECT DATE(exam_date) AS exam_date
+  //   FROM exam
+  //   WHERE school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
+  //   ORDER BY exam_date DESC
+  //   LIMIT 1
+  // `;
+
+  //   const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
+  //   const dataParams = [
+  //     schoolName,
+  //     ...classList,
+  //     ...jsonSubjectParams,
+  //     ...subjectList,
+  //   ];
+  //   const countParams = [schoolName, ...classList, ...jsonSubjectParams];
+
+  //   // Step 1 → Get exam_date first
+  //   db.query(examQuery, [schoolName], (examErr, examResult) => {
+  //     if (examErr) return callback(examErr);
+
+  //     const exam_date = examResult.length > 0 ? examResult[0].exam_date : null;
+
+  //     // Step 2 → Fetch students
+  //     db.query(dataQuery, dataParams, (err, students) => {
+  //       if (err) return callback(err);
+
+  //       // Step 3 → Fetch count
+  //       db.query(countQuery, countParams, (countErr, countResult) => {
+  //         if (countErr) return callback(countErr);
+
+  //         const totalCount = countResult[0]?.total_count || 0;
+  //         callback(null, { students, totalCount, exam_date });
+  //       });
+  //     });
+  //   });
+  // },
+
+  getStudentsByFilters: (
+    schoolName,
+    classList,
+    subjectList,
+    level,
+    callback
+  ) => {
     if (!classList.length || !subjectList.length) {
       return callback(null, { students: [], totalCount: 0, exam_date: null });
     }
 
     const placeholders = classList.map(() => "?").join(",");
     const subjectPlaceholders = subjectList.map(() => "?").join(",");
-
     const subjectJsonConditions = subjectList
       .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
       .join(" OR ");
+
+    // 👉 Level condition (use your existing columns)
+    let levelCondition = "";
+    if (level === "level_2") {
+      levelCondition = "AND s.level_2 IS NOT NULL";
+    }
+    // If level_1 selected → no extra condition
 
     const dataQuery = `
     SELECT 
@@ -925,6 +1606,8 @@ export const Student = {
       s.roll_no,
       s.student_name,
       s.school_id,
+      s.level_1,
+      s.level_2,
       c.name AS class_name,
       sub.name AS subject_name
     FROM student s
@@ -936,6 +1619,7 @@ export const Student = {
       AND s.class_id IN (${placeholders})
       AND (${subjectJsonConditions})
       AND sub.id IN (${subjectPlaceholders})
+      ${levelCondition}
     ORDER BY s.id
   `;
 
@@ -947,9 +1631,9 @@ export const Student = {
     WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
       AND s.class_id IN (${placeholders})
       AND (${subjectJsonConditions})
+      ${levelCondition}
   `;
 
-    // New query to fetch exam_date for this school
     const examQuery = `
     SELECT DATE(exam_date) AS exam_date
     FROM exam
@@ -967,17 +1651,14 @@ export const Student = {
     ];
     const countParams = [schoolName, ...classList, ...jsonSubjectParams];
 
-    // Step 1 → Get exam_date first
     db.query(examQuery, [schoolName], (examErr, examResult) => {
       if (examErr) return callback(examErr);
 
       const exam_date = examResult.length > 0 ? examResult[0].exam_date : null;
 
-      // Step 2 → Fetch students
       db.query(dataQuery, dataParams, (err, students) => {
         if (err) return callback(err);
 
-        // Step 3 → Fetch count
         db.query(countQuery, countParams, (countErr, countResult) => {
           if (countErr) return callback(countErr);
 

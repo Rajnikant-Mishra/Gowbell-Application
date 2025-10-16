@@ -1,4 +1,5 @@
 import Student from "../../models/Student/studentModel.js";
+import { logActivity } from "../../models/dashboard/activityModel.js";
 
 // export const createStudent = (req, res) => {
 //   const {
@@ -16,9 +17,9 @@ import Student from "../../models/Student/studentModel.js";
 //     state,
 //     district,
 //     city,
-//     level = 1, // default
-//     level_status = "continue", // default
-//     session_id, // <-- add this
+//     level = 1,
+//     level_status = "continue",
+//     session_id,
 //   } = req.body;
 
 //   const userId = req.user?.id;
@@ -43,21 +44,15 @@ import Student from "../../models/Student/studentModel.js";
 //     city,
 //     level,
 //     level_status,
-//     session_id, // <-- include here
+//     session_id,
 //   };
-
-//   console.log("Received student data:", newStudent);
 
 //   Student.create(newStudent, userId, (err, result) => {
 //     if (err) {
-//       console.error("Insert error full details:", err);
 //       return res.status(500).json({
-//         message: "Insert failed",
-//         error: err.message,
+//         message: err.message || "Insert failed",
 //       });
 //     }
-
-//     console.log("Insert success:", result);
 //     res.status(201).json({
 //       message: "Student Created Successfully.",
 //       studentId: result?.insertId || null,
@@ -117,101 +112,27 @@ export const createStudent = (req, res) => {
         message: err.message || "Insert failed",
       });
     }
+
+    // ✅ Log activity AFTER successful create
+    logActivity({
+      user_id: userId,
+      user_name: req.user?.name || "system",
+      activity: "Student has been Created",
+      ip_address: req.ip || req.connection?.remoteAddress,
+      data: {
+        student_id: result?.insertId || null,
+        student_name,
+        school_id,
+        class_id,
+      },
+    });
+
     res.status(201).json({
       message: "Student Created Successfully.",
       studentId: result?.insertId || null,
     });
   });
 };
-
-// export const bulkUploadStudents = async (req, res) => {
-//   const students = req.body;
-
-//   if (!Array.isArray(students) || students.length === 0) {
-//     return res.status(400).json({ message: "No student data provided" });
-//   }
-
-//   const userId = req.user?.id;
-//   if (!userId) {
-//     return res.status(401).json({ message: "Unauthorized. Please log in." });
-//   }
-
-//   try {
-//     const result = await Student.bulkCreate(students, userId);
-//     res.status(201).json({
-//       message: "Students uploaded successfully",
-//       insertedCount: result.affectedRows,
-//       errors: result.errors,
-//     });
-//   } catch (err) {
-//     console.error("Error inserting students:", err);
-//     res.status(400).json({
-//       message: "Error uploading students",
-//       error: err.message,
-//       errors: err.cause, // Include detailed errors (e.g., inconsistencies)
-//     });
-//   }
-// };
-
-// export const bulkUploadStudents = async (req, res) => {
-//   const students = req.body;
-
-//   if (!Array.isArray(students) || students.length === 0) {
-//     return res.status(400).json({ message: "No student data provided" });
-//   }
-
-//   const userId = req.user?.id;
-//   if (!userId) {
-//     return res.status(401).json({ message: "Unauthorized. Please log in." });
-//   }
-
-//   try {
-//     const result = await Student.bulkCreate(students, userId);
-//     res.status(201).json({
-//       message: "Students uploaded successfully",
-//       insertedCount: result.affectedRows,
-//       errors: result.errors,
-//     });
-//   } catch (err) {
-//     console.error("Error inserting students:", err);
-//     res.status(400).json({
-//       message: "Error uploading students",
-//       error: err.message,
-//       errors: err.cause,
-//     });
-//   }
-// };
-
-// export const bulkUploadStudents = async (req, res) => {
-//   const students = req.body;
-
-//   if (!Array.isArray(students) || students.length === 0) {
-//     return res.status(400).json({ message: "No student data provided" });
-//   }
-
-//   const userId = req.user?.id;
-//   if (!userId) {
-//     return res.status(401).json({ message: "Unauthorized. Please log in." });
-//   }
-
-//   try {
-//     const result = await Student.bulkCreate(students, userId);
-
-//     return res.status(201).json({
-//       message: "Students uploaded successfully",
-//       insertedCount: result.insertedCount, // ✅ Correct property
-//       errors: result.errors || [], // ✅ Always return an array for consistency
-//     });
-//   } catch (err) {
-//     console.error("Error inserting students:", err);
-
-//     return res.status(400).json({
-//       message: "Error uploading students",
-//       error: err.message,
-//       errors: Array.isArray(err.cause) ? err.cause : [err.message], // ✅ Ensure array format
-//     });
-//   }
-// };
 
 export const bulkUploadStudents = async (req, res) => {
   const students = req.body;
@@ -298,13 +219,14 @@ export const getStudentByAadhaar = (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: "No student found with this Aadhaar number" });
+      return res
+        .status(404)
+        .json({ message: "No student found with this Aadhaar number" });
     }
 
     res.status(200).json({ student: results[0] }); // returning single student object
   });
 };
-
 
 //pagination and serch and get all data
 // export const getAllStudents = (req, res) => {
@@ -355,37 +277,46 @@ export const getStudentById = (req, res) => {
   });
 };
 
-// Update a student by ID
 // export const updateStudent = (req, res) => {
 //   const { id } = req.params;
 //   const {
-//     school_name,
+//     school_id,
 //     student_name,
-//     class_name,
+//     class_id,
 //     student_section,
 //     mobile_number,
 //     whatsapp_number,
+//     aadhaar_number,
 //     student_subject,
 //     approved,
 //     approved_by,
+//     country,
+//     state,
+//     district,
+//     city,
 //   } = req.body;
 
 //   const updatedStudent = {
-//     school_name,
+//     school_id,
 //     student_name,
-//     class_name,
+//     class_id,
 //     student_section,
 //     mobile_number,
 //     whatsapp_number,
+//     aadhaar_number,
 //     student_subject: JSON.stringify(student_subject || []) || null,
 //     approved,
 //     approved_by,
+//     country,
+//     state,
+//     district,
+//     city,
 //   };
 
 //   Student.update(id, updatedStudent, (err, result) => {
 //     if (err) return res.status(500).send(err);
 //     if (result.affectedRows === 0)
-//       return res.status(404).send("Student not found");
+//       return res.status(404).send({ message: "Student not found" });
 //     res.status(200).send({ message: "Student updated successfully" });
 //   });
 // };
@@ -409,6 +340,11 @@ export const updateStudent = (req, res) => {
     city,
   } = req.body;
 
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
   const updatedStudent = {
     school_id,
     student_name,
@@ -430,18 +366,59 @@ export const updateStudent = (req, res) => {
     if (err) return res.status(500).send(err);
     if (result.affectedRows === 0)
       return res.status(404).send({ message: "Student not found" });
+
+    // ✅ Log activity AFTER successful update
+    logActivity({
+      user_id: userId,
+      user_name: req.user?.name || "system",
+      activity: "Student has beed updated",
+      ip_address: req.ip || req.connection?.remoteAddress,
+      data: {
+        student_id: id,
+        updated_fields: updatedStudent,
+      },
+    });
+
     res.status(200).send({ message: "Student updated successfully" });
   });
 };
 
 // Delete a student by ID
+// export const deleteStudent = (req, res) => {
+//   const { id } = req.params;
+//   Student.delete(id, (err, result) => {
+//     if (err) return res.status(500).send(err);
+//     if (result.affectedRows === 0)
+//       return res.status(404).send("Student not found");
+//     res.status(200).send({ message: "Student deleted" });
+//   });
+// };
+
 export const deleteStudent = (req, res) => {
   const { id } = req.params;
+
+  const userId = req.user?.id;
+  const userName = req.user?.name || "Unknown User";
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
   Student.delete(id, (err, result) => {
     if (err) return res.status(500).send(err);
     if (result.affectedRows === 0)
-      return res.status(404).send("Student not found");
-    res.status(200).send({ message: "Student deleted" });
+      return res.status(404).send({ message: "Student not found" });
+
+    // ✅ log activity after successful delete
+    logActivity({
+      user_id: userId,
+      user_name: userName,
+      activity: `Student has been deleted`,
+      ip_address: req.ip || req.connection?.remoteAddress,
+      data: { studentId: id },
+    });
+
+    res.status(200).send({ message: "Student deleted successfully" });
   });
 };
 
@@ -463,7 +440,7 @@ export const deleteStudent = (req, res) => {
 //         return res.status(500).json({ error: "Failed to fetch students" });
 //       }
 
-//       const { students, totalCount } = result;
+//       const { students, totalCount, exam_date } = result;
 
 //       Student.getClassNames(classList, (err, classNames) => {
 //         if (err) {
@@ -480,18 +457,20 @@ export const deleteStudent = (req, res) => {
 //           }
 
 //           res.json({
-//             students, // ✅ multiple rows per student per subject
-//             totalCount, // ✅ distinct student count
+//             students, // multiple rows per student per subject
+//             totalCount, // distinct student count
 //             classNames,
 //             subjectNames,
+//             exam_date, // new field added
 //           });
 //         });
 //       });
 //     }
 //   );
 // };
+
 export const getFilteredStudents = (req, res) => {
-  const { schoolName, classList, subjectList } = req.body;
+  const { schoolName, classList, subjectList, level } = req.body;
 
   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
     return res.status(400).json({ error: "Invalid input data" });
@@ -501,6 +480,7 @@ export const getFilteredStudents = (req, res) => {
     schoolName,
     classList,
     subjectList,
+    level,
     (err, result) => {
       if (err) {
         console.error("Error fetching students:", err);
@@ -510,25 +490,21 @@ export const getFilteredStudents = (req, res) => {
       const { students, totalCount, exam_date } = result;
 
       Student.getClassNames(classList, (err, classNames) => {
-        if (err) {
-          console.error("Error fetching class names:", err);
+        if (err)
           return res.status(500).json({ error: "Failed to fetch class names" });
-        }
 
         Student.getSubjectNames(subjectList, (err, subjectNames) => {
-          if (err) {
-            console.error("Error fetching subject names:", err);
+          if (err)
             return res
               .status(500)
               .json({ error: "Failed to fetch subject names" });
-          }
 
           res.json({
-            students, // multiple rows per student per subject
-            totalCount, // distinct student count
+            students,
+            totalCount,
             classNames,
             subjectNames,
-            exam_date, // new field added
+            exam_date,
           });
         });
       });

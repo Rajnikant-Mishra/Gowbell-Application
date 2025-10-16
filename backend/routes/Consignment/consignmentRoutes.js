@@ -23,7 +23,7 @@ router.get('/paginate-consignments',  getAllConsignmentspaginate);
 router.get('/consignments/:id', getConsignmentById);
 
 // Update a consignment by ID
-router.put('/consignments/:id', updateConsignment);
+router.put('/consignments/:id',authenticateToken, updateConsignment);
 
 // Delete a consignment by ID
 router.delete('/consignments/:id', deleteConsignment);

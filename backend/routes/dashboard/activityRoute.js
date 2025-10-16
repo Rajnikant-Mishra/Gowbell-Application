@@ -1,8 +1,8 @@
 import express from 'express';
-import  { getActivities } from "../../controllers/dashboard/activityController.js";
+import  { fetchActivities } from "../../controllers/dashboard/activityController.js";
 
 const router = express.Router();
 
-router.get("/activities", getActivities);
+router.get("/activities", fetchActivities);
 
 export default router;

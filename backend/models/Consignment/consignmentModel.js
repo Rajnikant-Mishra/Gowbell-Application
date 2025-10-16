@@ -1,14 +1,45 @@
 import { db } from "../../config/db.js";
 
 const Consignment = {
+  // create: (data, callback) => {
+  //   const query = `
+  //           INSERT INTO consignments (
+  //               consignment_id, date, created_by, school_name, via, vehicle_number,
+  //               driver_name, driver_contact_number, tracking_number, courier_company,
+  //               delivery_date, postal_tracking_number, postal_name, postal_delivery_date,
+  //               goodies, remarks
+  //           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  //   const values = [
+  //     data.consignment_id,
+  //     data.date,
+  //     data.created_by,
+  //     data.school_name,
+  //     data.via,
+  //     data.vehicle_number,
+  //     data.driver_name,
+  //     data.driver_contact_number,
+  //     data.tracking_number,
+  //     data.courier_company,
+  //     data.delivery_date,
+  //     data.postal_tracking_number,
+  //     data.postal_name,
+  //     data.postal_delivery_date,
+  //     JSON.stringify(data.goodies || null),
+  //     data.remarks,
+  //   ];
+  //   db.query(query, values, callback);
+  // },
+
   create: (data, callback) => {
     const query = `
-            INSERT INTO consignments (
-                consignment_id, date, created_by, school_name, via, vehicle_number, 
-                driver_name, driver_contact_number, tracking_number, courier_company, 
-                delivery_date, postal_tracking_number, postal_name, postal_delivery_date, 
-                goodies, remarks
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      INSERT INTO consignments (
+        consignment_id, date, created_by, school_name, via, vehicle_number,
+        driver_name, driver_contact_number, tracking_number, courier_company,
+        delivery_date, postal_tracking_number, postal_name, postal_delivery_date,
+        goodies, remarks
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
     const values = [
       data.consignment_id,
       data.date,
@@ -27,8 +58,10 @@ const Consignment = {
       JSON.stringify(data.goodies || null),
       data.remarks,
     ];
+
     db.query(query, values, callback);
   },
+  
 
   findAll: (callback) => {
     const query = `SELECT * FROM consignments ORDER BY created_at DESC`;

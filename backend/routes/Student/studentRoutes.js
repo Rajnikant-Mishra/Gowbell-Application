@@ -33,10 +33,10 @@ router.get('/students/:aadhaar_number', getStudentByAadhaar);
 router.get("/student/:id", getStudentById);
 
 // Update a student by ID
-router.put("/student/:id", updateStudent);
+router.put("/student/:id", authenticateToken, updateStudent);
 
 // Delete a student by ID
-router.delete("/student/:id", deleteStudent);
+router.delete("/student/:id",authenticateToken,   deleteStudent);
 
 router.get("/allstudents", getAllstudentserach);
 

@@ -138,6 +138,7 @@ import areaRoutes from "./routes/Region/areaRoutes.js";
 import masterRoutes from "./routes/Master/classRoutes.js";
 import subjectRoutes from "./routes/Master/subjectRoutes.js";
 import affiliatedRoutes from "./routes/Master/affiliatedRoutes.js";
+import centerRoutes from "./routes/Master/centerRoutes.js";
 
 // Inventory
 import inventoryRoutes from "./routes/inventory/inventoryRoutes.js";
@@ -182,9 +183,14 @@ import questionRoutes from "./routes/question/questionRoutes.js";
 //session
 import sessionRoutes from "./routes/session/sessionRoutes.js";
 
-//activity 
+//activity
 import activityRoute from "./routes/dashboard/activityRoute.js";
 
+//dashbaord
+import dashboardRoute from "./routes/dashboard/dashboardRoute.js";
+
+//subject fee
+import feeRoute from "./routes/Master/feeRoute.js";
 
 const app = express();
 
@@ -192,10 +198,12 @@ dotenv.config();
 
 // Middleware
 // app.use(express.json());
-// app.use(bodyParser.json());
-app.use(express.json({ limit: "50mb" }));
+app.use(bodyParser.json());
+// app.use(express.json({ limit: "50mb" }));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+
+app.use("/profiles", express.static("profiles")); // serve uploaded images
 
 // CORS
 app.use(
@@ -217,6 +225,7 @@ app.use("/api/areas", areaRoutes);
 app.use("/api", masterRoutes);
 app.use("/api", subjectRoutes);
 app.use("/api", affiliatedRoutes);
+app.use("/api/center", centerRoutes);
 
 // Inventory Routes
 app.use("/api/v1", inventoryRoutes);
@@ -261,20 +270,14 @@ app.use("/api/q1", questionRoutes);
 //session
 app.use("/api/session", sessionRoutes);
 
-
 //activity
 app.use("/api/ac1", activityRoute);
 
-// ✅ Cron Job: Runs every day at 1 AM
-// cron.schedule('* * * * * *', () => {
-//   console.log('🕐 Cron job running ', new Date());
+//dashbaord
+app.use("/api/dashboard", dashboardRoute);
 
-//   // You can add any logic here, for example:
-//   // - Clear expired sessions
-//   // - Archive old records
-//   // - Send email reports
-//   // - Auto-generate exam results
-// });
+//subejct fee
+app.use("/api/fee", feeRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

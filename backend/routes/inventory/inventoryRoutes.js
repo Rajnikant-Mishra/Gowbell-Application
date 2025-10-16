@@ -23,9 +23,9 @@ router.get("/inventory-paginate", getInventorypaginate);
 router.get("/inventory/:id", getInventoryById);
 
 // Route to update an inventory item by item_id
-router.put("/inventory/:id", updateInventory);
+router.put("/inventory/:id", authenticateToken,  updateInventory);
 
 // Route to delete an inventory item by item_id
-router.delete("/inventory/:id", deleteInventory);
+router.delete("/inventory/:id", authenticateToken, deleteInventory);
 
 export default router;

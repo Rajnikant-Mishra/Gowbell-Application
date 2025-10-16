@@ -10,11 +10,12 @@ import {
   getClassesAndOmrSetBySchoolAndSubject,
 } from "../../controllers/Exam/omrController.js";
 import { upload } from "../../middleware/multer.js";
+import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
 // router.post('/generator', createOmr);
 // Upload PDF + JSON OMR data
-router.post("/generator", upload.single("pdf"), createOmr);
+router.post("/generator",authenticateToken, upload.single("pdf"), createOmr);
 
 // Route to get student data by roll number
 router.get("/omr-data", getAllOmrData);
@@ -23,10 +24,10 @@ router.get("/omr-data", getAllOmrData);
 router.get("/get/:id", getOmrById);
 
 //update
-router.put("/update/:id", updateOmr);
+router.put("/update/:id",authenticateToken, updateOmr);
 
 // Delete OMR data by ID    
-router.delete("/omr-data/:id", deleteOmrData);
+router.delete("/omr-data/:id",authenticateToken, deleteOmrData);
 
 // Update filename for an OMR record
 router.put("/omr/filename/:id", upload.single("pdf"), updateOmrFilename);

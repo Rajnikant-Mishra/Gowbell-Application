@@ -4,6 +4,87 @@ import { sendEmail } from "../../controllers/School/mailer.js";
 import { sendSms } from "../../controllers/School/smsService.js";
 import { db } from "../../config/db.js";
 import User from "../../models/User/userModel.js";
+import { logActivity } from "../../models/dashboard/activityModel.js";
+
+// export const createSchool = async (req, res) => {
+//   const { id } = req.user; // Only id is guaranteed from req.user
+//   const data = req.body;
+
+//   try {
+//     // Query to fetch username and role from the database using user id
+//     const sqlGetUser = `SELECT username, role FROM users WHERE id = ?`;
+//     const [user] = await new Promise((resolve, reject) => {
+//       db.query(sqlGetUser, [id], (err, results) => {
+//         if (err) return reject(err);
+//         resolve(results);
+//       });
+//     });
+
+//     // Determine status_approved and approved_by based on user role or username
+//     let statusApproved;
+//     let approvedBy = null; // Default to null for non-admins
+//     if (user) {
+//       const roleLower = user.role ? user.role.toLowerCase() : "";
+//       const isAdmin =
+//         (user.username && user.username.toLowerCase().includes("admin")) ||
+//         roleLower === "admin";
+
+//       if (isAdmin) {
+//         statusApproved = "approved";
+//         approvedBy = user.username; // Store admin's username in approved_by
+//       } else if (roleLower === "maker") {
+//         statusApproved = "pending";
+//       } else if (roleLower === "checker") {
+//         statusApproved = "approved";
+//       } else {
+//         statusApproved = "pending"; // Default for other roles
+//       }
+//     } else {
+//       statusApproved = "pending"; // Default if no user found
+//     }
+
+//     // Ensure created_by, updated_by, and approved_by are set appropriately
+//     const schoolData = {
+//       ...data,
+//       created_by: id,
+//       updated_by: id,
+//       status_approved: statusApproved,
+//       approved_by: approvedBy, // Add approved_by to schoolData
+//     };
+
+//     // Create school in the database
+//     const results = await School.create(schoolData);
+
+//     if (!results || !results.insertId) {
+//       return res
+//         .status(500)
+//         .json({ message: "School creation failed, no ID returned" });
+//     }
+
+//     const schoolId = results.insertId;
+//     const schoolCode = results.school_code;
+
+//     // Success response
+//     return res.status(201).json({
+//       message: "School created successfully",
+//       id: schoolId,
+//       school_code: schoolCode,
+//       status_approved: schoolData.status_approved,
+//       approved_by: schoolData.approved_by, // Include approved_by in response
+//     });
+//   } catch (err) {
+//     console.error("Error during school creation:", err);
+
+//     if (err.response) {
+//       return res.status(500).json({
+//         message: "Error in external service",
+//         error: err.response.data,
+//       });
+//     }
+
+//     res.status(500).json({ message: "An error occurred", error: err.message });
+//   }
+// };
 
 export const createSchool = async (req, res) => {
   const { id } = req.user; // Only id is guaranteed from req.user
@@ -21,7 +102,7 @@ export const createSchool = async (req, res) => {
 
     // Determine status_approved and approved_by based on user role or username
     let statusApproved;
-    let approvedBy = null; // Default to null for non-admins
+    let approvedBy = null;
     if (user) {
       const roleLower = user.role ? user.role.toLowerCase() : "";
       const isAdmin =
@@ -30,16 +111,16 @@ export const createSchool = async (req, res) => {
 
       if (isAdmin) {
         statusApproved = "approved";
-        approvedBy = user.username; // Store admin's username in approved_by
+        approvedBy = user.username;
       } else if (roleLower === "maker") {
         statusApproved = "pending";
       } else if (roleLower === "checker") {
         statusApproved = "approved";
       } else {
-        statusApproved = "pending"; // Default for other roles
+        statusApproved = "pending";
       }
     } else {
-      statusApproved = "pending"; // Default if no user found
+      statusApproved = "pending";
     }
 
     // Ensure created_by, updated_by, and approved_by are set appropriately
@@ -48,7 +129,7 @@ export const createSchool = async (req, res) => {
       created_by: id,
       updated_by: id,
       status_approved: statusApproved,
-      approved_by: approvedBy, // Add approved_by to schoolData
+      approved_by: approvedBy,
     };
 
     // Create school in the database
@@ -63,13 +144,21 @@ export const createSchool = async (req, res) => {
     const schoolId = results.insertId;
     const schoolCode = results.school_code;
 
+    // ✅ Activity Log
+    logActivity({
+      user_id: id,
+      activity: `School ${data.school_name} has been created`,
+      data: { schoolId, schoolCode, statusApproved },
+      ip_address: req.ip || req.connection?.remoteAddress,
+    });
+
     // Success response
     return res.status(201).json({
       message: "School created successfully",
       id: schoolId,
       school_code: schoolCode,
       status_approved: schoolData.status_approved,
-      approved_by: schoolData.approved_by, // Include approved_by in response
+      approved_by: schoolData.approved_by,
     });
   } catch (err) {
     console.error("Error during school creation:", err);
@@ -164,26 +253,89 @@ export const getSchoolById = (req, res) => {
 };
 
 // Update school
+// export const updateSchool = (req, res) => {
+//   const id = req.params.id;
+//   const data = req.body;
+
+//   // Update school in the database (replace `School.update` with your database query)
+//   School.update(id, data, (err, results) => {
+//     if (err)
+//       return res.status(500).json({ message: "Database error", error: err });
+//     res
+//       .status(200)
+//       .json({ message: "School updated successfully", data: results });
+//   });
+// };
+
 export const updateSchool = (req, res) => {
   const id = req.params.id;
   const data = req.body;
+  const userId = req.user?.id;
 
-  // Update school in the database (replace `School.update` with your database query)
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
+  // Update school in the database
   School.update(id, data, (err, results) => {
-    if (err)
+    if (err) {
       return res.status(500).json({ message: "Database error", error: err });
-    res
-      .status(200)
-      .json({ message: "School updated successfully", data: results });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    // ✅ Activity Log
+    logActivity({
+      user_id: userId,
+      activity: `School ${data.school_name || id} has been updated`,
+      data: { schoolId: id, changes: data },
+      ip_address: req.ip || req.connection?.remoteAddress,
+    });
+
+    res.status(200).json({
+      message: "School updated successfully",
+      data: results,
+    });
   });
 };
 
 // Delete school
+// export const deleteSchool = (req, res) => {
+//   const id = req.params.id;
+//   School.delete(id, (err, results) => {
+//     if (err) return res.status(500).send(err);
+//     res.status(200).json({ message: "School deleted" });
+//   });
+// };
+
 export const deleteSchool = (req, res) => {
   const id = req.params.id;
+  const userId = req.user?.id;
+  const userName = req.user?.name || "Unknown User";
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
   School.delete(id, (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.status(200).json({ message: "School deleted" });
+    if (err)
+      return res.status(500).json({ message: "Database error", error: err });
+
+    // ✅ Log activity safely
+    try {
+      logActivity({
+        user_id: userId,
+        user_name: userName,
+        activity: `School has been deleted`,
+        data: { schoolId: id },
+        ip_address: req.ip || req.socket?.remoteAddress || null,
+      });
+    } catch (logErr) {
+      console.error("Activity Log Error:", logErr.message);
+    }
+
+    res.status(200).json({ message: "School deleted successfully" });
   });
 };
 
@@ -462,4 +614,58 @@ export const getReportSchoolById = (req, res) => {
 
     res.status(200).json({ success: true, data: school });
   });
+};
+
+//fees of schhol collection
+// export const getReportSchoolByIdCount = (req, res) => {
+//   const schoolOrCity = req.params.id;
+
+//   if (!schoolOrCity) {
+//     return res
+//       .status(400)
+//       .json({ error: "School ID, code, or city is required" });
+//   }
+
+//   School.getByReportIdWithStudentCount(schoolOrCity, (err, result) => {
+//     if (err) {
+//       console.error("Database error:", err);
+//       return res.status(500).json({ error: "Internal server error" });
+//     }
+//     if (!result || (Array.isArray(result) && result.length === 0)) {
+//       return res.status(404).json({ error: "School(s) not found" });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       data: result,
+//     });
+//   });
+// };
+
+export const getReportSchoolByIdCount = (req, res) => {
+  let schoolOrCity = req.params.id?.trim();
+  let sessionId = req.query.session_id?.trim(); // optional query param
+
+  if (!schoolOrCity) {
+    return res
+      .status(400)
+      .json({ error: "School ID, code, or city is required" });
+  }
+
+  School.getByReportIdWithStudentCount(
+    schoolOrCity,
+    sessionId,
+    (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      if (!result || result.length === 0) {
+        return res.status(404).json({ error: "School(s) not found" });
+      }
+
+      res.status(200).json({ success: true, data: result });
+    }
+  );
 };
