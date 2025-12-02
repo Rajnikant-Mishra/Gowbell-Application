@@ -38,6 +38,8 @@ function normalizeArray(value) {
 //   } = req.body;
 
 //   const userId = req.user?.id;
+//   const userName = req.user?.name || "Unknown User";
+
 //   if (!userId) {
 //     return res.status(401).json({ error: "Unauthorized. Please log in." });
 //   }
@@ -68,7 +70,7 @@ function normalizeArray(value) {
 //       state,
 //       district,
 //       city,
-//       session_id, // passed if frontend sends, else model resolves
+//       session_id,
 //     },
 //     (err, result) => {
 //       if (err) {
@@ -78,6 +80,24 @@ function normalizeArray(value) {
 //           details: err.message,
 //         });
 //       }
+
+//       // ✅ Activity Log
+//       try {
+//         logActivity({
+//           user_id: userId,
+//           user_name: userName,
+//           activity: `Exam has been  created`,
+//           data: {
+//             examId: result.insertId,
+//             classes: classesArray,
+//             subjects: subjectsArray,
+//           },
+//           ip_address: req.ip || req.socket?.remoteAddress || null,
+//         });
+//       } catch (logErr) {
+//         console.error("Activity Log Error:", logErr.message);
+//       }
+
 //       res.status(201).json({
 //         message: "Exam created successfully",
 //         examId: result.insertId,
@@ -88,7 +108,7 @@ function normalizeArray(value) {
 
 export const createExam = (req, res) => {
   const {
-    school_id,
+    school_id, // ← Now string like "[1,2,3]"
     classes_id,
     subjects_id,
     level,
@@ -107,24 +127,35 @@ export const createExam = (req, res) => {
     return res.status(401).json({ error: "Unauthorized. Please log in." });
   }
 
-  // Validate and parse classes_id and subjects_id
-  let classesArray, subjectsArray;
+  // Parse all JSON fields safely
+  let schoolArray, classesArray, subjectsArray;
+
   try {
+    schoolArray = JSON.parse(school_id);
     classesArray = JSON.parse(classes_id);
     subjectsArray = JSON.parse(subjects_id);
-    if (!Array.isArray(classesArray) || !Array.isArray(subjectsArray)) {
-      throw new Error();
+
+    if (!Array.isArray(schoolArray) || schoolArray.length === 0) {
+      return res.status(400).json({ error: "At least one school is required" });
     }
-  } catch {
-    return res
-      .status(400)
-      .json({ error: "Invalid classes or subjects format" });
+    if (!Array.isArray(classesArray) || classesArray.length === 0) {
+      return res.status(400).json({ error: "At least one class is required" });
+    }
+    if (!Array.isArray(subjectsArray) || subjectsArray.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "At least one subject is required" });
+    }
+  } catch (err) {
+    return res.status(400).json({
+      error: "Invalid JSON format for school_id, classes_id, or subjects_id",
+    });
   }
 
   Exam.create(
     {
       created_by: userId,
-      school_id,
+      school_id: schoolArray, // ← Pass array (model will JSON.stringify)
       classes_id: classesArray,
       subjects_id: subjectsArray,
       level,
@@ -144,14 +175,15 @@ export const createExam = (req, res) => {
         });
       }
 
-      // ✅ Activity Log
+      // Activity Log
       try {
         logActivity({
           user_id: userId,
           user_name: userName,
-          activity: `Exam has been  created`,
+          activity: `Exam created for ${schoolArray.length} school(s)`,
           data: {
             examId: result.insertId,
+            schools: schoolArray,
             classes: classesArray,
             subjects: subjectsArray,
           },
@@ -162,8 +194,10 @@ export const createExam = (req, res) => {
       }
 
       res.status(201).json({
-        message: "Exam created successfully",
+        success: true,
+        message: `Exam created for ${schoolArray.length} school(s)`,
         examId: result.insertId,
+        schools: schoolArray,
       });
     }
   );
@@ -384,31 +418,30 @@ export const deleteExam = (req, res) => {
   if (!userId) {
     return res.status(401).json({ error: "Unauthorized. Please log in." });
   }
-    
-    Exam.delete(id, (deleteErr) => {
-      if (deleteErr) {
-        console.error("Exam deletion error:", deleteErr);
-        return res
-          .status(500)
-          .json({ error: "Failed to delete exam", details: deleteErr.message });
-      }
 
-      // ✅ Activity Log
-      try {
-        logActivity({
-          user_id: userId,
-          user_name: userName,
-          activity: `Exam  has been deleted`,
-          data: { examId: id },
-          ip_address: req.ip || req.socket?.remoteAddress || null,
-        });
-      } catch (logErr) {
-        console.error("Activity Log Error:", logErr.message);
-      }
+  Exam.delete(id, (deleteErr) => {
+    if (deleteErr) {
+      console.error("Exam deletion error:", deleteErr);
+      return res
+        .status(500)
+        .json({ error: "Failed to delete exam", details: deleteErr.message });
+    }
 
-      res.status(200).json({ message: "Exam deleted successfully" });
-    });
+    // ✅ Activity Log
+    try {
+      logActivity({
+        user_id: userId,
+        user_name: userName,
+        activity: `Exam  has been deleted`,
+        data: { examId: id },
+        ip_address: req.ip || req.socket?.remoteAddress || null,
+      });
+    } catch (logErr) {
+      console.error("Activity Log Error:", logErr.message);
+    }
 
+    res.status(200).json({ message: "Exam deleted successfully" });
+  });
 };
 
 //get exam date by school class , subjectexports.getExamsByMultipleClassesSubjects = (req, res) => {

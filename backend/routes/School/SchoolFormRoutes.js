@@ -16,6 +16,8 @@ import {
 import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
 
+
+
 router.get("/schools",  authenticateToken, getAllSchools); // Get all schools
 router.get("/all-schools", getAll);
 router.get("/schools/:id", getSchoolById); // Get school by ID
@@ -25,6 +27,7 @@ router.delete("/schools/:id", authenticateToken, deleteSchool); // Delete school
 
 //BULK ROUTE
 router.post("/school/bulk-upload", authenticateToken, bulkUploadSchools); // Bulk student upload
+
 
 //getschool from country
 router.get("/filter", filterByLocation);

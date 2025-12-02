@@ -21,30 +21,106 @@ ORDER BY s.id DESC;
   },
 
   //get all school for paginations
+  // getAll: (page = 1, limit = 10, search = "", callback) => {
+  //   const offset = (page - 1) * limit;
+  //   let whereClause = "";
+  //   let queryParams = [];
+
+  //   if (search && search.trim() !== "") {
+  //     whereClause = `WHERE
+  //     s.school_name LIKE ? OR
+  //     s.school_email LIKE ? OR
+  //     c1.name LIKE ? OR
+  //     s1.name LIKE ? OR
+  //     d.name LIKE ? OR
+  //     c2.name LIKE ?`;
+  //     for (let i = 0; i < 6; i++) queryParams.push(`%${search}%`);
+  //   }
+
+  //   const query = `
+  //   SELECT
+  //     s.*,
+  //     c1.name AS country_name,
+  //     s1.name AS state_name,
+  //     d.name AS district_name,
+  //     c2.name AS city_name
+  //   FROM school s
+  //   LEFT JOIN countries c1 ON s.country = c1.id
+  //   LEFT JOIN states s1 ON s.state = s1.id
+  //   LEFT JOIN districts d ON s.district = d.id
+  //   LEFT JOIN cities c2 ON s.city = c2.id
+  //   ${whereClause}
+  //   ORDER BY s.id DESC
+  //   LIMIT ? OFFSET ?;
+  // `;
+
+  //   const countQuery = `
+  //   SELECT COUNT(*) AS total FROM school s
+  //   LEFT JOIN countries c1 ON s.country = c1.id
+  //   LEFT JOIN states s1 ON s.state = s1.id
+  //   LEFT JOIN districts d ON s.district = d.id
+  //   LEFT JOIN cities c2 ON s.city = c2.id
+  //   ${whereClause};
+  // `;
+
+  //   db.query(countQuery, queryParams, (err, countResult) => {
+  //     if (err) return callback(err);
+
+  //     const totalRecords = countResult[0].total;
+  //     const totalPages = Math.ceil(totalRecords / limit);
+  //     const nextPage = page < totalPages ? page + 1 : null;
+  //     const prevPage = page > 1 ? page - 1 : null;
+
+  //     db.query(
+  //       query,
+  //       [...queryParams, parseInt(limit), parseInt(offset)],
+  //       (err, result) => {
+  //         if (err) return callback(err);
+
+  //         callback(null, {
+  //           schools: result,
+  //           currentPage: page,
+  //           nextPage,
+  //           prevPage,
+  //           totalPages,
+  //           totalRecords,
+  //         });
+  //       }
+  //     );
+  //   });
+  // },
+
   getAll: (page = 1, limit = 10, search = "", callback) => {
     const offset = (page - 1) * limit;
     let whereClause = "";
     let queryParams = [];
 
+    // 🔍 Search conditions
     if (search && search.trim() !== "") {
       whereClause = `WHERE
       s.school_name LIKE ? OR
       s.school_email LIKE ? OR
+      s.school_code LIKE ? OR
+      a.name LIKE ? OR
       c1.name LIKE ? OR
       s1.name LIKE ? OR
       d.name LIKE ? OR
       c2.name LIKE ?`;
-      for (let i = 0; i < 6; i++) queryParams.push(`%${search}%`);
+      // 8 parameters for placeholders
+      for (let i = 0; i < 8; i++) queryParams.push(`%${search}%`);
     }
 
+    // 🧩 Main query with affiliated join
     const query = `
     SELECT
       s.*,
+      a.name AS board_name,
       c1.name AS country_name,
       s1.name AS state_name,
       d.name AS district_name,
       c2.name AS city_name
     FROM school s
+    LEFT JOIN affiliated a ON s.board = a.id
     LEFT JOIN countries c1 ON s.country = c1.id
     LEFT JOIN states s1 ON s.state = s1.id
     LEFT JOIN districts d ON s.district = d.id
@@ -54,8 +130,11 @@ ORDER BY s.id DESC;
     LIMIT ? OFFSET ?;
   `;
 
+    // 🧮 Count query (for pagination)
     const countQuery = `
-    SELECT COUNT(*) AS total FROM school s
+    SELECT COUNT(*) AS total
+    FROM school s
+    LEFT JOIN affiliated a ON s.board = a.id
     LEFT JOIN countries c1 ON s.country = c1.id
     LEFT JOIN states s1 ON s.state = s1.id
     LEFT JOIN districts d ON s.district = d.id
@@ -63,6 +142,7 @@ ORDER BY s.id DESC;
     ${whereClause};
   `;
 
+    // 🧾 Execute count first
     db.query(countQuery, queryParams, (err, countResult) => {
       if (err) return callback(err);
 
@@ -71,6 +151,7 @@ ORDER BY s.id DESC;
       const nextPage = page < totalPages ? page + 1 : null;
       const prevPage = page > 1 ? page - 1 : null;
 
+      // 🧩 Fetch paginated data
       db.query(
         query,
         [...queryParams, parseInt(limit), parseInt(offset)],
@@ -98,13 +179,17 @@ ORDER BY s.id DESC;
 
   create: (data) => {
     return new Promise((resolve, reject) => {
-      const { state, city } = data; // Get state and city codes from input
+      const { state, city, school_name } = data;
 
       if (!state || !city) {
         return reject(new Error("State code and city code are required"));
       }
 
-      // Query to get the latest school code for the given state and city
+      if (!school_name) {
+        return reject(new Error("School name is required"));
+      }
+
+      // ✅ Step 1: Query to get the latest school code
       const sqlGetLatestCode = `
       SELECT school_code FROM school 
       WHERE school_code LIKE ? 
@@ -112,10 +197,9 @@ ORDER BY s.id DESC;
     `;
       const stateCityPrefix = `${state}${city}`;
 
-      // Step 1: Resolve session_id dynamically
+      // ✅ Step 2: Resolve session_id dynamically
       const resolveSessionId = (next) => {
         if (data.session_id) {
-          // If session_id passed manually → validate it
           const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
           db.query(verifyQuery, [data.session_id], (err, result) => {
             if (err) return reject(err);
@@ -124,7 +208,6 @@ ORDER BY s.id DESC;
             return next(data.session_id);
           });
         } else {
-          // Else → get latest active session automatically
           const sqlGetSessionId = `
           SELECT id FROM gowvell_session 
           WHERE status = 'active' 
@@ -139,14 +222,13 @@ ORDER BY s.id DESC;
         }
       };
 
+      // ✅ Step 3: Get latest school code and insert
       resolveSessionId((sessionId) => {
-        // Step 2: Get latest school code
         db.query(sqlGetLatestCode, [`${stateCityPrefix}%`], (err, results) => {
           if (err) return reject(err);
 
           let schoolCode;
           if (results.length > 0) {
-            // Extract the numeric part of the latest school code
             const latestCode = results[0].school_code;
             const numericPart = parseInt(latestCode.substring(4), 10);
             const newNumericPart = numericPart + 1;
@@ -155,11 +237,10 @@ ORDER BY s.id DESC;
               "0"
             )}`;
           } else {
-            // If no school exists for the state & city, start from '01'
             schoolCode = `${stateCityPrefix}01`;
           }
 
-          // Step 3: Insert new school data with resolved session_id
+          // ✅ Step 4: Insert new school (no area_name, no duplicate check)
           const sql = `
           INSERT INTO school (
             session_id, board, school_name, school_email, school_contact_number, school_landline_number,
@@ -175,7 +256,7 @@ ORDER BY s.id DESC;
         `;
 
           const values = [
-            sessionId, // dynamically resolved session_id
+            sessionId,
             data.board,
             data.school_name,
             data.school_email,
@@ -218,15 +299,12 @@ ORDER BY s.id DESC;
           ];
 
           db.query(sql, values, (err, insertResults) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve({
-                ...insertResults,
-                school_code: schoolCode,
-                session_id: sessionId,
-              });
-            }
+            if (err) return reject(err);
+            resolve({
+              ...insertResults,
+              school_code: schoolCode,
+              session_id: sessionId,
+            });
           });
         });
       });
@@ -235,14 +313,12 @@ ORDER BY s.id DESC;
 
   bulkCreate: (schools) => {
     return new Promise((resolve, reject) => {
-      // Track school codes per state_id and city_id combination
-      const codeTrackers = new Map(); // Map of prefix (stateId + cityId) to next available number
+      const codeTrackers = new Map();
 
       const generateSchoolCode = (stateId, cityId) => {
         return new Promise((resolve, reject) => {
           const prefix = `${stateId}${cityId}`;
 
-          // Initialize tracker for this prefix if not exists
           if (!codeTrackers.has(prefix)) {
             codeTrackers.set(prefix, { nextNum: 1, existingCodes: new Set() });
           }
@@ -259,27 +335,22 @@ ORDER BY s.id DESC;
             if (err) return reject(err);
 
             let num = tracker.nextNum;
-
-            // If there's a record in the database, start from the next number
             if (results.length > 0) {
               const latest = results[0].school_code;
               const numPart = latest.substring(prefix.length);
               const dbNum = numPart ? parseInt(numPart, 10) + 1 : 1;
-              num = Math.max(num, dbNum); // Use the higher number to avoid conflicts
+              num = Math.max(num, dbNum);
             }
 
-            // Ensure unique code within this batch
             let schoolCode;
             do {
               schoolCode = `${prefix}${String(num).padStart(2, "0")}`;
               num++;
             } while (tracker.existingCodes.has(schoolCode));
 
-            // Update tracker
             tracker.existingCodes.add(schoolCode);
             tracker.nextNum = num;
 
-            // Ensure school code doesn't exceed 20 characters
             if (schoolCode.length > 20) {
               schoolCode = schoolCode.substring(0, 20);
             }
@@ -378,6 +449,14 @@ ORDER BY s.id DESC;
           const insertedSchools = [];
           const errors = [];
 
+          const normalizeStatus = (raw) => {
+            if (!raw) return "active";
+            const s = String(raw).trim().toLowerCase();
+            return ["active", "1", "yes", "true"].includes(s)
+              ? "active"
+              : "inactive";
+          };
+
           for (const school of schools) {
             const {
               country,
@@ -433,7 +512,7 @@ ORDER BY s.id DESC;
               );
 
               const schoolData = [
-                sessionId, // <-- Added here
+                sessionId,
                 board,
                 school_name,
                 school_address,
@@ -468,7 +547,7 @@ ORDER BY s.id DESC;
                 optionalFields.classes
                   ? JSON.stringify(optionalFields.classes)
                   : null,
-                optionalFields.status || null,
+                normalizeStatus(optionalFields.status),
               ];
 
               values.push(schoolData);
@@ -511,14 +590,32 @@ ORDER BY s.id DESC;
         `;
 
           db.query(sql, [values], (err, result) => {
-            if (err)
-              return reject(
-                new Error(`Database error during insertion: ${err.message}`)
-              );
+            if (err && err.code === "ER_DUP_ENTRY") {
+              const match = err.sqlMessage.match(/'([^']+)'/);
+              const dupEmail = match ? match[1] : "unknown";
+
+              errors.push({
+                error: `Duplicate email: ${dupEmail}`,
+              });
+
+              return resolve({
+                affectedRows: result ? result.affectedRows : 0,
+                schools: insertedSchools,
+                errors: errors.length ? errors : undefined,
+              });
+            }
+
+            if (err) {
+              return reject({
+                message: "Database error during insertion",
+                errors: [],
+              });
+            }
+
             resolve({
               affectedRows: result.affectedRows,
               schools: insertedSchools,
-              errors: errors.length > 0 ? errors : undefined,
+              errors: errors.length ? errors : undefined,
             });
           });
         } catch (err) {
@@ -526,7 +623,6 @@ ORDER BY s.id DESC;
         }
       };
 
-      // Fetch active session_id once at start
       const sqlGetSessionId = `
       SELECT id FROM gowvell_session 
       WHERE status = 'active' 
@@ -545,63 +641,91 @@ ORDER BY s.id DESC;
   },
 
   update: (id, data, callback) => {
-    // Ensure 'classes' is a valid JSON string
-    const classes = data.classes ? JSON.stringify(data.classes) : "[]"; // Default to an empty array if null/undefined
+    // Ensure 'classes' is valid JSON
+    const classes = data.classes ? JSON.stringify(data.classes) : "[]"; // Default empty array
 
-    const sql = `
-    UPDATE school 
-    SET board = ?, school_name = ?, school_email = ?, school_contact_number = ?, 
-        school_landline_number = ?, country = ?, state = ?, district = ?, city = ?, pincode = ?, 
-        principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?, 
-        vice_principal_name = ?, vice_principal_contact_number = ?, 
-        vice_principal_whatsapp = ?,  classes = ?, status = ?,
-        manager_name = ?, manager_contact_number = ?, manager_whatsapp_number = ?,
-        first_incharge_name = ?, first_incharge_number = ?, first_incharge_whatsapp = ?,
-        second_incharge_name = ?, second_incharge_number = ?, second_incharge_whatsapp = ?,
-        junior_student_strength = ?, senior_student_strength = ?, school_address = ?
-    WHERE id = ?`;
+    // ✅ Step 1: Check for duplicate school_name + area_name (excluding same record)
+    const checkSql = `
+    SELECT id FROM school 
+    WHERE school_name = ? AND area_name = ? AND id != ? 
+    LIMIT 1
+  `;
+    db.query(
+      checkSql,
+      [data.school_name, data.area_name, id],
+      (checkErr, checkResult) => {
+        if (checkErr) {
+          console.error("Error checking duplicate school:", checkErr);
+          return callback(checkErr, null);
+        }
 
-    const values = [
-      data.board,
-      data.school_name,
-      data.school_email,
-      data.school_contact_number,
-      data.school_landline_number || null,
-      data.country || null, // Added country field
-      data.state,
-      data.district,
-      data.city,
-      data.pincode,
-      data.principal_name,
-      data.principal_contact_number,
-      data.principal_whatsapp,
-      data.vice_principal_name,
-      data.vice_principal_contact_number,
-      data.vice_principal_whatsapp,
-      classes, // Update classes as JSON string
-      data.status || null,
-      data.manager_name || null,
-      data.manager_contact_number || null,
-      data.manager_whatsapp_number || null,
-      data.first_incharge_name || null,
-      data.first_incharge_number || null,
-      data.first_incharge_whatsapp || null,
-      data.second_incharge_name || null,
-      data.second_incharge_number || null,
-      data.second_incharge_whatsapp || null,
-      data.junior_student_strength || null,
-      data.senior_student_strength || null,
-      data.school_address || null,
-      id,
-    ];
+        if (checkResult.length > 0) {
+          return callback(
+            new Error("A school with the same name and area already exists"),
+            null
+          );
+        }
 
-    db.query(sql, values, (err, result) => {
-      if (err) {
-        console.error("Error updating school:", err);
-        return callback(err, null);
+        // ✅ Step 2: Proceed with update
+        const sql = `
+      UPDATE school 
+      SET board = ?, school_name = ?, school_email = ?, school_contact_number = ?, 
+          school_landline_number = ?, country = ?, state = ?, district = ?, city = ?, pincode = ?, 
+          principal_name = ?, principal_contact_number = ?, principal_whatsapp = ?, 
+          vice_principal_name = ?, vice_principal_contact_number = ?, 
+          vice_principal_whatsapp = ?, classes = ?, status = ?,
+          manager_name = ?, manager_contact_number = ?, manager_whatsapp_number = ?,
+          first_incharge_name = ?, first_incharge_number = ?, first_incharge_whatsapp = ?,
+          second_incharge_name = ?, second_incharge_number = ?, second_incharge_whatsapp = ?,
+          junior_student_strength = ?, senior_student_strength = ?, school_address = ?,
+          area_name = ?
+      WHERE id = ?
+    `;
+
+        const values = [
+          data.board,
+          data.school_name,
+          data.school_email,
+          data.school_contact_number,
+          data.school_landline_number || null,
+          data.country || null,
+          data.state,
+          data.district,
+          data.city,
+          data.pincode,
+          data.principal_name,
+          data.principal_contact_number,
+          data.principal_whatsapp,
+          data.vice_principal_name,
+          data.vice_principal_contact_number,
+          data.vice_principal_whatsapp,
+          classes,
+          data.status || null,
+          data.manager_name || null,
+          data.manager_contact_number || null,
+          data.manager_whatsapp_number || null,
+          data.first_incharge_name || null,
+          data.first_incharge_number || null,
+          data.first_incharge_whatsapp || null,
+          data.second_incharge_name || null,
+          data.second_incharge_number || null,
+          data.second_incharge_whatsapp || null,
+          data.junior_student_strength || null,
+          data.senior_student_strength || null,
+          data.school_address || null,
+          data.area_name || null,
+          id,
+        ];
+
+        db.query(sql, values, (err, result) => {
+          if (err) {
+            console.error("Error updating school:", err);
+            return callback(err, null);
+          }
+          return callback(null, result);
+        });
       }
-      return callback(null, result);
-    });
+    );
   },
 
   // Delete a school by ID
@@ -688,7 +812,7 @@ ORDER BY s.id DESC;
             d.name AS district_name,
             ci.name AS city_name,
             GROUP_CONCAT(
-              CONCAT(s.id, ':', s.school_name) 
+              CONCAT(s.id, ':', s.school_name, ':', s.school_code) 
               ORDER BY s.school_name ASC
               SEPARATOR ','
             ) AS school_info
@@ -739,92 +863,6 @@ ORDER BY s.id DESC;
   },
 
   //fees calculate for schools reagarding subject or student
-  // getByReportIdWithStudentCount: (idOrCity, callback) => {
-  //   const isNumeric = !isNaN(Number(idOrCity));
-
-  //   if (isNumeric) {
-  //     // ✅ First try school.id
-  //     const sql = `
-  //       SELECT s.*, c.name AS city_name
-  //       FROM school s
-  //       LEFT JOIN cities c ON s.city = c.id
-  //       WHERE s.id = ?
-  //     `;
-  //     db.query(sql, [idOrCity], (err, results) => {
-  //       if (err) return callback(err, null);
-
-  //       if (results.length > 0) {
-  //         return processSchool(results[0], callback);
-  //       }
-
-  //       // ✅ If not found, treat as city_id
-  //       const citySql = `
-  //         SELECT s.*, c.name AS city_name
-  //         FROM school s
-  //         INNER JOIN cities c ON s.city = c.id
-  //         WHERE c.id = ?
-  //       `;
-  //       db.query(citySql, [idOrCity], (err2, results2) => {
-  //         if (err2) return callback(err2, null);
-  //         if (results2.length === 0) return callback(null, []);
-
-  //         let completed = 0;
-  //         const schools = [];
-
-  //         results2.forEach((school) => {
-  //           processSchool(school, (err3, processed) => {
-  //             completed++;
-  //             if (!err3 && processed) schools.push(processed);
-  //             if (completed === results2.length) {
-  //               callback(null, schools);
-  //             }
-  //           });
-  //         });
-  //       });
-  //     });
-  //   } else {
-  //     // ✅ Case: string → school_code or city name
-  //     const codeSql = `
-  //       SELECT s.*, c.name AS city_name
-  //       FROM school s
-  //       LEFT JOIN cities c ON s.city = c.id
-  //       WHERE s.school_code = ?
-  //     `;
-  //     db.query(codeSql, [idOrCity], (err, results) => {
-  //       if (err) return callback(err, null);
-
-  //       if (results.length > 0) {
-  //         return processSchool(results[0], callback);
-  //       }
-
-  //       // ✅ Otherwise by city name
-  //       const citySql = `
-  //         SELECT s.*, c.name AS city_name
-  //         FROM school s
-  //         INNER JOIN cities c ON s.city = c.id
-  //         WHERE c.name = ?
-  //       `;
-  //       db.query(citySql, [idOrCity], (err2, results2) => {
-  //         if (err2) return callback(err2, null);
-  //         if (results2.length === 0) return callback(null, []);
-
-  //         let completed = 0;
-  //         const schools = [];
-
-  //         results2.forEach((school) => {
-  //           processSchool(school, (err3, processed) => {
-  //             completed++;
-  //             if (!err3 && processed) schools.push(processed);
-  //             if (completed === results2.length) {
-  //               callback(null, schools);
-  //             }
-  //           });
-  //         });
-  //       });
-  //     });
-  //   }
-  // },
-
   getByReportIdWithStudentCount: (idOrCity, session_id, callback) => {
     idOrCity = String(idOrCity).trim();
     if (session_id) session_id = String(session_id).trim();
@@ -882,91 +920,6 @@ ORDER BY s.id DESC;
   },
 };
 
-// 🔽 Same helper
-// function processSchool(school, callback) {
-//   const countSql = `SELECT COUNT(*) AS student_count FROM student WHERE school_id = ?`;
-//   db.query(countSql, [school.id], (err, countResult) => {
-//     if (err) return callback(err, null);
-//     school.student_count = countResult[0].student_count;
-
-//     const subjectQuery = `SELECT id, name FROM subject_master ORDER BY id ASC`;
-//     db.query(subjectQuery, (err2, subjectRows) => {
-//       if (err2) return callback(err2, null);
-
-//       const subjectMap = {};
-//       subjectRows.forEach((s) => {
-//         subjectMap[s.id] = s.name;
-//       });
-
-//       const studentSubjectsSql = `
-//         SELECT s.student_subject, c.name AS class_name
-//         FROM student s
-//         LEFT JOIN class c ON s.class_id = c.id
-//         WHERE s.school_id = ?
-//           AND s.student_subject IS NOT NULL
-//           AND s.student_subject != ''
-//       `;
-//       db.query(studentSubjectsSql, [school.id], (err3, studentResults) => {
-//         if (err3) return callback(err3, null);
-
-//         const classSubjectSummary = {};
-//         let totalSubjectCount = 0;
-
-//         studentResults.forEach((row) => {
-//           let subjects = row.student_subject;
-//           const className = row.class_name || "Unknown";
-
-//           try {
-//             if (typeof subjects === "string") {
-//               try {
-//                 subjects = JSON.parse(subjects);
-//               } catch {
-//                 subjects = subjects
-//                   .split(",")
-//                   .map((s) => s.trim())
-//                   .filter(Boolean);
-//               }
-//             }
-//             if (typeof subjects === "number") subjects = [subjects];
-//             if (!Array.isArray(subjects)) return;
-
-//             const uniqueSubjects = Array.from(
-//               new Set(subjects.map((s) => String(s)))
-//             );
-
-//             if (!classSubjectSummary[className]) {
-//               classSubjectSummary[className] = {};
-//             }
-
-//             uniqueSubjects.forEach((subjId) => {
-//               const key = parseInt(subjId, 10);
-//               if (!isNaN(key)) {
-//                 const subjName = subjectMap[key] || `Subject-${key}`;
-//                 classSubjectSummary[className][subjName] =
-//                   (classSubjectSummary[className][subjName] || 0) + 1;
-//                 totalSubjectCount++;
-//               }
-//             });
-//           } catch (e) {
-//             console.error(
-//               "Invalid student_subject:",
-//               row.student_subject,
-//               e.message
-//             );
-//           }
-//         });
-
-//         school.subject_summary = {
-//           total_subject: totalSubjectCount,
-//           classes: classSubjectSummary,
-//         };
-
-//         callback(null, school);
-//       });
-//     });
-//   });
-// }
-
 function processSchool(school, callback, session_id = null) {
   // 🧩 Use provided session or auto-pick active one
   const sessionFilterSql = session_id
@@ -989,13 +942,17 @@ function processSchool(school, callback, session_id = null) {
     if (err) return callback(err, null);
 
     // 🧮 Summarize student count
-    school.student_count = countResult.reduce((sum, r) => sum + r.student_count, 0);
-    school.session_id = countResult[0]?.session_id || session_id || school.session_id;
-    school.location = countResult.map(r => ({
+    school.student_count = countResult.reduce(
+      (sum, r) => sum + r.student_count,
+      0
+    );
+    school.session_id =
+      countResult[0]?.session_id || session_id || school.session_id;
+    school.location = countResult.map((r) => ({
       country: r.country,
       state: r.state,
       district: r.district,
-      city: r.city
+      city: r.city,
     }));
 
     // 🔹 Fetch subjects
@@ -1034,14 +991,18 @@ function processSchool(school, callback, session_id = null) {
               try {
                 subjects = JSON.parse(subjects);
               } catch {
-                subjects = subjects.split(",").map((s) => s.trim()).filter(Boolean);
+                subjects = subjects
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean);
               }
             }
             if (typeof subjects === "number") subjects = [subjects];
             if (!Array.isArray(subjects)) return;
 
             const uniqueSubjects = Array.from(new Set(subjects.map(String)));
-            if (!classSubjectSummary[className]) classSubjectSummary[className] = {};
+            if (!classSubjectSummary[className])
+              classSubjectSummary[className] = {};
 
             uniqueSubjects.forEach((subjId) => {
               const key = parseInt(subjId, 10);
@@ -1053,7 +1014,11 @@ function processSchool(school, callback, session_id = null) {
               }
             });
           } catch (e) {
-            console.error("Invalid student_subject:", row.student_subject, e.message);
+            console.error(
+              "Invalid student_subject:",
+              row.student_subject,
+              e.message
+            );
           }
         });
 
@@ -1067,6 +1032,5 @@ function processSchool(school, callback, session_id = null) {
     });
   });
 }
-
 
 export default School;

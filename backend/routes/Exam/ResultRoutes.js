@@ -9,6 +9,8 @@ import {
   getFilteredStudentsomrreceipt,
   getFilteredStudentsforEvalute,
   updateMedal,
+  updateMedalWild,
+  bulkUploadResultsbystaff ,
 } from "../../controllers/Exam/ResultController.js";
 import { authenticateToken } from "../../middleware/verifyToken.js";
 const router = express.Router();
@@ -42,4 +44,10 @@ router.put("/update-certificate", updateMedal);
 
 //resutl achiements
 router.post("/award-recognition", getFilteredStudentsforEvalute);
+
+//updated medal for wild card
+router.put("/update-medal-wildcard", updateMedalWild);
+
+//// Bulk upload student results by staff
+router.post("/upload/result/staff", bulkUploadResultsbystaff);
 export default router;

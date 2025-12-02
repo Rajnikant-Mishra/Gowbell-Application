@@ -134,21 +134,76 @@ export const createStudent = (req, res) => {
   });
 };
 
+//buld controller
+
+// export const bulkUploadStudents = async (req, res) => {
+//   const students = req.body;
+//   const userId = req.user?.id;
+
+//   if (!Array.isArray(students) || students.length === 0) {
+//     return res.status(400).json({
+//       message: "No student data",
+//       errors: [{ rowIndex: null, message: "No data provided" }],
+//     });
+//   }
+
+//   if (!userId) {
+//     return res.status(401).json({
+//       message: "Unauthorized",
+//       errors: [{ rowIndex: null, message: "Login required" }],
+//     });
+//   }
+
+//   try {
+//     const result = await Student.bulkCreate(students, userId);
+//     return res.status(201).json({
+//       message: "Students uploaded",
+//       insertedCount: result.insertedCount,
+//       errors: result.errors || [],
+//     });
+//   } catch (err) {
+//     console.error("Bulk upload error:", err);
+
+//     let errors = [];
+
+//     // Handle known error types
+//     if (err.cause && Array.isArray(err.cause)) {
+//       errors = err.cause.map((e) => ({
+//         rowIndex: e.rowIndex || null,
+//         message: e.message,
+//         type: e.message.includes("Aadhaar")
+//           ? "duplicate_aadhaar"
+//           : e.message.includes("Missing")
+//           ? "missing_fields"
+//           : "validation_error",
+//       }));
+//     } else {
+//       errors = [{ rowIndex: null, message: err.message || "Unknown error" }];
+//     }
+
+//     return res.status(400).json({
+//       message: "Upload failed",
+//       errors,
+//     });
+//   }
+// };
+
 export const bulkUploadStudents = async (req, res) => {
   const students = req.body;
+  const userId = req.user?.id;
 
+  // Basic validation
   if (!Array.isArray(students) || students.length === 0) {
     return res.status(400).json({
       message: "No student data provided",
-      errors: ["No student data provided"],
+      errors: [{ rowIndex: null, message: "Please upload student data" }],
     });
   }
 
-  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({
-      message: "Unauthorized. Please log in.",
-      errors: ["Unauthorized access"],
+      message: "Unauthorized",
+      errors: [{ rowIndex: null, message: "Login required" }],
     });
   }
 
@@ -158,40 +213,42 @@ export const bulkUploadStudents = async (req, res) => {
     return res.status(201).json({
       message: "Students uploaded successfully",
       insertedCount: result.insertedCount,
-      errors: result.errors || [], // Array of error objects
+      errors: result.errors || [], // empty array if no errors
     });
-  } catch (err) {
-    console.error("Error inserting students:", err);
 
-    // Format errors consistently as an array of objects
-    let formattedErrors = [];
-    if (err.cause) {
-      if (err.message === "Duplicate Aadhaar numbers found") {
-        formattedErrors = err.cause.map((aadhaar) => ({
-          message: `Duplicate Aadhaar number: ${aadhaar}`,
-          type: "duplicate_aadhaar",
-        }));
-      } else if (err.message === "Missing required fields") {
-        formattedErrors = err.cause.map((errorMsg) => ({
-          message: errorMsg,
-          type: "missing_fields",
-        }));
-      } else if (err.message === "All student records failed validation") {
-        formattedErrors = err.cause.map((error) => ({
-          message: `Student ${error.student}: ${error.error}`,
-          type: "validation_error",
-        }));
-      } else {
-        formattedErrors = [{ message: err.message, type: "general_error" }];
-      }
+  } catch (err) {
+    console.error("Bulk upload error:", err);
+
+    let errors = [];
+
+    // All structured errors come with err.cause = array of { rowIndex, message }
+    if (err.cause && Array.isArray(err.cause)) {
+      errors = err.cause.map((e) => ({
+        rowIndex: e.rowIndex || null,
+        message: e.message,
+        type: (() => {
+          if (e.message.includes("roll_no") || 
+              e.message.includes("Roll No") || 
+              e.message.includes("Duplicate roll_no")) {
+            return "duplicate_roll_no";
+          }
+          if (e.message.includes("Aadhaar")) return "duplicate_aadhaar";
+          if (e.message.includes("Missing")) return "missing_fields";
+          if (e.message.includes("not found")) return "not_found";
+          return "validation_error";
+        })(),
+      }));
     } else {
-      formattedErrors = [{ message: err.message, type: "general_error" }];
+      // Fallback for unexpected errors
+      errors = [{
+        rowIndex: null,
+        message: err.message || "Something went wrong during upload",
+      }];
     }
 
     return res.status(400).json({
-      message: "Error uploading students",
-      error: err.message,
-      errors: formattedErrors,
+      message: "Upload failed",
+      errors,
     });
   }
 };
@@ -424,23 +481,191 @@ export const deleteStudent = (req, res) => {
 
 //omr issues
 // export const getFilteredStudents = (req, res) => {
-//   const { schoolName, classList, subjectList } = req.body;
+//   const { schoolName, classList, subjectList, level } = req.body;
 
+//   // ✅ Validate input
 //   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
 //     return res.status(400).json({ error: "Invalid input data" });
 //   }
 
+//   // ✅ Call model method
 //   Student.getStudentsByFilters(
 //     schoolName,
 //     classList,
 //     subjectList,
+//     level,
 //     (err, result) => {
 //       if (err) {
 //         console.error("Error fetching students:", err);
 //         return res.status(500).json({ error: "Failed to fetch students" });
 //       }
 
-//       const { students, totalCount, exam_date } = result;
+//       const { students, totalCount, exam_date, center_name } = result;
+
+//       // ✅ Fetch class names
+//       Student.getClassNames(classList, (classErr, classNames) => {
+//         if (classErr) {
+//           console.error("Error fetching class names:", classErr);
+//           return res.status(500).json({ error: "Failed to fetch class names" });
+//         }
+
+//         // ✅ Fetch subject names
+//         Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
+//           if (subjectErr) {
+//             console.error("Error fetching subject names:", subjectErr);
+//             return res
+//               .status(500)
+//               .json({ error: "Failed to fetch subject names" });
+//           }
+
+//           // ✅ Return complete response
+//           res.json({
+//             students,
+//             totalCount,
+//             classNames,
+//             subjectNames,
+//             exam_date,
+//             center_name, // 👈 New field added
+
+//           });
+//         });
+//       });
+//     }
+//   );
+// };
+
+// ==============================
+// export const getFilteredStudents = (req, res) => {
+//   const { schoolName, classList, subjectList, level } = req.body;
+
+//   // ✅ Validate input
+//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+//     return res.status(400).json({ error: "Invalid input data" });
+//   }
+
+//   // ✅ Call model method
+//   Student.getStudentsByFilters(
+//     schoolName,
+//     classList,
+//     subjectList,
+//     level,
+//     (err, result) => {
+//       if (err) {
+//         console.error("Error fetching students:", err);
+//         return res.status(500).json({ error: "Failed to fetch students" });
+//       }
+
+//       const { students, totalCount, exam_date, center_name, school_level } =
+//         result;
+
+//       // ✅ Fetch class names
+//       Student.getClassNames(classList, (classErr, classNames) => {
+//         if (classErr) {
+//           console.error("Error fetching class names:", classErr);
+//           return res.status(500).json({ error: "Failed to fetch class names" });
+//         }
+
+//         // ✅ Fetch subject names
+//         Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
+//           if (subjectErr) {
+//             console.error("Error fetching subject names:", subjectErr);
+//             return res
+//               .status(500)
+//               .json({ error: "Failed to fetch subject names" });
+//           }
+
+//           // ✅ Return complete response
+//           res.json({
+//             students,
+//             totalCount,
+//             classNames,
+//             subjectNames,
+//             exam_date,
+//             center_name,
+//             school_level, // 👈 now automatically shows ongoing level
+//           });
+//         });
+//       });
+//     }
+//   );
+// };
+
+//===================================================
+export const getFilteredStudents = (req, res) => {
+  const { school_id, classList, subjectList, level } = req.body;
+
+  // ✅ Validate input
+  if (!school_id || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({ error: "Invalid input data" });
+  }
+
+  // ✅ Call model method
+  Student.getStudentsByFilters(
+    school_id,
+    classList,
+    subjectList,
+    level,
+    (err, result) => {
+      if (err) {
+        console.error("Error fetching students:", err);
+        return res.status(500).json({ error: "Failed to fetch students" });
+      }
+
+      const { students, totalCount, exam_date, center_name, school_level } =
+        result;
+
+      // ✅ Fetch class names
+      Student.getClassNames(classList, (classErr, classNames) => {
+        if (classErr) {
+          console.error("Error fetching class names:", classErr);
+          return res.status(500).json({ error: "Failed to fetch class names" });
+        }
+
+        // ✅ Fetch subject names
+        Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
+          if (subjectErr) {
+            console.error("Error fetching subject names:", subjectErr);
+            return res
+              .status(500)
+              .json({ error: "Failed to fetch subject names" });
+          }
+
+          // ✅ Return complete response
+          res.json({
+            students,
+            totalCount,
+            classNames,
+            subjectNames,
+            exam_date,
+            center_name,
+            school_level,
+          });
+        });
+      });
+    }
+  );
+};
+
+//omr receipt
+// export const getFilteredStudentsomrreceipt = (req, res) => {
+//   const { schoolName, classList, subjectList, rollnoclasssubject } = req.body;
+
+//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+//     return res.status(400).json({ error: "Invalid input data" });
+//   }
+
+//   Student.getStudents(
+//     schoolName,
+//     classList,
+//     subjectList,
+//     rollnoclasssubject,
+//     (err, result) => {
+//       if (err) {
+//         console.error("Error fetching students:", err);
+//         return res.status(500).json({ error: "Failed to fetch students" });
+//       }
+
+//       const { students, totalCount } = result;
 
 //       Student.getClassNames(classList, (err, classNames) => {
 //         if (err) {
@@ -457,11 +682,10 @@ export const deleteStudent = (req, res) => {
 //           }
 
 //           res.json({
-//             students, // multiple rows per student per subject
-//             totalCount, // distinct student count
+//             students,
+//             totalCount,
 //             classNames,
 //             subjectNames,
-//             exam_date, // new field added
 //           });
 //         });
 //       });
@@ -469,87 +693,64 @@ export const deleteStudent = (req, res) => {
 //   );
 // };
 
-export const getFilteredStudents = (req, res) => {
-  const { schoolName, classList, subjectList, level } = req.body;
-
-  if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
-    return res.status(400).json({ error: "Invalid input data" });
-  }
-
-  Student.getStudentsByFilters(
-    schoolName,
-    classList,
-    subjectList,
-    level,
-    (err, result) => {
-      if (err) {
-        console.error("Error fetching students:", err);
-        return res.status(500).json({ error: "Failed to fetch students" });
-      }
-
-      const { students, totalCount, exam_date } = result;
-
-      Student.getClassNames(classList, (err, classNames) => {
-        if (err)
-          return res.status(500).json({ error: "Failed to fetch class names" });
-
-        Student.getSubjectNames(subjectList, (err, subjectNames) => {
-          if (err)
-            return res
-              .status(500)
-              .json({ error: "Failed to fetch subject names" });
-
-          res.json({
-            students,
-            totalCount,
-            classNames,
-            subjectNames,
-            exam_date,
-          });
-        });
-      });
-    }
-  );
-};
-
-//omr receipt
 export const getFilteredStudentsomrreceipt = (req, res) => {
-  const { schoolName, classList, subjectList, rollnoclasssubject } = req.body;
+  const { schoolId, classList, subjectList, rollnoclasssubject } = req.body;
 
-  if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
-    return res.status(400).json({ error: "Invalid input data" });
+  if (!schoolId || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid input data",
+    });
   }
 
   Student.getStudents(
-    schoolName,
+    schoolId,
     classList,
     subjectList,
     rollnoclasssubject,
     (err, result) => {
       if (err) {
         console.error("Error fetching students:", err);
-        return res.status(500).json({ error: "Failed to fetch students" });
+        return res.status(500).json({
+          success: false,
+          message: "Failed to fetch students",
+          error: err.message,
+        });
       }
 
-      const { students, totalCount } = result;
+      const {
+        students,
+        totalCount,
+        successCount = 0,
+        pendingCount = 0,
+        message,
+      } = result;
 
-      Student.getClassNames(classList, (err, classNames) => {
-        if (err) {
-          console.error("Error fetching class names:", err);
-          return res.status(500).json({ error: "Failed to fetch class names" });
+      Student.getClassNames(classList, (classErr, classNames) => {
+        if (classErr) {
+          console.error("Error fetching class names:", classErr);
+          return res.status(500).json({
+            success: false,
+            message: "Failed to fetch class names",
+          });
         }
 
-        Student.getSubjectNames(subjectList, (err, subjectNames) => {
-          if (err) {
-            console.error("Error fetching subject names:", err);
-            return res
-              .status(500)
-              .json({ error: "Failed to fetch subject names" });
+        Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
+          if (subjectErr) {
+            console.error("Error fetching subject names:", subjectErr);
+            return res.status(500).json({
+              success: false,
+              message: "Failed to fetch subject names",
+            });
           }
 
-          res.json({
-            students,
+          return res.status(200).json({
+            success: true,
+            message: message || "Students fetched successfully",
             totalCount,
+            successCount,   // ✅ added
+            pendingCount,   // ✅ added
+            students,
             classNames,
             subjectNames,
           });
@@ -558,6 +759,69 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
     }
   );
 };
+
+
+
+
+//assign--omr
+export const getFilteredStudentsbyassignomr = (req, res) => {
+  const { schoolId, classList, subjectList } = req.body;
+
+  if (!schoolId || !Array.isArray(classList) || !Array.isArray(subjectList)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid input data",
+    });
+  }
+
+  Student.getStudentsforassignomr(schoolId, classList, subjectList, (err, result) => {
+    if (err) {
+      console.error("Error fetching students:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch students",
+        error: err.message,
+      });
+    }
+
+    const { students, totalCount, successCount = 0, pendingCount = 0 } = result;
+
+    Student.getClassNames(classList, (classErr, classNames) => {
+      if (classErr) {
+        console.error("Error fetching class names:", classErr);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to fetch class names",
+        });
+      }
+
+      Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
+        if (subjectErr) {
+          console.error("Error fetching subject names:", subjectErr);
+          return res.status(500).json({
+            success: false,
+            message: "Failed to fetch subject names",
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: "Students fetched successfully",
+          totalCount,
+          successCount,
+          pendingCount,
+          students,
+          classNames,
+          subjectNames,
+        });
+      });
+    });
+  });
+};
+
+
+
+
 
 //A Student Attendance
 // export const getFilteredStudentsforattendance = (req, res) => {

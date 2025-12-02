@@ -6,92 +6,12 @@ import { db } from "../../config/db.js";
 import User from "../../models/User/userModel.js";
 import { logActivity } from "../../models/dashboard/activityModel.js";
 
-// export const createSchool = async (req, res) => {
-//   const { id } = req.user; // Only id is guaranteed from req.user
-//   const data = req.body;
-
-//   try {
-//     // Query to fetch username and role from the database using user id
-//     const sqlGetUser = `SELECT username, role FROM users WHERE id = ?`;
-//     const [user] = await new Promise((resolve, reject) => {
-//       db.query(sqlGetUser, [id], (err, results) => {
-//         if (err) return reject(err);
-//         resolve(results);
-//       });
-//     });
-
-//     // Determine status_approved and approved_by based on user role or username
-//     let statusApproved;
-//     let approvedBy = null; // Default to null for non-admins
-//     if (user) {
-//       const roleLower = user.role ? user.role.toLowerCase() : "";
-//       const isAdmin =
-//         (user.username && user.username.toLowerCase().includes("admin")) ||
-//         roleLower === "admin";
-
-//       if (isAdmin) {
-//         statusApproved = "approved";
-//         approvedBy = user.username; // Store admin's username in approved_by
-//       } else if (roleLower === "maker") {
-//         statusApproved = "pending";
-//       } else if (roleLower === "checker") {
-//         statusApproved = "approved";
-//       } else {
-//         statusApproved = "pending"; // Default for other roles
-//       }
-//     } else {
-//       statusApproved = "pending"; // Default if no user found
-//     }
-
-//     // Ensure created_by, updated_by, and approved_by are set appropriately
-//     const schoolData = {
-//       ...data,
-//       created_by: id,
-//       updated_by: id,
-//       status_approved: statusApproved,
-//       approved_by: approvedBy, // Add approved_by to schoolData
-//     };
-
-//     // Create school in the database
-//     const results = await School.create(schoolData);
-
-//     if (!results || !results.insertId) {
-//       return res
-//         .status(500)
-//         .json({ message: "School creation failed, no ID returned" });
-//     }
-
-//     const schoolId = results.insertId;
-//     const schoolCode = results.school_code;
-
-//     // Success response
-//     return res.status(201).json({
-//       message: "School created successfully",
-//       id: schoolId,
-//       school_code: schoolCode,
-//       status_approved: schoolData.status_approved,
-//       approved_by: schoolData.approved_by, // Include approved_by in response
-//     });
-//   } catch (err) {
-//     console.error("Error during school creation:", err);
-
-//     if (err.response) {
-//       return res.status(500).json({
-//         message: "Error in external service",
-//         error: err.response.data,
-//       });
-//     }
-
-//     res.status(500).json({ message: "An error occurred", error: err.message });
-//   }
-// };
-
 export const createSchool = async (req, res) => {
-  const { id } = req.user; // Only id is guaranteed from req.user
+  const { id } = req.user;
   const data = req.body;
 
   try {
-    // Query to fetch username and role from the database using user id
+    // Step 1: Get user info
     const sqlGetUser = `SELECT username, role FROM users WHERE id = ?`;
     const [user] = await new Promise((resolve, reject) => {
       db.query(sqlGetUser, [id], (err, results) => {
@@ -100,7 +20,7 @@ export const createSchool = async (req, res) => {
       });
     });
 
-    // Determine status_approved and approved_by based on user role or username
+    // Step 2: Determine approval status
     let statusApproved;
     let approvedBy = null;
     if (user) {
@@ -123,7 +43,7 @@ export const createSchool = async (req, res) => {
       statusApproved = "pending";
     }
 
-    // Ensure created_by, updated_by, and approved_by are set appropriately
+    // Step 3: Prepare final data
     const schoolData = {
       ...data,
       created_by: id,
@@ -132,7 +52,7 @@ export const createSchool = async (req, res) => {
       approved_by: approvedBy,
     };
 
-    // Create school in the database
+    // Step 4: Create school
     const results = await School.create(schoolData);
 
     if (!results || !results.insertId) {
@@ -144,7 +64,7 @@ export const createSchool = async (req, res) => {
     const schoolId = results.insertId;
     const schoolCode = results.school_code;
 
-    // ✅ Activity Log
+    // ✅ Step 5: Log activity
     logActivity({
       user_id: id,
       activity: `School ${data.school_name} has been created`,
@@ -152,7 +72,7 @@ export const createSchool = async (req, res) => {
       ip_address: req.ip || req.connection?.remoteAddress,
     });
 
-    // Success response
+    // ✅ Success response
     return res.status(201).json({
       message: "School created successfully",
       id: schoolId,
@@ -163,6 +83,14 @@ export const createSchool = async (req, res) => {
   } catch (err) {
     console.error("Error during school creation:", err);
 
+    // ✅ Step 6: Handle duplicate validation cleanly
+    if (err.message && err.message.toLowerCase().includes("already exists")) {
+      return res.status(409).json({
+        message: "Duplicate entry",
+        error: err.message,
+      });
+    }
+
     if (err.response) {
       return res.status(500).json({
         message: "Error in external service",
@@ -170,7 +98,10 @@ export const createSchool = async (req, res) => {
       });
     }
 
-    res.status(500).json({ message: "An error occurred", error: err.message });
+    res.status(500).json({
+      message: "An error occurred",
+      error: err.message,
+    });
   }
 };
 
@@ -179,35 +110,90 @@ export const bulkUploadSchools = async (req, res) => {
   const schools = req.body;
 
   try {
-    const schoolsWithUserData = schools.map((school) => ({
-      ...school,
+    // Attach created_by and updated_by
+    const schoolsWithUserData = schools.map((s) => ({
+      ...s,
       created_by: id,
       updated_by: id,
     }));
 
     const results = await School.bulkCreate(schoolsWithUserData);
 
-    if (!results || results.affectedRows === 0) {
-      return res.status(400).json({
-        message: "No schools were inserted",
-        errors: results.errors || [{ error: "No valid schools to insert" }],
-      });
-    }
-
+    // ✅ Successful upload (even if partial)
     res.status(201).json({
       message: "Schools uploaded successfully",
-      insertedCount: results.affectedRows,
-      schools: results.schools,
-      errors: results.errors || [], // Include errors if any
+      insertedCount: results.affectedRows || 0,
+      schools: results.schools || [],
+      errors: results.errors || [],
     });
   } catch (err) {
     console.error("Bulk upload error:", err);
-    res.status(500).json({
-      message: "Server error during bulk upload",
-      error: err.message,
-      errors: err.errors || [], // Ensure errors array is included
+
+    // ✅ Friendly messages for known validation issues
+    let statusCode = 400;
+    let message = "Validation error during bulk upload";
+
+    // handle known validation messages
+    if (
+      err.message?.includes("Duplicate email") ||
+      err.message?.includes("Missing required fields") ||
+      err.message?.includes("Invalid")
+    ) {
+      statusCode = 400;
+      message = err.message;
+    } else {
+      statusCode = 500;
+      message = "Server error during bulk upload";
+    }
+
+    res.status(statusCode).json({
+      message,
+      errors: err.errors || [{ error: err.message || "Unknown error" }],
     });
   }
+};
+
+// Update school
+export const updateSchool = (req, res) => {
+  const id = req.params.id;
+  const data = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
+  School.update(id, data, (err, results) => {
+    if (err) {
+      if (
+        err.message &&
+        err.message.includes(
+          "A school with the same name and area already exists"
+        )
+      ) {
+        return res.status(409).json({ error: err.message });
+      }
+
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    // ✅ Log update action
+    logActivity({
+      user_id: userId,
+      activity: `School ${data.school_name || id} has been updated`,
+      data: { schoolId: id, changes: data },
+      ip_address: req.ip || req.connection?.remoteAddress,
+    });
+
+    res.status(200).json({
+      message: "School updated successfully",
+      data: results,
+    });
+  });
 };
 
 // Get all schools
@@ -231,17 +217,6 @@ export const getAllSchools = (req, res) => {
   });
 };
 
-// export const getAllSchools = (req, res) => {
-//   let { page = 1, limit = 10, search = "", session_id = null } = req.query;
-//   page = parseInt(page);
-//   limit = parseInt(limit);
-
-//   School.getAll(page, limit, search, session_id, (err, data) => {
-//     if (err) return res.status(500).json({ error: err.message });
-//     res.status(200).json({ session_id: session_id || "active", ...data });
-//   });
-// };
-
 // Get school by ID
 export const getSchoolById = (req, res) => {
   const id = req.params.id;
@@ -251,63 +226,6 @@ export const getSchoolById = (req, res) => {
     res.status(200).json(results[0]);
   });
 };
-
-// Update school
-// export const updateSchool = (req, res) => {
-//   const id = req.params.id;
-//   const data = req.body;
-
-//   // Update school in the database (replace `School.update` with your database query)
-//   School.update(id, data, (err, results) => {
-//     if (err)
-//       return res.status(500).json({ message: "Database error", error: err });
-//     res
-//       .status(200)
-//       .json({ message: "School updated successfully", data: results });
-//   });
-// };
-
-export const updateSchool = (req, res) => {
-  const id = req.params.id;
-  const data = req.body;
-  const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized. Please log in." });
-  }
-
-  // Update school in the database
-  School.update(id, data, (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error", error: err });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "School not found" });
-    }
-
-    // ✅ Activity Log
-    logActivity({
-      user_id: userId,
-      activity: `School ${data.school_name || id} has been updated`,
-      data: { schoolId: id, changes: data },
-      ip_address: req.ip || req.connection?.remoteAddress,
-    });
-
-    res.status(200).json({
-      message: "School updated successfully",
-      data: results,
-    });
-  });
-};
-
-// Delete school
-// export const deleteSchool = (req, res) => {
-//   const id = req.params.id;
-//   School.delete(id, (err, results) => {
-//     if (err) return res.status(500).send(err);
-//     res.status(200).json({ message: "School deleted" });
-//   });
-// };
 
 export const deleteSchool = (req, res) => {
   const id = req.params.id;
@@ -339,7 +257,52 @@ export const deleteSchool = (req, res) => {
   });
 };
 
-// Filter schools by location
+// Filter schools by location country, state., district, city
+// export const filterByLocation = (req, res) => {
+//   const { country, state, district, city } = req.query;
+
+//   const filters = {
+//     country: country || null,
+//     state: state || null,
+//     district: district || null,
+//     city: city || null,
+//   };
+
+//   School.getSchoolCountByLocation(filters)
+//     .then((schoolData) => {
+//       if (schoolData.length === 0) {
+//         return res.status(404).json({
+//           success: false,
+//           message: "No schools found for the selected filters",
+//         });
+//       }
+
+//       res.status(200).json({
+//         success: true,
+//         total_schools: schoolData.reduce(
+//           (sum, item) => sum + item.school_count,
+//           0
+//         ),
+//         data: schoolData.map((item) => ({
+//           country: item.country_name,
+//           state: item.state_name,
+//           district: item.district_name,
+//           city: item.city_name,
+//           school_count: item.school_count,
+//           schools: item.school_names ? item.school_names.split(",") : [],
+//         })),
+//       });
+//     })
+//     .catch((err) => {
+//       console.error("Error fetching school count:", err);
+//       res.status(500).json({
+//         success: false,
+//         message: "Failed to fetch school count",
+//         error: err.message,
+//       });
+//     });
+// };
+
 export const filterByLocation = (req, res) => {
   const { country, state, district, city } = req.query;
 
@@ -359,20 +322,30 @@ export const filterByLocation = (req, res) => {
         });
       }
 
+      // Determine grouping level dynamically
+      let groupingLevel = "country";
+      if (city) groupingLevel = "city";
+      else if (district) groupingLevel = "district";
+      else if (state) groupingLevel = "state";
+
+      // Prepare formatted response
+      const groupedData = schoolData.map((item) => ({
+        country: item.country_name,
+        state: item.state_name,
+        district: item.district_name,
+        city: item.city_name,
+        school_count: item.school_count,
+        schools: item.school_names ? item.school_names.split(",") : [],
+      }));
+
       res.status(200).json({
         success: true,
+        level: groupingLevel,
         total_schools: schoolData.reduce(
           (sum, item) => sum + item.school_count,
           0
         ),
-        data: schoolData.map((item) => ({
-          country: item.country_name,
-          state: item.state_name,
-          district: item.district_name,
-          city: item.city_name,
-          school_count: item.school_count,
-          schools: item.school_names ? item.school_names.split(",") : [],
-        })),
+        data: groupedData,
       });
     })
     .catch((err) => {
@@ -617,31 +590,6 @@ export const getReportSchoolById = (req, res) => {
 };
 
 //fees of schhol collection
-// export const getReportSchoolByIdCount = (req, res) => {
-//   const schoolOrCity = req.params.id;
-
-//   if (!schoolOrCity) {
-//     return res
-//       .status(400)
-//       .json({ error: "School ID, code, or city is required" });
-//   }
-
-//   School.getByReportIdWithStudentCount(schoolOrCity, (err, result) => {
-//     if (err) {
-//       console.error("Database error:", err);
-//       return res.status(500).json({ error: "Internal server error" });
-//     }
-//     if (!result || (Array.isArray(result) && result.length === 0)) {
-//       return res.status(404).json({ error: "School(s) not found" });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       data: result,
-//     });
-//   });
-// };
-
 export const getReportSchoolByIdCount = (req, res) => {
   let schoolOrCity = req.params.id?.trim();
   let sessionId = req.query.session_id?.trim(); // optional query param

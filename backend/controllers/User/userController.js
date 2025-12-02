@@ -5,47 +5,13 @@ import Role from "../../models/Role/roleModel.js";
 import User from "../../models/User/userModel.js";
 import { logActivity } from "../../models/dashboard/activityModel.js";
 import fs from "fs"; // optional: for deleting old image if needed
+import { db } from "../../config/db.js";
 
 import dotenv from "dotenv";
 
 dotenv.config(); // Load environment variables
 
 // Create a new user
-// export const createUser = (req, res) => {
-//   const { role, username, email, phone, status, password, confirm_password } =
-//     req.body;
-
-//   if (password !== confirm_password) {
-//     return res.status(400).json({ error: "Passwords do not match" });
-//   }
-
-//   bcrypt.hash(password, 10, (err, hashedPassword) => {
-//     if (err) {
-//       return res.status(500).json({ error: "Failed to encrypt password" });
-//     }
-
-//     const newUser = {
-//       role,
-//       username,
-//       email,
-//       phone,
-//       status,
-//       password: hashedPassword,
-//       confirm_password: hashedPassword,
-//     };
-
-//     User.createUser(newUser, (dbErr, result) => {
-//       if (dbErr) {
-//         return res.status(500).json({ error: dbErr.message });
-//       }
-//       res.status(201).json({
-//         message: "User created successfully",
-//         userId: result.insertId,
-//       });
-//     });
-//   });
-// };
-
 export const createUser = (req, res) => {
   const { role, username, email, phone, status, password, confirm_password } =
     req.body;
@@ -90,34 +56,105 @@ export const createUser = (req, res) => {
 };
 
 // User login
+// export const loginUser = (req, res) => {
+//   const { email, password } = req.body;
+
+//   User.getUserByEmail(email, (err, users) => {
+//     if (err || users.length === 0) {
+//       return res.status(401).json({ error: "Invalid Email Please try again." });
+//     }
+
+//     const user = users[0];
+//     bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
+//       if (bcryptErr || !isMatch) {
+//         return res
+//           .status(401)
+//           .json({ error: "Invalid password Please try again." });
+//       }
+
+//       const token = jwt.sign(
+//         { id: user.id, role: user.role, username: user.username },
+//         process.env.JWT_SECRET,
+//         { expiresIn: "3600000" }
+//       );
+
+//       RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {
+//         if (menuErr) {
+//           return res.status(500).json({ error: "Failed to fetch menus" });
+//         }
+
+//         // Fetch role details after login
+//         Role.getById(user.role, (roleErr, roleDetails) => {
+//           if (roleErr) {
+//             return res
+//               .status(500)
+//               .json({ error: "Failed to fetch role details" });
+//           }
+
+//           // ----------- Add activity log here -------------
+//           const activityMessage = `${user.username} logged in`; // e.g., Admin logged in
+//           logActivity({
+//             user_id: user.id,
+//             user_name: user.username,
+//             activity: activityMessage,
+//             data: { email: user.email },
+//             ip_address: req.ip || req.connection.remoteAddress,
+//           });
+
+//           res.status(200).json({
+//             message: "Login successful",
+//             token,
+//             user: {
+//               id: user.id,
+//               username: user.username,
+//               email: user.email,
+//               user_profile: user.user_profile,
+//               phone: user.phone,
+//               status: user.status,
+//               role: user.role,
+//             },
+//             roleDetails, // Role details included in the response
+//             menus,
+//           });
+//         });
+//       });
+//     });
+//   });
+// };
+
 export const loginUser = (req, res) => {
   const { email, password } = req.body;
 
   User.getUserByEmail(email, (err, users) => {
     if (err || users.length === 0) {
-      return res.status(401).json({ error: "Invalid Email Please try again." });
+      return res
+        .status(401)
+        .json({ error: "Invalid Email. Please try again." });
     }
 
     const user = users[0];
+
     bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
       if (bcryptErr || !isMatch) {
         return res
           .status(401)
-          .json({ error: "Invalid password Please try again." });
+          .json({ error: "Invalid password. Please try again." });
       }
 
+      // Generate JWT token
       const token = jwt.sign(
         { id: user.id, role: user.role, username: user.username },
         process.env.JWT_SECRET,
         { expiresIn: "3600000" }
       );
 
+      // Fetch menus by role
       RoleMenu.getMenusByRole(user.role, (menuErr, menus) => {
         if (menuErr) {
           return res.status(500).json({ error: "Failed to fetch menus" });
         }
 
-        // Fetch role details after login
+        // Fetch role details
         Role.getById(user.role, (roleErr, roleDetails) => {
           if (roleErr) {
             return res
@@ -125,30 +162,71 @@ export const loginUser = (req, res) => {
               .json({ error: "Failed to fetch role details" });
           }
 
-          // ----------- Add activity log here -------------
-          const activityMessage = `${user.username} logged in`; // e.g., Admin logged in
-          logActivity({
-            user_id: user.id,
-            user_name: user.username,
-            activity: activityMessage,
-            data: { email: user.email },
-            ip_address: req.ip || req.connection.remoteAddress,
-          });
+          // ---------- Fetch OMR Assign records by staff_id ----------
+          const omrQuery = `
+            SELECT 
+              oa.id,
+              oa.country_id,
+              oa.state_id,
+              oa.district_id,
+              oa.city_id,
+              oa.school_id,
+              s.school_name,
+              oa.class_id,
+              c.name AS class_name,
+              oa.subject_id,
+              sub.name AS subject_name,
+              oa.student_id,
+              st.student_name,
+              oa.roll_no,
+              oa.student_section,
+              oa.staff_id,
+              oa.status,
+              oa.created_at,
+              oa.updated_at
+            FROM omr_assign oa
+            LEFT JOIN school s ON s.id = oa.school_id
+            LEFT JOIN class c ON c.id = oa.class_id
+            LEFT JOIN subject_master sub ON sub.id = oa.subject_id
+            LEFT JOIN student st ON st.id = oa.student_id
+            WHERE oa.staff_id = ?
+          `;
 
-          res.status(200).json({
-            message: "Login successful",
-            token,
-            user: {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              user_profile: user.user_profile,
-              phone: user.phone,
-              status: user.status,
-              role: user.role,
-            },
-            roleDetails, // Role details included in the response
-            menus,
+          db.query(omrQuery, [user.id], (omrErr, omrData) => {
+            if (omrErr) {
+              console.error("OMR fetch error:", omrErr);
+              return res
+                .status(500)
+                .json({ error: "Failed to fetch OMR assignments" });
+            }
+
+            // ---------- Log activity ----------
+            const activityMessage = `${user.username} logged in`;
+            logActivity({
+              user_id: user.id,
+              user_name: user.username,
+              activity: activityMessage,
+              data: { email: user.email },
+              ip_address: req.ip || req.connection.remoteAddress,
+            });
+
+            // ---------- Final Response ----------
+            res.status(200).json({
+              message: "Login successful",
+              token,
+              user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                user_profile: user.user_profile,
+                phone: user.phone,
+                status: user.status,
+                role: user.role,
+              },
+              roleDetails,
+              menus,
+              omr_assign: omrData, // 👈 OMR data included here
+            });
           });
         });
       });
@@ -157,11 +235,6 @@ export const loginUser = (req, res) => {
 };
 
 // Logout user
-// export const logoutUser = (req, res) => {
-//   // Invalidate the JWT token on the client side by removing it
-//   res.status(200).json({ message: "Logged out successfully" });
-// };
-
 export const logoutUser = (req, res) => {
   try {
     // Get token from header

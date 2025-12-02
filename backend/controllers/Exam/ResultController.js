@@ -127,49 +127,7 @@ export const getResultById = (req, res) => {
   });
 };
 
-// export const bulkUploadResults = (req, res) => {
-//   const students = req.body.students;
-
-//   // Validate input
-//   if (!Array.isArray(students) || students.length === 0) {
-//     return res.status(400).json({
-//       success: false,
-//       message: "Invalid input: students array is required and cannot be empty.",
-//     });
-//   }
-
-//   // Additional validation for array elements
-//   for (const [index, student] of students.entries()) {
-//     if (
-//       !student.student_name ||
-//       !student.school_name ||
-//       !student.class_name ||
-//       !student.subject
-//     ) {
-//       return res.status(400).json({
-//         success: false,
-//         message: `Missing required fields for student at index ${index}`,
-//       });
-//     }
-//   }
-
-//   ResultModel.bulkUpload(students)
-//     .then((response) => {
-//       res.status(200).json({
-//         success: true,
-//         message: response.message,
-//       });
-//     })
-//     .catch((err) => {
-//       console.error("Error during bulk upload:", err);
-//       res.status(500).json({
-//         success: false,
-//         message:
-//           err.message || "Failed to upload results. Please try again later.",
-//       });
-//     });
-// };
-
+//bulkUpload-controller
 export const bulkUploadResults = (req, res) => {
   const students = req.body.students;
 
@@ -209,6 +167,50 @@ export const bulkUploadResults = (req, res) => {
           err.message || "Failed to upload results. Please try again later.",
       });
     });
+};
+
+//bulkuploadbystaff
+export const bulkUploadResultsbystaff = async (req, res) => {
+  try {
+    const students = req.body.students;
+
+    if (!Array.isArray(students) || students.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid input: students array is required and cannot be empty.",
+      });
+    }
+
+    // Optional: basic validation (detailed in model)
+    for (const [index, student] of students.entries()) {
+      if (
+        !student.student_name ||
+        !student.school_name ||
+        !student.class_name ||
+        !student.subject
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: `Missing required fields for student at index ${index}`,
+        });
+      }
+    }
+
+    const response = await ResultModel.bulkUploadbystaff(students);
+
+    res.status(200).json({
+      success: true,
+      message: response.message,
+    });
+  } catch (err) {
+    console.error("Error during bulk upload by staff:", err);
+    res.status(500).json({
+      success: false,
+      message:
+        err.message || "Failed to upload results. Please try again later.",
+    });
+  }
 };
 
 // Get all results paginate serach also
@@ -261,7 +263,7 @@ export const deleteResultById = (req, res) => {
   });
 };
 
-// Update percentages for pending students
+// Update percentages for pending students with school, classes, subject, level result student
 // export const getFilteredStudentsomrreceipt = (req, res) => {
 //   try {
 //     const {
@@ -272,7 +274,7 @@ export const deleteResultById = (req, res) => {
 //       session_id,
 //     } = req.body;
 
-//     // Validate inputs
+//     // Step 1: Validate inputs
 //     if (
 //       !schoolId ||
 //       !Array.isArray(classIds) ||
@@ -286,7 +288,7 @@ export const deleteResultById = (req, res) => {
 //       });
 //     }
 
-//     // Step 1: Resolve session_id
+//     // Step 2: Resolve session_id
 //     const resolveSessionId = (next) => {
 //       if (session_id) {
 //         const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
@@ -295,29 +297,33 @@ export const deleteResultById = (req, res) => {
 //             return res
 //               .status(500)
 //               .json({ error: "DB error", details: err.message });
-//           if (result.length === 0) {
+//           if (result.length === 0)
 //             return res
 //               .status(400)
 //               .json({ error: "Invalid session ID selected" });
-//           }
 //           return next(session_id);
 //         });
 //       } else {
-//         const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+//         const sessionQuery = `
+//           SELECT id
+//           FROM gowvell_session
+//           WHERE status = 'active'
+//           ORDER BY id DESC
+//           LIMIT 1
+//         `;
 //         db.query(sessionQuery, (err, result) => {
 //           if (err)
 //             return res
 //               .status(500)
 //               .json({ error: "DB error", details: err.message });
-//           if (result.length === 0) {
+//           if (result.length === 0)
 //             return res.status(400).json({ error: "No active session found" });
-//           }
 //           return next(result[0].id);
 //         });
 //       }
 //     };
 
-//     // Step 2: Core student fetch logic
+//     // Step 3: Fetch students (after results update or directly)
 //     const fetchStudents = (resolvedSessionId) => {
 //       ResultModel.getStudents(
 //         schoolId,
@@ -350,12 +356,15 @@ export const deleteResultById = (req, res) => {
 //                 });
 //               }
 
+//               // ✅ Final API response
 //               res.json({
-//                 students,
+//                 success: true,
+//                 schoolId,
+//                 session_id: resolvedSessionId,
 //                 totalCount,
+//                 students,
 //                 classNames,
 //                 subjectNames,
-//                 session_id: resolvedSessionId,
 //                 message: `Successfully retrieved ${totalCount} students for School ${schoolId}`,
 //               });
 //             });
@@ -364,20 +373,153 @@ export const deleteResultById = (req, res) => {
 //       );
 //     };
 
-//     // Step 3: Update pending percentages first if required
+//     // Step 4: Optionally update pending results (with medal logic)
 //     resolveSessionId((resolvedSessionId) => {
 //       if (updatePending) {
 //         ResultModel.updatePendingPercentages(
 //           schoolId,
 //           classIds,
 //           subjectIds,
-//           (err) => {
+//           (err, updateResult) => {
 //             if (err) {
 //               return res.status(500).json({
 //                 error: "Failed to update pending records",
 //                 details: err.message,
 //               });
 //             }
+
+//             console.log("Update summary:", updateResult.message);
+
+//             // ✅ After updating (medal-based), fetch updated students
+//             fetchStudents(resolvedSessionId);
+//           }
+//         );
+//       } else {
+//         // ✅ Directly fetch students without updating
+//         fetchStudents(resolvedSessionId);
+//       }
+//     });
+//   } catch (err) {
+//     console.error("Error in getFilteredStudentsomrreceipt:", err);
+//     res.status(500).json({
+//       error: "Server error",
+//       details: err.message,
+//     });
+//   }
+// };
+
+//===========
+// export const getFilteredStudentsomrreceipt = (req, res) => {
+//   try {
+//     const {
+//       schoolIds,
+//       classIds = [],
+//       subjectIds = [],
+//       level,
+//       updatePending = false,
+//       session_id,
+//     } = req.body;
+
+//     // Allow schoolIds + level combo, or full filters
+//     if (
+//       (!Array.isArray(schoolIds) || schoolIds.length === 0) ||
+//       !level
+//     ) {
+//       return res.status(400).json({
+//         error:
+//           "Invalid input: schoolIds must be an array and level must be provided.",
+//       });
+//     }
+
+//     const resolveSessionId = (next) => {
+//       if (session_id) {
+//         const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
+//         db.query(verifyQuery, [session_id], (err, result) => {
+//           if (err)
+//             return res.status(500).json({ error: "DB error", details: err.message });
+//           if (result.length === 0)
+//             return res.status(400).json({ error: "Invalid session ID selected" });
+//           return next(session_id);
+//         });
+//       } else {
+//         const sessionQuery = `
+//           SELECT id
+//           FROM gowvell_session
+//           WHERE status = 'active'
+//           ORDER BY id DESC
+//           LIMIT 1
+//         `;
+//         db.query(sessionQuery, (err, result) => {
+//           if (err)
+//             return res.status(500).json({ error: "DB error", details: err.message });
+//           if (result.length === 0)
+//             return res.status(400).json({ error: "No active session found" });
+//           return next(result[0].id);
+//         });
+//       }
+//     };
+
+//     const fetchStudents = (resolvedSessionId) => {
+//       ResultModel.getStudents(
+//         schoolIds,
+//         classIds,
+//         subjectIds,
+//         resolvedSessionId,
+//         level,
+//         (err, result) => {
+//           if (err)
+//             return res.status(500).json({
+//               error: "Failed to fetch students",
+//               details: err.message,
+//             });
+
+//           const { students, totalCount } = result;
+
+//           ResultModel.getClassNames(classIds, (err, classNames) => {
+//             if (err)
+//               return res.status(500).json({
+//                 error: "Failed to fetch class names",
+//                 details: err.message,
+//               });
+
+//             ResultModel.getSubjectNames(subjectIds, (err, subjectNames) => {
+//               if (err)
+//                 return res.status(500).json({
+//                   error: "Failed to fetch subject names",
+//                   details: err.message,
+//                 });
+
+//               res.json({
+//                 success: true,
+//                 schoolIds,
+//                 session_id: resolvedSessionId,
+//                 totalCount,
+//                 students,
+//                 classNames,
+//                 subjectNames,
+//                 level,
+//                 message: `Successfully retrieved ${totalCount} students for Level "${level}".`,
+//               });
+//             });
+//           });
+//         }
+//       );
+//     };
+
+//     resolveSessionId((resolvedSessionId) => {
+//       if (updatePending) {
+//         ResultModel.updatePendingPercentages(
+//           schoolIds,
+//           classIds,
+//           subjectIds,
+//           (err, updateResult) => {
+//             if (err)
+//               return res.status(500).json({
+//                 error: "Failed to update pending records",
+//                 details: err.message,
+//               });
+
+//             console.log("Update summary:", updateResult.message);
 //             fetchStudents(resolvedSessionId);
 //           }
 //         );
@@ -386,35 +528,34 @@ export const deleteResultById = (req, res) => {
 //       }
 //     });
 //   } catch (err) {
-//     res.status(500).json({ error: "Server error", details: err.message });
+//     console.error("Error in getFilteredStudentsomrreceipt:", err);
+//     res.status(500).json({
+//       error: "Server error",
+//       details: err.message,
+//     });
 //   }
 // };
 
 export const getFilteredStudentsomrreceipt = (req, res) => {
   try {
     const {
-      schoolId,
-      classIds,
-      subjectIds,
+      schoolIds,
+      classIds = [],
+      subjectIds = [],
+      level,
       updatePending = false,
       session_id,
     } = req.body;
 
-    // Validate inputs
-    if (
-      !schoolId ||
-      !Array.isArray(classIds) ||
-      classIds.length === 0 ||
-      !Array.isArray(subjectIds) ||
-      subjectIds.length === 0
-    ) {
+    // ✅ Validate required fields
+    if (!Array.isArray(schoolIds) || schoolIds.length === 0 || !level) {
       return res.status(400).json({
         error:
-          "Invalid input data: schoolId, classIds (array), and subjectIds (array) are required",
+          "Invalid input: 'schoolIds' must be an array (at least one value) and 'level' is required.",
       });
     }
 
-    // Step 1: Resolve session_id
+    // ✅ Resolve session ID (either provided or active one)
     const resolveSessionId = (next) => {
       if (session_id) {
         const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
@@ -422,69 +563,81 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
           if (err)
             return res
               .status(500)
-              .json({ error: "DB error", details: err.message });
-          if (result.length === 0) {
+              .json({
+                error: "Database error verifying session",
+                details: err.message,
+              });
+          if (result.length === 0)
             return res
               .status(400)
-              .json({ error: "Invalid session ID selected" });
-          }
+              .json({ error: "Invalid session ID provided" });
           return next(session_id);
         });
       } else {
-        const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+        const sessionQuery = `
+          SELECT id
+          FROM gowvell_session
+          WHERE status = 'active'
+          ORDER BY id DESC
+          LIMIT 1
+        `;
         db.query(sessionQuery, (err, result) => {
           if (err)
             return res
               .status(500)
-              .json({ error: "DB error", details: err.message });
-          if (result.length === 0) {
+              .json({
+                error: "Database error fetching session",
+                details: err.message,
+              });
+          if (result.length === 0)
             return res.status(400).json({ error: "No active session found" });
-          }
           return next(result[0].id);
         });
       }
     };
 
-    // Step 2: Fetch students
+    // ✅ Main function to fetch filtered students
     const fetchStudents = (resolvedSessionId) => {
       ResultModel.getStudents(
-        schoolId,
+        schoolIds,
         classIds,
         subjectIds,
         resolvedSessionId,
+        level,
         (err, result) => {
-          if (err) {
+          if (err)
             return res.status(500).json({
-              error: "Failed to fetch students",
+              error: "Failed to fetch student data",
               details: err.message,
             });
-          }
 
           const { students, totalCount } = result;
 
+          // Fetch class and subject names (optional filters)
           ResultModel.getClassNames(classIds, (err, classNames) => {
-            if (err) {
+            if (err)
               return res.status(500).json({
                 error: "Failed to fetch class names",
                 details: err.message,
               });
-            }
 
             ResultModel.getSubjectNames(subjectIds, (err, subjectNames) => {
-              if (err) {
+              if (err)
                 return res.status(500).json({
                   error: "Failed to fetch subject names",
                   details: err.message,
                 });
-              }
 
-              res.json({
-                students,
+              return res.json({
+                success: true,
+                schoolIds,
+                session_id: resolvedSessionId,
                 totalCount,
+                students,
                 classNames,
                 subjectNames,
-                session_id: resolvedSessionId,
-                message: `Successfully retrieved ${totalCount} students for School ${schoolId}`,
+                level,
+                message: `Successfully retrieved ${totalCount} students for Level "${level}".`,
               });
             });
           });
@@ -492,30 +645,40 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
       );
     };
 
-    // Step 3: Update pending percentages and student levels if required
+    // ✅ Resolve session and process updates/fetch
     resolveSessionId((resolvedSessionId) => {
       if (updatePending) {
+        // 🔄 First update pending percentages before fetching students
         ResultModel.updatePendingPercentages(
-          schoolId,
+          schoolIds,
           classIds,
           subjectIds,
-          (err) => {
+          level,
+          (err, updateResult) => {
             if (err) {
+              console.error("Error updating pending results:", err);
               return res.status(500).json({
-                error: "Failed to update pending records",
+                error: "Failed to update pending student results",
                 details: err.message,
               });
             }
-            // After updating percentages and student levels, fetch students
+
+            console.log("✅ Update Summary:", updateResult.message);
+            // After successful update, fetch student list
             fetchStudents(resolvedSessionId);
           }
         );
       } else {
+        // No update needed → fetch directly
         fetchStudents(resolvedSessionId);
       }
     });
   } catch (err) {
-    res.status(500).json({ error: "Server error", details: err.message });
+    console.error("❌ Error in getFilteredStudentsomrreceipt:", err);
+    return res.status(500).json({
+      error: "Unexpected server error",
+      details: err.message,
+    });
   }
 };
 
@@ -637,4 +800,20 @@ export const getFilteredStudentsforEvalute = (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Server error", details: err.message });
   }
+};
+
+//updated medal wild card
+export const updateMedalWild = (req, res) => {
+  const { id, medals } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ message: "id is required" });
+  }
+
+  ResultModel.updateMedalforWildCard(id, medals, (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+    res.status(200).json(data);
+  });
 };

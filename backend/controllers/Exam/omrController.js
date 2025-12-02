@@ -19,6 +19,7 @@ import { logActivity } from "../../models/dashboard/activityModel.js";
 //   }
 
 //   const userId = req.user?.id || "system";
+//   const userName = req.user?.name || "System";
 //   const filename = req.file?.filename || null;
 
 //   const promises = omrRecords.map((record) => {
@@ -34,8 +35,22 @@ import { logActivity } from "../../models/dashboard/activityModel.js";
 //       };
 
 //       OmrData.create(fullRecord, (err, result) => {
-//         if (err) reject(err);
-//         else resolve(result.insertId);
+//         if (err) return reject(err);
+
+//         // ✅ Activity Log for each record
+//         try {
+//           logActivity({
+//             user_id: userId,
+//             user_name: userName,
+//             activity: `OMR record  has been created`,
+//             data: { omrId: result.insertId, filename },
+//             ip_address: req.ip || req.socket?.remoteAddress || null,
+//           });
+//         } catch (logErr) {
+//           console.error("Activity Log Error:", logErr.message);
+//         }
+
+//         resolve(result.insertId);
 //       });
 //     });
 //   });
@@ -51,6 +66,7 @@ import { logActivity } from "../../models/dashboard/activityModel.js";
 //     .catch((err) => res.status(500).json({ error: err.message }));
 // };
 
+//====================
 export const createOmr = (req, res) => {
   let omrRecords;
 
@@ -72,6 +88,14 @@ export const createOmr = (req, res) => {
     return new Promise((resolve, reject) => {
       const fullRecord = {
         ...record,
+        school: Array.isArray(record.school)
+          ? record.school
+          : typeof record.school === "string"
+          ? record.school
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [], // ✅ ensure stored as array
         classes: record.classes || [],
         subjects: record.subjects || [],
         created_by: userId,
@@ -83,12 +107,12 @@ export const createOmr = (req, res) => {
       OmrData.create(fullRecord, (err, result) => {
         if (err) return reject(err);
 
-        // ✅ Activity Log for each record
+        // ✅ Activity Log
         try {
           logActivity({
             user_id: userId,
             user_name: userName,
-            activity: `OMR record  has been created`,
+            activity: `OMR record has been created`,
             data: { omrId: result.insertId, filename },
             ip_address: req.ip || req.socket?.remoteAddress || null,
           });
@@ -113,6 +137,18 @@ export const createOmr = (req, res) => {
 };
 
 // Get all data
+// export const getAllOmrData = (req, res) => {
+//   OmrData.getAll((err, results) => {
+//     if (err) {
+//       console.error("Error fetching OMR data:", err);
+//       return res
+//         .status(500)
+//         .json({ success: false, message: "Database error", error: err });
+//     }
+//     return res.status(200).json({ success: true, data: results });
+//   });
+// };
+
 export const getAllOmrData = (req, res) => {
   OmrData.getAll((err, results) => {
     if (err) {
@@ -124,6 +160,7 @@ export const getAllOmrData = (req, res) => {
     return res.status(200).json({ success: true, data: results });
   });
 };
+
 
 export const getOmrById = (req, res) => {
   const id = req.params.id;

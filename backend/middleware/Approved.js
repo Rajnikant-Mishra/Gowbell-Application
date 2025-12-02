@@ -16,7 +16,9 @@ export const authorizeRole = (req, res, allowedRoles) => {
 
     // Check if the user's role is in the list of allowedRoles
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied. Unauthorized role." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Unauthorized role." });
     }
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });

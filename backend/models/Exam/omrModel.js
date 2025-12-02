@@ -3,6 +3,59 @@ import { db } from "../../config/db.js";
 const OmrData = {
   // Create new OMR record
 
+  // create: (data, callback) => {
+  //   const query = `
+  //   INSERT INTO omr_data (
+  //     school,
+  //     classes,
+  //     subjects,
+  //     center_id,
+  //     country,
+  //     state,
+  //     district,
+  //     city,
+  //     level,
+  //     students,
+  //     mode,
+  //     student_count,
+  //     created_by,
+  //     updated_by,
+  //     filename,
+  //     status,
+  //     class_count,
+  //     omr_set,
+  //     exam_date
+  //   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  // `;
+
+  //   db.query(
+  //     query,
+  //     [
+  //       data.school,
+  //       JSON.stringify(data.classes),
+  //       JSON.stringify(data.subjects),
+  //       data.center_id,
+  //       data.country,
+  //       data.state,
+  //       data.district,
+  //       data.city,
+  //       data.level,
+  //       data.students,
+  //       data.mode,
+  //       data.student_count,
+  //       data.created_by,
+  //       data.updated_by,
+  //       data.filename,
+  //       data.status,
+  //       data.class_count,
+  //       data.omr_set, // NEW
+  //       data.exam_date, // NEW
+  //     ],
+  //     callback
+  //   );
+  // },
+
+  //===================
   create: (data, callback) => {
     const query = `
     INSERT INTO omr_data (
@@ -31,7 +84,7 @@ const OmrData = {
     db.query(
       query,
       [
-        data.school,
+        JSON.stringify(data.school), // ✅ store multi-school as JSON
         JSON.stringify(data.classes),
         JSON.stringify(data.subjects),
         data.center_id,
@@ -48,44 +101,21 @@ const OmrData = {
         data.filename,
         data.status,
         data.class_count,
-        data.omr_set, // NEW
-        data.exam_date, // NEW
+        data.omr_set,
+        data.exam_date,
       ],
       callback
     );
   },
 
-  // getAll: (callback) => {
-  //   const query = `
-  //   SELECT
-  //     o.id,
-  //     o.created_at,
-  //     o.school,
-  //      o.classes,
-  //     o.subjects,
-  //     o. level,
-  //     o.student_count,
-  //     o.filename,
-  //     c.name as country,
-  //     s.name as state,
-  //     d.name as district,
-  //     ci.name as city
-  //   FROM omr_data o
-  //   LEFT JOIN countries c ON o.country = c.id
-  //   LEFT JOIN states s ON o.state = s.id
-  //   LEFT JOIN districts d ON o.district = d.id
-  //   LEFT JOIN cities ci ON o.city = ci.id
-  //   ORDER BY o.created_at DESC
-  // `;
-  //   db.query(query, callback);
-  // },
 
+//============
   getAll: (callback) => {
     const query = `
     SELECT 
       o.id,
       o.created_at,
-      o.school,
+      o.school AS school_id,
       o.classes,
       o.subjects,
       o.level,
@@ -105,6 +135,8 @@ const OmrData = {
   `;
     db.query(query, callback);
   },
+
+  
 
   getById: (id, callback) => {
     const query = `SELECT * FROM omr_data WHERE id = ?`;

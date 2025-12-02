@@ -70,5 +70,3 @@ export const deleteClass = (req, res) => {
     res.json({ message: "Record deleted successfully" });
   });
 };
-
-

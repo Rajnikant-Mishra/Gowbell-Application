@@ -1,7 +1,6 @@
 import Center from "../../models/Master/centerModel.js";
 
 export const getCenters = (req, res) => {
-
   Center.getAll((err, results) => {
     if (err) return res.status(500).json({ error: err });
     res.json(results);
@@ -21,7 +20,6 @@ export const getCentersAll = (req, res) => {
   });
 };
 
-
 export const getCenterById = (req, res) => {
   Center.getById(req.params.id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
@@ -32,16 +30,18 @@ export const getCenterById = (req, res) => {
 };
 
 export const createCenter = (req, res) => {
-  const { center_name } = req.body;
+  const { center_name, address } = req.body;
 
   if (!center_name || center_name.trim() === "") {
     return res.status(400).json({ message: "Center name is required" });
   }
 
-  Center.create({ center_name }, (err, createdCenter) => {
+  Center.create({ center_name, address }, (err, createdCenter) => {
     if (err) {
       if (err.duplicate) {
-        return res.status(400).json({ message: "This Center name already exists!" });
+        return res
+          .status(400)
+          .json({ message: "This Center name already exists!" });
       }
       return res.status(500).json({ message: "Database error", error: err });
     }
@@ -54,9 +54,22 @@ export const createCenter = (req, res) => {
 };
 
 export const updateCenter = (req, res) => {
-  Center.update(req.params.id, req.body, (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ message: "Center updated" });
+  const { id } = req.params;
+  const { center_name, center_code, address } = req.body;
+
+  if (!center_name || center_name.trim() === "") {
+    return res.status(400).json({ message: "Center name is required" });
+  }
+
+  Center.update(id, { center_name, center_code, address }, (err, result) => {
+    if (err) {
+      if (err.notFound) {
+        return res.status(404).json({ message: "Center not found" });
+      }
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    res.status(200).json(result);
   });
 };
 
