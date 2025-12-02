@@ -26,7 +26,7 @@ import * as Yup from "yup";
 
 const validationSchema = Yup.object({
   name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
+    .min(2, "Name must be at least 2 characters")
     .max(255, "Name must be less than or equal to 255 characters")
     .required("Name is required")
     .matches(/^[a-zA-Z0-9 ]*$/, "Name can only contain letters and numbers"),

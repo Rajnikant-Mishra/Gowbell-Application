@@ -26,11 +26,35 @@ export default function DataTable() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const navigate = useNavigate();
   const gridApiRef = useRef(null);
   const pageSizes = [10, 20, 50, 100];
+
+  const [schoolMap, setSchoolMap] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // Fetch school data once
+  useEffect(() => {
+    const fetchSchools = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/get/all-schools`);
+        const data = await res.json();
+
+        const list = Array.isArray(data) ? data : data.data || [];
+        const map = Object.fromEntries(list.map((s) => [s.id, s.school_name]));
+
+        setSchoolMap(map);
+      } catch (err) {
+        console.error("Failed to fetch schools:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSchools();
+  }, []);
 
   // Fetch data from API
   useEffect(() => {
@@ -112,52 +136,6 @@ export default function DataTable() {
   };
 
   // Handle delete
-  // const handleDelete = (id) => {
-  //   Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "You won't be able to revert this!",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: "Yes, delete it!",
-  //     customClass: { popup: "custom-swal-popup" },
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       axios
-  //         .delete(`${API_BASE_URL}/api/omr/omr-data/${id}`)
-  //         .then(() => {
-  //           setRecords((prev) => prev.filter((record) => record.id !== id));
-  //           setTotalRecords((prev) => prev - 1);
-  //           setTotalPages(Math.ceil((totalRecords - 1) / pageSize));
-  //           Swal.fire({
-  //             position: "top-end",
-  //             icon: "success",
-  //             title: "Success!",
-  //             text: "The OMR has been deleted.",
-  //             showConfirmButton: false,
-  //             timer: 1000,
-  //             timerProgressBar: true,
-  //             toast: true,
-  //             background: "#fff",
-  //             customClass: { popup: "small-swal" },
-  //           });
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error deleting OMR:", error);
-  //           Swal.fire({
-  //             icon: "error",
-  //             title: "Error",
-  //             text: "There was an issue deleting the OMR data.",
-  //             toast: true,
-  //             position: "top-end",
-  //             showConfirmButton: false,
-  //             timer: 1500,
-  //           });
-  //         });
-  //     }
-  //   });
-  // };
-
   const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -227,11 +205,20 @@ export default function DataTable() {
   const columnDefs = useMemo(
     () => [
       {
-        headerName: "SCHOOL",
-        field: "school",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
+        headerName: "SCHOOL(S)",
+        field: "school_id",
+        width: 200,
+        valueGetter: (params) => {
+          const ids = Array.isArray(params.data.school_id)
+            ? params.data.school_id
+            : [params.data.school_id];
+
+          if (loading) return "Loading...";
+
+          // Map IDs to names and handle missing ones
+          const names = ids.map((id) => schoolMap[id] || "Not Found");
+          return names.join(", ");
+        },
       },
       {
         headerName: "COUNTRY",

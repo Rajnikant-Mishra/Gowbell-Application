@@ -210,7 +210,7 @@ const AdminLogin = () => {
   }, [navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();        
+    e.preventDefault();
     try {
       const response = await axios.post(`${API_BASE_URL}/api/u1/users/login`, {
         email,
@@ -219,11 +219,14 @@ const AdminLogin = () => {
       login(response.data.token);
 
       // Storing user details and menus
-      const { token, user, menus, roleDetails } = response.data;
+      // const { token, user, menus, roleDetails } = response.data;
+      const { token, user, menus, roleDetails, omr_assign } = response.data;
+
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("menus", JSON.stringify(menus));
       localStorage.setItem("roleDetails", JSON.stringify(roleDetails));
+      localStorage.setItem("omr_assign", JSON.stringify(omr_assign)); // ✅ add this line
 
       Swal.fire({
         position: "top-end",

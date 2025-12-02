@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -114,6 +113,27 @@ export default function SchoolUpdateForm() {
   const [filteredCities, setFilteredCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialValues, setInitialValues] = useState(null);
+
+  // inside your component
+  const [boardOptions, setBoardOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchBoards = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/affiliated`); // your API endpoint
+        if (Array.isArray(res.data)) {
+          const formatted = res.data.map((item) => ({
+            value: item.id || item.name, // adjust according to API response keys
+            label: item.name,
+          }));
+          setBoardOptions(formatted);
+        }
+      } catch (err) {
+        console.error("Error fetching board data:", err);
+      }
+    };
+    fetchBoards();
+  }, []);
 
   // Formik initialization
   const formik = useFormik({
@@ -232,27 +252,33 @@ export default function SchoolUpdateForm() {
         }
 
         // Fetch all data concurrently
-        const [schoolRes, countriesRes, statesRes, districtsRes, citiesRes, classesRes] =
-          await Promise.all([
-            axios.get(`${API_BASE_URL}/api/get/schools/${id}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get(`${API_BASE_URL}/api/countries/`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get(`${API_BASE_URL}/api/states/`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get(`${API_BASE_URL}/api/districts/`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get(`${API_BASE_URL}/api/cities/all/c1`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get(`${API_BASE_URL}/api/class`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
+        const [
+          schoolRes,
+          countriesRes,
+          statesRes,
+          districtsRes,
+          citiesRes,
+          classesRes,
+        ] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/get/schools/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${API_BASE_URL}/api/countries/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${API_BASE_URL}/api/states/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${API_BASE_URL}/api/districts/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${API_BASE_URL}/api/cities/all/c1`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${API_BASE_URL}/api/class`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
         const schoolData = schoolRes.data;
 
@@ -284,8 +310,12 @@ export default function SchoolUpdateForm() {
           state: String(schoolData.state || ""),
           district: String(schoolData.district || ""),
           city: String(schoolData.city || ""),
-          junior_student_strength: String(schoolData.junior_student_strength || ""),
-          senior_student_strength: String(schoolData.senior_student_strength || ""),
+          junior_student_strength: String(
+            schoolData.junior_student_strength || ""
+          ),
+          senior_student_strength: String(
+            schoolData.senior_student_strength || ""
+          ),
         });
 
         setLoading(false);
@@ -374,8 +404,6 @@ export default function SchoolUpdateForm() {
           </div>
           <form onSubmit={formik.handleSubmit} className={styles.formContent}>
             <Grid container spacing={2}>
-              
-
               {/* Country Dropdown */}
               <Grid item xs={12} sm={6} md={3}>
                 <SelectDrop
@@ -510,9 +538,8 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-
               {/* Board Name */}
-              <Grid item xs={12} sm={6} md={2}>
+              {/* <Grid item xs={12} sm={6} md={2}>
                 <SelectDrop
                   label="Board Name"
                   name="board"
@@ -520,6 +547,21 @@ export default function SchoolUpdateForm() {
                     { value: "CBSE", label: "CBSE" },
                     { value: "ICSE", label: "ICSE" },
                   ]}
+                  value={formik.values.board}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.board && Boolean(formik.errors.board)}
+                  helperText={formik.touched.board && formik.errors.board}
+                  fullWidth
+                />
+              </Grid> */}
+
+              {/* Board Name */}
+              <Grid item xs={12} sm={6} md={2}>
+                <SelectDrop
+                  label="Board Name"
+                  name="board"
+                  options={boardOptions}
                   value={formik.values.board}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -562,7 +604,6 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-              
               {/* School Email */}
               <Grid item xs={12} sm={6} md={3}>
                 <TextField
@@ -641,7 +682,6 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-
               {/* School Landline Number */}
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
@@ -687,8 +727,8 @@ export default function SchoolUpdateForm() {
                 />
               </Grid>
 
-               {/* School Address */}
-               <Grid item xs={12} sm={6} md={6}>
+              {/* School Address */}
+              <Grid item xs={12} sm={6} md={6}>
                 <TextField
                   label="School Address"
                   name="school_address"
@@ -1472,8 +1512,6 @@ export default function SchoolUpdateForm() {
                   fullWidth
                 />
               </Grid>
-
-             
             </Grid>
 
             <Box

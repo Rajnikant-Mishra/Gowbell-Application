@@ -41,9 +41,15 @@ import AffiliatedList from "./Components/Master/affiliated/AffiliatedList";
 import AffiliatedForm from "./Components/Master/affiliated/AffiliatedForm";
 import UpdateAffiliated from "./Components/Master/affiliated/UpdateAffiliated";
 
+//center
 import CenterForm from "./Components/Master/Center/CenterForm";
 import CenterList from "./Components/Master/Center/CenterList";
+import CenterUpdate from "./Components/Master/Center/CenterUpdate";
 
+//assign-center
+import AssignCenterForm from "./Components/Master/AssignCenter/AssignCenterForm";
+import AssignCenterList from "./Components/Master/AssignCenter/AssignCenterList";
+import AssignCenterUpdate from "./Components/Master/AssignCenter/AssignCenterUpdate";
 
 //inventory
 import Createinventory from "./Components/Inventory/Createinventory";
@@ -70,6 +76,9 @@ import OmrcoList from "./Components/Exam/omrco/OmrcoList";
 import OmrcoFrom from "./Components/Exam/omrco/OmrcoForm";
 import OmrView from "./Components/Exam/omrco/OmrView";
 import OmrUpdate from "./Components/Exam/omrco/OmrUpdate";
+import OmrAssign from "./Components/Exam/omrAssign/OmrAssign";
+import OmrEvalution from "./Components/Exam/omrEvalution/OmrEvalution";
+
 
 //question
 import QuestionIssues from "./Components/Exam/question/QuestionIssues";
@@ -283,6 +292,25 @@ function App() {
             path="/center-list"
             element={<ProtectedRoute element={<CenterList />} />}
           />
+          <Route
+            path="/center/update/:id"
+            element={<ProtectedRoute element={<CenterUpdate />} />}
+          />
+
+          {/* //center-assign */}
+          <Route
+            path="/center-assign-form"
+            element={<ProtectedRoute element={<AssignCenterForm />} />}
+          />
+
+          <Route
+            path="/center-assign-list"
+            element={<ProtectedRoute element={<AssignCenterList/>} />}
+          />
+          <Route
+            path="/center/assign/update/:id"
+            element={<ProtectedRoute element={<AssignCenterUpdate/>} />}
+          />
 
           {/* //inventory */}
           <Route
@@ -344,6 +372,7 @@ function App() {
             path="/student/update/:id"
             element={<ProtectedRoute element={<StudentUpdate />} />}
           />
+          
           {/* omr route */}
           <Route
             path="/omr-list"
@@ -361,11 +390,28 @@ function App() {
             path="/omr/update/:id"
             element={<ProtectedRoute element={<OmrUpdate />} />}
           />
+
+           {/* //omr assign */}
+          <Route
+            path="/assign-omr"
+            element={<ProtectedRoute element={<OmrAssign/>} />}
+          />
+          
+
+            {/* //omr OmrEvalution  */}
+          <Route
+            path="/omr-evalution"
+            element={<ProtectedRoute element={<OmrEvalution/>} />}
+          />
+
+          
           {/* //omr receipt */}
           <Route
             path="/omr-receipt"
             element={<ProtectedRoute element={<OMRreceipt />} />}
           />
+
+
           {/* //result */}
           <Route
             path="/result-list"

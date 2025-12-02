@@ -832,7 +832,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>    
             <CardContent>
               <Box
                 display="flex"

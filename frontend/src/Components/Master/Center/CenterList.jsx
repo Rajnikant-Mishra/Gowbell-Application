@@ -178,6 +178,17 @@ export default function DataTable() {
             : params.value,
       },
       {
+        headerName: "ADDRESS",
+        field: "address",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        // Removed fixed width
+        valueFormatter: (params) =>
+          typeof params.value === "string"
+            ? params.value.toUpperCase()
+            : params.value,
+      },
+      {
         headerName: "CENTER CODE",
         field: "center_code",
         sortable: true,
@@ -200,7 +211,7 @@ export default function DataTable() {
               alignItems: "center",
             }}
           >
-            <Link to={`/class/update/${params.data.id}`}>
+            <Link to={`/center/update/${params.data.id}`}>
               <UilEditAlt
                 style={{
                   color: "#1230AE",

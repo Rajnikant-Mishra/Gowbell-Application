@@ -26,7 +26,6 @@ import "../../Common-Css/Swallfire.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const CreateCountry = () => {
   const [countries, setCountries] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -51,7 +50,6 @@ const CreateCountry = () => {
     fetchCountries();
   }, []);
 
-
   const handleCountryChange = (e, value) => {
     setSelectedCountry(value);
     const isValidCountry = countries.some((country) => country.value === value);
@@ -62,7 +60,6 @@ const CreateCountry = () => {
     }
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedCountry) {
@@ -237,9 +234,9 @@ const CreateCountry = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12}>   
                   <Box className={` gap-2 `} sx={{ display: "flex", gap: 2 }}>
-                  <ButtonComp
+                    <ButtonComp
                       text="Cancel"
                       type="button"
                       sx={{ flexGrow: 1 }}
@@ -252,7 +249,6 @@ const CreateCountry = () => {
                       disabled={false}
                       sx={{ flexGrow: 1 }}
                     />
-                  
                   </Box>
                 </Grid>
               </Grid>

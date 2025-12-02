@@ -175,58 +175,6 @@ export default function DataTable() {
   }, []);
 
   // Handle exam deletion
-  // const handleDelete = useCallback(
-  //   (id) => {
-  //     Swal.fire({
-  //       title: "Are you sure?",
-  //       text: "You won't be able to revert this!",
-  //       showCancelButton: true,
-  //       confirmButtonColor: "#3085d6",
-  //       cancelButtonColor: "#d33",
-  //       confirmButtonText: "Yes, delete it!",
-  //       customClass: { popup: "custom-swal-popup" },
-  //     }).then((result) => {
-  //       if (result.isConfirmed) {
-  //         axios
-  //           .delete(`${API_BASE_URL}/api/e1/delete-exam/${id}`, {
-  //             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  //           })
-  //           .then(() => {
-  //             setRecords((prev) => prev.filter((record) => record.id !== id));
-  //             sizeColumnsToFit();
-  //             Swal.fire({
-  //               position: "top-end",
-  //               icon: "success",
-  //               title: "Success!",
-  //               text: "The exam has been deleted.",
-  //               showConfirmButton: false,
-  //               timer: 1000,
-  //               timerProgressBar: true,
-  //               toast: true,
-  //               background: "#fff",
-  //               customClass: { popup: "small-swal" },
-  //             });
-  //           })
-  //           .catch((error) => {
-  //             console.error("Error deleting exam:", error.message);
-  //             Swal.fire({
-  //               position: "top-end",
-  //               icon: "error",
-  //               title: "Error!",
-  //               text: `There was an issue deleting the exam: ${error.message}`,
-  //               showConfirmButton: false,
-  //               timer: 2000,
-  //               toast: true,
-  //               background: "#fff",
-  //               customClass: { popup: "small-swal" },
-  //             });
-  //           });
-  //       }
-  //     });
-  //   },
-  //   [sizeColumnsToFit]
-  // );
-
   const handleDelete = useCallback(
     (id) => {
       Swal.fire({
@@ -298,6 +246,106 @@ export default function DataTable() {
   );
 
   // AG-Grid column definitions
+  // const columnDefs = useMemo(
+  //   () => [
+  //     {
+  //       headerName: "SCHOOL NAME",
+  //       field: "school_name",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 100,
+  //       valueFormatter: (params) =>
+  //         typeof params.value === "string"
+  //           ? params.value.toUpperCase()
+  //           : params.value || "N/A",
+  //     },
+  //     {
+  //       headerName: "CLASS",
+  //       field: "class_name",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 100,
+  //       valueGetter: (params) =>
+  //         params.data.class_name?.join(", ") || "No Classes",
+  //     },
+  //     {
+  //       headerName: "SUBJECTS",
+  //       field: "subject_name",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 100,
+  //       valueGetter: (params) =>
+  //         params.data.subject_name?.join(", ") || "No Subjects",
+  //     },
+  //     {
+  //       headerName: "LEVEL",
+  //       field: "level",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 80,
+  //       valueFormatter: (params) => params.value || "N/A",
+  //     },
+  //     {
+  //       headerName: "EXAM DATE",
+  //       field: "exam_date",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 120,
+  //     },
+  //     {
+  //       headerName: "CREATED BY",
+  //       field: "created_by",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 100,
+  //       valueFormatter: (params) =>
+  //         params.value
+  //           ? params.value.charAt(0).toUpperCase() + params.value.slice(1)
+  //           : "N/A",
+  //     },
+  //     {
+  //       headerName: "CREATED AT",
+  //       field: "created_at",
+  //       sortable: true,
+  //       filter: "agTextColumnFilter",
+  //       minWidth: 120,
+  //     },
+  //     {
+  //       headerName: "ACTION",
+  //       field: "action",
+  //       sortable: false,
+  //       filter: false,
+  //       minWidth: 80,
+  //       cellRenderer: (params) => (
+  //         <div
+  //           style={{
+  //             display: "flex",
+  //             gap: "8px",
+  //             justifyContent: "center",
+  //             alignItems: "center",
+  //           }}
+  //         >
+  //           <Link to={`/exam/update/${params.data.id}`}>
+  //             <UilEditAlt
+  //               style={{
+  //                 color: "#1230AE",
+  //                 cursor: "pointer",
+  //                 fontSize: "18px",
+  //               }}
+  //             />
+  //           </Link>
+  //           <UilTrashAlt
+  //             onClick={() => handleDelete(params.data.id)}
+  //             style={{ color: "#FF8787", cursor: "pointer", fontSize: "18px" }}
+  //           />
+  //         </div>
+  //       ),
+  //     },
+  //   ],
+  //   [handleDelete]
+  // );
+
+  // AG-Grid column definitions
   const columnDefs = useMemo(
     () => [
       {
@@ -306,10 +354,15 @@ export default function DataTable() {
         sortable: true,
         filter: "agTextColumnFilter",
         minWidth: 100,
-        valueFormatter: (params) =>
-          typeof params.value === "string"
-            ? params.value.toUpperCase()
-            : params.value || "N/A",
+        valueGetter: (params) => {
+          const value = params.data.school_name;
+          if (Array.isArray(value)) {
+            return value.join(", ");
+          } else if (typeof value === "string") {
+            return value;
+          }
+          return "No School";
+        },
       },
       {
         headerName: "CLASS",
@@ -318,7 +371,9 @@ export default function DataTable() {
         filter: "agTextColumnFilter",
         minWidth: 100,
         valueGetter: (params) =>
-          params.data.class_name?.join(", ") || "No Classes",
+          Array.isArray(params.data.class_name)
+            ? params.data.class_name.join(", ")
+            : params.data.class_name || "No Classes",
       },
       {
         headerName: "SUBJECTS",
@@ -327,7 +382,9 @@ export default function DataTable() {
         filter: "agTextColumnFilter",
         minWidth: 100,
         valueGetter: (params) =>
-          params.data.subject_name?.join(", ") || "No Subjects",
+          Array.isArray(params.data.subject_name)
+            ? params.data.subject_name.join(", ")
+            : params.data.subject_name || "No Subjects",
       },
       {
         headerName: "LEVEL",

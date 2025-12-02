@@ -516,7 +516,6 @@
 //                 />
 //               </Grid>
 
-
 //               {/* School Name */}
 //               <Grid item xs={12} sm={6} md={3}>
 //                 <TextField
@@ -1471,8 +1470,6 @@
 //   );
 // }
 
-
-
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -1505,8 +1502,11 @@ import SelectDrop from "./SelectDrop";
 const validationSchema = Yup.object({
   board: Yup.string().required("Board is required"),
   school_email: Yup.string().email("Invalid email format"),
-  school_contact_number: Yup.string()
-    .matches(/^\d{10}$/, "Invalid contact number"),
+  school_name: Yup.string().required("School name is required"),
+  school_contact_number: Yup.string().matches(
+    /^\d{10}$/,
+    "Invalid contact number"
+  ),
   school_landline_number: Yup.string().nullable(),
   school_address: Yup.string()
     .required("School address is required")
@@ -1518,9 +1518,18 @@ const validationSchema = Yup.object({
   pincode: Yup.string()
     .required("Pincode is required")
     .matches(/^[0-9]{6}$/, "Invalid pincode"),
-  principal_name: Yup.string().matches(/^[A-Za-z\s]+$/, "Only letters are allowed"),
-  principal_contact_number: Yup.string().matches(/^\d{10}$/, "Invalid contact number"),
-  principal_whatsapp: Yup.string().matches(/^\d{10}$/, "Invalid WhatsApp number"),
+  principal_name: Yup.string().matches(
+    /^[A-Za-z\s]+$/,
+    "Only letters are allowed"
+  ),
+  principal_contact_number: Yup.string().matches(
+    /^\d{10}$/,
+    "Invalid contact number"
+  ),
+  principal_whatsapp: Yup.string().matches(
+    /^\d{10}$/,
+    "Invalid WhatsApp number"
+  ),
   vice_principal_name: Yup.string()
     .matches(/^[A-Za-z\s]+$/, "Only letters are allowed")
     .nullable(),
@@ -1577,6 +1586,27 @@ export default function SchoolForm() {
   const [filteredCities, setFilteredCities] = useState([]);
   const [classes, setClasses] = useState([]);
 
+  // inside your component
+  const [boardOptions, setBoardOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchBoards = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/affiliated`); // your API endpoint
+        if (Array.isArray(res.data)) {
+          const formatted = res.data.map((item) => ({
+            value: item.id || item.name, // adjust according to API response keys
+            label: item.name,
+          }));
+          setBoardOptions(formatted);
+        }
+      } catch (err) {
+        console.error("Error fetching board data:", err);
+      }
+    };
+    fetchBoards();
+  }, []);
+
   // Retrieve session_id from localStorage
   const session_id = localStorage.getItem("currentSessionId");
 
@@ -1627,7 +1657,7 @@ export default function SchoolForm() {
             title: "Error!",
             text: "No session selected. Please select a session from the header.",
             showConfirmButton: false,
-            timer: 2000,
+            timer: 3000,
             timerProgressBar: true,
             toast: true,
           });
@@ -1674,7 +1704,7 @@ export default function SchoolForm() {
           title: "Success!",
           text: "School created successfully!",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 3000,
           timerProgressBar: true,
           toast: true,
         }).then(() => {
@@ -1688,7 +1718,7 @@ export default function SchoolForm() {
           title: "Error!",
           text: error.response?.data?.error || "An unexpected error occurred.",
           showConfirmButton: false,
-          timer: 2000,
+          timer: 3000,
           timerProgressBar: true,
           toast: true,
         });
@@ -1696,12 +1726,61 @@ export default function SchoolForm() {
     },
   });
 
+  //classes api
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/class`);
+        const formattedClasses = response.data.map((cls) => ({
+          value: cls.name,
+          label: cls.name,
+        }));
+        setClasses(formattedClasses);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load classes. Please try again.",
+          toast: true,
+          position: "top-end",
+          timer: 2000,
+        });
+      }
+    };
+    fetchClasses();
+  }, []);
+
   // Fetch countries, states, districts, cities, and classes
+  // useEffect(() => {
+  //   const fetchCountries = async () => {
+  //     try {
+  //       const response = await axios.get(`${API_BASE_URL}/api/countries/`);
+  //       setCountries(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching countries:", error);
+  //     }
+  //   };
+  //   fetchCountries();
+  // }, []);
+
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/countries/`);
-        setCountries(response.data);
+        const countryData = response.data || [];
+        setCountries(countryData);
+
+        // ✅ Auto-select India if found and no value is already set
+        const india = countryData.find(
+          (c) =>
+            c.country_name?.toLowerCase() === "india" ||
+            c.name?.toLowerCase() === "india"
+        );
+
+        if (india && !formik.values.country) {
+          formik.setFieldValue("country", india.id); // or india.country_id if that's your key
+        }
       } catch (error) {
         console.error("Error fetching countries:", error);
       }
@@ -1743,30 +1822,6 @@ export default function SchoolForm() {
       }
     };
     fetchCities();
-  }, []);
-
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/class`);
-        const formattedClasses = response.data.map((cls) => ({
-          value: cls.name,
-          label: cls.name,
-        }));
-        setClasses(formattedClasses);
-      } catch (error) {
-        console.error("Error fetching classes:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to load classes. Please try again.",
-          toast: true,
-          position: "top-end",
-          timer: 2000,
-        });
-      }
-    };
-    fetchClasses();
   }, []);
 
   useEffect(() => {
@@ -1855,7 +1910,9 @@ export default function SchoolForm() {
                       fontWeight: "bolder",
                     },
                   }}
-                  error={formik.touched.country && Boolean(formik.errors.country)}
+                  error={
+                    formik.touched.country && Boolean(formik.errors.country)
+                  }
                   helperText={formik.touched.country && formik.errors.country}
                   fullWidth
                 />
@@ -1919,7 +1976,9 @@ export default function SchoolForm() {
                       fontWeight: "bolder",
                     },
                   }}
-                  error={formik.touched.district && Boolean(formik.errors.district)}
+                  error={
+                    formik.touched.district && Boolean(formik.errors.district)
+                  }
                   helperText={formik.touched.district && formik.errors.district}
                   fullWidth
                   disabled={!formik.values.state}
@@ -1960,7 +2019,7 @@ export default function SchoolForm() {
               </Grid>
 
               {/* Board Name */}
-              <Grid item xs={12} sm={6} md={2}>
+              {/* <Grid item xs={12} sm={6} md={2}>
                 <SelectDrop
                   label="Board Name"
                   name="board"
@@ -1968,6 +2027,21 @@ export default function SchoolForm() {
                     { value: "CBSE", label: "CBSE" },
                     { value: "ICSE", label: "ICSE" },
                   ]}
+                  value={formik.values.board}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.board && Boolean(formik.errors.board)}
+                  helperText={formik.touched.board && formik.errors.board}
+                  fullWidth
+                />
+              </Grid> */}
+
+              {/* Board Name */}
+              <Grid item xs={12} sm={6} md={2}>
+                <SelectDrop
+                  label="Board Name"
+                  name="board"
+                  options={boardOptions}
                   value={formik.values.board}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -1999,8 +2073,13 @@ export default function SchoolForm() {
                       fontWeight: "bolder",
                     },
                   }}
-                  error={formik.touched.school_name && Boolean(formik.errors.school_name)}
-                  helperText={formik.touched.school_name && formik.errors.school_name}
+                  error={
+                    formik.touched.school_name &&
+                    Boolean(formik.errors.school_name)
+                  }
+                  helperText={
+                    formik.touched.school_name && formik.errors.school_name
+                  }
                   fullWidth
                 />
               </Grid>
@@ -2027,8 +2106,13 @@ export default function SchoolForm() {
                       fontWeight: "bolder",
                     },
                   }}
-                  error={formik.touched.school_email && Boolean(formik.errors.school_email)}
-                  helperText={formik.touched.school_email && formik.errors.school_email}
+                  error={
+                    formik.touched.school_email &&
+                    Boolean(formik.errors.school_email)
+                  }
+                  helperText={
+                    formik.touched.school_email && formik.errors.school_email
+                  }
                   fullWidth
                 />
               </Grid>
@@ -2181,7 +2265,9 @@ export default function SchoolForm() {
                       fontWeight: "bolder",
                     },
                   }}
-                  error={formik.touched.pincode && Boolean(formik.errors.pincode)}
+                  error={
+                    formik.touched.pincode && Boolean(formik.errors.pincode)
+                  }
                   helperText={formik.touched.pincode && formik.errors.pincode}
                   fullWidth
                 />
@@ -2848,8 +2934,12 @@ export default function SchoolForm() {
                       placeholder="Choose classes"
                       variant="outlined"
                       size="small"
-                      error={formik.touched.classes && Boolean(formik.errors.classes)}
-                      helperText={formik.touched.classes && formik.errors.classes}
+                      error={
+                        formik.touched.classes && Boolean(formik.errors.classes)
+                      }
+                      helperText={
+                        formik.touched.classes && formik.errors.classes
+                      }
                       InputProps={{
                         ...params.InputProps,
                         style: {
@@ -2880,7 +2970,9 @@ export default function SchoolForm() {
                     name="status"
                     value={formik.values.status}
                     onChange={formik.handleChange}
-                    error={formik.touched.status && Boolean(formik.errors.status)}
+                    error={
+                      formik.touched.status && Boolean(formik.errors.status)
+                    }
                   >
                     <MenuItem value="active">Active</MenuItem>
                     <MenuItem value="inactive">Inactive</MenuItem>
