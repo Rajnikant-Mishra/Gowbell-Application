@@ -19,13 +19,17 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import Breadcrumb from "../../CommonButton/Breadcrumb";
-import { API_BASE_URL } from "../../ApiConfig/APIConfig";
+import { API_BASE_URL } from "../../ApiConfig/APIConfig";  
 import CreateButton from "../../CommonButton/CreateButton";
+
+
+
+
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);   
   const [totalRecords, setTotalRecords] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -80,11 +84,12 @@ export default function DataTable() {
               limit: pageSize,
               search: searchTerm,
               session_id: sessionId,
+              
             },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
 
         console.log("Exam API response:", examResponse.data);
@@ -108,7 +113,7 @@ export default function DataTable() {
                   headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                   },
-                }
+                },
               );
               const userName = userResponse.data?.username || "Unknown User";
               return {
@@ -121,7 +126,7 @@ export default function DataTable() {
             } catch (userError) {
               console.error(
                 `Failed to fetch user details for created_by: ${record.created_by}`,
-                userError
+                userError,
               );
               return {
                 ...record,
@@ -131,7 +136,7 @@ export default function DataTable() {
                 created_by: "Unknown User",
               };
             }
-          })
+          }),
         );
 
         setRecords(formattedData);
@@ -141,7 +146,7 @@ export default function DataTable() {
         console.error(
           "Error fetching exam data:",
           error.message,
-          error.response
+          error.response,
         );
         Swal.fire({
           position: "top-end",
@@ -242,108 +247,8 @@ export default function DataTable() {
         }
       });
     },
-    [sizeColumnsToFit]
+    [sizeColumnsToFit],
   );
-
-  // AG-Grid column definitions
-  // const columnDefs = useMemo(
-  //   () => [
-  //     {
-  //       headerName: "SCHOOL NAME",
-  //       field: "school_name",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 100,
-  //       valueFormatter: (params) =>
-  //         typeof params.value === "string"
-  //           ? params.value.toUpperCase()
-  //           : params.value || "N/A",
-  //     },
-  //     {
-  //       headerName: "CLASS",
-  //       field: "class_name",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 100,
-  //       valueGetter: (params) =>
-  //         params.data.class_name?.join(", ") || "No Classes",
-  //     },
-  //     {
-  //       headerName: "SUBJECTS",
-  //       field: "subject_name",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 100,
-  //       valueGetter: (params) =>
-  //         params.data.subject_name?.join(", ") || "No Subjects",
-  //     },
-  //     {
-  //       headerName: "LEVEL",
-  //       field: "level",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 80,
-  //       valueFormatter: (params) => params.value || "N/A",
-  //     },
-  //     {
-  //       headerName: "EXAM DATE",
-  //       field: "exam_date",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 120,
-  //     },
-  //     {
-  //       headerName: "CREATED BY",
-  //       field: "created_by",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 100,
-  //       valueFormatter: (params) =>
-  //         params.value
-  //           ? params.value.charAt(0).toUpperCase() + params.value.slice(1)
-  //           : "N/A",
-  //     },
-  //     {
-  //       headerName: "CREATED AT",
-  //       field: "created_at",
-  //       sortable: true,
-  //       filter: "agTextColumnFilter",
-  //       minWidth: 120,
-  //     },
-  //     {
-  //       headerName: "ACTION",
-  //       field: "action",
-  //       sortable: false,
-  //       filter: false,
-  //       minWidth: 80,
-  //       cellRenderer: (params) => (
-  //         <div
-  //           style={{
-  //             display: "flex",
-  //             gap: "8px",
-  //             justifyContent: "center",
-  //             alignItems: "center",
-  //           }}
-  //         >
-  //           <Link to={`/exam/update/${params.data.id}`}>
-  //             <UilEditAlt
-  //               style={{
-  //                 color: "#1230AE",
-  //                 cursor: "pointer",
-  //                 fontSize: "18px",
-  //               }}
-  //             />
-  //           </Link>
-  //           <UilTrashAlt
-  //             onClick={() => handleDelete(params.data.id)}
-  //             style={{ color: "#FF8787", cursor: "pointer", fontSize: "18px" }}
-  //           />
-  //         </div>
-  //       ),
-  //     },
-  //   ],
-  //   [handleDelete]
-  // );
 
   // AG-Grid column definitions
   const columnDefs = useMemo(
@@ -451,7 +356,7 @@ export default function DataTable() {
         ),
       },
     ],
-    [handleDelete]
+    [handleDelete],
   );
 
   const defaultColDef = useMemo(
@@ -462,7 +367,7 @@ export default function DataTable() {
       minWidth: 80,
       flex: 1,
     }),
-    []
+    [],
   );
 
   const onGridReady = useCallback(
@@ -470,7 +375,7 @@ export default function DataTable() {
       gridApiRef.current = params.api;
       sizeColumnsToFit();
     },
-    [sizeColumnsToFit]
+    [sizeColumnsToFit],
   );
 
   const onGridSizeChanged = useCallback(() => {
@@ -721,7 +626,7 @@ export default function DataTable() {
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter(
                     (pg) =>
-                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2
+                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2,
                   )
                   .map((pg, index, array) => (
                     <React.Fragment key={pg}>

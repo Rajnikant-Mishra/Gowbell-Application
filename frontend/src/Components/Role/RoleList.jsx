@@ -2,7 +2,12 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { UilTrashAlt, UilEditAlt, UilAngleRightB, UilAngleLeftB } from "@iconscout/react-unicons";
+import {
+  UilTrashAlt,
+  UilEditAlt,
+  UilAngleRightB,
+  UilAngleLeftB,
+} from "@iconscout/react-unicons";
 import { Link } from "react-router-dom";
 import Mainlayout from "../Layouts/Mainlayout";
 import axios from "axios";
@@ -108,20 +113,19 @@ export default function Role() {
 
   const columnDefs = useMemo(
     () => [
-
       {
         headerName: "ID",
         field: "id",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 100,
+        width: 150,
       },
       {
         headerName: "ROLE NAME",
         field: "role_name",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 150,
+        width: 450,
         valueFormatter: (params) =>
           typeof params.value === "string"
             ? params.value.charAt(0).toUpperCase() + params.value.slice(1)
@@ -132,7 +136,7 @@ export default function Role() {
         field: "permissions",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 150,
+        width: 450,
         valueFormatter: (params) => {
           const perms = params.value || [];
           const permStrings = [];
@@ -146,14 +150,14 @@ export default function Role() {
         field: "created_at",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 180,
+        width: 450,
       },
       {
         headerName: "ACTION",
         field: "action",
         sortable: false,
         filter: false,
-        width: 100,
+        width: 200,
         cellRenderer: (params) => (
           <div
             style={{
@@ -180,7 +184,7 @@ export default function Role() {
         ),
       },
     ],
-    []
+    [],
   );
 
   const defaultColDef = useMemo(
@@ -191,7 +195,7 @@ export default function Role() {
       minWidth: 100,
       suppressFilterResetOnColumnChange: true,
     }),
-    []
+    [],
   );
 
   const onGridReady = (params) => {
@@ -212,8 +216,8 @@ export default function Role() {
         Object.values(row).some(
           (value) =>
             value &&
-            value.toString().toLowerCase().includes(searchValue.toLowerCase())
-        )
+            value.toString().toLowerCase().includes(searchValue.toLowerCase()),
+        ),
       );
       gridApiRef.current.setRowData(filteredData);
       setPage(1);
@@ -359,7 +363,8 @@ export default function Role() {
                       fontSize: "14px",
                     }}
                   >
-                    {records.length} of {page}-{Math.ceil(records.length / pageSize)}
+                    {records.length} of {page}-
+                    {Math.ceil(records.length / pageSize)}
                   </p>
                 </label>
               </div>
@@ -391,13 +396,13 @@ export default function Role() {
                 </button>
                 {Array.from(
                   { length: Math.ceil(records.length / pageSize) },
-                  (_, i) => i + 1
+                  (_, i) => i + 1,
                 )
                   .filter(
                     (pg) =>
                       pg === 1 ||
                       pg === Math.ceil(records.length / pageSize) ||
-                      Math.abs(pg - page) <= 2
+                      Math.abs(pg - page) <= 2,
                   )
                   .map((pg, index, array) => (
                     <React.Fragment key={pg}>

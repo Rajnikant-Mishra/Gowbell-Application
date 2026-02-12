@@ -91,7 +91,7 @@ export default function DataTable() {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/omr/download/by-id/${id}`,
-        { responseType: "blob" }
+        { responseType: "blob" },
       );
 
       const contentDisposition = response.headers["content-disposition"];
@@ -207,7 +207,7 @@ export default function DataTable() {
       {
         headerName: "SCHOOL(S)",
         field: "school_id",
-        width: 200,
+        width: 300,
         valueGetter: (params) => {
           const ids = Array.isArray(params.data.school_id)
             ? params.data.school_id
@@ -239,14 +239,14 @@ export default function DataTable() {
         field: "district",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 120,
+        width: 130,
       },
       {
         headerName: "CITY",
         field: "city",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 120,
+        width: 130,
       },
       {
         headerName: "SUBJECTS",
@@ -374,7 +374,7 @@ export default function DataTable() {
         ),
       },
     ],
-    [handleDelete]
+    [handleDelete],
   );
 
   // Default column definitions
@@ -385,7 +385,7 @@ export default function DataTable() {
       filter: true,
       minWidth: 100,
     }),
-    []
+    [],
   );
 
   // Handle grid ready
@@ -588,7 +588,7 @@ export default function DataTable() {
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter(
                     (pg) =>
-                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2
+                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2,
                   )
                   .map((pg, index, array) => (
                     <React.Fragment key={pg}>

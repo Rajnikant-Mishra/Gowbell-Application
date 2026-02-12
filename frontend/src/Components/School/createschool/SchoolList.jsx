@@ -53,87 +53,6 @@ export default function DataTable() {
   const pageSizes = [10, 20, 50, 100];
 
   // Fetch school data with session_id
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const sessionId = localStorage.getItem("currentSessionId") || null;
-  //       const schoolResponse = await axios.get(
-  //         `${API_BASE_URL}/api/get/schools`,
-  //         {
-  //           params: {
-  //             page,
-  //             limit: pageSize,
-  //             search: searchTerm,
-  //             session_id: sessionId,
-  //           },
-  //         }
-  //       );
-
-  //       const { schools, totalRecords, totalPages } = schoolResponse.data;
-
-  //       const formattedData = await Promise.all(
-  //         schools.map(async (record) => {
-  //           try {
-  //             const userResponse = await axios.get(
-  //               `${API_BASE_URL}/api/u1/users/${record.created_by}`
-  //             );
-  //             const { username, role } = userResponse.data;
-
-  //             let roleName = "Unknown Role";
-  //             try {
-  //               const roleResponse = await axios.get(
-  //                 `${API_BASE_URL}/api/r1/role/${role}`
-  //               );
-  //               roleName = roleResponse.data.role_name || "Unknown Role";
-  //             } catch (roleError) {
-  //               console.error(
-  //                 `Failed to fetch role name for role ID: ${role}`,
-  //                 roleError
-  //               );
-  //             }
-
-  //             return {
-  //               ...record,
-  //               created_by: `${username} (${roleName})`,
-  //               updated_by: `${username} (${roleName})`,
-  //             };
-  //           } catch (userError) {
-  //             console.error(
-  //               `Failed to fetch user details for created_by: ${record.created_by}`,
-  //               userError
-  //             );
-  //             return {
-  //               ...record,
-  //               created_by: "Unknown User (Unknown Role)",
-  //               updated_by: "Unknown User (Unknown Role)",
-  //             };
-  //           }
-  //         })
-  //       );
-
-  //       setRecords(formattedData);
-  //       setTotalRecords(totalRecords);
-  //       setTotalPages(totalPages);
-  //     } catch (error) {
-  //       Swal.fire({
-  //         position: "top-end",
-  //         icon: "error",
-  //         title: "Error!",
-  //         text: error.response?.data?.error || "Failed to fetch school data.",
-  //         showConfirmButton: false,
-  //         timer: 2000,
-  //         toast: true,
-  //       });
-  //     }
-  //   };
-
-  //   const debounceTimeout = setTimeout(() => {
-  //     fetchData();
-  //   }, 500);
-
-  //   return () => clearTimeout(debounceTimeout);
-  // }, [page, pageSize, searchTerm]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -626,11 +545,11 @@ export default function DataTable() {
       "board",
       "school_name",
       "school_address",
-      "pincode",
-      "country",
-      "state",
-      "district",
       "city",
+      "district",
+      "state",
+      "country",
+      "pincode",
       "school_email",
       "principal_name",
       "principal_contact_number",
@@ -649,8 +568,6 @@ export default function DataTable() {
       "second_incharge_name",
       "second_incharge_number",
       "second_incharge_whatsapp",
-      "junior_student_strength",
-      "senior_student_strength",
       "classes",
     ];
     const rows = [
@@ -658,11 +575,11 @@ export default function DataTable() {
         "CBSE",
         "ABC School",
         "BBSR Tankapani",
-        "411001",
-        "India",
-        "Odisha",
-        "Cuttack",
         "Aliabad",
+        "Cuttack",
+        "Odisha",
+        "India",
+        "411001",
         "abc@example.com",
         "Dr. Anil Kumar",
         "7991048546",
@@ -681,8 +598,6 @@ export default function DataTable() {
         "srikant",
         "9898789078",
         "9898789078",
-        "400",
-        "500",
         "1",
       ],
     ];
@@ -1045,6 +960,7 @@ export default function DataTable() {
           </div>
         </div>
       </div>
+
       <div
         style={{
           background: "white",
@@ -1064,7 +980,7 @@ export default function DataTable() {
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Search schools..."
+            placeholder="Search by school name, email, mobile, school code..."
             style={{
               padding: "8px",
               width: "400px",
@@ -1239,7 +1155,7 @@ export default function DataTable() {
                       borderLeft: "none",
                     }}
                   >
-                    {row.country_name || ""}
+                    {row.country_name?.toUpperCase() || ""}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -1249,7 +1165,7 @@ export default function DataTable() {
                       borderLeft: "none",
                     }}
                   >
-                    {row.state_name || ""}
+                    {row.state_name?.toUpperCase() || ""}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -1259,7 +1175,7 @@ export default function DataTable() {
                       borderLeft: "none",
                     }}
                   >
-                    {row.district_name || ""}
+                    {row.district_name?.toUpperCase() || ""}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -1269,7 +1185,7 @@ export default function DataTable() {
                       borderLeft: "none",
                     }}
                   >
-                    {row.city_name || ""}
+                    {row.city_name?.toUpperCase() || ""}
                   </TableCell>
                   <TableCell
                     sx={{

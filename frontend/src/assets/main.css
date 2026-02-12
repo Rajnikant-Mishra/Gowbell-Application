@@ -15,3 +15,13 @@ span.ag-header-cell-text {
 }
 
 
+/* //for table right line or bottm line css */
+
+.ag-theme-alpine .ag-cell,
+.ag-theme-alpine .ag-header-cell {
+  border-right: 1px solid #e0e0e0 !important; /* vertical line */
+}
+
+.ag-theme-alpine .ag-row {
+  border-bottom: 1px solid #e0e0e0 !important; /* horizontal line */
+}

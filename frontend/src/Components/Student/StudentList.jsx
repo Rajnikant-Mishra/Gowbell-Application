@@ -1,29 +1,43 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import React, { useEffect, useState } from "react";
 import {
   UilTrashAlt,
   UilEditAlt,
   UilAngleRightB,
   UilAngleLeftB,
+  UilSearch,
+  UilTimes,
   UilDownloadAlt,
   UilInfoCircle,
 } from "@iconscout/react-unicons";
-import { Menu, MenuItem } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Checkbox,
+  Menu,
+  MenuItem,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+  IconButton,
+} from "@mui/material";
 import Mainlayout from "../Layouts/Mainlayout";
+import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
+import CreateButton from "../../Components/CommonButton/CreateButton";
+import excelImg from "../../../public/excell-img.png";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
-import Breadcrumb from "../../Components/CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../ApiConfig/APIConfig";
-import CreateButton from "../../Components/CommonButton/CreateButton";
-import excelImg from "../../../public/excell-img.png";
 import Papa from "papaparse";
 import "../Common-Css/DeleteSwal.css";
 import "../Common-Css/Swallfire.css";
 
-export default function DataTable() {
+export default function StudentDataTable() {
   const [students, setStudents] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -32,12 +46,12 @@ export default function DataTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isAllChecked, setIsAllChecked] = useState(false);
   const [checkedRows, setCheckedRows] = useState({});
-  const open = Boolean(anchorEl);
+  const [isAllChecked, setIsAllChecked] = useState(false);
+
   const navigate = useNavigate();
-  const gridApiRef = useRef(null);
   const pageSizes = [10, 20, 50, 100];
 
   // Format timestamp for display
@@ -58,113 +72,75 @@ export default function DataTable() {
     const fetchData = async () => {
       setLoading(true);
       setSearchLoading(true);
+
       try {
         const sessionId = localStorage.getItem("currentSessionId") || null;
-        const response = await axios.get(`${API_BASE_URL}/api/get/student`, {
-          params: {
-            page,
-            limit: pageSize,
-            search: searchTerm,
-            session_id: sessionId,
+
+        // 1️⃣ Fetch all students (with search & pagination)
+        const studentResponse = await axios.get(
+          `${API_BASE_URL}/api/get/student`,
+          {
+            params: {
+              page,
+              limit: pageSize,
+              search: searchTerm,
+              session_id: sessionId,
+            },
           },
+        );
+
+        const { students, totalRecords, totalPages } = studentResponse.data;
+
+        // 2️⃣ Fetch all users (created_by / updated_by) once
+        const usersResponse = await axios.get(`${API_BASE_URL}/api/u1/users`);
+        const usersMap = {};
+        usersResponse.data.forEach((u) => {
+          usersMap[u.id] = u.username;
         });
 
-        const { students, totalRecords, totalPages } = response.data;
+        // 3️⃣ Fetch all classes once
+        const classesResponse = await axios.get(`${API_BASE_URL}/api/class`);
+        const classesMap = {};
+        classesResponse.data.forEach((c) => {
+          classesMap[c.id] = c.name;
+        });
 
-        // Fetch user, class, and subject details for each student
-        const formattedData = await Promise.all(
-          students.map(async (record) => {
-            try {
-              // Fetch user details for created_by
-              const userResponse = await axios.get(
-                `${API_BASE_URL}/api/u1/users/${record.created_by}`
-              );
-              const userName = userResponse.data.username;
+        // 4️⃣ Fetch all subjects once
+        const subjectsResponse = await axios.get(`${API_BASE_URL}/api/subject`);
+        const subjectsMap = {};
+        subjectsResponse.data.forEach((subj) => {
+          subjectsMap[subj.id] = subj.name;
+        });
 
-              // Fetch class details
-              let className = "Unknown Class";
-              if (record.class_id) {
-                try {
-                  const classResponse = await axios.get(
-                    `${API_BASE_URL}/api/class/${record.class_id}`
-                  );
-                  className = classResponse.data.name || "Unknown Class";
-                } catch (error) {
-                  console.error(
-                    `Failed to fetch class details for class_id: ${record.class_id}`,
-                    error
-                  );
-                }
-              }
-
-              // Fetch subject details
-              let subjectNames = ["Unknown Subject"];
-              try {
-                let subjectIds = [];
-                if (typeof record.student_subject === "string") {
-                  try {
-                    subjectIds = JSON.parse(record.student_subject || "[]");
-                  } catch (e) {
-                    console.error(
-                      `Invalid JSON for student_subject: ${record.student_subject}`,
-                      e
-                    );
-                  }
-                } else if (Array.isArray(record.student_subject)) {
-                  subjectIds = record.student_subject;
-                }
-
-                if (subjectIds.length > 0) {
-                  subjectNames = await Promise.all(
-                    subjectIds.map(async (subjectId) => {
-                      try {
-                        const subjectResponse = await axios.get(
-                          `${API_BASE_URL}/api/subject/${subjectId}`
-                        );
-                        return subjectResponse.data.name || "Unknown Subject";
-                      } catch (error) {
-                        console.error(
-                          `Failed to fetch subject details for subject_id: ${subjectId}`,
-                          error
-                        );
-                        return "Unknown Subject";
-                      }
-                    })
-                  );
-                }
-              } catch (error) {
-                console.error(
-                  `Error processing student_subject for record: ${record.id}`,
-                  error
-                );
-              }
-
-              return {
-                ...record,
-                student_subject: subjectNames,
-                class_name: className,
-                created_by: userName,
-                updated_by: userName,
-                created_at: formatTimestamp(record.created_at),
-                updated_at: formatTimestamp(record.updated_at),
-              };
-            } catch (error) {
-              console.error(
-                `Failed to fetch user details for created_by: ${record.created_by}`,
-                error
-              );
-              return {
-                ...record,
-                student_subject: ["Unknown Subject"],
-                class_name: "Unknown Class",
-                created_by: "Unknown User",
-                updated_by: "Unknown User",
-                created_at: formatTimestamp(record.created_at),
-                updated_at: formatTimestamp(record.updated_at),
-              };
+        // 5️⃣ Map student data with user/class/subject info
+        const formattedData = students.map((record) => {
+          // Map subjects
+          let subjectNames = [];
+          try {
+            let subjectIds = [];
+            if (typeof record.student_subject === "string") {
+              subjectIds = JSON.parse(record.student_subject || "[]");
+            } else if (Array.isArray(record.student_subject)) {
+              subjectIds = record.student_subject;
             }
-          })
-        );
+
+            subjectNames = subjectIds.map(
+              (id) => subjectsMap[id] || "Unknown Subject",
+            );
+          } catch (e) {
+            subjectNames = ["Unknown Subject"];
+          }
+
+          return {
+            ...record,
+            student_subject: subjectNames,
+            class_name: classesMap[record.class_id] || "Unknown Class",
+            created_by: usersMap[record.created_by] || "Unknown User",
+            updated_by: usersMap[record.updated_by] || "Unknown User",
+            created_at: formatTimestamp(record.created_at),
+            updated_at: formatTimestamp(record.updated_at),
+          };
+        });
 
         setStudents(formattedData);
         setTotalRecords(totalRecords);
@@ -188,7 +164,7 @@ export default function DataTable() {
 
     const debounceTimeout = setTimeout(() => {
       fetchData();
-    }, 500);
+    }, 500); // debounce 500ms
 
     return () => clearTimeout(debounceTimeout);
   }, [page, pageSize, searchTerm]);
@@ -342,336 +318,6 @@ export default function DataTable() {
     return className;
   };
 
-  // const parseCSVData = (csvFile) => {
-  //   Papa.parse(csvFile, {
-  //     complete: (result) => {
-  //       if (!Array.isArray(result.data) || result.data.length === 0) {
-  //         Swal.fire({
-  //           position: "top-end",
-  //           icon: "warning",
-  //           title: "Invalid File",
-  //           text: "CSV file is empty or invalid.",
-  //           showConfirmButton: false,
-  //           timer: 2000,
-  //           toast: true,
-  //         });
-  //         return;
-  //       }
-
-  //       const sessionId = localStorage.getItem("currentSessionId") || null;
-  //       const validationErrors = [];
-  //       const students = result.data
-  //         .filter((row, index) => {
-  //           const schoolName = row.school_id?.trim();
-  //           const studentName = row.student_name?.trim();
-  //           const className = row.class_id?.trim();
-  //           // Validate Aadhaar number: either empty or exactly 12 digits
-  //           const aadhaar = row.aadhaar_number?.trim();
-  //           if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
-  //             validationErrors.push(
-  //               `Student at Row ${
-  //                 index + 2
-  //               }: Aadhaar number must be exactly 12 digits`
-  //             );
-  //             return false; // Exclude invalid rows
-  //           }
-  //           return schoolName && studentName && className;
-  //         })
-  //         .map((row) => ({
-  //           school_id: row.school_id?.trim() || "",
-  //           student_name: row.student_name?.trim() || "",
-  //           class_id: formatClassName(row.class_id?.trim() || ""),
-  //           student_section: row.student_section?.trim() || null,
-  //           mobile_number: row.mobile_number?.trim() || null,
-  //           whatsapp_number: row.whatsapp_number?.trim() || null,
-  //           aadhaar_number: row.aadhaar_number?.trim() || null,
-  //           student_subject: row.student_subject
-  //             ? row.student_subject
-  //                 .split(",")
-  //                 .map((s) => s.trim())
-  //                 .filter((s) => s)
-  //             : [],
-  //           country: row.country?.trim() || "",
-  //           state: row.state?.trim() || "",
-  //           district: row.district?.trim() || "",
-  //           city: row.city?.trim() || "",
-  //           approved: row.approved
-  //             ? row.approved.trim().toLowerCase() === "true"
-  //             : false,
-  //           approved_by: row.approved_by?.trim() || null,
-  //           session_id: sessionId,
-  //         }));
-
-  //       if (validationErrors.length > 0) {
-  //         Swal.fire({
-  //           position: "top-end",
-  //           icon: "error",
-  //           title: "Validation Failed",
-  //           text: validationErrors.join("\n"),
-  //           showConfirmButton: true,
-  //           toast: false,
-  //           customClass: { popup: "small-swal" },
-  //           width: "auto",
-  //           whiteSpace: "pre-wrap",
-  //         });
-  //         return;
-  //       }
-
-  //       if (students.length === 0) {
-  //         Swal.fire({
-  //           position: "top-end",
-  //           icon: "warning",
-  //           title: "Invalid Data",
-  //           text: "No valid student records found in the CSV file. Ensure school_name, student_name, and class_name are non-empty, and Aadhaar numbers are either empty or 12 digits.",
-  //           showConfirmButton: false,
-  //           timer: 3000,
-  //           toast: true,
-  //         });
-  //         return;
-  //       }
-
-  //       uploadStudentsData(students);
-  //     },
-  //     header: true,
-  //     skipEmptyLines: true,
-  //   });
-  // };
-
-  const parseCSVData = (csvText) => {
-    Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        const rows = result.data;
-        if (rows.length === 0) {
-          Swal.fire("Empty File", "No data found in CSV.", "warning");
-          return;
-        }
-
-        const sessionId = localStorage.getItem("currentSessionId");
-        const errors = [];
-        const validStudents = [];
-
-        rows.forEach((row, idx) => {
-          const rowNum = idx + 2; // Excel row number
-
-          // Required fields
-          if (
-            !row.school_id?.trim() ||
-            !row.student_name?.trim() ||
-            !row.class_id?.trim()
-          ) {
-            errors.push(
-              `Row ${rowNum}: Missing school_id, student_name or class_id`
-            );
-            return;
-          }
-
-          // Aadhaar validation
-          const aadhaar = row.aadhaar_number?.trim();
-          if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
-            errors.push(`Row ${rowNum}: Aadhaar must be exactly 12 digits`);
-          }
-
-          validStudents.push({
-            school_id: row.school_id.trim(),
-            student_name: row.student_name.trim(),
-            class_id: formatClassName(row.class_id.trim()),
-            student_section: row.student_section?.trim() || null,
-            roll_no: row.roll_no?.trim() || null, // ← This is the key!
-            mobile_number: row.mobile_number?.trim() || null,
-            whatsapp_number: row.whatsapp_number?.trim() || null,
-            aadhaar_number: aadhaar || null,
-            student_subject: row.student_subject
-              ? row.student_subject
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : [],
-            country: row.country?.trim() || "",
-            state: row.state?.trim() || "",
-            district: row.district?.trim() || "",
-            city: row.city?.trim() || "",
-            session_id: sessionId,
-          });
-        });
-
-        if (errors.length > 0) {
-          Swal.fire({
-            icon: "error",
-            title: "Invalid Data",
-            html: errors.map((e) => `<div>• ${e}</div>`).join(""),
-            width: 600,
-          });
-          return;
-        }
-
-        uploadStudentsData(validStudents);
-      },
-    });
-  };
-
-  // const uploadStudentsData = async (students) => {
-  //   if (!Array.isArray(students) || students.length === 0) {
-  //     Swal.fire({
-  //       position: "top-end",
-  //       icon: "error",
-  //       title: "Error",
-  //       text: "No student data to upload.",
-  //       showConfirmButton: false,
-  //       timer: 2000,
-  //       toast: true,
-  //     });
-  //     return;
-  //   }
-
-  //   const requiredFields = [
-  //     "school_id",
-  //     "class_id",
-  //     "student_section",
-  //     "student_name",
-  //     "session_id",
-  //   ];
-
-  //   // === Local Validation ===
-  //   const validationErrors = students.reduce((acc, student, index) => {
-  //     const missingFields = requiredFields.filter(
-  //       (field) => student[field] == null || student[field] === ""
-  //     );
-  //     if (missingFields.length > 0) {
-  //       acc.push(
-  //         `Row ${index + 2}: Missing required fields - ${missingFields.join(
-  //           ", "
-  //         )}`
-  //       );
-  //     }
-  //     return acc;
-  //   }, []);
-
-  //   if (validationErrors.length > 0) {
-  //     Swal.fire({
-  //       position: "top-end",
-  //       icon: "error",
-  //       title: "Validation Failed",
-  //       html: validationErrors.join("<br>"),
-  //       showConfirmButton: true,
-  //       customClass: { popup: "small-swal" },
-  //       width: "auto",
-  //     });
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       throw new Error("Unauthorized. Please log in again.");
-  //     }
-
-  //     const CHUNK_SIZE = 100; // ✅ you can adjust (e.g., 200)
-  //     const totalChunks = Math.ceil(students.length / CHUNK_SIZE);
-  //     let totalInserted = 0;
-  //     let allErrors = [];
-
-  //     for (let i = 0; i < students.length; i += CHUNK_SIZE) {
-  //       const chunk = students.slice(i, i + CHUNK_SIZE);
-
-  //       try {
-  //         const response = await axios.post(
-  //           `${API_BASE_URL}/api/get/student/bulk-upload`,
-  //           chunk,
-  //           { headers: { Authorization: `Bearer ${token}` } }
-  //         );
-
-  //         totalInserted += response.data.insertedCount || 0;
-
-  //         if (response.data.errors?.length) {
-  //           allErrors.push(...response.data.errors);
-  //         }
-
-  //         console.log(`Chunk ${i / CHUNK_SIZE + 1}/${totalChunks} uploaded`);
-  //       } catch (chunkError) {
-  //         console.error(`Chunk ${i / CHUNK_SIZE + 1} failed:`, chunkError);
-
-  //         const { message, errors } = chunkError.response?.data || {};
-  //         if (Array.isArray(errors)) {
-  //           allErrors.push(...errors);
-  //         } else {
-  //           allErrors.push({
-  //             rowIndex: null,
-  //             message: message || "Unknown chunk upload error",
-  //           });
-  //         }
-  //       }
-  //     }
-
-  //     // === After all chunks ===
-  //     Swal.fire({
-  //       position: "top-end",
-  //       icon: "success",
-  //       title: "Upload Completed",
-  //       text: `Successfully uploaded ${totalInserted} students.`,
-  //       showConfirmButton: false,
-  //       timer: 2000,
-  //       toast: true,
-  //       background: "#fff",
-  //       customClass: { popup: "small-swal" },
-  //     });
-
-  //     if (allErrors.length > 0) {
-  //       const formattedErrors = allErrors
-  //         .map((e) => `Row ${e.rowIndex ?? "?"}: ${e.message}`)
-  //         .join("<br>");
-
-  //       Swal.fire({
-  //         position: "top-end",
-  //         icon: "warning",
-  //         title: "Some Records Failed",
-  //         html: `<div style="text-align:left;white-space:pre-wrap;">${formattedErrors}</div>`,
-  //         showConfirmButton: true,
-  //         customClass: { popup: "small-swal" },
-  //         width: "auto",
-  //       });
-  //     } else {
-  //       window.location.reload();
-  //     }
-  //   } catch (error) {
-  //     console.error("Upload Error:", error);
-
-  //     let errorTitle = "Upload Failed";
-  //     let errorMessage = "An error occurred while uploading students.";
-
-  //     if (error.response?.data) {
-  //       const { message, errors } = error.response.data;
-
-  //       if (Array.isArray(errors) && errors.length > 0) {
-  //         const formattedErrors = errors
-  //           .map((e) => `Row ${e.rowIndex ?? "?"}: ${e.message}`)
-  //           .join("<br>");
-  //         errorMessage = formattedErrors;
-  //       } else if (message) {
-  //         errorMessage = message;
-  //       }
-  //     } else if (error.message.includes("Unauthorized")) {
-  //       errorTitle = "Authentication Error";
-  //       errorMessage = "Session expired. Please log in again.";
-  //     }
-
-  //     Swal.fire({
-  //       position: "top-end",
-  //       icon: "error",
-  //       title: errorTitle,
-  //       html: `<div style="text-align:left;white-space:pre-wrap;">${errorMessage}</div>`,
-  //       showConfirmButton: true,
-  //       customClass: { popup: "small-swal" },
-  //       width: "auto",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const uploadStudentsData = async (students) => {
     const token = localStorage.getItem("token");
     const CHUNK_SIZE = 100;
@@ -688,7 +334,7 @@ export default function DataTable() {
           const res = await axios.post(
             `${API_BASE_URL}/api/get/student/bulk-upload`,
             chunk,
-            { headers: { Authorization: `Bearer ${token}` } }
+            { headers: { Authorization: `Bearer ${token}` } },
           );
 
           totalInserted += res.data.insertedCount || 0;
@@ -750,57 +396,216 @@ export default function DataTable() {
       Swal.fire(
         "Upload Failed",
         "Something went wrong. Please try again.",
-        "error"
+        "error",
       );
     } finally {
       setLoading(false);
     }
   };
 
+  // const parseCSVData = (csvText) => {
+  //   Papa.parse(csvText, {
+  //     header: true,
+  //     skipEmptyLines: true,
+  //     complete: (result) => {
+  //       const rows = result.data;
+  //       if (rows.length === 0) {
+  //         Swal.fire("Empty File", "No data found in CSV.", "warning");
+  //         return;
+  //       }
+
+  //       const sessionId = localStorage.getItem("currentSessionId");
+  //       const errors = [];
+  //       const validStudents = [];
+
+  //       rows.forEach((row, idx) => {
+  //         const rowNum = idx + 2; // Excel row number
+
+  //         // Required fields
+  //         if (
+  //           !row.school_id?.trim() ||
+  //           !row.student_name?.trim() ||
+  //           !row.class_id?.trim()
+  //         ) {
+  //           errors.push(
+  //             `Row ${rowNum}: Missing school_id, student_name or class_id`,
+  //           );
+  //           return;
+  //         }
+
+  //         // Aadhaar validation
+  //         const aadhaar = row.aadhaar_number?.trim();
+  //         if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
+  //           errors.push(`Row ${rowNum}: Aadhaar must be exactly 12 digits`);
+  //         }
+
+  //         validStudents.push({
+  //           school_id: row.school_id.trim(),
+  //           student_name: row.student_name.trim(),
+  //           class_id: formatClassName(row.class_id.trim()),
+  //           student_section: row.student_section?.trim() || null,
+  //           roll_no: row.roll_no?.trim() || null, // ← This is the key!
+  //           mobile_number: row.mobile_number?.trim() || null,
+  //           whatsapp_number: row.whatsapp_number?.trim() || null,
+  //           aadhaar_number: aadhaar || null,
+  //           student_subject: row.student_subject
+  //             ? row.student_subject
+  //                 .split(",")
+  //                 .map((s) => s.trim())
+  //                 .filter(Boolean)
+  //             : [],
+  //           country: row.country?.trim() || "",
+  //           state: row.state?.trim() || "",
+  //           district: row.district?.trim() || "",
+  //           city: row.city?.trim() || "",
+  //           session_id: sessionId,
+  //         });
+  //       });
+
+  //       if (errors.length > 0) {
+  //         Swal.fire({
+  //           icon: "error",
+  //           title: "Invalid Data",
+  //           html: errors.map((e) => `<div>• ${e}</div>`).join(""),
+  //           width: 600,
+  //         });
+  //         return;
+  //       }
+
+  //       uploadStudentsData(validStudents);
+  //     },
+  //   });
+  // };
+
+  // 2. Change parsing logic (in parseCSVData)
+
+  const parseCSVData = (csvText) => {
+    Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const rows = result.data;
+        if (rows.length === 0) {
+          Swal.fire("Empty File", "No data found in CSV.", "warning");
+          return;
+        }
+
+        const sessionId = localStorage.getItem("currentSessionId");
+        const errors = [];
+        const validStudents = [];
+
+        rows.forEach((row, idx) => {
+          const rowNum = idx + 2;
+
+          // Required fields check...
+          if (
+            !row.school_id?.trim() ||
+            !row.student_name?.trim() ||
+            !row.class_id?.trim()
+          ) {
+            errors.push(
+              `Row ${rowNum}: Missing school_id, student_name or class_id`,
+            );
+            return;
+          }
+
+          // Collect subjects dynamically
+          const subjectKeys = Object.keys(row).filter((key) =>
+            key.startsWith("subject_"),
+          );
+          const subjects = subjectKeys
+            .map((key) => row[key]?.trim())
+            .filter(Boolean); // remove empty
+
+          // Remove duplicate subjects (optional)
+          const uniqueSubjects = [...new Set(subjects)];
+
+          validStudents.push({
+            school_id: row.school_id.trim(),
+            student_name: row.student_name.trim(),
+            class_id: formatClassName(row.class_id.trim()),
+            student_section: row.student_section?.trim() || null,
+            roll_no: row.roll_no?.trim() || null,
+            mobile_number: row.mobile_number?.trim() || null,
+            whatsapp_number: row.whatsapp_number?.trim() || null,
+            aadhaar_number: row.aadhaar_number?.trim() || null,
+
+            // ← This is the most important change
+            student_subject: uniqueSubjects, // array of strings
+
+            country: row.country?.trim() || "",
+            state: row.state?.trim() || "",
+            district: row.district?.trim() || "",
+            city: row.city?.trim() || "",
+            session_id: sessionId,
+          });
+        });
+
+        if (errors.length > 0) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Data",
+            html: errors.map((e) => `<div>• ${e}</div>`).join(""),
+            width: 600,
+          });
+          return;
+        }
+
+        uploadStudentsData(validStudents);
+      },
+    });
+  };
+
   // const handleDownloadClick = () => {
-  //   const sessionId = localStorage.getItem("currentSessionId") || "";
   //   const headers = [
   //     "school_id",
   //     "student_name",
   //     "class_id",
   //     "student_section",
+  //     "roll_no", // ← Manual roll number (optional)
   //     "mobile_number",
   //     "whatsapp_number",
   //     "aadhaar_number",
   //     "student_subject",
-  //     "country",
-  //     "state",
-  //     "district",
   //     "city",
+  //     "district",
+  //     "state",
+  //     "country",
   //   ];
-  //   const rows = [
+
+  //   const sampleData = [
+  //     // Example with manual roll_no
   //     [
-  //       "ABC School",
-  //       "Alice Johnson",
-  //       "01",
+  //       "Gowell School",
+  //       "Amit Kumar",
+  //       "10",
   //       "A",
-  //       "1234567890",
-  //       "1234567890",
-  //       "123456789012",
+  //       "GWL10A01",
+  //       "9876543210",
+  //       "9876543210",
+  //       "111122223333",
   //       "GIMO",
-  //       "India",
-  //       "Odisha",
   //       "Cuttack",
-  //       "Aliabad",
+  //       "Cuttack",
+  //       "Odisha",
+  //       "India",
   //     ],
   //   ];
 
   //   const csvContent = [
   //     headers.join(","),
-  //     ...rows.map((row) => row.join(",")),
+  //     ...sampleData.map((row) => row.join(",")),
   //   ].join("\n");
+
   //   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   //   const link = document.createElement("a");
   //   link.href = URL.createObjectURL(blob);
-  //   link.download = "studentdata.csv";
+  //   link.download = "student_bulk_upload_template.csv";
   //   link.click();
-  //   handleClose();
+  //   handleClose(); // close menu
   // };
+
+  // 1. Download sample - change headers & sample data
 
   const handleDownloadClick = () => {
     const headers = [
@@ -808,39 +613,48 @@ export default function DataTable() {
       "student_name",
       "class_id",
       "student_section",
-      "roll_no", // ← Manual roll number (optional)
       "mobile_number",
       "whatsapp_number",
       "aadhaar_number",
-      "student_subject",
-      "country",
-      "state",
-      "district",
+      "subject_1",
+      "subject_2",
+      "subject_3",
+      "subject_4",
+      "subject_5",
+      "subject_6",
+      "subject_7",
       "city",
+      "district",
+      "state",
+      "country",
     ];
 
     const sampleData = [
-      // Example with manual roll_no
       [
         "Gowell School",
         "Amit Kumar",
         "10",
         "A",
-        "GWL10A01",
         "9876543210",
         "9876543210",
         "111122223333",
         "GIMO",
-        "India",
+        "GISO",
+        "GIEO",
+        "GIDO",
+        "GIKO",
+        "JTDO",  
+        "CYWO",
+        "Cuttack",
+        "Cuttack",
         "Odisha",
-        "Cuttack",
-        "Cuttack",
+        "India",
       ],
     ];
 
     const csvContent = [
       headers.join(","),
-      ...sampleData.map((row) => row.join(",")),
+      ...sampleData.map((row) => row.map((v) => `"${v}"`).join(",")), // better escaping
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -848,154 +662,7 @@ export default function DataTable() {
     link.href = URL.createObjectURL(blob);
     link.download = "student_bulk_upload_template.csv";
     link.click();
-    handleClose(); // close menu
-  };
-
-  // AG-Grid column definitions
-  const columnDefs = useMemo(
-    () => [
-      {
-        headerName: "SCHOOL",
-        field: "school_name",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-        valueFormatter: (params) => params.value?.toUpperCase() || "",
-      },
-      {
-        headerName: "STUDENT",
-        field: "student_name",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-        valueFormatter: (params) => params.value?.toUpperCase() || "",
-      },
-      {
-        headerName: "ROLL NUMBER",
-        field: "roll_no",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 120,
-      },
-      {
-        headerName: "CLASS",
-        field: "class_name",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 120,
-      },
-      {
-        headerName: "SECTION",
-        field: "student_section",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 100,
-      },
-      {
-        headerName: "MOBILE NUMBER",
-        field: "mobile_number",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 130,
-      },
-      {
-        headerName: "SUBJECT",
-        field: "student_subject",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-        valueFormatter: (params) =>
-          Array.isArray(params.value) ? params.value.join(", ") : "",
-      },
-      {
-        headerName: "CREATED BY",
-        field: "created_by",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 120,
-      },
-      {
-        headerName: "UPDATED BY",
-        field: "updated_by",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 120,
-      },
-      {
-        headerName: "CREATED AT",
-        field: "created_at",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-      },
-      {
-        headerName: "UPDATED AT",
-        field: "updated_at",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-      },
-      {
-        headerName: "ACTION",
-        field: "action",
-        sortable: false,
-        filter: false,
-        width: 100,
-        cellRenderer: (params) => (
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Link to={`/student/update/${params.data.id}`}>
-              <UilEditAlt
-                style={{
-                  color: "#1230AE",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                }}
-              />
-            </Link>
-            <UilTrashAlt
-              onClick={() => handleDelete(params.data.id)}
-              style={{ color: "#FF8787", cursor: "pointer", fontSize: "18px" }}
-            />
-          </div>
-        ),
-      },
-    ],
-    [handleDelete]
-  );
-
-  const defaultColDef = useMemo(
-    () => ({
-      resizable: true,
-      filter: "agTextColumnFilter",
-      sortable: true,
-      minWidth: 100,
-    }),
-    []
-  );
-
-  const onGridReady = (params) => {
-    gridApiRef.current = params.api;
-    params.api.autoSizeAllColumns();
-  };
-
-  const onFilterChanged = (params) => {
-    if (gridApiRef.current) {
-      const filterModel = gridApiRef.current.getFilterModel();
-      const searchValue = Object.values(filterModel)
-        .map((filter) => filter.filter)
-        .filter((value) => value && value.trim() !== "")
-        .join(" ")
-        .trim();
-      setSearchTerm(searchValue);
-      setPage(1);
-    }
+    handleClose();
   };
 
   const handlePreviousPage = () => {
@@ -1006,14 +673,11 @@ export default function DataTable() {
     if (page < totalPages) setPage(page + 1);
   };
 
-  const customTheme = {
-    "--ag-font-size": "14px",
-    "--ag-row-height": "40px",
-    "--ag-header-background-color": "#1230AE",
-    "--ag-header-foreground-color": "#FFFFFF",
-    "--ag-grid-size": "6px",
-    "--ag-cell-horizontal-padding": "8px",
-    fontFamily: "'Poppins', sans-serif",
+  // ── Render ──────────────────────────────────────────────────
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPage(1);
   };
 
   return (
@@ -1062,7 +726,7 @@ export default function DataTable() {
               />
               Bulk Action
             </div>
-            <Menu
+            {/* <Menu
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
@@ -1151,6 +815,122 @@ export default function DataTable() {
                   </ol>
                 </div>
               </div>
+            </Menu> */}
+
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              PaperProps={{
+                sx: {
+                  borderRadius: "10px",
+                  boxShadow: "0 6px 25px rgba(0,0,0,0.18)",
+                  minWidth: 280,
+                  overflow: "hidden",
+                },
+              }}
+            >
+              <div
+                style={{
+                  padding: "16px 18px",
+                  fontFamily: '"Poppins", sans-serif',
+                  background: "#fff",
+                }}
+              >
+                {/* Buttons Row */}
+                <div
+                  style={{ display: "flex", gap: "12px", marginBottom: "10px" }}
+                >
+                  {/* Upload Button */}
+                  <button
+                    type="button"
+                    style={{
+                      fontSize: "13px",
+                      backgroundColor: "#4A4545",
+                      color: "white",
+                      fontWeight: "500",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "4px",
+                    }}
+                    onClick={handleUploadClick}
+                  >
+                    <img
+                      src={excelImg}
+                      alt="Upload"
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        marginRight: "8px",
+                      }}
+                    />
+                    Upload Excel
+                  </button>
+                  <button
+                    type="button"
+                    style={{
+                      fontSize: "13px",
+                      backgroundColor: "#28A745",
+                      color: "white",
+                      fontWeight: "500",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "4px",
+                    }}
+                    onClick={handleDownloadClick}
+                  >
+                    <UilDownloadAlt /> Download Sample File
+                  </button>
+                </div>
+
+                {/* Note Section */}
+                <div
+                  style={{
+                    backgroundColor: "#f9f9f9",
+                    borderRadius: "8px",
+                    padding: "12px 14px",
+                    border: "1px solid #eee",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <UilInfoCircle size="18" color="#2563eb" />
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        color: "#333",
+                        fontSize: "13px",
+                      }}
+                    >
+                      Important Notes
+                    </span>
+                  </div>
+
+                  <ol
+                    style={{
+                      margin: 0,
+                      paddingLeft: "18px",
+                      fontSize: "12px",
+                      color: "#555",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <li>Download sample file first</li>
+                    <li>Don't change column headers</li>
+                    <li>Required: school_id, student_name, class_id</li>
+                    <li>Aadhaar must be 12 digits or empty</li>
+                    <li>Subjects: separate with comma (Math,Science)</li>
+                  </ol>
+                </div>
+              </div>
             </Menu>
             <input
               id="fileInput"
@@ -1173,98 +953,283 @@ export default function DataTable() {
         </div>
       </div>
 
-      
       <div
         style={{
           background: "white",
-          padding: "1.5%",
-          borderRadius: "5px",
-          marginTop: "0",
+          padding: "24px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+          position: "relative",
         }}
       >
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by name, roll no, mobile, aadhaar..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(1);
+          }}
+          sx={{ mb: 3, maxWidth: 520 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                {searchLoading ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  <UilSearch color="#666" />
+                )}
+              </InputAdornment>
+            ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={handleClearSearch}>
+                  <UilTimes size="18" color="#888" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
         {loading ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div
-              className="spinner"
-              style={{
-                border: "4px solid #f3f3f3",
-                borderTop: "4px solid #1230AE",
-                borderRadius: "50%",
-                width: "24px",
-                height: "24px",
-                animation: "spin 1s linear infinite",
-              }}
-            />
-            <span>Loading...</span>
-            <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
+          <div style={{ textAlign: "center", padding: "120px 0" }}>
+            <CircularProgress size={60} />
+            <p style={{ marginTop: 20, color: "#555", fontSize: "15px" }}>
+              Loading students data...
+            </p>
           </div>
         ) : (
           <>
-            <div
-              className="ag-theme-alpine"
-              style={{
-                height: "500px",
-                width: "100%",
+            <TableContainer
+              component={Paper}
+              sx={{
+                maxHeight: 500,
                 overflowX: "auto",
-                position: "relative",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               }}
             >
-              {searchLoading && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    background: "#fff",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <div
-                    className="spinner"
-                    style={{
-                      border: "3px solid #f3f3f3",
-                      borderTop: "3px solid #1230AE",
-                      borderRadius: "50%",
-                      width: "16px",
-                      height: "16px",
-                      animation: "spin 1s linear infinite",
-                    }}
-                  />
-                  <span>Searching...</span>
-                </div>
-              )}
-              <AgGridReact
-                columnDefs={columnDefs}
-                rowData={students}
-                onGridReady={onGridReady}
-                defaultColDef={defaultColDef}
-                pagination={false}
-                suppressPaginationPanel={true}
-                animateRows={true}
-                onFilterChanged={onFilterChanged}
-                theme={customTheme}
-                rowSelection="multiple"
-                onSelectionChanged={(params) => {
-                  const selectedRows = params.api.getSelectedRows();
-                  const newCheckedRows = selectedRows.reduce((acc, row) => {
-                    acc[row.id] = true;
-                    return acc;
-                  }, {});
-                  setCheckedRows(newCheckedRows);
-                  setIsAllChecked(selectedRows.length === students.length);
+              <Table
+                stickyHeader
+                sx={{
+                  minWidth: 1200,
+                  borderTopRightRadius: "5px",
+                  border: "none",
                 }}
-              />
-            </div>
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      padding="checkbox"
+                      sx={{ bgcolor: "rgb(17 61 236)", color: "white" }}
+                    >
+                      <Checkbox
+                        sx={{ color: "white" }}
+                        checked={isAllChecked}
+                        onChange={handleSelectAll}
+                        size="small"
+                      />
+                    </TableCell>
+                    {[
+                      "SCHOOL",
+                      "STUDENT NAME",
+                      "ROLL NUMBER",
+                      "CLASS",
+                      "SECTION",
+                      "MOBILE",
+                      "SUBJECTS",
+                      "CREATED BY",
+                      "UPDATED BY",
+                      "CREATED AT",
+                      "UPDATED AT",
+                      "ACTION",
+                    ].map((title) => (
+                      <TableCell
+                        key={title}
+                        sx={{
+                          bgcolor: "rgb(17 61 236)",
+                          color: "white",
+                          fontWeight: 600,
+                          fontSize: "13.5px",
+                          whiteSpace: "nowrap",
+                          textAlign: title === "ACTION" ? "center" : "left",
+                        }}
+                      >
+                        {title}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {students.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      hover
+                      // sx={{ "&:hover": { bgcolor: "#f8fafc" } }}
+                      sx={{
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                        borderBottom: "1px solid rgba(0,0,0,0.1)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        <Checkbox
+                          checked={!!checkedRows[row.id]}
+                          onChange={() => handleRowCheck(row.id)}
+                          size="small"
+                        />
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.school_name?.toUpperCase() || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.student_name?.toUpperCase() || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.roll_no?.toUpperCase() || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.class_name || "-"}
+                      </TableCell>
+                      <TableCell
+                        ssx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.student_section || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.mobile_number || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.student_subject?.join(", ") || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.created_by}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.updated_by}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.created_at}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontFamily: '"Poppins", sans-serif',
+                          fontSize: "12px",
+                          borderRight: "1px solid rgba(0,0,0,0.1)",
+                          borderLeft: "none",
+                        }}
+                      >
+                        {row.created_at}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "18px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Link to={`/student/update/${row.id}`}>
+                            <UilEditAlt
+                              style={{ color: "#1230AE", fontSize: 22 }}
+                            />
+                          </Link>
+
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            <UilTrashAlt
+                              style={{ color: "#e74c3c", fontSize: 22 }}
+                            />
+                          </IconButton>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
             <div
               style={{
                 display: "flex",
@@ -1284,8 +1249,11 @@ export default function DataTable() {
                 <select
                   value={pageSize}
                   onChange={(e) => {
-                    setPageSize(parseInt(e.target.value, 10));
+                    const selectedSize = parseInt(e.target.value, 10);
+                    setPageSize(selectedSize);
                     setPage(1);
+                    setSelectedRows([]);
+                    setSelectedRowsCount(0);
                   }}
                   style={{
                     width: "55px",
@@ -1298,7 +1266,7 @@ export default function DataTable() {
                     fontWeight: "bold",
                     outline: "none",
                     transition: "all 0.3s ease",
-                    fontFamily: "'Poppins', sans-serif",
+                    fontFamily: '"Poppins", sans-serif',
                   }}
                 >
                   {pageSizes.map((size) => (
@@ -1311,7 +1279,7 @@ export default function DataTable() {
                   style={{
                     margin: "auto",
                     color: "#6C757D",
-                    fontFamily: "'Poppins', sans-serif",
+                    fontFamily: '"Poppins", sans-serif',
                     fontSize: "14px",
                   }}
                 >
@@ -1331,7 +1299,7 @@ export default function DataTable() {
                     style={{
                       margin: "auto",
                       color: "#6C757D",
-                      fontFamily: "'Poppins', sans-serif",
+                      fontFamily: '"Poppins", sans-serif',
                       fontSize: "14px",
                     }}
                   >
@@ -1360,7 +1328,7 @@ export default function DataTable() {
                     cursor: page === 1 ? "not-allowed" : "pointer",
                     transition: "all 0.3s ease",
                     margin: "0 4px",
-                    fontFamily: "'Poppins', sans-serif",
+                    fontFamily: '"Poppins", sans-serif',
                   }}
                 >
                   <UilAngleLeftB />
@@ -1368,7 +1336,7 @@ export default function DataTable() {
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter(
                     (pg) =>
-                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2
+                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2,
                   )
                   .map((pg, index, array) => (
                     <React.Fragment key={pg}>
@@ -1377,14 +1345,18 @@ export default function DataTable() {
                           style={{
                             color: "#aaa",
                             fontSize: "14px",
-                            fontFamily: "'Poppins', sans-serif",
+                            fontFamily: '"Poppins", sans-serif',
                           }}
                         >
                           ...
                         </span>
                       )}
                       <button
-                        onClick={() => setPage(pg)}
+                        onClick={() => {
+                          setPage(pg);
+                          setSelectedRows([]);
+                          setSelectedRowsCount(0);
+                        }}
                         style={{
                           backgroundColor: page === pg ? "#007BFF" : "#F5F5F5",
                           color: page === pg ? "#fff" : "#333",
@@ -1399,7 +1371,7 @@ export default function DataTable() {
                           transition: "all 0.3s ease",
                           margin: "0 4px",
                           fontWeight: page === pg ? "bold" : "normal",
-                          fontFamily: "'Poppins', sans-serif",
+                          fontFamily: '"Poppins", sans-serif',
                           fontSize: "14px",
                         }}
                       >
@@ -1422,7 +1394,7 @@ export default function DataTable() {
                     cursor: page === totalPages ? "not-allowed" : "pointer",
                     transition: "all 0.3s ease",
                     margin: "0 4px",
-                    fontFamily: "'Poppins', sans-serif",
+                    fontFamily: '"Poppins", sans-serif',
                   }}
                 >
                   <UilAngleRightB />

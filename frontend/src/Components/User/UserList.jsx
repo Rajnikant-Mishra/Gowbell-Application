@@ -119,7 +119,7 @@ export default function User() {
         field: "username",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 150,
+        width: 350,
         valueFormatter: (params) =>
           typeof params.value === "string"
             ? params.value.charAt(0).toUpperCase() + params.value.slice(1)
@@ -131,7 +131,7 @@ export default function User() {
         field: "email",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 200,
+        width: 350,
       },
 
       {
@@ -139,7 +139,7 @@ export default function User() {
         field: "role_name",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 150,
+        width: 250,
         valueFormatter: (params) =>
           typeof params.value === "string"
             ? params.value.charAt(0).toUpperCase() + params.value.slice(1)
@@ -149,7 +149,7 @@ export default function User() {
       {
         headerName: "PROFILE",
         field: "user_profile",
-        width: 80,
+        width: 150,
         cellRenderer: (params) => {
           if (params.value) {
             return (
@@ -193,21 +193,21 @@ export default function User() {
         field: "phone",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 150,
+        width: 250,
       },
       {
         headerName: "CREATED AT",
         field: "created_at",
         sortable: true,
         filter: "agTextColumnFilter",
-        width: 180,
+        width: 300,
       },
       {
         headerName: "ACTION",
         field: "action",
         sortable: false,
         filter: false,
-        width: 100,
+        width: 110,
         cellRenderer: (params) => (
           <div
             style={{
