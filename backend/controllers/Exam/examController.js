@@ -23,89 +23,6 @@ function normalizeArray(value) {
   return [isNaN(value) ? value : Number(value)];
 }
 
-// export const createExam = (req, res) => {
-//   const {
-//     school_id,
-//     classes_id,
-//     subjects_id,
-//     level,
-//     exam_date,
-//     country,
-//     state,
-//     district,
-//     city,
-//     session_id, // optional
-//   } = req.body;
-
-//   const userId = req.user?.id;
-//   const userName = req.user?.name || "Unknown User";
-
-//   if (!userId) {
-//     return res.status(401).json({ error: "Unauthorized. Please log in." });
-//   }
-
-//   // Validate and parse classes_id and subjects_id
-//   let classesArray, subjectsArray;
-//   try {
-//     classesArray = JSON.parse(classes_id);
-//     subjectsArray = JSON.parse(subjects_id);
-//     if (!Array.isArray(classesArray) || !Array.isArray(subjectsArray)) {
-//       throw new Error();
-//     }
-//   } catch {
-//     return res
-//       .status(400)
-//       .json({ error: "Invalid classes or subjects format" });
-//   }
-
-//   Exam.create(
-//     {
-//       created_by: userId,
-//       school_id,
-//       classes_id: classesArray,
-//       subjects_id: subjectsArray,
-//       level,
-//       exam_date,
-//       country,
-//       state,
-//       district,
-//       city,
-//       session_id,
-//     },
-//     (err, result) => {
-//       if (err) {
-//         console.error("Exam creation error:", err);
-//         return res.status(500).json({
-//           error: "Failed to create exam",
-//           details: err.message,
-//         });
-//       }
-
-//       // ✅ Activity Log
-//       try {
-//         logActivity({
-//           user_id: userId,
-//           user_name: userName,
-//           activity: `Exam has been  created`,
-//           data: {
-//             examId: result.insertId,
-//             classes: classesArray,
-//             subjects: subjectsArray,
-//           },
-//           ip_address: req.ip || req.socket?.remoteAddress || null,
-//         });
-//       } catch (logErr) {
-//         console.error("Activity Log Error:", logErr.message);
-//       }
-
-//       res.status(201).json({
-//         message: "Exam created successfully",
-//         examId: result.insertId,
-//       });
-//     }
-//   );
-// };
-
 export const createExam = (req, res) => {
   const {
     school_id, // ← Now string like "[1,2,3]"
@@ -199,7 +116,7 @@ export const createExam = (req, res) => {
         examId: result.insertId,
         schools: schoolArray,
       });
-    }
+    },
   );
 };
 
@@ -216,27 +133,51 @@ export const getExams = (req, res) => {
   });
 };
 
-export const getExamswithpagination = (req, res) => {
-  let { page = 1, limit = 10, search = "", session_id = null } = req.query;
+// export const getExamswithpagination = (req, res) => {
+//   let { page = 1, limit = 10, search = "", session_id = null } = req.query;
 
-  Exam.getAllwithpaginate(
-    parseInt(page),
-    parseInt(limit),
-    search,
-    session_id,
-    (err, examsData) => {
-      if (err) {
-        console.error("Fetch exams error:", err);
-        return res.status(500).json({
-          error: "Failed to fetch exams",
-          details: err.message,
-        });
-      }
-      res
-        .status(200)
-        .json({ session_id: session_id || "active", ...examsData });
-    }
-  );
+//   Exam.getAllwithpaginate(
+//     parseInt(page),
+//     parseInt(limit),
+//     search,
+//     session_id,
+//     (err, examsData) => {
+//       if (err) {
+//         console.error("Fetch exams error:", err);
+//         return res.status(500).json({
+//           error: "Failed to fetch exams",
+//           details: err.message,
+//         });
+//       }
+//       res
+//         .status(200)
+//         .json({ session_id: session_id || "active", ...examsData });
+//     },
+//   );
+// };
+
+export const getExamswithpagination = async (req, res) => {
+  try {
+    let { page = 1, limit = 10, search = "", session_id = null } = req.query;
+
+    const result = await Exam.getAllwithpaginate(
+      Number(page),
+      Number(limit),
+      search,
+      session_id,
+    );
+
+    res.status(200).json({
+      session_id: session_id || "active",
+      ...result,
+    });
+  } catch (err) {
+    console.error("Fetch exams error:", err);
+    res.status(500).json({
+      error: "Failed to fetch exams",
+      details: err.message,
+    });
+  }
 };
 
 export const getExamById = (req, res) => {
@@ -469,6 +410,6 @@ export const getExamsBySchoolClassSubject = (req, res) => {
         return res.status(404).json({ message: "No exams found" });
       }
       res.status(200).json(results);
-    }
+    },
   );
 };

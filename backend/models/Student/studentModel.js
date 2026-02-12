@@ -982,70 +982,21 @@ export const Student = {
   },
 
   //pagination and serch and get all data
-  // getAll: (page = 1, limit = 10, search = "", callback) => {
+  // getAll: (page = 1, limit = 10, search = "", session_id = null, callback) => {
   //   const offset = (page - 1) * limit;
+
+  //   // Base where clause to handle both cases
   //   let whereClause = "";
   //   let queryParams = [];
 
-  //   if (search && search.trim() !== "") {
-  //     whereClause = `WHERE
-  //     s.student_name LIKE ? OR
-  //     s.roll_no LIKE ? OR
-  //     sc.school_name LIKE ?`;
-
-  //     for (let i = 0; i < 3; i++) queryParams.push(`%${search}%`);
+  //   if (session_id) {
+  //     // Explicit session filter
+  //     whereClause = "WHERE s.session_id = ?";
+  //     queryParams.push(session_id);
+  //   } else {
+  //     // Automatically pick active session
+  //     whereClause = "WHERE gs.status = 'active'";
   //   }
-
-  //   const query = `
-  //   SELECT
-  //     s.*,
-  //     sc.school_name
-  //   FROM student s
-  //   JOIN school sc ON s.school_id = sc.id
-  //   ${whereClause}
-  //   ORDER BY s.id DESC
-  //   LIMIT ? OFFSET ?;
-  // `;
-
-  //   const countQuery = `
-  //   SELECT COUNT(*) AS total
-  //   FROM student s
-  //   JOIN school sc ON s.school_id = sc.id
-  //   ${whereClause};
-  // `;
-
-  //   db.query(countQuery, queryParams, (err, countResult) => {
-  //     if (err) return callback(err);
-
-  //     const totalRecords = countResult[0].total;
-  //     const totalPages = Math.ceil(totalRecords / limit);
-  //     const nextPage = page < totalPages ? page + 1 : null;
-  //     const prevPage = page > 1 ? page - 1 : null;
-
-  //     db.query(
-  //       query,
-  //       [...queryParams, parseInt(limit), parseInt(offset)],
-  //       (err, result) => {
-  //         if (err) return callback(err);
-
-  //         callback(null, {
-  //           students: result,
-  //           currentPage: page,
-  //           nextPage,
-  //           prevPage,
-  //           totalPages,
-  //           totalRecords,
-  //         });
-  //       }
-  //     );
-  //   });
-  // },
-
-  // pagination, search, and get all students by session_id
-  // getAll: (page = 1, limit = 10, search = "", session_id, callback) => {
-  //   const offset = (page - 1) * limit;
-  //   let whereClause = "WHERE s.session_id = ?"; // Always filter by session_id
-  //   let queryParams = [session_id];
 
   //   if (search && search.trim() !== "") {
   //     whereClause += ` AND (s.student_name LIKE ? OR s.roll_no LIKE ? OR sc.school_name LIKE ?)`;
@@ -1053,9 +1004,10 @@ export const Student = {
   //   }
 
   //   const query = `
-  //   SELECT s.*, sc.school_name
+  //   SELECT s.*, sc.school_name, gs.session
   //   FROM student s
   //   JOIN school sc ON s.school_id = sc.id
+  //   JOIN gowvell_session gs ON s.session_id = gs.id
   //   ${whereClause}
   //   ORDER BY s.id DESC
   //   LIMIT ? OFFSET ?;
@@ -1065,6 +1017,7 @@ export const Student = {
   //   SELECT COUNT(*) AS total
   //   FROM student s
   //   JOIN school sc ON s.school_id = sc.id
+  //   JOIN gowvell_session gs ON s.session_id = gs.id
   //   ${whereClause};
   // `;
 
@@ -1097,29 +1050,59 @@ export const Student = {
   getAll: (page = 1, limit = 10, search = "", session_id = null, callback) => {
     const offset = (page - 1) * limit;
 
-    // Base where clause to handle both cases
-    let whereClause = "";
+    let whereConditions = [];
     let queryParams = [];
 
+    // 🎯 Session filter
     if (session_id) {
-      // Explicit session filter
-      whereClause = "WHERE s.session_id = ?";
+      whereConditions.push("s.session_id = ?");
       queryParams.push(session_id);
     } else {
-      // Automatically pick active session
-      whereClause = "WHERE gs.status = 'active'";
+      whereConditions.push("gs.status = 'active'");
     }
 
+    // 🔍 Global search across student fields + class name
     if (search && search.trim() !== "") {
-      whereClause += ` AND (s.student_name LIKE ? OR s.roll_no LIKE ? OR sc.school_name LIKE ?)`;
-      for (let i = 0; i < 3; i++) queryParams.push(`%${search}%`);
+      const columnsToSearch = [
+        "s.student_code",
+        "s.school_id",
+        "s.student_name",
+        "s.roll_no",
+        "c.name", // <-- search by class name
+        "sc.school_name", 
+        "s.student_section",
+        "s.mobile_number",
+        "s.whatsapp_number",
+        "s.aadhaar_number",
+        "s.student_subject",
+        "s.approved",
+        "s.approved_by",
+        "s.country",
+        "s.state",
+        "s.district",
+        "s.city",
+      ];
+
+      const likeSearch = `%${search}%`;
+      const searchConditions = columnsToSearch
+        .map((col) => `${col} LIKE ?`)
+        .join(" OR ");
+      whereConditions.push(`(${searchConditions})`);
+
+      columnsToSearch.forEach(() => queryParams.push(likeSearch));
     }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(" AND ")}`
+        : "";
 
     const query = `
-    SELECT s.*, sc.school_name, gs.session
+    SELECT s.*, sc.school_name, gs.session, c.name AS class_name
     FROM student s
     JOIN school sc ON s.school_id = sc.id
     JOIN gowvell_session gs ON s.session_id = gs.id
+    JOIN class c ON s.class_id = c.id
     ${whereClause}
     ORDER BY s.id DESC
     LIMIT ? OFFSET ?;
@@ -1130,6 +1113,7 @@ export const Student = {
     FROM student s
     JOIN school sc ON s.school_id = sc.id
     JOIN gowvell_session gs ON s.session_id = gs.id
+    JOIN class c ON s.class_id = c.id
     ${whereClause};
   `;
 
@@ -1138,19 +1122,18 @@ export const Student = {
 
       const totalRecords = countResult[0].total;
       const totalPages = Math.ceil(totalRecords / limit);
-      const nextPage = page < totalPages ? page + 1 : null;
-      const prevPage = page > 1 ? page - 1 : null;
 
       db.query(
         query,
-        [...queryParams, parseInt(limit), parseInt(offset)],
+        [...queryParams, Number(limit), Number(offset)],
         (err, result) => {
           if (err) return callback(err);
+
           callback(null, {
             students: result,
             currentPage: page,
-            nextPage,
-            prevPage,
+            nextPage: page < totalPages ? page + 1 : null,
+            prevPage: page > 1 ? page - 1 : null,
             totalPages,
             totalRecords,
           });
