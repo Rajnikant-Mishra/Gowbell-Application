@@ -1,0 +1,98 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto;
+  background: white;
+  overflow: hidden;   /* VERY IMPORTANT */
+}
+
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Text styling */
+.text {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+}
+
+/* Position text exactly on blanks */
+.name {
+        top: 105px;
+    left: 180px;
+
+}
+
+.school {
+     top: 137px;
+    left: 160px;
+}
+
+.date {
+       top: 195px;
+    left: 150px;
+}
+
+.level {
+        top: 195px;
+    left: 380px;
+
+}
+
+.standard {
+         top: 195px;
+    left: 605px;
+
+}
+.barcode {
+ position: absolute;
+  top: 80mm;
+  left: 26mm;
+  width: 60mm;
+  height: 30mm;
+ 
+}
+.subject {
+  position: absolute;
+         top: 560px;
+    left: 25px;
+  width: 220px;
+
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+
+  display: flex;
+  justify-content: center;
+}
+.logo {
+  position: absolute;
+  top: 30px;
+    left: 55px;
+    width: 180px;
+  height: auto;
+  object-fit: contain;
+}@media print {
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    width: 210mm;
+    height: 297mm;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+}

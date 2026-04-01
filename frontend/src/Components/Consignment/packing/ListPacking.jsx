@@ -1,409 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import {
-//   FaCaretDown,
-//   FaCaretUp,
-//   FaEdit,
-//   FaTrash,
-//   FaSearch,
-//   FaHome,
-//   FaPlus,
-// } from "react-icons/fa";
-// import {
-//   UilTrashAlt,
-//   UilEditAlt,
-//   UilAngleRightB,
-//   UilAngleLeftB,
-// } from "@iconscout/react-unicons";
-
-// import Mainlayout from "../../Layouts/Mainlayout";
-// import styles from "./../../CommonTable/DataTable.module.css";
-// import "../../Common-Css/DeleteSwal.css";
-// import "../../Common-Css/Swallfire.css";
-// import Checkbox from "@mui/material/Checkbox";
-// import ButtonComp from "../../CommonButton/ButtonComp";
-// import Breadcrumb from "../../CommonButton/Breadcrumb";
-// import axios from "axios";
-// import Swal from "sweetalert2";
-// import { Link } from "react-router-dom";
-// import { API_BASE_URL } from "../../ApiConfig/APIConfig";
-// import CreateButton from "../../CommonButton/CreateButton";
-
-// export default function DataTable() {
-//   const [records, setRecords] = useState([]);
-//   const [filteredRecords, setFilteredRecords] = useState([]);
-//   const [sortConfig, setSortConfig] = useState({
-//     column: "",
-//     direction: "asc",
-//   });
-//   const [page, setPage] = useState(1);
-//   const [pageSize, setPageSize] = useState(10);
-
-//   const pageSizes = [10, 20, 50, 100];
-
-//   useEffect(() => {
-//     axios
-//       .get(`${API_BASE_URL}/api/all-packings`)
-//       .then((response) => {
-//         console.log("API Response:", response.data); // Debugging
-//         if (response.data && Array.isArray(response.data.data)) {
-//           setRecords(response.data.data);
-//           setFilteredRecords(response.data.data);
-//         } else {
-//           console.error("Unexpected API response structure:", response.data);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching records:", error);
-//       });
-//   }, []);
-  
-
-//   const handleDelete = (id) => {
-//     // Show SweetAlert confirmation dialog
-//     Swal.fire({
-//       title: "Are you sure?",
-//       text: "You won't be able to revert this!",
-//       // icon: "warning",
-//       showCancelButton: true,
-//       confirmButtonColor: "#3085d6",
-//       cancelButtonColor: "#d33",
-//       confirmButtonText: "Yes, delete it!",
-//       customClass: {
-//         popup: "custom-swal-popup", // Add custom class to the popup
-//       },
-//     }).then((result) => {
-//       if (result.isConfirmed) {
-//         // Proceed with the delete request
-//         axios
-//           .delete(`${API_BASE_URL}/api/packing/${id}`)
-//           .then((response) => {
-//             // Update the state after successful deletion
-//             setRecords((prevCountries) =>
-//               prevCountries.filter((country) => country.id !== id)
-//             );
-//             setFilteredRecords((prevFiltered) =>
-//               prevFiltered.filter((country) => country.id !== id)
-//             );
-
-//             // delete Show a success alert
-//             Swal.fire({
-//               position: "top-end",
-//               icon: "success",
-//               title: "Success!",
-//               text: `The country has been deleted.`,
-//               showConfirmButton: false,
-//               timer: 1000,
-//               timerProgressBar: true,
-//               toast: true,
-//               background: "#fff",
-//               customClass: {
-//                 popup: "small-swal",
-//               },
-//             });
-//           })
-//           .catch((error) => {
-//             console.error("Error deleting country:", error);
-//             // Show an error alert if deletion fails
-//             Swal.fire(
-//               "Error!",
-//               "There was an issue deleting the country.",
-//               "error"
-//             );
-//           });
-//       }
-//     });
-//   };
-
-//   const handleFilter = (event, column) => {
-//     const value = event.target.value.toLowerCase();
-//     const filtered = records.filter((row) =>
-//       (row[column] || "").toString().toLowerCase().includes(value)
-//     );
-//     setFilteredRecords(filtered);
-//     setPage(1);
-//   };
-
-//   const handleSort = (column) => {
-//     let direction = "asc";
-
-//     if (sortConfig.column === column) {
-//       direction = sortConfig.direction === "asc" ? "desc" : "asc";
-//     }
-
-//     let sortedData = [...filteredRecords];
-//     sortedData.sort((a, b) => {
-//       const aValue = a[column];
-//       const bValue = b[column];
-//       if (typeof aValue === "string" && typeof bValue === "string") {
-//         return direction === "asc"
-//           ? aValue.localeCompare(bValue)
-//           : bValue.localeCompare(aValue);
-//       } else {
-//         return direction === "asc" ? aValue - bValue : bValue - aValue;
-//       }
-//     });
-
-//     setFilteredRecords(sortedData);
-//     setSortConfig({ column, direction });
-//   };
-
-//   const getSortIcon = (column) => {
-//     const isActive = sortConfig.column === column;
-//     const isAsc = sortConfig.direction === "asc";
-//     return (
-//       <div className={styles.sortIconsContainer}>
-//         <FaCaretUp
-//           className={`${styles.sortIcon} ${
-//             isActive && isAsc ? styles.activeSortIcon : ""
-//           }`}
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             handleSort(column);
-//           }}
-//         />
-//         <FaCaretDown
-//           className={`${styles.sortIcon} ${
-//             isActive && !isAsc ? styles.activeSortIcon : ""
-//           }`}
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             handleSort(column);
-//           }}
-//         />
-//       </div>
-//     );
-//   };
-
-//   const handlePreviousPage = () => {
-//     if (page > 1) setPage(page - 1);
-//   };
-
-//   const handleNextPage = () => {
-//     if (page < Math.ceil(filteredRecords.length / pageSize)) setPage(page + 1);
-//   };
-
-//   const currentRecords = Array.isArray(filteredRecords)
-//     ? filteredRecords.slice((page - 1) * pageSize, page * pageSize)
-//     : [];
-
-//   const [isAllChecked, setIsAllChecked] = useState(false);
-
-//   const [checkedRows, setCheckedRows] = useState({});
-
-//   const handleRowCheck = (id) => {
-//     setCheckedRows((prevCheckedRows) => {
-//       const newCheckedRows = { ...prevCheckedRows };
-//       if (newCheckedRows[id]) {
-//         delete newCheckedRows[id]; // Uncheck
-//       } else {
-//         newCheckedRows[id] = true; // Check
-//       }
-//       return newCheckedRows;
-//     });
-//   };
-
-//     //  breadcrumb codes
-//   const handleSelectAll = () => {
-//      if (isAllChecked) {
-//        setCheckedRows({}); // Uncheck all rows
-//      } else {
-//        const allChecked = filteredRecords.reduce((acc, row) => {
-//          acc[row.id] = true; // Check all rows
-//          return acc;
-//        }, {});
-//        setCheckedRows(allChecked);
-//      }
-//      setIsAllChecked(!isAllChecked);
-//    };
-//    useEffect(() => {
-//     if (Array.isArray(filteredRecords) && filteredRecords.length > 0) {
-//       if (filteredRecords.every((row) => checkedRows[row.id])) {
-//         setIsAllChecked(true);
-//       } else {
-//         setIsAllChecked(false);
-//       }
-//     } else {
-//       setIsAllChecked(false);
-//     }
-//   }, [checkedRows, filteredRecords]);
-  
-
-//   return (
-//     <Mainlayout>
-//       <div className="d-flex justify-content-between align-items-center mb-3">
-//         <div role="presentation">
-//           <Breadcrumb data={[{ name: "Packing list" }]} />
-//         </div>
-//         <div>
-//           <CreateButton link={"/packing-create"} />
-//         </div>
-//       </div>
-
-//       <div className={`${styles.tablecont} mt-0`}>
-//         <table
-//           className={`${styles.table} `}
-//           style={{ fontFamily: "Nunito, sans-serif" }}
-//         >
-//           <thead>
-//             <tr className={`${styles.headerRow} pt-0 pb-0`}>
-//               <th>
-//                 <Checkbox checked={isAllChecked} onChange={handleSelectAll} />
-//               </th>
-//               {["school", "subject", "exam set", "exam name"].map((col) => (
-//                 <th
-//                   key={col}
-//                   className={styles.sortableHeader}
-//                   onClick={() => handleSort(col)}
-//                   style={{ cursor: "pointer" }}
-//                 >
-//                   <div className="d-flex justify-content-between align-items-center">
-//                     <span>{col.toUpperCase()}</span>
-//                     {getSortIcon(col)}
-//                   </div>
-//                 </th>
-//               ))}
-//               <th>Action</th>
-//             </tr>
-//           </thead>
-//           <tr
-//             className={styles.filterRow}
-//             style={{ fontFamily: "Nunito, sans-serif" }}
-//           >
-//             <th style={{ fontFamily: "Nunito, sans-serif" }}></th>
-//             {["school", "subject", "exam set", "exam name"].map((col) => (
-//               <th key={col}>
-//                 <div className={styles.inputContainer}>
-//                   <FaSearch className={styles.searchIcon} />
-//                   <input
-//                     type="text"
-//                     placeholder={`Search ${col}`}
-//                     onChange={(e) => handleFilter(e, col)}
-//                     className={styles.filterInput}
-//                   />
-//                 </div>
-//               </th>
-//             ))}
-//             <th></th>
-//           </tr>
-//           <tbody>
-//             {currentRecords.map((row) => (
-//               <tr
-//                 key={row.id}
-//                 className={styles.dataRow}
-//                 style={{ fontFamily: "Nunito, sans-serif" }}
-//               >
-//                 <td>
-//                   <Checkbox
-//                     checked={!!checkedRows[row.id]}
-//                     onChange={() => handleRowCheck(row.id)}
-//                   />
-//                 </td>
-//                 <td>{row.school}</td>
-//                 <td>{row.subject}</td>
-//                 <td>{row.exam_set}</td>
-//                 <td>{row.exam_name}</td>
-
-//                 <td>
-//                   <div className={styles.actionButtons}>
-//                     <Link to={`/packing/update/${row.id}`}>
-//                       <UilEditAlt className={styles.FaEdit} />
-//                     </Link>
-//                     <UilTrashAlt
-//                       onClick={() => handleDelete(row.id)}
-//                       className={`${styles.FaTrash}`}
-//                     />
-//                   </div>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//         <div className="d-flex justify-content-between flex-wrap mt-2">
-//           <div
-//             className={`${styles.pageSizeSelector} d-flex flex-wrap my-auto`}
-//           >
-//             <select
-//               value={pageSize}
-//               onChange={(e) => {
-//                 const selectedSize = parseInt(e.target.value, 10);
-//                 setPageSize(selectedSize);
-//                 setPage(1);
-//               }}
-//               className={styles.pageSizeSelect}
-//             >
-//               {pageSizes.map((size) => (
-//                 <option key={size} value={size}>
-//                   {size}
-//                 </option>
-//               ))}
-//             </select>
-//             <p className={`  my-auto text-secondary`}>data per Page</p>
-//           </div>
-
-//           <div className="my-0 d-flex justify-content-center align-items-center my-auto">
-//             <label
-//               htmlFor="pageSize"
-//               style={{ fontFamily: "Nunito, sans-serif" }}
-//             >
-//               <p className={`  my-auto text-secondary`}>
-//                 {filteredRecords.length} of {page}-
-//                 {Math.ceil(filteredRecords.length / pageSize)}
-//               </p>
-//             </label>
-//           </div>
-
-//           <div className={`${styles.pagination} my-auto`}>
-//             <button
-//               onClick={handlePreviousPage}
-//               disabled={page === 1}
-//               className={styles.paginationButton}
-//             >
-//               <UilAngleLeftB />
-//             </button>
-
-//             {Array.from(
-//               { length: Math.ceil(filteredRecords.length / pageSize) },
-//               (_, i) => i + 1
-//             )
-//               .filter(
-//                 (pg) =>
-//                   pg === 1 ||
-//                   pg === Math.ceil(filteredRecords.length / pageSize) ||
-//                   Math.abs(pg - page) <= 2
-//               )
-//               .map((pg, index, array) => (
-//                 <React.Fragment key={pg}>
-//                   {index > 0 && pg > array[index - 1] + 1 && (
-//                     <span className={styles.ellipsis}>...</span>
-//                   )}
-//                   <button
-//                     onClick={() => setPage(pg)}
-//                     className={`${styles.paginationButton} ${
-//                       page === pg ? styles.activePage : ""
-//                     }`}
-//                   >
-//                     {pg}
-//                   </button>
-//                 </React.Fragment>
-//               ))}
-
-//             <button
-//               onClick={handleNextPage}
-//               disabled={page === Math.ceil(filteredRecords.length / pageSize)}
-//               className={styles.paginationButton}
-//             >
-//               <UilAngleRightB />
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </Mainlayout>
-//   );
-// }
-
-
-
-
 // import React, { useEffect, useState, useMemo } from "react";
 // import { AgGridReact } from "ag-grid-react";
 // import "ag-grid-community/styles/ag-grid.css";
@@ -542,14 +136,17 @@
 //         field: "exam_name",
 //         sortable: true,
 //         filter: "agTextColumnFilter",
-//         width: 200,
+//         flex: 1, // Allow this column to take available space
+//         minWidth: 200, // Ensure minimum width for readability
 //       },
 //       {
 //         headerName: "ACTION",
 //         field: "action",
 //         sortable: false,
 //         filter: false,
-//         width: 100,
+//         width: 120, // Fixed width for action buttons
+//         minWidth: 120,
+//         maxWidth: 120,
 //         cellRenderer: (params) => (
 //           <div
 //             style={{
@@ -592,7 +189,12 @@
 
 //   const onGridReady = (params) => {
 //     gridApiRef.current = params.api;
-//     params.api.autoSizeAllColumns();
+//     // Auto-size all columns except the 4th and 5th
+//     const allColumnIds = params.columnApi
+//       .getAllColumns()
+//       .map((col) => col.getColId())
+//       .filter((colId) => colId !== "exam_name" && colId !== "action");
+//     params.columnApi.autoSizeColumns(allColumnIds);
 //   };
 
 //   const onFilterChanged = (params) => {
@@ -848,23 +450,41 @@
 // }
 
 
-import React, { useEffect, useState, useMemo } from "react";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+
+
+import React, { useEffect, useState } from "react";
 import {
   UilTrashAlt,
   UilEditAlt,
   UilAngleRightB,
   UilAngleLeftB,
+  UilSearch,
+  UilTimes,
 } from "@iconscout/react-unicons";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Checkbox,
+  CircularProgress,
+  IconButton,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
+
 import Mainlayout from "../../Layouts/Mainlayout";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
+import Breadcrumb from "../../CommonButton/Breadcrumb";
 import { API_BASE_URL } from "../../ApiConfig/APIConfig";
 import CreateButton from "../../CommonButton/CreateButton";
-import Breadcrumb from "../../CommonButton/Breadcrumb";
+import "../../Common-Css/DeleteSwal.css";
+import "../../Common-Css/Swallfire.css";
 
 export default function DataTable() {
   const [records, setRecords] = useState([]);
@@ -874,7 +494,11 @@ export default function DataTable() {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
-  const gridApiRef = React.useRef(null);
+
+  // Checkbox states (needed for your table UI)
+  const [checkedRows, setCheckedRows] = useState({});
+  const [isAllChecked, setIsAllChecked] = useState(false);
+
   const pageSizes = [10, 20, 50, 100];
 
   useEffect(() => {
@@ -886,6 +510,7 @@ export default function DataTable() {
         });
 
         const { data, totalRecords, totalPages } = response.data;
+
         setRecords(Array.isArray(data) ? data : []);
         setTotalRecords(totalRecords || 0);
         setTotalPages(totalPages || 0);
@@ -912,6 +537,7 @@ export default function DataTable() {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
+      icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -954,129 +580,29 @@ export default function DataTable() {
     });
   };
 
-  const columnDefs = useMemo(
-    () => [
-      {
-        headerName: "SCHOOL",
-        field: "school",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 200,
-        valueFormatter: (params) =>
-          typeof params.value === "string"
-            ? params.value.toUpperCase()
-            : params.value,
-      },
-      {
-        headerName: "SUBJECT",
-        field: "subject",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-      },
-      {
-        headerName: "EXAM SET",
-        field: "exam_set",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        width: 150,
-      },
-      {
-        headerName: "EXAM NAME",
-        field: "exam_name",
-        sortable: true,
-        filter: "agTextColumnFilter",
-        flex: 1, // Allow this column to take available space
-        minWidth: 200, // Ensure minimum width for readability
-      },
-      {
-        headerName: "ACTION",
-        field: "action",
-        sortable: false,
-        filter: false,
-        width: 120, // Fixed width for action buttons
-        minWidth: 120,
-        maxWidth: 120,
-        cellRenderer: (params) => (
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Link to={`/packing/update/${params.data.id}`}>
-              <UilEditAlt
-                style={{
-                  color: "#1230AE",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                }}
-              />
-            </Link>
-            <UilTrashAlt
-              onClick={() => handleDelete(params.data.id)}
-              style={{ color: "#FF8787", cursor: "pointer", fontSize: "18px" }}
-            />
-          </div>
-        ),
-      },
-    ],
-    [handleDelete]
-  );
-
-  const defaultColDef = useMemo(
-    () => ({
-      resizable: true,
-      filter: "agTextColumnFilter",
-      sortable: true,
-      minWidth: 100,
-      suppressFilterResetOnColumnChange: true,
-    }),
-    []
-  );
-
-  const onGridReady = (params) => {
-    gridApiRef.current = params.api;
-    // Auto-size all columns except the 4th and 5th
-    const allColumnIds = params.columnApi
-      .getAllColumns()
-      .map((col) => col.getColId())
-      .filter((colId) => colId !== "exam_name" && colId !== "action");
-    params.columnApi.autoSizeColumns(allColumnIds);
+  // Checkbox handlers
+  const handleRowCheck = (id) => {
+    setCheckedRows((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
-  const onFilterChanged = (params) => {
-    if (gridApiRef.current) {
-      const filterModel = gridApiRef.current.getFilterModel();
-      const searchValue = Object.values(filterModel)
-        .map((filter) => filter.filter)
-        .filter((value) => value && value.trim() !== "")
-        .join(" ")
-        .trim();
-
-      setSearchTerm(searchValue);
-      setPage(1);
+  const handleSelectAll = () => {
+    if (isAllChecked) {
+      setCheckedRows({});
+      setIsAllChecked(false);
+    } else {
+      const all = {};
+      records.forEach((row) => (all[row.id] = true));
+      setCheckedRows(all);
+      setIsAllChecked(true);
     }
   };
 
-  const handlePreviousPage = () => {
-    if (page > 1) setPage(page - 1);
-  };
-
-  const handleNextPage = () => {
-    if (page < totalPages) setPage(page + 1);
-  };
-
-  const customTheme = {
-    "--ag-font-size": "14px",
-    "--ag-row-height": "40px",
-    "--ag-header-background-color": "#1230AE",
-    "--ag-header-foreground-color": "#FFFFFF",
-    "--ag-grid-size": "6px",
-    "--ag-cell-horizontal-padding": "8px",
-    fontFamily: "'Poppins', sans-serif",
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPage(1);
   };
 
   return (
@@ -1093,75 +619,167 @@ export default function DataTable() {
           <Breadcrumb data={[{ name: "Packing list" }]} />
         </div>
         <div>
-          <CreateButton link={"/packing-create"} />
+          <CreateButton link="/packing-create" />
         </div>
       </div>
+
       <div
         style={{
           background: "white",
-          padding: "1.5%",
-          borderRadius: "5px",
-          marginTop: "0",
+          padding: "24px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
         }}
       >
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by school, subject, exam name..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(1);
+          }}
+          sx={{ mb: 3, maxWidth: 520 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <UilSearch color="#666" />
+              </InputAdornment>
+            ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={handleClearSearch}>
+                  <UilTimes size="18" color="#888" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
         {loading ? (
-          <div>Loading...</div>
+          <div style={{ textAlign: "center", padding: "100px 0" }}>
+            <CircularProgress size={50} />
+            <p style={{ marginTop: 20, color: "#555" }}>Loading packing list...</p>
+          </div>
         ) : (
           <>
-            <div
-              className="ag-theme-alpine"
-              style={{ height: "500px", width: "100%", overflowX: "auto" }}
+            <TableContainer
+              component={Paper}
+              sx={{
+                maxHeight: 520,
+                overflowX: "auto",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              }}
             >
-              <AgGridReact
-                columnDefs={columnDefs}
-                rowData={records}
-                onGridReady={onGridReady}
-                defaultColDef={defaultColDef}
-                pagination={false}
-                suppressPaginationPanel={true}
-                animateRows={true}
-                onFilterChanged={onFilterChanged}
-                theme={customTheme}
-                suppressClearFilterOnColumnChange={true}
-                rowSelection="multiple"
-                suppressRowClickSelection={true}
-              />
-            </div>
+              <Table stickyHeader sx={{ minWidth: 900, border: "none" }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      padding="checkbox"
+                      sx={{ bgcolor: "rgb(17 61 236)", color: "white" }}
+                    >
+                      <Checkbox
+                        sx={{ color: "white" }}
+                        checked={isAllChecked}
+                        onChange={handleSelectAll}
+                        size="small"
+                      />
+                    </TableCell>
+                    {[
+                      "SL No",
+                      "School",
+                      "Subject",
+                      "Exam Set",
+                      "Exam Name",
+                      "Action",
+                    ].map((title) => (
+                      <TableCell
+                        key={title}
+                        sx={{
+                          bgcolor: "rgb(17 61 236)",
+                          color: "white",
+                          fontWeight: 600,
+                          fontSize: "13.5px",
+                          whiteSpace: "nowrap",
+                          textAlign: title === "Action" ? "center" : "left",
+                        }}
+                      >
+                        {title}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {records.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
+                        No packing records found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    records.map((row, index) => (
+                      <TableRow
+                        key={row.id}
+                        hover
+                        sx={{
+                          "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                          borderBottom: "1px solid rgba(0,0,0,0.08)",
+                        }}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={!!checkedRows[row.id]}
+                            onChange={() => handleRowCheck(row.id)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
+                        <TableCell>{row.school?.toUpperCase() || "—"}</TableCell>
+                        <TableCell>{row.subject || "—"}</TableCell>
+                        <TableCell>{row.exam_set || "—"}</TableCell>
+                        <TableCell>{row.exam_name || "—"}</TableCell>
+                        <TableCell align="center">
+                          <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
+                            <Link to={`/packing/update/${row.id}`}>
+                              <UilEditAlt style={{ color: "#1230AE", fontSize: 22 }} />
+                            </Link>
+                            <IconButton size="small" onClick={() => handleDelete(row.id)}>
+                              <UilTrashAlt style={{ color: "#e74c3c", fontSize: 22 }} />
+                            </IconButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination - same style as your other tables */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
+                alignItems: "center",
                 flexWrap: "wrap",
-                marginTop: "8px",
+                marginTop: "16px",
+                gap: "16px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <select
                   value={pageSize}
                   onChange={(e) => {
-                    const selectedSize = parseInt(e.target.value, 10);
-                    setPageSize(selectedSize);
+                    setPageSize(Number(e.target.value));
                     setPage(1);
                   }}
                   style={{
-                    width: "55px",
-                    padding: "0px 5px",
-                    height: "30px",
+                    padding: "6px 8px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
                     fontSize: "14px",
-                    border: "1px solid rgb(225, 220, 220)",
-                    borderRadius: "2px",
-                    color: "#564545",
-                    fontWeight: "bold",
-                    outline: "none",
-                    transition: "all 0.3s ease",
-                    fontFamily: '"Poppins", sans-serif',
                   }}
                 >
                   {pageSizes.map((size) => (
@@ -1170,122 +788,59 @@ export default function DataTable() {
                     </option>
                   ))}
                 </select>
-                <p
-                  style={{
-                    margin: "auto",
-                    color: "#6C757D",
-                    fontFamily: '"Poppins", sans-serif',
-                    fontSize: "14px",
-                  }}
-                >
-                  data per Page
-                </p>
+                <span style={{ color: "#555", fontSize: "14px" }}>rows per page</span>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  margin: "auto",
-                }}
-              >
-                <label style={{ fontFamily: "Nunito, sans-serif" }}>
-                  <p
-                    style={{
-                      margin: "auto",
-                      color: "#6C757D",
-                      fontFamily: '"Poppins", sans-serif',
-                      fontSize: "14px",
-                    }}
-                  >
-                    {totalRecords} of {page}-{totalPages}
-                  </p>
-                </label>
+
+              <div style={{ color: "#555", fontSize: "14px" }}>
+                {totalRecords} records • Page {page} of {totalPages || 1}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
+
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <button
-                  onClick={handlePreviousPage}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   style={{
-                    backgroundColor: page === 1 ? "#E0E0E0" : "#F5F5F5",
-                    color: page === 1 ? "#aaa" : "#333",
+                    padding: "6px 10px",
+                    borderRadius: "6px",
                     border: "1px solid #ccc",
-                    borderRadius: "7px",
-                    padding: "3px 3.5px",
-                    width: "33px",
-                    height: "30px",
+                    background: page === 1 ? "#f0f0f0" : "#fff",
                     cursor: page === 1 ? "not-allowed" : "pointer",
-                    transition: "all 0.3s ease",
-                    margin: "0 4px",
-                    fontFamily: '"Poppins", sans-serif',
                   }}
                 >
                   <UilAngleLeftB />
                 </button>
+
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(
-                    (pg) =>
-                      pg === 1 || pg === totalPages || Math.abs(pg - page) <= 2
-                  )
-                  .map((pg, index, array) => (
-                    <React.Fragment key={pg}>
-                      {index > 0 && pg > array[index - 1] + 1 && (
-                        <span
-                          style={{
-                            color: "#aaa",
-                            fontSize: "14px",
-                            fontFamily: '"Poppins", sans-serif',
-                          }}
-                        >
-                          ...
-                        </span>
-                      )}
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                  .map((p, idx, arr) => (
+                    <React.Fragment key={p}>
+                      {idx > 0 && p > arr[idx - 1] + 1 && <span>...</span>}
                       <button
-                        onClick={() => setPage(pg)}
+                        onClick={() => setPage(p)}
                         style={{
-                          backgroundColor: page === pg ? "#007BFF" : "#F5F5F5",
-                          color: page === pg ? "#fff" : "#333",
-                          border:
-                            page === pg
-                              ? "1px solid #0056B3"
-                              : "1px solid #ccc",
-                          borderRadius: "7px",
-                          padding: "4px 13.5px",
-                          height: "30px",
-                          cursor: "pointer",
-                          transition: "all 0.3s ease",
-                          margin: "0 4px",
-                          fontWeight: page === pg ? "bold" : "normal",
-                          fontFamily: '"Poppins", sans-serif',
-                          fontSize: "14px",
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          border: "1px solid",
+                          borderColor: page === p ? "#1976d2" : "#ccc",
+                          background: page === p ? "#1976d2" : "#fff",
+                          color: page === p ? "white" : "#333",
+                          fontWeight: page === p ? "bold" : "normal",
                         }}
                       >
-                        {pg}
+                        {p}
                       </button>
                     </React.Fragment>
                   ))}
+
                 <button
-                  onClick={handleNextPage}
-                  disabled={page === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages || totalPages === 0}
                   style={{
-                    backgroundColor:
-                      page === totalPages ? "#E0E0E0" : "#F5F5F5",
-                    color: page === totalPages ? "#aaa" : "#333",
+                    padding: "6px 10px",
+                    borderRadius: "6px",
                     border: "1px solid #ccc",
-                    borderRadius: "7px",
-                    padding: "3px 3.5px",
-                    width: "33px",
-                    height: "30px",
+                    background: page === totalPages ? "#f0f0f0" : "#fff",
                     cursor: page === totalPages ? "not-allowed" : "pointer",
-                    transition: "all 0.3s ease",
-                    margin: "0 4px",
-                    fontFamily: '"Poppins", sans-serif',
                   }}
                 >
                   <UilAngleRightB />

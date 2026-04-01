@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Button,
   Menu,
+  Checkbox,
 } from "@mui/material";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import TableChartIcon from "@mui/icons-material/TableChart";
@@ -185,7 +186,7 @@ const SchoolReport = () => {
             district: selectedDistrict,
             city: selectedCity,
           },
-        }
+        },
       );
 
       if (response.data.success) {
@@ -197,7 +198,7 @@ const SchoolReport = () => {
             state_name: location.state,
             district_name: location.district,
             city_name: location.city,
-          }))
+          })),
         );
         setSchools(schoolList);
       } else {
@@ -248,7 +249,7 @@ const SchoolReport = () => {
         setIsLoading(true);
         setFetchError(null);
         const response = await axios.get(
-          `${API_BASE_URL}/api/get/school-report/${selectedSchool}`
+          `${API_BASE_URL}/api/get/school-report/${selectedSchool}`,
         );
         if (response.data.success) {
           const data = response.data.data;
@@ -323,12 +324,12 @@ const SchoolReport = () => {
         pdf.text(
           `Page ${i} of ${pageCount}`,
           10,
-          pdf.internal.pageSize.height - 10
+          pdf.internal.pageSize.height - 10,
         );
         pdf.text(
           `Generated on: ${new Date().toLocaleDateString()}`,
           pdf.internal.pageSize.width - 70,
-          pdf.internal.pageSize.height - 10
+          pdf.internal.pageSize.height - 10,
         );
       }
 
@@ -454,7 +455,7 @@ const SchoolReport = () => {
 
           {isLoading ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <CircularProgress sx={{ color: "#1230AE" }} />
+              <CircularProgress sx={{ color: "rgb(17 61 236)" }} />
             </Box>
           ) : (
             <Box id="report-content" mt={4}>
@@ -462,14 +463,16 @@ const SchoolReport = () => {
                 <Button
                   variant="contained"
                   sx={{
-                    backgroundColor: schoolData ? "#1230AE" : "#b0bec5",
+                    backgroundColor: schoolData ? "rgb(17 61 236)" : "#b0bec5",
                     color: "#fff",
                     textTransform: "none",
                     fontWeight: "bold",
                     padding: "8px 16px",
                     borderRadius: "8px",
                     "&:hover": {
-                      backgroundColor: schoolData ? "#0e2587" : "#b0bec5",
+                      backgroundColor: schoolData
+                        ? "rgb(17 61 236)"
+                        : "#b0bec5",
                     },
                   }}
                   endIcon={<ArrowDropDownIcon />}
@@ -491,21 +494,22 @@ const SchoolReport = () => {
                 >
                   <MenuItem
                     onClick={handleGenerateProfessionalPDF}
-                    sx={{ color: "#4568f1ff", fontWeight: "medium" }}
+                    sx={{ color: "rgb(17 61 236)", fontWeight: "medium" }}
                   >
                     <PictureAsPdfIcon sx={{ mr: 1 }} />
                     Download as PDF
                   </MenuItem>
                   <MenuItem
                     onClick={handleGenerateExcel}
-                    sx={{ color: "#3a5eefff", fontWeight: "medium" }}
+                    sx={{ color: "rgb(17 61 236)", fontWeight: "medium" }}
                   >
                     <TableChartIcon sx={{ mr: 1 }} />
                     Download as Excel
                   </MenuItem>
                 </Menu>
               </Box>
-              <TableContainer
+
+              {/* <TableContainer
                 component={Paper}
                 elevation={1}
               >
@@ -561,7 +565,110 @@ const SchoolReport = () => {
                     )}
                   </TableBody>
                 </Table>
+              </TableContainer> */}
+
+              <TableContainer
+                component={Paper}
+                sx={{
+                  maxHeight: 400,
+                  overflowX: "auto",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                  borderRadius: "10px",
+                }}
+              >
+                <Table stickyHeader sx={{ minWidth: 1200, border: "none" }}>
+                  {/* HEADER */}
+                  <TableHead>
+                    <TableRow>
+                      {/* CHECKBOX HEADER */}
+                      <TableCell
+                        padding="checkbox"
+                        sx={{ bgcolor: "rgb(17 61 236)", color: "#fff" }}
+                      >
+                        <Checkbox
+                          size="small"
+                          sx={{ color: "#fff" }}
+                          // optional: select all
+                        />
+                      </TableCell>
+
+                      {[
+                        "Board",
+                        "School",
+                        "School Code",
+                        "Email",
+                        "Contact",
+                        "PinCode",
+                      ].map((h) => (
+                        <TableCell
+                          key={h}
+                          sx={{
+                            bgcolor: "rgb(17 61 236)",
+                            color: "#fff",
+                            fontWeight: 600,
+                            fontSize: "13.5px",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {h}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+
+                  {/* BODY */}
+                  <TableBody>
+                    {schoolData ? (
+                      <TableRow
+                        hover
+                        sx={{
+                          "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                          borderBottom: "1px solid rgba(0,0,0,0.08)",
+                        }}
+                      >
+                        {/* CHECKBOX */}
+                        <TableCell padding="checkbox">
+                          {/* <Checkbox
+              size="small"
+              checked={selectedSchools?.includes(schoolData.id)}
+              onChange={() => {
+                setSelectedSchools((prev) =>
+                  prev.includes(schoolData.id)
+                    ? prev.filter((id) => id !== schoolData.id)
+                    : [...prev, schoolData.id]
+                );
+              }}
+              sx={{
+                color: "#1230AE",
+                "&.Mui-checked": { color: "#1230AE" },
+              }}
+            /> */}
+                        </TableCell>
+
+                        <TableCell>{schoolData.board || "-"}</TableCell>
+                        <TableCell>{schoolData.school_name || "-"}</TableCell>
+                        <TableCell>{schoolData.school_code || "-"}</TableCell>
+                        <TableCell>{schoolData.school_email || "-"}</TableCell>
+                        <TableCell>
+                          {schoolData.school_contact_number || "-"}
+                        </TableCell>
+                        <TableCell>{schoolData.pincode || "-"}</TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                          <Typography color="textSecondary">
+                            {selectedSchool
+                              ? "No school data found"
+                              : "Select a school to display details"}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </TableContainer>
+
               {schoolData && (
                 <TablePagination
                   component="div"
@@ -599,10 +706,6 @@ const SchoolReport = () => {
 };
 
 export default SchoolReport;
-
-
-
-
 
 // import React from "react";
 // import {
@@ -801,4 +904,3 @@ export default SchoolReport;
 //     </Box>
 //   );
 // }
-

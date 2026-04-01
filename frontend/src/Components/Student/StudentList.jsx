@@ -403,82 +403,7 @@ export default function StudentDataTable() {
     }
   };
 
-  // const parseCSVData = (csvText) => {
-  //   Papa.parse(csvText, {
-  //     header: true,
-  //     skipEmptyLines: true,
-  //     complete: (result) => {
-  //       const rows = result.data;
-  //       if (rows.length === 0) {
-  //         Swal.fire("Empty File", "No data found in CSV.", "warning");
-  //         return;
-  //       }
-
-  //       const sessionId = localStorage.getItem("currentSessionId");
-  //       const errors = [];
-  //       const validStudents = [];
-
-  //       rows.forEach((row, idx) => {
-  //         const rowNum = idx + 2; // Excel row number
-
-  //         // Required fields
-  //         if (
-  //           !row.school_id?.trim() ||
-  //           !row.student_name?.trim() ||
-  //           !row.class_id?.trim()
-  //         ) {
-  //           errors.push(
-  //             `Row ${rowNum}: Missing school_id, student_name or class_id`,
-  //           );
-  //           return;
-  //         }
-
-  //         // Aadhaar validation
-  //         const aadhaar = row.aadhaar_number?.trim();
-  //         if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
-  //           errors.push(`Row ${rowNum}: Aadhaar must be exactly 12 digits`);
-  //         }
-
-  //         validStudents.push({
-  //           school_id: row.school_id.trim(),
-  //           student_name: row.student_name.trim(),
-  //           class_id: formatClassName(row.class_id.trim()),
-  //           student_section: row.student_section?.trim() || null,
-  //           roll_no: row.roll_no?.trim() || null, // ← This is the key!
-  //           mobile_number: row.mobile_number?.trim() || null,
-  //           whatsapp_number: row.whatsapp_number?.trim() || null,
-  //           aadhaar_number: aadhaar || null,
-  //           student_subject: row.student_subject
-  //             ? row.student_subject
-  //                 .split(",")
-  //                 .map((s) => s.trim())
-  //                 .filter(Boolean)
-  //             : [],
-  //           country: row.country?.trim() || "",
-  //           state: row.state?.trim() || "",
-  //           district: row.district?.trim() || "",
-  //           city: row.city?.trim() || "",
-  //           session_id: sessionId,
-  //         });
-  //       });
-
-  //       if (errors.length > 0) {
-  //         Swal.fire({
-  //           icon: "error",
-  //           title: "Invalid Data",
-  //           html: errors.map((e) => `<div>• ${e}</div>`).join(""),
-  //           width: 600,
-  //         });
-  //         return;
-  //       }
-
-  //       uploadStudentsData(validStudents);
-  //     },
-  //   });
-  // };
-
   // 2. Change parsing logic (in parseCSVData)
-
   const parseCSVData = (csvText) => {
     Papa.parse(csvText, {
       header: true,
@@ -556,57 +481,7 @@ export default function StudentDataTable() {
     });
   };
 
-  // const handleDownloadClick = () => {
-  //   const headers = [
-  //     "school_id",
-  //     "student_name",
-  //     "class_id",
-  //     "student_section",
-  //     "roll_no", // ← Manual roll number (optional)
-  //     "mobile_number",
-  //     "whatsapp_number",
-  //     "aadhaar_number",
-  //     "student_subject",
-  //     "city",
-  //     "district",
-  //     "state",
-  //     "country",
-  //   ];
-
-  //   const sampleData = [
-  //     // Example with manual roll_no
-  //     [
-  //       "Gowell School",
-  //       "Amit Kumar",
-  //       "10",
-  //       "A",
-  //       "GWL10A01",
-  //       "9876543210",
-  //       "9876543210",
-  //       "111122223333",
-  //       "GIMO",
-  //       "Cuttack",
-  //       "Cuttack",
-  //       "Odisha",
-  //       "India",
-  //     ],
-  //   ];
-
-  //   const csvContent = [
-  //     headers.join(","),
-  //     ...sampleData.map((row) => row.join(",")),
-  //   ].join("\n");
-
-  //   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  //   const link = document.createElement("a");
-  //   link.href = URL.createObjectURL(blob);
-  //   link.download = "student_bulk_upload_template.csv";
-  //   link.click();
-  //   handleClose(); // close menu
-  // };
-
   // 1. Download sample - change headers & sample data
-
   const handleDownloadClick = () => {
     const headers = [
       "school_id",
@@ -643,7 +518,7 @@ export default function StudentDataTable() {
         "GIEO",
         "GIDO",
         "GIKO",
-        "JTDO",  
+        "JTDO",
         "CYWO",
         "Cuttack",
         "Cuttack",

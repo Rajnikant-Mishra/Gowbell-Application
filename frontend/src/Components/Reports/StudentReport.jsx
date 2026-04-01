@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Button,
   Menu,
+  Checkbox,
 } from "@mui/material";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import TableChartIcon from "@mui/icons-material/TableChart";
@@ -551,7 +552,7 @@ const StudentReport = () => {
 
           {isLoading ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <CircularProgress sx={{ color: "#1230AE" }} />
+              <CircularProgress sx={{ color: "rgb(17 61 236)" }} />
             </Box>
           ) : (
             <Box id="report-content" mt={4}>
@@ -559,7 +560,7 @@ const StudentReport = () => {
                 <Button
                   variant="contained"
                   sx={{
-                    backgroundColor: canGenerateReport ? "#1230AE" : "#b0bec5",
+                    backgroundColor: canGenerateReport ? "rgb(17 61 236)" : "#b0bec5",
                     color: "#fff",
                     textTransform: "none",
                     fontWeight: "bold",
@@ -567,7 +568,7 @@ const StudentReport = () => {
                     borderRadius: "8px",
                     "&:hover": {
                       backgroundColor: canGenerateReport
-                        ? "#0e2587"
+                        ? "rgb(17 61 236)"
                         : "#b0bec5",
                     },
                   }}
@@ -590,21 +591,23 @@ const StudentReport = () => {
                 >
                   <MenuItem
                     onClick={handleGenerateProfessionalPDF}
-                    sx={{ color: "#4568f1ff", fontWeight: "medium" }}
+                    sx={{ color: "rgb(17 61 236)", fontWeight: "medium" }}
                   >
                     <PictureAsPdfIcon sx={{ mr: 1 }} />
                     Download as PDF
                   </MenuItem>
                   <MenuItem
                     onClick={handleGenerateExcel}
-                    sx={{ color: "#3a5eefff", fontWeight: "medium" }}
+                    sx={{ color: "rgb(17 61 236)", fontWeight: "medium" }}
                   >
                     <TableChartIcon sx={{ mr: 1 }} />
                     Download as Excel
                   </MenuItem>
                 </Menu>
               </Box>
-              <TableContainer
+
+
+              {/* <TableContainer
                 component={Paper}
                 elevation={1}
                 id="table-content"
@@ -670,7 +673,128 @@ const StudentReport = () => {
                     )}
                   </TableBody>
                 </Table>
-              </TableContainer>
+              </TableContainer> */}
+
+              <TableContainer
+  component={Paper}
+  sx={{
+    maxHeight: 520,
+    overflowX: "auto",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+    borderRadius: "10px",
+  }}
+  id="table-content"
+>
+  <Table stickyHeader sx={{ minWidth: 1200, border: "none" }}>
+    {/* HEADER */}
+    <TableHead>
+      <TableRow>
+        <TableCell
+          padding="checkbox"
+          sx={{ bgcolor: "rgb(17 61 236)", color: "#fff" }}
+        >
+          <Checkbox
+            size="small"
+            sx={{ color: "#fff" }}
+            // optional select all
+            // onChange={handleSelectAll}
+          />
+        </TableCell>
+
+        {[
+          "Student",
+          "Roll No",
+          "Class",
+          "Subject",
+          "Section",
+          "Mobile Number",
+        ].map((h) => (
+          <TableCell
+            key={h}
+            sx={{
+              bgcolor: "rgb(17 61 236)",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: "13.5px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {h}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+
+    {/* BODY */}
+    <TableBody>
+      {studentDataByClassSubject.length > 0 ? (
+        studentDataByClassSubject.flatMap((group) => {
+          const groupKey = selectedSchool;
+          const page = pageByGroup[groupKey] || 0;
+          const rowsPerPage = 10;
+
+          const paginatedStudents = group.students.slice(
+            page * rowsPerPage,
+            page * rowsPerPage + rowsPerPage
+          );
+
+          return paginatedStudents.map((student) => {
+            const studentId = student.id;
+
+            return (
+              <TableRow
+                key={`${groupKey}-${student.id}`}
+                hover
+                sx={{
+                  "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                  borderBottom: "1px solid rgba(0,0,0,0.08)",
+                }}
+              >
+                {/* CHECKBOX */}
+                <TableCell padding="checkbox">
+                  {/* <Checkbox
+                    size="small"
+                    checked={selectedStudents.includes(studentId)}
+                    onChange={() => {
+                      setSelectedStudents((prev) =>
+                        prev.includes(studentId)
+                          ? prev.filter((id) => id !== studentId)
+                          : [...prev, studentId]
+                      );
+                    }}
+                    sx={{
+                      color: "#1230AE",
+                      "&.Mui-checked": { color: "#1230AE" },
+                    }}
+                  /> */}
+                </TableCell>
+
+                <TableCell>{student.name || "-"}</TableCell>
+                <TableCell>{student.rollNo || "-"}</TableCell>
+                <TableCell>{student.className || "-"}</TableCell>
+                <TableCell>{student.subjectNames || "-"}</TableCell>
+                <TableCell>{student.section || "-"}</TableCell>
+                <TableCell>{student.mobileNumber || "-"}</TableCell>
+              </TableRow>
+            );
+          });
+        })
+      ) : (
+        <TableRow>
+          <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+            <Typography color="textSecondary">
+              {selectedSchool
+                ? "No students found for the selected criteria"
+                : "Select a school to display students"}
+            </Typography>
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+</TableContainer>
+
+
               {studentDataByClassSubject.length > 0 && (
                 <TablePagination
                   component="div"
