@@ -547,7 +547,7 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
       session_id,
     } = req.body;
 
-    // ✅ Validate required fields
+    // Validate required fields
     if (!Array.isArray(schoolIds) || schoolIds.length === 0 || !level) {
       return res.status(400).json({
         error:
@@ -555,18 +555,16 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
       });
     }
 
-    // ✅ Resolve session ID (either provided or active one)
+    // Resolve session ID (either provided or active one)
     const resolveSessionId = (next) => {
       if (session_id) {
         const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
         db.query(verifyQuery, [session_id], (err, result) => {
           if (err)
-            return res
-              .status(500)
-              .json({
-                error: "Database error verifying session",
-                details: err.message,
-              });
+            return res.status(500).json({
+              error: "Database error verifying session",
+              details: err.message,
+            });
           if (result.length === 0)
             return res
               .status(400)
@@ -583,12 +581,10 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
         `;
         db.query(sessionQuery, (err, result) => {
           if (err)
-            return res
-              .status(500)
-              .json({
-                error: "Database error fetching session",
-                details: err.message,
-              });
+            return res.status(500).json({
+              error: "Database error fetching session",
+              details: err.message,
+            });
           if (result.length === 0)
             return res.status(400).json({ error: "No active session found" });
           return next(result[0].id);
@@ -596,7 +592,7 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
       }
     };
 
-    // ✅ Main function to fetch filtered students
+    // Main function to fetch filtered students
     const fetchStudents = (resolvedSessionId) => {
       ResultModel.getStudents(
         schoolIds,
@@ -641,14 +637,14 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
               });
             });
           });
-        }
+        },
       );
     };
 
-    // ✅ Resolve session and process updates/fetch
+    //  Resolve session and process updates/fetch
     resolveSessionId((resolvedSessionId) => {
       if (updatePending) {
-        // 🔄 First update pending percentages before fetching students
+        //  First update pending percentages before fetching students
         ResultModel.updatePendingPercentages(
           schoolIds,
           classIds,
@@ -663,10 +659,10 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
               });
             }
 
-            console.log("✅ Update Summary:", updateResult.message);
+            console.log("Update Summary:", updateResult.message);
             // After successful update, fetch student list
             fetchStudents(resolvedSessionId);
-          }
+          },
         );
       } else {
         // No update needed → fetch directly
@@ -674,7 +670,7 @@ export const getFilteredStudentsomrreceipt = (req, res) => {
       }
     });
   } catch (err) {
-    console.error("❌ Error in getFilteredStudentsomrreceipt:", err);
+    console.error(" Error in getFilteredStudentsomrreceipt:", err);
     return res.status(500).json({
       error: "Unexpected server error",
       details: err.message,
@@ -774,7 +770,7 @@ export const getFilteredStudentsforEvalute = (req, res) => {
               message: `Successfully retrieved ${totalCount} students for School ${schoolId}`,
             });
           });
-        }
+        },
       );
     };
 
@@ -791,7 +787,7 @@ export const getFilteredStudentsforEvalute = (req, res) => {
                 details: err.message,
               });
             fetchStudents(resolvedSessionId);
-          }
+          },
         );
       } else {
         fetchStudents(resolvedSessionId);

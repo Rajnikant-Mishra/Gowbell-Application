@@ -812,7 +812,7 @@ ORDER BY s.id DESC;
             d.name AS district_name,
             ci.name AS city_name,
             GROUP_CONCAT(
-              CONCAT(s.id, ':', s.school_name, ':', s.school_code) 
+              CONCAT(s.id, ':', s.school_name) 
               ORDER BY s.school_name ASC
               SEPARATOR ','
             ) AS school_info

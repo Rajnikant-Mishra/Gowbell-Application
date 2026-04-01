@@ -108,7 +108,7 @@ const ResultModel = {
       if (!student_name || !school_id) {
         return callback(
           new Error("Student name and school ID are required"),
-          null
+          null,
         );
       }
 
@@ -121,11 +121,11 @@ const ResultModel = {
           if (result.length === 0)
             return callback(
               new Error("This Student not found in this school!"),
-              null
+              null,
             );
 
           next(result[0].id, result[0].student_name); // Pass both id and official name
-        }
+        },
       );
     };
 
@@ -184,7 +184,7 @@ const ResultModel = {
               message: "Result created successfully",
               id: result.insertId,
             });
-          }
+          },
         );
       });
     });
@@ -233,7 +233,7 @@ const ResultModel = {
         callback(null, {
           message: "Result updated successfully",
         });
-      }
+      },
     );
   },
 
@@ -270,7 +270,7 @@ const ResultModel = {
             !student.subject
           ) {
             throw new Error(
-              `Missing required fields for student: ${JSON.stringify(student)}`
+              `Missing required fields for student: ${JSON.stringify(student)}`,
             );
           }
 
@@ -281,7 +281,7 @@ const ResultModel = {
             (student.full_mark != null && isNaN(Number(student.full_mark)))
           ) {
             throw new Error(
-              `Invalid numeric values for student: ${student.student_name}`
+              `Invalid numeric values for student: ${student.student_name}`,
             );
           }
 
@@ -292,14 +292,14 @@ const ResultModel = {
             Number(student.mark_secured) > Number(student.full_mark)
           ) {
             throw new Error(
-              `Mark secured cannot exceed full mark for student: ${student.student_name}`
+              `Mark secured cannot exceed full mark for student: ${student.student_name}`,
             );
           }
 
           const nameRegex = /^[A-Za-z0-9\s-]+$/;
           if (!nameRegex.test(student.student_name)) {
             throw new Error(
-              `Invalid student_name format for: ${student.student_name}. Must contain only letters, numbers, spaces, or hyphens.`
+              `Invalid student_name format for: ${student.student_name}. Must contain only letters, numbers, spaces, or hyphens.`,
             );
           }
 
@@ -321,8 +321,8 @@ const ResultModel = {
                   } else {
                     rejectSchool(
                       new Error(
-                        `School '${student.school_name}' for student '${student.student_name}' does not exist.`
-                      )
+                        `School '${student.school_name}' for student '${student.student_name}' does not exist.`,
+                      ),
                     );
                   }
                 });
@@ -347,8 +347,8 @@ const ResultModel = {
                   } else {
                     rejectClass(
                       new Error(
-                        `Class '${student.class_name}' for student '${student.student_name}' does not exist.`
-                      )
+                        `Class '${student.class_name}' for student '${student.student_name}' does not exist.`,
+                      ),
                     );
                   }
                 });
@@ -373,8 +373,8 @@ const ResultModel = {
                   } else {
                     rejectSubject(
                       new Error(
-                        `Subject '${student.subject}' for student '${student.student_name}' does not exist.`
-                      )
+                        `Subject '${student.subject}' for student '${student.student_name}' does not exist.`,
+                      ),
                     );
                   }
                 });
@@ -405,11 +405,11 @@ const ResultModel = {
                     } else {
                       rejectStudent(
                         new Error(
-                          `Student '${student.student_name}' does not exist in school '${student.school_name}'.`
-                        )
+                          `Student '${student.student_name}' does not exist in school '${student.school_name}'.`,
+                        ),
                       );
                     }
-                  }
+                  },
                 );
               }
             });
@@ -505,226 +505,225 @@ const ResultModel = {
     });
   },
 
-
   //buldupload for assign staff of resultsok
   bulkUploadbystaff: (students) => {
-  return new Promise((resolve, reject) => {
-    if (!Array.isArray(students) || students.length === 0) {
-      return reject(new Error("No student data provided"));
-    }
+    return new Promise((resolve, reject) => {
+      if (!Array.isArray(students) || students.length === 0) {
+        return reject(new Error("No student data provided"));
+      }
 
-    const schoolMap = new Map();
-    const classMap = new Map();
-    const subjectMap = new Map();
-    const studentMap = new Map();
+      const schoolMap = new Map();
+      const classMap = new Map();
+      const subjectMap = new Map();
+      const studentMap = new Map();
 
-    const processStudents = async (students) => {
-      const promises = students.map(async (student) => {
-        // ---------------- Validation ----------------
-        if (
-          !student.student_name ||
-          !student.school_name ||
-          !student.class_name ||
-          !student.subject
-        ) {
-          throw new Error(
-            `Missing required fields for student: ${JSON.stringify(student)}`
-          );
-        }
+      const processStudents = async (students) => {
+        const promises = students.map(async (student) => {
+          // ---------------- Validation ----------------
+          if (
+            !student.student_name ||
+            !student.school_name ||
+            !student.class_name ||
+            !student.subject
+          ) {
+            throw new Error(
+              `Missing required fields for student: ${JSON.stringify(student)}`,
+            );
+          }
 
-        if (
-          (student.mark_secured != null &&
-            isNaN(Number(student.mark_secured))) ||
-          (student.full_mark != null && isNaN(Number(student.full_mark)))
-        ) {
-          throw new Error(
-            `Invalid numeric values for student: ${student.student_name}`
-          );
-        }
+          if (
+            (student.mark_secured != null &&
+              isNaN(Number(student.mark_secured))) ||
+            (student.full_mark != null && isNaN(Number(student.full_mark)))
+          ) {
+            throw new Error(
+              `Invalid numeric values for student: ${student.student_name}`,
+            );
+          }
 
-        if (
-          student.mark_secured != null &&
-          student.full_mark != null &&
-          Number(student.mark_secured) > Number(student.full_mark)
-        ) {
-          throw new Error(
-            `Mark secured cannot exceed full mark for student: ${student.student_name}`
-          );
-        }
+          if (
+            student.mark_secured != null &&
+            student.full_mark != null &&
+            Number(student.mark_secured) > Number(student.full_mark)
+          ) {
+            throw new Error(
+              `Mark secured cannot exceed full mark for student: ${student.student_name}`,
+            );
+          }
 
-        const nameRegex = /^[A-Za-z0-9\s-]+$/;
-        if (!nameRegex.test(student.student_name)) {
-          throw new Error(
-            `Invalid student_name format for: ${student.student_name}.`
-          );
-        }
+          const nameRegex = /^[A-Za-z0-9\s-]+$/;
+          if (!nameRegex.test(student.student_name)) {
+            throw new Error(
+              `Invalid student_name format for: ${student.student_name}.`,
+            );
+          }
 
-        // ---------------- School ----------------
-        const processSchool = () =>
-          new Promise((resolveSchool, rejectSchool) => {
-            if (schoolMap.has(student.school_name)) {
-              student.school_id = schoolMap.get(student.school_name);
-              resolveSchool();
-            } else {
-              const sql = `SELECT id FROM school WHERE school_name = ?`;
-              db.query(sql, [student.school_name], (err, rows) => {
-                if (err) return rejectSchool(err);
-                if (rows.length > 0) {
-                  const id = rows[0].id;
-                  schoolMap.set(student.school_name, id);
-                  student.school_id = id;
-                  resolveSchool();
-                } else {
-                  rejectSchool(
-                    new Error(
-                      `School '${student.school_name}' not found for '${student.student_name}'.`
-                    )
-                  );
-                }
-              });
-            }
-          });
-
-        // ---------------- Class ----------------
-        const processClass = () =>
-          new Promise((resolveClass, rejectClass) => {
-            if (classMap.has(student.class_name)) {
-              student.class_id = classMap.get(student.class_name);
-              resolveClass();
-            } else {
-              const sql = `SELECT id FROM class WHERE name = ?`;
-              db.query(sql, [student.class_name], (err, rows) => {
-                if (err) return rejectClass(err);
-                if (rows.length > 0) {
-                  const id = rows[0].id;
-                  classMap.set(student.class_name, id);
-                  student.class_id = id;
-                  resolveClass();
-                } else {
-                  rejectClass(
-                    new Error(
-                      `Class '${student.class_name}' not found for '${student.student_name}'.`
-                    )
-                  );
-                }
-              });
-            }
-          });
-
-        // ---------------- Subject ----------------
-        const processSubject = () =>
-          new Promise((resolveSubject, rejectSubject) => {
-            if (subjectMap.has(student.subject)) {
-              student.subject_id = subjectMap.get(student.subject);
-              resolveSubject();
-            } else {
-              const sql = `SELECT id FROM subject_master WHERE name = ?`;
-              db.query(sql, [student.subject], (err, rows) => {
-                if (err) return rejectSubject(err);
-                if (rows.length > 0) {
-                  const id = rows[0].id;
-                  subjectMap.set(student.subject, id);
-                  student.subject_id = id;
-                  resolveSubject();
-                } else {
-                  rejectSubject(
-                    new Error(
-                      `Subject '${student.subject}' not found for '${student.student_name}'.`
-                    )
-                  );
-                }
-              });
-            }
-          });
-
-        // ---------------- Student ----------------
-        const processStudent = () =>
-          new Promise((resolveStudent, rejectStudent) => {
-            if (studentMap.has(student.student_name)) {
-              const data = studentMap.get(student.student_name);
-              student.student_id = data.id;
-              student.student_name = data.student_name;
-              resolveStudent();
-            } else {
-              const sql = `SELECT id, student_name FROM student WHERE student_name = ? AND school_id = ? LIMIT 1`;
-              db.query(
-                sql,
-                [student.student_name.trim(), student.school_id],
-                (err, rows) => {
-                  if (err) return rejectStudent(err);
+          // ---------------- School ----------------
+          const processSchool = () =>
+            new Promise((resolveSchool, rejectSchool) => {
+              if (schoolMap.has(student.school_name)) {
+                student.school_id = schoolMap.get(student.school_name);
+                resolveSchool();
+              } else {
+                const sql = `SELECT id FROM school WHERE school_name = ?`;
+                db.query(sql, [student.school_name], (err, rows) => {
+                  if (err) return rejectSchool(err);
                   if (rows.length > 0) {
-                    const data = rows[0];
-                    studentMap.set(student.student_name, data);
-                    student.student_id = data.id;
-                    student.student_name = data.student_name;
-                    resolveStudent();
+                    const id = rows[0].id;
+                    schoolMap.set(student.school_name, id);
+                    student.school_id = id;
+                    resolveSchool();
                   } else {
-                    rejectStudent(
+                    rejectSchool(
                       new Error(
-                        `Student '${student.student_name}' does not exist in '${student.school_name}'.`
-                      )
+                        `School '${student.school_name}' not found for '${student.student_name}'.`,
+                      ),
                     );
                   }
-                }
-              );
-            }
-          });
+                });
+              }
+            });
 
-        await Promise.all([
-          processSchool(),
-          processClass(),
-          processSubject(),
-        ]);
-        await processStudent();
+          // ---------------- Class ----------------
+          const processClass = () =>
+            new Promise((resolveClass, rejectClass) => {
+              if (classMap.has(student.class_name)) {
+                student.class_id = classMap.get(student.class_name);
+                resolveClass();
+              } else {
+                const sql = `SELECT id FROM class WHERE name = ?`;
+                db.query(sql, [student.class_name], (err, rows) => {
+                  if (err) return rejectClass(err);
+                  if (rows.length > 0) {
+                    const id = rows[0].id;
+                    classMap.set(student.class_name, id);
+                    student.class_id = id;
+                    resolveClass();
+                  } else {
+                    rejectClass(
+                      new Error(
+                        `Class '${student.class_name}' not found for '${student.student_name}'.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
 
-        return student;
-      });
+          // ---------------- Subject ----------------
+          const processSubject = () =>
+            new Promise((resolveSubject, rejectSubject) => {
+              if (subjectMap.has(student.subject)) {
+                student.subject_id = subjectMap.get(student.subject);
+                resolveSubject();
+              } else {
+                const sql = `SELECT id FROM subject_master WHERE name = ?`;
+                db.query(sql, [student.subject], (err, rows) => {
+                  if (err) return rejectSubject(err);
+                  if (rows.length > 0) {
+                    const id = rows[0].id;
+                    subjectMap.set(student.subject, id);
+                    student.subject_id = id;
+                    resolveSubject();
+                  } else {
+                    rejectSubject(
+                      new Error(
+                        `Subject '${student.subject}' not found for '${student.student_name}'.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
 
-      return Promise.all(promises);
-    };
+          // ---------------- Student ----------------
+          const processStudent = () =>
+            new Promise((resolveStudent, rejectStudent) => {
+              if (studentMap.has(student.student_name)) {
+                const data = studentMap.get(student.student_name);
+                student.student_id = data.id;
+                student.student_name = data.student_name;
+                resolveStudent();
+              } else {
+                const sql = `SELECT id, student_name FROM student WHERE student_name = ? AND school_id = ? LIMIT 1`;
+                db.query(
+                  sql,
+                  [student.student_name.trim(), student.school_id],
+                  (err, rows) => {
+                    if (err) return rejectStudent(err);
+                    if (rows.length > 0) {
+                      const data = rows[0];
+                      studentMap.set(student.student_name, data);
+                      student.student_id = data.id;
+                      student.student_name = data.student_name;
+                      resolveStudent();
+                    } else {
+                      rejectStudent(
+                        new Error(
+                          `Student '${student.student_name}' does not exist in '${student.school_name}'.`,
+                        ),
+                      );
+                    }
+                  },
+                );
+              }
+            });
 
-    // ---------------- Begin DB Logic ----------------
-    const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+          await Promise.all([
+            processSchool(),
+            processClass(),
+            processSubject(),
+          ]);
+          await processStudent();
 
-    db.query(sessionQuery, (sessionError, sessionResults) => {
-      if (sessionError) return reject(sessionError);
-      if (sessionResults.length === 0)
-        return reject(new Error("No active session found"));
+          return student;
+        });
 
-      const session_id = sessionResults[0].id;
+        return Promise.all(promises);
+      };
 
-      db.beginTransaction(async (err) => {
-        if (err) return reject(err);
+      // ---------------- Begin DB Logic ----------------
+      const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
 
-        try {
-          const processedStudents = await processStudents(students);
+      db.query(sessionQuery, (sessionError, sessionResults) => {
+        if (sessionError) return reject(sessionError);
+        if (sessionResults.length === 0)
+          return reject(new Error("No active session found"));
 
-          const values = processedStudents.map((s) => {
-            const percentage =
-              s.full_mark && s.mark_secured != null
-                ? (Number(s.mark_secured) / Number(s.full_mark)) * 100
-                : null;
-            return [
-              session_id,
-              s.school_id,
-              s.student_id,
-              s.student_name,
-              s.class_id,
-              s.roll_no,
-              s.full_mark == null ? null : Number(s.full_mark),
-              s.mark_secured == null ? null : Number(s.mark_secured),
-              percentage,
-              s.level,
-              s.subject_id,
-              null,
-              null,
-              null,
-              null,
-              "pending",
-            ];
-          });
+        const session_id = sessionResults[0].id;
 
-          const insertQuery = `
+        db.beginTransaction(async (err) => {
+          if (err) return reject(err);
+
+          try {
+            const processedStudents = await processStudents(students);
+
+            const values = processedStudents.map((s) => {
+              const percentage =
+                s.full_mark && s.mark_secured != null
+                  ? (Number(s.mark_secured) / Number(s.full_mark)) * 100
+                  : null;
+              return [
+                session_id,
+                s.school_id,
+                s.student_id,
+                s.student_name,
+                s.class_id,
+                s.roll_no,
+                s.full_mark == null ? null : Number(s.full_mark),
+                s.mark_secured == null ? null : Number(s.mark_secured),
+                percentage,
+                s.level,
+                s.subject_id,
+                null,
+                null,
+                null,
+                null,
+                "pending",
+              ];
+            });
+
+            const insertQuery = `
             INSERT INTO result 
             (session_id, school_id, student_id, student_name, class_id, roll_no, full_mark, mark_secured, percentage, level, subject_id, ranking, medals, certificate, remarks, status)
             VALUES ?
@@ -736,11 +735,11 @@ const ResultModel = {
               updated_at = CURRENT_TIMESTAMP
           `;
 
-          db.query(insertQuery, [values], async (err, result) => {
-            if (err) return db.rollback(() => reject(err));
+            db.query(insertQuery, [values], async (err, result) => {
+              if (err) return db.rollback(() => reject(err));
 
-            // ✅ STEP: Update OMR status where match found
-            const updateOmrSql = `
+              // ✅ STEP: Update OMR status where match found
+              const updateOmrSql = `
               UPDATE omr_assign oa
               JOIN result r
                 ON oa.school_id = r.school_id
@@ -752,25 +751,24 @@ const ResultModel = {
               WHERE oa.status != 'success'
             `;
 
-            db.query(updateOmrSql, (updateErr, updateResult) => {
-              if (updateErr) return db.rollback(() => reject(updateErr));
+              db.query(updateOmrSql, (updateErr, updateResult) => {
+                if (updateErr) return db.rollback(() => reject(updateErr));
 
-              db.commit((commitErr) => {
-                if (commitErr) return reject(commitErr);
-                resolve({
-                  message: `${result.affectedRows} results inserted/updated successfully. ${updateResult.affectedRows} OMR statuses updated.`,
+                db.commit((commitErr) => {
+                  if (commitErr) return reject(commitErr);
+                  resolve({
+                    message: `${result.affectedRows} results inserted/updated successfully. ${updateResult.affectedRows} OMR statuses updated.`,
+                  });
                 });
               });
             });
-          });
-        } catch (err) {
-          db.rollback(() => reject(err));
-        }
+          } catch (err) {
+            db.rollback(() => reject(err));
+          }
+        });
       });
     });
-  });
-},
-
+  },
 
   // Fetch paginated results
   // getAllResults: (page, limit, callback) => {
@@ -848,7 +846,7 @@ const ResultModel = {
             totalPages,
             currentPage: page,
           });
-        }
+        },
       );
     });
   },
@@ -936,7 +934,7 @@ const ResultModel = {
     subjectIds,
     sessionId,
     level,
-    callback
+    callback,
   ) => {
     // Normalize inputs
     if (!Array.isArray(schoolIds)) schoolIds = [schoolIds].filter(Boolean);
@@ -962,7 +960,7 @@ const ResultModel = {
 
     if (subjectIds.length > 0) {
       conditions.push(
-        `r.subject_id IN (${subjectIds.map(() => "?").join(",")})`
+        `r.subject_id IN (${subjectIds.map(() => "?").join(",")})`,
       );
       params.push(...subjectIds);
     }
@@ -1037,7 +1035,6 @@ const ResultModel = {
   },
 
   // Update pending percentages
-
   //====================================
   // updatePendingPercentages: (schoolId, classIds, subjectIds, callback) => {
   //   if (
@@ -1207,12 +1204,12 @@ const ResultModel = {
     classIds = [],
     subjectIds = [],
     level,
-    callback
+    callback,
   ) => {
-    // ✅ Validate input
+    //  Validate input
     if (!Array.isArray(schoolIds) || schoolIds.length === 0) {
       return callback(
-        new Error("Invalid input: at least one schoolId is required")
+        new Error("Invalid input: at least one schoolId is required"),
       );
     }
 
@@ -1242,7 +1239,7 @@ const ResultModel = {
       if (err) return callback(err);
       if (result[0].invalid_count > 0) {
         return callback(
-          new Error("Invalid data: Check full_mark and mark_secured values")
+          new Error("Invalid data: Check full_mark and mark_secured values"),
         );
       }
 
@@ -1368,9 +1365,9 @@ const ResultModel = {
                   noMedal: studentNoMedalResult.affectedRows,
                   level,
                 });
-              }
+              },
             );
-          }
+          },
         );
       });
     });
@@ -1395,7 +1392,7 @@ const ResultModel = {
     subjectIds,
     sessionId,
     certificate = null,
-    callback
+    callback,
   ) => {
     if (!Array.isArray(subjectIds)) subjectIds = [subjectIds];
 
