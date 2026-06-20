@@ -1,0 +1,1303 @@
+// export default ResultModel;
+import { db } from "../../config/db.js";
+
+const queryAsync = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.query(sql, params, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+};
+
+const ResultModel = {
+  create: (data, callback) => {
+    const {
+      school_id,
+      student_name, // typed by user
+      class_id,
+      roll_no,
+      full_mark,
+      mark_secured,
+      level,
+      subject_id,
+      session_id, // optional
+    } = data;
+
+    const safeFullMark = Number(full_mark) || 0;
+    const safeMarkSecured = mark_secured == null ? null : Number(mark_secured);
+
+    const percentage =
+      safeMarkSecured !== null && safeFullMark > 0
+        ? (safeMarkSecured / safeFullMark) * 100
+        : null;
+
+    // Step 1: Resolve student_id and official student_name
+    const resolveStudent = (next) => {
+      if (!student_name || !school_id) {
+        return callback(
+          new Error("Student name and school ID are required"),
+          null,
+        );
+      }
+
+      const studentQuery = `SELECT id, student_name FROM student WHERE student_name = ? AND school_id = ? LIMIT 1`;
+      db.query(
+        studentQuery,
+        [student_name.trim(), school_id],
+        (err, result) => {
+          if (err) return callback(err, null);
+          if (result.length === 0)
+            return callback(
+              new Error("This Student not found in this school!"),
+              null,
+            );
+
+          next(result[0].id, result[0].student_name); // Pass both id and official name
+        },
+      );
+    };
+
+    // Step 2: Resolve session_id dynamically
+    const resolveSessionId = (next) => {
+      if (session_id) {
+        const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
+        db.query(verifyQuery, [session_id], (err, result) => {
+          if (err) return callback(err, null);
+          if (result.length === 0)
+            return callback(new Error("Invalid session ID selected"), null);
+          return next(session_id);
+        });
+      } else {
+        const sessionQuery = `
+        SELECT id FROM gowvell_session 
+        WHERE status = 'active' 
+        ORDER BY id DESC LIMIT 1
+      `;
+        db.query(sessionQuery, (err, result) => {
+          if (err) return callback(err, null);
+          if (result.length === 0)
+            return callback(new Error("No active session found"), null);
+          return next(result[0].id);
+        });
+      }
+    };
+
+    // Step 3: Insert result after resolving student and session
+    resolveStudent((student_id, officialStudentName) => {
+      resolveSessionId((finalSessionId) => {
+        const insertQuery = `
+        INSERT INTO result 
+        (student_id, session_id, school_id, student_name, class_id, roll_no, full_mark, mark_secured, percentage, level, subject_id, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+        db.query(
+          insertQuery,
+          [
+            student_id,
+            finalSessionId,
+            school_id,
+            officialStudentName,
+            class_id,
+            roll_no,
+            safeFullMark,
+            safeMarkSecured,
+            percentage,
+            level,
+            subject_id,
+            "pending",
+          ],
+          (err, result) => {
+            if (err) return callback(err, null);
+            callback(null, {
+              message: "Result created successfully",
+              id: result.insertId,
+            });
+          },
+        );
+      });
+    });
+  },
+
+  // In your ResultModel
+  update: (id, data, callback) => {
+    const {
+      school_id,
+      student_name,
+      class_id,
+      roll_no,
+      full_mark,
+      mark_secured,
+      level,
+      subject_id,
+    } = data;
+
+    const query = `
+    UPDATE result 
+    SET school_id = ?, student_name = ?, class_id = ?, roll_no = ?, full_mark = ?, mark_secured = ?, level = ?, subject_id = ?
+    WHERE id = ?
+  `;
+
+    db.query(
+      query,
+      [
+        school_id,
+        student_name,
+        class_id,
+        roll_no,
+        full_mark,
+        mark_secured,
+        level,
+        subject_id,
+        id,
+      ],
+      (err, result) => {
+        if (err) return callback(err);
+
+        if (result.affectedRows === 0) {
+          // No rows were updated
+          return callback(new Error("No result found with the provided ID."));
+        }
+
+        callback(null, {
+          message: "Result updated successfully",
+        });
+      },
+    );
+  },
+
+  // Get Result by ID
+  getById: (id, callback) => {
+    const query = `SELECT * FROM result WHERE id = ?`;
+
+    db.query(query, [id], (err, results) => {
+      if (err) return callback(err);
+      if (results.length === 0) return callback(new Error("Result not found"));
+      callback(null, results[0]);
+    });
+  },
+
+  // Bulk Upload Results
+  bulkUpload: (students) => {
+    return new Promise((resolve, reject) => {
+      if (!Array.isArray(students) || students.length === 0) {
+        return reject(new Error("No student data provided"));
+      }
+
+      const schoolMap = new Map();
+      const classMap = new Map();
+      const subjectMap = new Map();
+      const studentMap = new Map(); // cache for student_name -> student_id
+
+      const processStudents = async (students) => {
+        const promises = students.map(async (student) => {
+          // Validate required fields
+          if (
+            !student.student_name ||
+            !student.school_name ||
+            !student.class_name ||
+            !student.subject
+          ) {
+            throw new Error(
+              `Missing required fields for student: ${JSON.stringify(student)}`,
+            );
+          }
+
+          // Validate numeric fields
+          if (
+            (student.mark_secured != null &&
+              isNaN(Number(student.mark_secured))) ||
+            (student.full_mark != null && isNaN(Number(student.full_mark)))
+          ) {
+            throw new Error(
+              `Invalid numeric values for student: ${student.student_name}`,
+            );
+          }
+
+          // Validate mark_secured against full_mark
+          if (
+            student.mark_secured != null &&
+            student.full_mark != null &&
+            Number(student.mark_secured) > Number(student.full_mark)
+          ) {
+            throw new Error(
+              `Mark secured cannot exceed full mark for student: ${student.student_name}`,
+            );
+          }
+
+          const nameRegex = /^[A-Za-z0-9\s-]+$/;
+          if (!nameRegex.test(student.student_name)) {
+            throw new Error(
+              `Invalid student_name format for: ${student.student_name}. Must contain only letters, numbers, spaces, or hyphens.`,
+            );
+          }
+
+          // Process School
+          const processSchool = () =>
+            new Promise((resolveSchool, rejectSchool) => {
+              if (schoolMap.has(student.school_name)) {
+                student.school_id = schoolMap.get(student.school_name);
+                resolveSchool();
+              } else {
+                const schoolQuery = `SELECT id FROM school WHERE school_name = ?`;
+                db.query(schoolQuery, [student.school_name], (err, results) => {
+                  if (err) return rejectSchool(err);
+                  if (results.length > 0) {
+                    const schoolId = results[0].id;
+                    schoolMap.set(student.school_name, schoolId);
+                    student.school_id = schoolId;
+                    resolveSchool();
+                  } else {
+                    rejectSchool(
+                      new Error(
+                        `School '${student.school_name}' for student '${student.student_name}' does not exist.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
+
+          // Process Class
+          const processClass = () =>
+            new Promise((resolveClass, rejectClass) => {
+              if (classMap.has(student.class_name)) {
+                student.class_id = classMap.get(student.class_name);
+                resolveClass();
+              } else {
+                const classQuery = `SELECT id FROM class WHERE name = ?`;
+                db.query(classQuery, [student.class_name], (err, results) => {
+                  if (err) return rejectClass(err);
+                  if (results.length > 0) {
+                    const classId = results[0].id;
+                    classMap.set(student.class_name, classId);
+                    student.class_id = classId;
+                    resolveClass();
+                  } else {
+                    rejectClass(
+                      new Error(
+                        `Class '${student.class_name}' for student '${student.student_name}' does not exist.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
+
+          // Process Subject
+          const processSubject = () =>
+            new Promise((resolveSubject, rejectSubject) => {
+              if (subjectMap.has(student.subject)) {
+                student.subject_id = subjectMap.get(student.subject);
+                resolveSubject();
+              } else {
+                const subjectQuery = `SELECT id FROM subject_master WHERE name = ?`;
+                db.query(subjectQuery, [student.subject], (err, results) => {
+                  if (err) return rejectSubject(err);
+                  if (results.length > 0) {
+                    const subjectId = results[0].id;
+                    subjectMap.set(student.subject, subjectId);
+                    student.subject_id = subjectId;
+                    resolveSubject();
+                  } else {
+                    rejectSubject(
+                      new Error(
+                        `Subject '${student.subject}' for student '${student.student_name}' does not exist.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
+
+          // Process Student ID and official student_name
+          const processStudent = () =>
+            new Promise((resolveStudent, rejectStudent) => {
+              if (studentMap.has(student.student_name)) {
+                const studentData = studentMap.get(student.student_name);
+                student.student_id = studentData.id;
+                student.student_name = studentData.name; // overwrite with official name
+                resolveStudent();
+              } else {
+                const studentQuery = `SELECT id, student_name FROM student WHERE student_name = ? AND school_id = ? LIMIT 1`;
+                db.query(
+                  studentQuery,
+                  [student.student_name.trim(), student.school_id],
+                  (err, results) => {
+                    if (err) return rejectStudent(err);
+                    if (results.length > 0) {
+                      const studentData = results[0];
+                      studentMap.set(student.student_name, studentData);
+                      student.student_id = studentData.id;
+                      student.student_name = studentData.student_name; // official name
+                      resolveStudent();
+                    } else {
+                      rejectStudent(
+                        new Error(
+                          `Student '${student.student_name}' does not exist in school '${student.school_name}'.`,
+                        ),
+                      );
+                    }
+                  },
+                );
+              }
+            });
+
+          await Promise.all([
+            processSchool(),
+            processClass(),
+            processSubject(),
+          ]);
+          await processStudent();
+
+          return student;
+        });
+
+        return Promise.all(promises);
+      };
+
+      // STEP 1: Get active session_id
+      const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+      db.query(sessionQuery, (sessionError, sessionResults) => {
+        if (sessionError) return reject(sessionError);
+        if (sessionResults.length === 0)
+          return reject(new Error("No active session found"));
+
+        const session_id = sessionResults[0].id;
+
+        // Proceed with transaction after we have session_id
+        db.beginTransaction(async (err) => {
+          if (err) return reject(err);
+
+          try {
+            const processedStudents = await processStudents(students);
+
+            const values = processedStudents.map((student) => {
+              const percentage =
+                student.full_mark && student.mark_secured != null
+                  ? (Number(student.mark_secured) / Number(student.full_mark)) *
+                    100
+                  : null;
+              return [
+                session_id,
+                student.school_id,
+                student.student_id, // now stored student_id
+                student.student_name, // official name
+                student.class_id,
+                student.roll_no,
+                student.full_mark == null ? null : Number(student.full_mark),
+                student.mark_secured == null
+                  ? null
+                  : Number(student.mark_secured),
+                percentage,
+                student.level,
+                student.subject_id,
+                null, // ranking
+                null, // medals
+                null, // certificate
+                null, // remarks
+                "pending",
+              ];
+            });
+
+            const query = `
+            INSERT INTO result 
+            (session_id, school_id, student_id, student_name, class_id, roll_no, full_mark, mark_secured, percentage, level, subject_id, ranking, medals, certificate, remarks, status) 
+            VALUES ? 
+            ON DUPLICATE KEY UPDATE 
+              school_id = VALUES(school_id),
+              student_name = VALUES(student_name),
+              class_id = VALUES(class_id),
+              roll_no = VALUES(roll_no),
+              full_mark = VALUES(full_mark),
+              mark_secured = VALUES(mark_secured),
+              percentage = VALUES(percentage),
+              level = VALUES(level),
+              subject_id = VALUES(subject_id),
+              updated_at = CURRENT_TIMESTAMP
+          `;
+
+            db.query(query, [values], (err, result) => {
+              if (err) return db.rollback(() => reject(err));
+              db.commit((err) => {
+                if (err) return reject(err);
+                resolve({
+                  message: `${result.affectedRows} records inserted successfully`,
+                });
+              });
+            });
+          } catch (err) {
+            db.rollback(() => reject(err));
+          }
+        });
+      });
+    });
+  },
+
+  //buldupload for assign staff of resultsok
+  bulkUploadbystaff: (students) => {
+    return new Promise((resolve, reject) => {
+      if (!Array.isArray(students) || students.length === 0) {
+        return reject(new Error("No student data provided"));
+      }
+
+      const schoolMap = new Map();
+      const classMap = new Map();
+      const subjectMap = new Map();
+      const studentMap = new Map();
+
+      const processStudents = async (students) => {
+        const promises = students.map(async (student) => {
+          // ---------------- Validation ----------------
+          if (
+            !student.student_name ||
+            !student.school_name ||
+            !student.class_name ||
+            !student.subject
+          ) {
+            throw new Error(
+              `Missing required fields for student: ${JSON.stringify(student)}`,
+            );
+          }
+
+          if (
+            (student.mark_secured != null &&
+              isNaN(Number(student.mark_secured))) ||
+            (student.full_mark != null && isNaN(Number(student.full_mark)))
+          ) {
+            throw new Error(
+              `Invalid numeric values for student: ${student.student_name}`,
+            );
+          }
+
+          if (
+            student.mark_secured != null &&
+            student.full_mark != null &&
+            Number(student.mark_secured) > Number(student.full_mark)
+          ) {
+            throw new Error(
+              `Mark secured cannot exceed full mark for student: ${student.student_name}`,
+            );
+          }
+
+          const nameRegex = /^[A-Za-z0-9\s-]+$/;
+          if (!nameRegex.test(student.student_name)) {
+            throw new Error(
+              `Invalid student_name format for: ${student.student_name}.`,
+            );
+          }
+
+          // ---------------- School ----------------
+          const processSchool = () =>
+            new Promise((resolveSchool, rejectSchool) => {
+              if (schoolMap.has(student.school_name)) {
+                student.school_id = schoolMap.get(student.school_name);
+                resolveSchool();
+              } else {
+                const sql = `SELECT id FROM school WHERE school_name = ?`;
+                db.query(sql, [student.school_name], (err, rows) => {
+                  if (err) return rejectSchool(err);
+                  if (rows.length > 0) {
+                    const id = rows[0].id;
+                    schoolMap.set(student.school_name, id);
+                    student.school_id = id;
+                    resolveSchool();
+                  } else {
+                    rejectSchool(
+                      new Error(
+                        `School '${student.school_name}' not found for '${student.student_name}'.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
+
+          // ---------------- Class ----------------
+          const processClass = () =>
+            new Promise((resolveClass, rejectClass) => {
+              if (classMap.has(student.class_name)) {
+                student.class_id = classMap.get(student.class_name);
+                resolveClass();
+              } else {
+                const sql = `SELECT id FROM class WHERE name = ?`;
+                db.query(sql, [student.class_name], (err, rows) => {
+                  if (err) return rejectClass(err);
+                  if (rows.length > 0) {
+                    const id = rows[0].id;
+                    classMap.set(student.class_name, id);
+                    student.class_id = id;
+                    resolveClass();
+                  } else {
+                    rejectClass(
+                      new Error(
+                        `Class '${student.class_name}' not found for '${student.student_name}'.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
+
+          // ---------------- Subject ----------------
+          const processSubject = () =>
+            new Promise((resolveSubject, rejectSubject) => {
+              if (subjectMap.has(student.subject)) {
+                student.subject_id = subjectMap.get(student.subject);
+                resolveSubject();
+              } else {
+                const sql = `SELECT id FROM subject_master WHERE name = ?`;
+                db.query(sql, [student.subject], (err, rows) => {
+                  if (err) return rejectSubject(err);
+                  if (rows.length > 0) {
+                    const id = rows[0].id;
+                    subjectMap.set(student.subject, id);
+                    student.subject_id = id;
+                    resolveSubject();
+                  } else {
+                    rejectSubject(
+                      new Error(
+                        `Subject '${student.subject}' not found for '${student.student_name}'.`,
+                      ),
+                    );
+                  }
+                });
+              }
+            });
+
+          // ---------------- Student ----------------
+          const processStudent = () =>
+            new Promise((resolveStudent, rejectStudent) => {
+              if (studentMap.has(student.student_name)) {
+                const data = studentMap.get(student.student_name);
+                student.student_id = data.id;
+                student.student_name = data.student_name;
+                resolveStudent();
+              } else {
+                const sql = `SELECT id, student_name FROM student WHERE student_name = ? AND school_id = ? LIMIT 1`;
+                db.query(
+                  sql,
+                  [student.student_name.trim(), student.school_id],
+                  (err, rows) => {
+                    if (err) return rejectStudent(err);
+                    if (rows.length > 0) {
+                      const data = rows[0];
+                      studentMap.set(student.student_name, data);
+                      student.student_id = data.id;
+                      student.student_name = data.student_name;
+                      resolveStudent();
+                    } else {
+                      rejectStudent(
+                        new Error(
+                          `Student '${student.student_name}' does not exist in '${student.school_name}'.`,
+                        ),
+                      );
+                    }
+                  },
+                );
+              }
+            });
+
+          await Promise.all([
+            processSchool(),
+            processClass(),
+            processSubject(),
+          ]);
+          await processStudent();
+
+          return student;
+        });
+
+        return Promise.all(promises);
+      };
+
+      // ---------------- Begin DB Logic ----------------
+      const sessionQuery = `SELECT id FROM gowvell_session WHERE status = 'active' ORDER BY id DESC LIMIT 1`;
+
+      db.query(sessionQuery, (sessionError, sessionResults) => {
+        if (sessionError) return reject(sessionError);
+        if (sessionResults.length === 0)
+          return reject(new Error("No active session found"));
+
+        const session_id = sessionResults[0].id;
+
+        db.beginTransaction(async (err) => {
+          if (err) return reject(err);
+
+          try {
+            const processedStudents = await processStudents(students);
+
+            const values = processedStudents.map((s) => {
+              const percentage =
+                s.full_mark && s.mark_secured != null
+                  ? (Number(s.mark_secured) / Number(s.full_mark)) * 100
+                  : null;
+              return [
+                session_id,
+                s.school_id,
+                s.student_id,
+                s.student_name,
+                s.class_id,
+                s.roll_no,
+                s.full_mark == null ? null : Number(s.full_mark),
+                s.mark_secured == null ? null : Number(s.mark_secured),
+                percentage,
+                s.level,
+                s.subject_id,
+                null,
+                null,
+                null,
+                null,
+                "pending",
+              ];
+            });
+
+            const insertQuery = `
+            INSERT INTO result 
+            (session_id, school_id, student_id, student_name, class_id, roll_no, full_mark, mark_secured, percentage, level, subject_id, ranking, medals, certificate, remarks, status)
+            VALUES ?
+            ON DUPLICATE KEY UPDATE 
+              full_mark = VALUES(full_mark),
+              mark_secured = VALUES(mark_secured),
+              percentage = VALUES(percentage),
+              level = VALUES(level),
+              updated_at = CURRENT_TIMESTAMP
+          `;
+
+            db.query(insertQuery, [values], async (err, result) => {
+              if (err) return db.rollback(() => reject(err));
+
+              // ✅ STEP: Update OMR status where match found
+              const updateOmrSql = `
+              UPDATE omr_assign oa
+              JOIN result r
+                ON oa.school_id = r.school_id
+                AND oa.class_id = r.class_id
+                AND oa.subject_id = r.subject_id
+                AND oa.student_id = r.student_id
+                AND oa.roll_no = r.roll_no
+              SET oa.status = 'success'
+              WHERE oa.status != 'success'
+            `;
+
+              db.query(updateOmrSql, (updateErr, updateResult) => {
+                if (updateErr) return db.rollback(() => reject(updateErr));
+
+                db.commit((commitErr) => {
+                  if (commitErr) return reject(commitErr);
+                  resolve({
+                    message: `${result.affectedRows} results inserted/updated successfully. ${updateResult.affectedRows} OMR statuses updated.`,
+                  });
+                });
+              });
+            });
+          } catch (err) {
+            db.rollback(() => reject(err));
+          }
+        });
+      });
+    });
+  },
+
+  // Fetch paginated results with session filter
+  getAllResults: (page = 1, limit = 10, session_id = null, callback) => {
+    const offset = (page - 1) * limit;
+
+    let whereClause = "";
+    let queryParams = [];
+
+    // --- Session filter ---
+    if (session_id) {
+      whereClause = "WHERE r.session_id = ?";
+      queryParams.push(session_id);
+    } else {
+      whereClause = "WHERE gs.status = 'active'";
+    }
+
+    const countQuery = `
+    SELECT COUNT(*) AS total
+    FROM result r
+    JOIN gowvell_session gs ON r.session_id = gs.id
+    ${whereClause};
+  `;
+
+    db.query(countQuery, queryParams, (countErr, countResult) => {
+      if (countErr) return callback(countErr, null);
+
+      const totalRecords = countResult[0].total;
+      const totalPages = Math.ceil(totalRecords / limit);
+
+      const dataQuery = `
+      SELECT r.*, gs.session
+      FROM result r
+      JOIN gowvell_session gs ON r.session_id = gs.id
+      ${whereClause}
+      ORDER BY r.created_at DESC
+      LIMIT ? OFFSET ?;
+    `;
+
+      db.query(
+        dataQuery,
+        [...queryParams, parseInt(limit), parseInt(offset)],
+        (err, results) => {
+          if (err) return callback(err, null);
+
+          callback(null, {
+            students: results,
+            totalRecords,
+            totalPages,
+            currentPage: page,
+          });
+        },
+      );
+    });
+  },
+
+  // Delete by ID
+  deleteById: (id, callback) => {
+    const query = "DELETE FROM result WHERE id = ?";
+    db.query(query, [id], (err, result) => {
+      if (err) return callback(err);
+      if (result.affectedRows === 0) {
+        return callback(null, {
+          message: "No record found with the provided ID",
+        });
+      }
+      callback(null, { message: "Record deleted successfully" });
+    });
+  },
+
+  getSchoolEmails: (schoolIds, callback) => {
+    const query = `
+    SELECT id, school_name, school_email
+    FROM school
+    WHERE id IN (${schoolIds.map(() => "?").join(",")})
+  `;
+    db.query(query, schoolIds, callback);
+  },
+
+  //Get all result by select school class subject get students
+  getStudents: (
+    schoolIds,
+    classIds,
+    subjectIds,
+    sessionId,
+    level,
+    callback,
+  ) => {
+    // Normalize inputs
+    if (!Array.isArray(schoolIds)) schoolIds = [schoolIds].filter(Boolean);
+    if (!Array.isArray(classIds)) classIds = [classIds].filter(Boolean);
+    if (!Array.isArray(subjectIds)) subjectIds = [subjectIds].filter(Boolean);
+
+    // Build dynamic WHERE conditions
+    const conditions = [];
+    const params = [];
+
+    if (schoolIds.length > 0) {
+      conditions.push(`r.school_id IN (${schoolIds.map(() => "?").join(",")})`);
+      params.push(...schoolIds);
+    }
+
+    conditions.push(`r.session_id = ?`);
+    params.push(sessionId);
+
+    if (classIds.length > 0) {
+      conditions.push(`r.class_id IN (${classIds.map(() => "?").join(",")})`);
+      params.push(...classIds);
+    }
+
+    if (subjectIds.length > 0) {
+      conditions.push(
+        `r.subject_id IN (${subjectIds.map(() => "?").join(",")})`,
+      );
+      params.push(...subjectIds);
+    }
+
+    if (level) {
+      conditions.push(`r.level = ?`);
+      params.push(level);
+    }
+
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
+
+    // Main data query
+    const dataQuery = `
+    SELECT
+      r.id,
+      r.roll_no,
+      r.student_name,
+      r.school_id,
+      r.full_mark,
+      r.mark_secured,
+      r.percentage,
+      r.medals,
+      r.certificate,
+      r.remarks,
+      r.ranking,
+      r.level,
+      r.status,
+      c.name AS class_name,
+      sub.name AS subject_name
+    FROM result r
+    LEFT JOIN class c ON r.class_id = c.id
+    LEFT JOIN subject_master sub ON r.subject_id = sub.id
+    ${whereClause}
+  `;
+
+    // Count query
+    const countQuery = `
+    SELECT COUNT(*) as total_count
+    FROM result r
+    ${whereClause}
+  `;
+
+    db.query(dataQuery, params, (err, students) => {
+      if (err) return callback(err);
+
+      db.query(countQuery, params, (countErr, countResult) => {
+        if (countErr) return callback(countErr);
+
+        const totalCount = countResult[0]?.total_count || 0;
+        callback(null, { students, totalCount });
+      });
+    });
+  },
+
+  // Fetch class names
+  getClassNames: (classIds, callback) => {
+    if (!Array.isArray(classIds) || !classIds.length) return callback(null, []);
+    const placeholders = classIds.map(() => "?").join(",");
+    const query = `SELECT id, name AS class_name FROM class WHERE id IN (${placeholders})`;
+    db.query(query, classIds, callback);
+  },
+
+  // Fetch subject names
+  getSubjectNames: (subjectIds, callback) => {
+    if (!Array.isArray(subjectIds) || !subjectIds.length)
+      return callback(null, []);
+    const placeholders = subjectIds.map(() => "?").join(",");
+    const query = `SELECT id, name AS subject_name FROM subject_master WHERE id IN (${placeholders})`;
+    db.query(query, subjectIds, callback);
+  },
+
+  // Update pending percentages
+  updatePendingPercentages: (
+    schoolIds,
+    classIds = [],
+    subjectIds = [],
+    level,
+    callback,
+  ) => {
+    //  Validate input
+    if (!Array.isArray(schoolIds) || schoolIds.length === 0) {
+      return callback(
+        new Error("Invalid input: at least one schoolId is required"),
+      );
+    }
+
+    // Build placeholders dynamically
+    const schoolPlaceholders = schoolIds.map(() => "?").join(",");
+    const classCondition = classIds.length
+      ? `AND class_id IN (${classIds.map(() => "?").join(",")})`
+      : "";
+    const subjectCondition = subjectIds.length
+      ? `AND subject_id IN (${subjectIds.map(() => "?").join(",")})`
+      : "";
+
+    // Step 1: Validate result data
+    const validateQuery = `
+    SELECT COUNT(*) AS invalid_count
+    FROM result
+    WHERE status = 'pending'
+      AND school_id IN (${schoolPlaceholders})
+      ${classCondition}
+      ${subjectCondition}
+      AND (full_mark <= 0 OR mark_secured < 0 OR mark_secured > full_mark)
+  `;
+
+    const validateParams = [...schoolIds, ...classIds, ...subjectIds];
+
+    db.query(validateQuery, validateParams, (err, result) => {
+      if (err) return callback(err);
+      if (result[0].invalid_count > 0) {
+        return callback(
+          new Error("Invalid data: Check full_mark and mark_secured values"),
+        );
+      }
+
+      // Step 2: Update result table
+      const updateResultQuery = `
+      WITH RankedResults AS (
+        SELECT
+          id,
+          student_id,
+          DENSE_RANK() OVER (
+            PARTITION BY class_id, subject_id
+            ORDER BY (mark_secured / full_mark) * 100 DESC
+          ) AS student_rank
+        FROM result
+        WHERE status = 'pending'
+          AND school_id IN (${schoolPlaceholders})
+          ${classCondition}
+          ${subjectCondition}
+          AND full_mark > 0
+      )
+      UPDATE result r
+      JOIN RankedResults rr ON r.id = rr.id
+      SET
+        r.percentage = (r.mark_secured / r.full_mark) * 100,
+        r.status = 'success',
+        r.ranking = rr.student_rank,
+        r.certificate = CASE
+          WHEN rr.student_rank IN (1,2,3) AND (r.mark_secured / r.full_mark) * 100 >= 60 THEN 'Achievement'
+          ELSE 'Participation'
+        END,
+        r.remarks = CASE
+          WHEN (r.mark_secured / r.full_mark) * 100 >= 90 THEN 'Outstanding Performance'
+          WHEN (r.mark_secured / r.full_mark) * 100 >= 80 THEN 'Good Performance'
+          ELSE NULL
+        END,
+        r.medals = CASE
+          WHEN (r.mark_secured / r.full_mark) * 100 < 60 THEN NULL
+          WHEN rr.student_rank = 1 THEN 'Gold'
+          WHEN rr.student_rank = 2 THEN 'Silver'
+          WHEN rr.student_rank = 3 THEN 'Bronze'
+          ELSE NULL
+        END,
+        r.updated_at = CURRENT_TIMESTAMP
+      WHERE r.status = 'pending'
+        AND r.school_id IN (${schoolPlaceholders})
+        ${classCondition}
+        ${subjectCondition}
+        AND r.full_mark > 0
+    `;
+
+      const updateResultParams = [
+        ...schoolIds,
+        ...classIds,
+        ...subjectIds,
+        ...schoolIds,
+        ...classIds,
+        ...subjectIds,
+      ];
+
+      db.query(updateResultQuery, updateResultParams, (err, result) => {
+        if (err) return callback(err);
+
+        // Step 3a: Update students with medals
+        const updateStudentMedalQuery = `
+        UPDATE student s
+        JOIN result r ON s.id = r.student_id
+        SET s.level_1 = 'continue',
+            s.level_2 = 'ongoing'
+        WHERE r.school_id IN (${schoolPlaceholders})
+          ${classCondition}
+          ${subjectCondition}
+          AND r.medals IN ('Gold', 'Silver', 'Bronze')
+      `;
+        const updateStudentMedalParams = [
+          ...schoolIds,
+          ...classIds,
+          ...subjectIds,
+        ];
+
+        db.query(
+          updateStudentMedalQuery,
+          updateStudentMedalParams,
+          (err, studentMedalResult) => {
+            if (err) return callback(err);
+
+            // Step 3b: Update remaining students (no medal)
+            const updateStudentNoMedalQuery = `
+          UPDATE student s
+          JOIN result r ON s.id = r.student_id
+          SET s.level_1 = 'completed',
+              s.level_2 = NULL
+          WHERE r.school_id IN (${schoolPlaceholders})
+            ${classCondition}
+            ${subjectCondition}
+            AND (r.medals IS NULL OR r.medals NOT IN ('Gold', 'Silver', 'Bronze'))
+        `;
+            const updateStudentNoMedalParams = [
+              ...schoolIds,
+              ...classIds,
+              ...subjectIds,
+            ];
+
+            db.query(
+              updateStudentNoMedalQuery,
+              updateStudentNoMedalParams,
+              (err, studentNoMedalResult) => {
+                if (err) return callback(err);
+
+                const totalUpdated =
+                  studentMedalResult.affectedRows +
+                  studentNoMedalResult.affectedRows;
+
+                const message = `
+            Results updated:
+            - ${studentMedalResult.affectedRows} students (Gold/Silver/Bronze) upgraded to level_2 ongoing
+            - ${studentNoMedalResult.affectedRows} students (no medal) marked level_2 NULL
+          `;
+
+                callback(null, {
+                  message,
+                  affectedResultRows: result.affectedRows,
+                  upgradedMedalWinners: studentMedalResult.affectedRows,
+                  noMedal: studentNoMedalResult.affectedRows,
+                  level,
+                });
+              },
+            );
+          },
+        );
+      });
+    });
+  },
+
+  //updated medals
+  updateMedal: (id, certificate, callback) => {
+    const query = `
+      UPDATE result
+      SET certificate  = ?
+      WHERE id = ?
+    `;
+    db.query(query, [certificate, id], (err, result) => {
+      if (err) return callback(err);
+      callback(null, { message: "Wild card entry successfully" });
+    });
+  },
+
+  //report result achievemnt studnet Get all result by select school  subject
+  getEvaluteStudents: (
+    schoolId,
+    subjectIds,
+    sessionId,
+    certificate = null,
+    callback,
+  ) => {
+    if (!Array.isArray(subjectIds)) subjectIds = [subjectIds];
+
+    const subjectPlaceholders = subjectIds.map(() => "?").join(",");
+
+    let dataQuery = `
+    SELECT
+      r.id,
+      r.roll_no,
+      r.student_name,
+      r.school_id,
+      r.full_mark,
+      r.mark_secured,
+      r.percentage,
+      r.medals,
+      r.certificate,
+      r.remarks,
+      r.ranking,
+      r.level,
+      r.status,
+      c.name AS class_name,
+      sub.name AS subject_name
+    FROM result r
+    LEFT JOIN class c ON r.class_id = c.id
+    LEFT JOIN subject_master sub ON r.subject_id = sub.id
+    WHERE r.school_id = ?
+      AND r.session_id = ?
+      AND r.subject_id IN (${subjectPlaceholders})
+  `;
+
+    let countQuery = `
+    SELECT COUNT(*) as total_count
+    FROM result r
+    WHERE r.school_id = ?
+      AND r.session_id = ?
+      AND r.subject_id IN (${subjectPlaceholders})
+  `;
+
+    const dataParams = [schoolId, sessionId, ...subjectIds];
+    const countParams = [schoolId, sessionId, ...subjectIds];
+
+    if (certificate) {
+      dataQuery += " AND r.certificate = ?";
+      countQuery += " AND r.certificate = ?";
+      dataParams.push(certificate);
+      countParams.push(certificate);
+    }
+
+    db.query(dataQuery, dataParams, (err, students) => {
+      if (err) return callback(err);
+
+      db.query(countQuery, countParams, (countErr, countResult) => {
+        if (countErr) return callback(countErr);
+        callback(null, { students, totalCount: countResult[0].total_count });
+      });
+    });
+  },
+
+  //medals updated or assign
+  updateMedalforWildCard: (id, medals, callback) => {
+    const updateMedalQuery = `
+    UPDATE result
+    SET medals = ?
+    WHERE id = ?
+  `;
+
+    db.query(updateMedalQuery, [medals, id], (err, result) => {
+      if (err) return callback(err);
+
+      // Step 2: Get the student's result details
+      const fetchQuery = `
+      SELECT r.student_id, r.percentage, r.medals
+      FROM result r
+      WHERE r.id = ?
+    `;
+
+      db.query(fetchQuery, [id], (err, rows) => {
+        if (err) return callback(err);
+        if (rows.length === 0)
+          return callback(null, { message: "No result found" });
+
+        const { student_id, percentage, medals } = rows[0];
+
+        // Step 3: Decide level update
+        let updateStudentQuery = "";
+        let params = [];
+
+        // 🟢 Upgrade condition — if medals are present (gold/silver/bronze)
+        if (
+          medals &&
+          ["gold", "silver", "bronze"].includes(medals.toLowerCase())
+        ) {
+          updateStudentQuery = `
+          UPDATE student
+          SET level_1 = 'continue', level_2 = 'ongoing'
+          WHERE id = ?
+        `;
+          params = [student_id];
+        }
+        // 🔴 Downgrade condition — medals removed and percentage < 60
+        else if (!medals || medals === "") {
+          if (percentage < 60) {
+            updateStudentQuery = `
+            UPDATE student
+            SET level_1 = 'completed', level_2 = NULL
+            WHERE id = ?
+          `;
+            params = [student_id];
+          }
+        }
+
+        if (updateStudentQuery) {
+          db.query(updateStudentQuery, params, (err2) => {
+            if (err2) return callback(err2);
+            callback(null, {
+              message: "Medal updated and student level adjusted successfully",
+            });
+          });
+        } else {
+          callback(null, { message: "Medal updated (no level change needed)" });
+        }
+      });
+    });
+  },
+
+  // models/result.model.js send email form schoo of students
+  // models/result.model.js
+
+  getStudentsByResults: async ({
+    schoolIds,
+    classIds = [],
+    subjectIds = [],
+    sessionId,
+    level,
+    status = "success", // default only success
+  }) => {
+    const conditions = [];
+    const params = [];
+
+    if (schoolIds?.length) {
+      conditions.push(`r.school_id IN (${schoolIds.map(() => "?").join(",")})`);
+      params.push(...schoolIds);
+    }
+
+    conditions.push(`r.session_id = ?`);
+    params.push(sessionId);
+
+    if (classIds?.length) {
+      conditions.push(`r.class_id IN (${classIds.map(() => "?").join(",")})`);
+      params.push(...classIds);
+    }
+
+    if (subjectIds?.length) {
+      conditions.push(
+        `r.subject_id IN (${subjectIds.map(() => "?").join(",")})`,
+      );
+      params.push(...subjectIds);
+    }
+
+    if (level) {
+      conditions.push(`r.level = ?`);
+      params.push(level);
+    }
+
+    if (status) {
+      conditions.push(`r.status = ?`);
+      params.push(status);
+    }
+
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
+    const dataQuery = `
+    SELECT
+      r.id,
+      r.roll_no,
+      r.student_name,
+      r.school_id,
+
+      s.school_name,
+      s.school_email,
+      s.school_code,
+      s.school_address,
+
+      r.full_mark,
+      r.mark_secured,
+      r.percentage,
+      r.medals,
+      r.certificate,
+      r.remarks,
+      r.ranking,
+      r.level,
+      r.status,
+
+      c.name AS class_name,
+      sub.name AS subject_name
+
+    FROM result r
+    LEFT JOIN school s ON r.school_id = s.id
+    LEFT JOIN class c ON r.class_id = c.id
+    LEFT JOIN subject_master sub ON r.subject_id = sub.id
+    ${whereClause}
+  `;
+
+    const countQuery = `
+    SELECT COUNT(*) as total_count
+    FROM result r
+    ${whereClause}
+  `;
+
+    // ✅ Run in parallel (faster)
+    const [[students], [countResult]] = await Promise.all([
+      db.promise().query(dataQuery, params),
+      db.promise().query(countQuery, params),
+    ]);
+
+    return {
+      students,
+      totalCount: countResult[0]?.total_count || 0,
+    };
+  },
+};
+
+export default ResultModel;

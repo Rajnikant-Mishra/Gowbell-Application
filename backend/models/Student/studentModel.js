@@ -257,7 +257,7 @@ export const Student = {
           if (err) return callback(err);
           if (sameSessionResult.length > 0) {
             return callback(
-              new Error("This Aadhaar is already registered in this session")
+              new Error("This Aadhaar is already registered in this session"),
             );
           }
 
@@ -305,7 +305,7 @@ export const Student = {
                   }
 
                   const formattedRollNo = `${school_code}${class_id}${level}${String(
-                    newRollNumber
+                    newRollNumber,
                   ).padStart(2, "0")}`;
 
                   const subjectValue = student_subject
@@ -333,17 +333,17 @@ export const Student = {
                           const lastStudentCode = result[0].student_code;
                           const lastNumber = parseInt(
                             lastStudentCode.split("-").pop(),
-                            10
+                            10,
                           );
                           if (!isNaN(lastNumber))
                             newStudentCodeNumber = lastNumber + 1;
                         }
 
                         const generatedStudentCode = `${studentCodePrefix}${String(
-                          newStudentCodeNumber
+                          newStudentCodeNumber,
                         ).padStart(3, "0")}`;
                         cb(null, generatedStudentCode);
-                      }
+                      },
                     );
                   };
 
@@ -391,14 +391,14 @@ export const Student = {
                       (err, result) => {
                         if (err) return callback(err);
                         callback(null, result);
-                      }
+                      },
                     );
                   });
                 });
               });
-            }
+            },
           );
-        }
+        },
       );
     });
   },
@@ -419,7 +419,7 @@ export const Student = {
       const missingErrors = [];
       students.forEach((s, idx) => {
         const missing = requiredFields.filter(
-          (f) => s[f] == null || s[f] === ""
+          (f) => s[f] == null || s[f] === "",
         );
         if (missing.length > 0) {
           missingErrors.push({
@@ -431,7 +431,7 @@ export const Student = {
 
       if (missingErrors.length > 0) {
         return reject(
-          new Error("Missing required fields", { cause: missingErrors })
+          new Error("Missing required fields", { cause: missingErrors }),
         );
       }
 
@@ -458,7 +458,7 @@ export const Student = {
               if (res.length === 0)
                 return reject(new Error(`${table} not found: ${name}`));
               resolve(res[0].id);
-            }
+            },
           );
         });
       };
@@ -472,7 +472,7 @@ export const Student = {
               if (res.length === 0)
                 return reject(new Error("No active session"));
               resolve(res[0].id);
-            }
+            },
           );
         });
 
@@ -487,8 +487,8 @@ export const Student = {
                   if (res.length === 0)
                     return reject(new Error("Invalid session ID"));
                   resolve(res[0].id);
-                }
-              )
+                },
+              ),
             )
           : getActiveSession();
 
@@ -602,8 +602,8 @@ export const Student = {
           db.query(
             `SELECT aadhaar_number, session_id FROM student WHERE aadhaar_number IN (?)`,
             [aadhaarList],
-            (e, r) => (e ? rej(e) : res(r))
-          )
+            (e, r) => (e ? rej(e) : res(r)),
+          ),
         );
 
         const existingMap = {};
@@ -710,7 +710,7 @@ export const Student = {
         class_id,
         level,
         session_id,
-        aadhaarMap
+        aadhaarMap,
       ) => {
         // Get school code
         const [schoolRow] = await new Promise((resolve, reject) => {
@@ -720,7 +720,7 @@ export const Student = {
             (err, results) => {
               if (err) return reject(err);
               resolve(results);
-            }
+            },
           );
         });
 
@@ -736,7 +736,7 @@ export const Student = {
             (err, results) => {
               if (err) return reject(err);
               resolve(results || []);
-            }
+            },
           );
         });
 
@@ -774,13 +774,13 @@ export const Student = {
               (err, results) => {
                 if (err) return reject(err);
                 resolve(results || []);
-              }
+              },
             );
           });
 
           for (const row of existingRolls) {
             const conflictedStudent = group.find(
-              (s) => String(s.roll_no).trim() === row.roll_no
+              (s) => String(s.roll_no).trim() === row.roll_no,
             );
             if (conflictedStudent) {
               rollNoErrors.push({
@@ -810,7 +810,7 @@ export const Student = {
             (err, results) => {
               if (err) return reject(err);
               resolve(results || []);
-            }
+            },
           );
         });
 
@@ -833,7 +833,7 @@ export const Student = {
             do {
               candidate = `${rollPrefix}${String(nextAutoRoll).padStart(
                 2,
-                "0"
+                "0",
               )}`;
               if (!usedRollNos.has(candidate)) break;
               nextAutoRoll++;
@@ -923,7 +923,7 @@ export const Student = {
               class_id,
               level,
               session_id,
-              {}
+              {},
             );
             toInsert.push(...withCodes);
           }
@@ -945,7 +945,7 @@ export const Student = {
           reject(
             new Error("Processing failed", {
               cause: [{ rowIndex: null, message: err.message }],
-            })
+            }),
           );
         });
     });
@@ -1069,7 +1069,7 @@ export const Student = {
         "s.student_name",
         "s.roll_no",
         "c.name", // <-- search by class name
-        "sc.school_name", 
+        "sc.school_name",
         "s.student_section",
         "s.mobile_number",
         "s.whatsapp_number",
@@ -1137,7 +1137,7 @@ export const Student = {
             totalPages,
             totalRecords,
           });
-        }
+        },
       );
     });
   },
@@ -1193,7 +1193,7 @@ export const Student = {
         city,
         id,
       ],
-      callback
+      callback,
     );
   },
 
@@ -1203,283 +1203,12 @@ export const Student = {
   },
 
   //for omr issues student data by school class subject
-  // getStudentsByFilters: (
-  //   schoolName,
-  //   classList,
-  //   subjectList,
-  //   level,
-  //   callback
-  // ) => {
-  //   if (!classList.length || !subjectList.length) {
-  //     return callback(null, {
-  //       students: [],
-  //       totalCount: 0,
-  //       exam_date: null,
-  //       center_name: null,
-  //     });
-  //   }
-
-  //   const placeholders = classList.map(() => "?").join(",");
-  //   const subjectPlaceholders = subjectList.map(() => "?").join(",");
-  //   const subjectJsonConditions = subjectList
-  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
-  //     .join(" OR ");
-
-  //   let levelCondition = "";
-  //   if (level === "level_2") {
-  //     levelCondition = "AND s.level_2 IS NOT NULL";
-  //   }
-
-  //   // 🔹 Fetch students
-  //   const dataQuery = `
-  //   SELECT
-  //     s.id,
-  //     s.roll_no,
-  //     s.student_name,
-  //     s.school_id,
-  //     s.level_1,
-  //     s.level_2,
-  //     c.name AS class_name,
-  //     sub.name AS subject_name
-  //   FROM student s
-  //   LEFT JOIN class c ON s.class_id = c.id
-  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //     ON TRUE
-  //   LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-  //   WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-  //     AND s.class_id IN (${placeholders})
-  //     AND (${subjectJsonConditions})
-  //     AND sub.id IN (${subjectPlaceholders})
-  //     ${levelCondition}
-  //   ORDER BY s.id
-  // `;
-
-  //   // 🔹 Count total
-  //   const countQuery = `
-  //   SELECT COUNT(DISTINCT s.id) as total_count
-  //   FROM student s
-  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //     ON TRUE
-  //   WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-  //     AND s.class_id IN (${placeholders})
-  //     AND (${subjectJsonConditions})
-  //     ${levelCondition}
-  // `;
-
-  //   // 🔹 Get exam date
-  //   const examQuery = `
-  //   SELECT DATE(exam_date) AS exam_date
-  //   FROM exam
-  //   WHERE school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-  //   ORDER BY exam_date DESC
-  //   LIMIT 1
-  // `;
-
-  //   // 🔹 Get center name via assign_center & center
-  //   const centerQuery = `
-  //   SELECT c.center_name
-  //   FROM assign_center ac
-  //   JOIN center c ON ac.assign_center_name_id = c.id
-  //   WHERE JSON_CONTAINS(ac.school_id, CAST((SELECT id FROM school WHERE school_name = ? LIMIT 1) AS JSON))
-  //   LIMIT 1
-  // `;
-
-  //   const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
-  //   const dataParams = [
-  //     schoolName,
-  //     ...classList,
-  //     ...jsonSubjectParams,
-  //     ...subjectList,
-  //   ];
-  //   const countParams = [schoolName, ...classList, ...jsonSubjectParams];
-
-  //   // 🧩 Step 1: Get exam date
-  //   db.query(examQuery, [schoolName], (examErr, examResult) => {
-  //     if (examErr) return callback(examErr);
-  //     const exam_date = examResult.length > 0 ? examResult[0].exam_date : null;
-
-  //     // 🧩 Step 2: Get center name
-  //     db.query(centerQuery, [schoolName], (centerErr, centerResult) => {
-  //       if (centerErr) return callback(centerErr);
-  //       const center_name =
-  //         centerResult.length > 0 ? centerResult[0].center_name : null;
-
-  //       // 🧩 Step 3: Get students
-  //       db.query(dataQuery, dataParams, (err, students) => {
-  //         if (err) return callback(err);
-
-  //         // 🧩 Step 4: Get total count
-  //         db.query(countQuery, countParams, (countErr, countResult) => {
-  //           if (countErr) return callback(countErr);
-
-  //           const totalCount = countResult[0]?.total_count || 0;
-
-  //           // 🧩 Step 5: Final callback
-  //           callback(null, { students, totalCount, exam_date, center_name });
-  //         });
-  //       });
-  //     });
-  //   });
-  // },
-
-  // ==============================
-  // getStudentsByFilters: (
-  //   schoolName,
-  //   classList,
-  //   subjectList,
-  //   level,
-  //   callback
-  // ) => {
-  //   if (!classList.length || !subjectList.length) {
-  //     return callback(null, {
-  //       students: [],
-  //       totalCount: 0,
-  //       exam_date: null,
-  //       center_name: null,
-  //       school_level: null,
-  //     });
-  //   }
-
-  //   const placeholders = classList.map(() => "?").join(",");
-  //   const subjectPlaceholders = subjectList.map(() => "?").join(",");
-  //   const subjectJsonConditions = subjectList
-  //     .map(() => `JSON_CONTAINS(s.student_subject, ?)`)
-  //     .join(" OR ");
-
-  //   let levelCondition = "";
-  //   if (level === "level_2") {
-  //     levelCondition = "AND s.level_2 IS NOT NULL";
-  //   }
-
-  //   // 🔹 Fetch students
-  //   const dataQuery = `
-  //   SELECT
-  //     s.id,
-  //     s.roll_no,
-  //     s.student_name,
-  //     s.school_id,
-  //     s.level_1,
-  //     s.level_2,
-  //     s.level_3,
-  //     s.level_4,
-  //     c.name AS class_name,
-  //     sub.name AS subject_name
-  //   FROM student s
-  //   LEFT JOIN class c ON s.class_id = c.id
-  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //     ON TRUE
-  //   LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-  //   WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-  //     AND s.class_id IN (${placeholders})
-  //     AND (${subjectJsonConditions})
-  //     AND sub.id IN (${subjectPlaceholders})
-  //     ${levelCondition}
-  //   ORDER BY s.id
-  // `;
-
-  //   // 🔹 Count total
-  //   const countQuery = `
-  //   SELECT COUNT(DISTINCT s.id) as total_count
-  //   FROM student s
-  //   LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss
-  //     ON TRUE
-  //   WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-  //     AND s.class_id IN (${placeholders})
-  //     AND (${subjectJsonConditions})
-  //     ${levelCondition}
-  // `;
-
-  //   // 🔹 Get exam date
-  //   const examQuery = `
-  //   SELECT DATE(exam_date) AS exam_date
-  //   FROM exam
-  //   WHERE school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1)
-  //   ORDER BY exam_date DESC
-  //   LIMIT 1
-  // `;
-
-  //   // 🔹 Get center name
-  //   const centerQuery = `
-  //   SELECT c.center_name
-  //   FROM assign_center ac
-  //   JOIN center c ON ac.assign_center_name_id = c.id
-  //   WHERE JSON_CONTAINS(ac.school_id, CAST((SELECT id FROM school WHERE school_name = ? LIMIT 1) AS JSON))
-  //   LIMIT 1
-  // `;
-
-  //   // 🔹 Detect ongoing level for this school
-  //   const ongoingLevelQuery = `
-  //   SELECT
-  //     CASE
-  //       WHEN EXISTS (SELECT 1 FROM student s WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1) AND s.level_4 = 'ongoing') THEN 'level_4'
-  //       WHEN EXISTS (SELECT 1 FROM student s WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1) AND s.level_3 = 'ongoing') THEN 'level_3'
-  //       WHEN EXISTS (SELECT 1 FROM student s WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1) AND s.level_2 = 'ongoing') THEN 'level_2'
-  //       WHEN EXISTS (SELECT 1 FROM student s WHERE s.school_id = (SELECT id FROM school WHERE school_name = ? LIMIT 1) AND s.level_1 = 'ongoing') THEN 'level_1'
-  //       ELSE NULL
-  //     END AS school_level
-  // `;
-
-  //   const jsonSubjectParams = subjectList.map((sub) => JSON.stringify(sub));
-  //   const dataParams = [
-  //     schoolName,
-  //     ...classList,
-  //     ...jsonSubjectParams,
-  //     ...subjectList,
-  //   ];
-  //   const countParams = [schoolName, ...classList, ...jsonSubjectParams];
-
-  //   // 🧩 Step 1: Get exam date
-  //   db.query(examQuery, [schoolName], (examErr, examResult) => {
-  //     if (examErr) return callback(examErr);
-  //     const exam_date = examResult.length > 0 ? examResult[0].exam_date : null;
-
-  //     // 🧩 Step 2: Get center name
-  //     db.query(centerQuery, [schoolName], (centerErr, centerResult) => {
-  //       if (centerErr) return callback(centerErr);
-  //       const center_name =
-  //         centerResult.length > 0 ? centerResult[0].center_name : null;
-
-  //       // 🧩 Step 3: Get ongoing level
-  //       db.query(
-  //         ongoingLevelQuery,
-  //         [schoolName, schoolName, schoolName, schoolName],
-  //         (levelErr, levelResult) => {
-  //           if (levelErr) return callback(levelErr);
-  //           const school_level = levelResult[0]?.school_level || null;
-
-  //           // 🧩 Step 4: Get students
-  //           db.query(dataQuery, dataParams, (err, students) => {
-  //             if (err) return callback(err);
-
-  //             // 🧩 Step 5: Get total count
-  //             db.query(countQuery, countParams, (countErr, countResult) => {
-  //               if (countErr) return callback(countErr);
-
-  //               const totalCount = countResult[0]?.total_count || 0;
-
-  //               // 🧩 Step 6: Final callback
-  //               callback(null, {
-  //                 students,
-  //                 totalCount,
-  //                 exam_date,
-  //                 center_name,
-  //                 school_level, // 👈 show which level is ongoing
-  //               });
-  //             });
-  //           });
-  //         }
-  //       );
-  //     });
-  //   });
-  // },
-
-  //====================================================
   getStudentsByFilters: (
     school_id,
     classList,
     subjectList,
     level,
-    callback
+    callback,
   ) => {
     if (!classList.length || !subjectList.length) {
       return callback(null, {
@@ -1511,27 +1240,30 @@ export const Student = {
     // 🔹 Fetch students
     const dataQuery = `
     SELECT 
-      s.id,
-      s.roll_no,
-      s.student_name,
-      s.school_id,
-      s.level_1,
-      s.level_2,
-      s.level_3,
-      s.level_4,
-      c.name AS class_name,
-      sub.name AS subject_name
-    FROM student s
-    LEFT JOIN class c ON s.class_id = c.id
-    LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
-      ON TRUE
-    LEFT JOIN subject_master sub ON ss.subject_id = sub.id
-    WHERE ${schoolCondition}
-      AND s.class_id IN (${classPlaceholders})
-      AND (${subjectJsonConditions})
-      AND sub.id IN (${subjectPlaceholders})
-      ${levelCondition}
-    ORDER BY s.id
+  s.id,
+  s.roll_no,
+  s.student_name,
+  s.school_id,
+  sch.school_name,
+  sch.school_address,
+  s.level_1,
+  s.level_2,
+  s.level_3,
+  s.level_4,
+  c.name AS class_name,
+  sub.name AS subject_name
+FROM student s
+LEFT JOIN school sch ON s.school_id = sch.id   -- ✅ ADD THIS
+LEFT JOIN class c ON s.class_id = c.id
+LEFT JOIN JSON_TABLE(s.student_subject, '$[*]' COLUMNS (subject_id INT PATH '$')) AS ss 
+  ON TRUE
+LEFT JOIN subject_master sub ON ss.subject_id = sub.id
+WHERE ${schoolCondition}
+  AND s.class_id IN (${classPlaceholders})
+  AND (${subjectJsonConditions})
+  AND sub.id IN (${subjectPlaceholders})
+  ${levelCondition}
+ORDER BY s.id
   `;
 
     // 🔹 Count total
@@ -2127,7 +1859,7 @@ export const Student = {
     classList,
     subjectList,
     rollnoclasssubject,
-    callback
+    callback,
   ) => {
     const placeholders = classList.map(() => "?").join(",");
     const subjectPlaceholders = subjectList.map(() => "?").join(",");
@@ -2205,7 +1937,7 @@ export const Student = {
         rollNo,
         classId,
         JSON.stringify(Number(subjectId)),
-        subjectId
+        subjectId,
       );
       countParams.push(rollNo, classId, JSON.stringify(Number(subjectId)));
     }
@@ -2220,10 +1952,10 @@ export const Student = {
 
         // ✅ Calculate counts (Success / Pending)
         const successCount = students.filter(
-          (stu) => stu.status === "Success"
+          (stu) => stu.status === "Success",
         ).length;
         const pendingCount = students.filter(
-          (stu) => stu.status !== "Success"
+          (stu) => stu.status !== "Success",
         ).length;
 
         // ✅ When rollnoclasssubject provided, handle insert/update omr_receipt
@@ -2306,10 +2038,10 @@ export const Student = {
 
               // ✅ Recalculate counts after marking success
               const newSuccessCount = students.filter(
-                (stu) => stu.status === "Success"
+                (stu) => stu.status === "Success",
               ).length;
               const newPendingCount = students.filter(
-                (stu) => stu.status !== "Success"
+                (stu) => stu.status !== "Success",
               ).length;
 
               return callback(null, {
@@ -2518,7 +2250,7 @@ export const Student = {
         const totalCount = countResult[0].total_count;
 
         const successCount = students.filter(
-          (x) => x.exists_assign === 1
+          (x) => x.exists_assign === 1,
         ).length;
         const pendingCount = totalCount - successCount;
 
@@ -2605,7 +2337,7 @@ export const Student = {
   `;
 
     const jsonSubjectParamsStudents = subjectList.map((sub) =>
-      JSON.stringify(sub)
+      JSON.stringify(sub),
     );
     const dataParams = [schoolId, ...classList, ...jsonSubjectParamsStudents];
     const countParams = [schoolId, ...classList, ...jsonSubjectParamsStudents];
@@ -2786,7 +2518,7 @@ export const Student = {
     classList,
     subjectList,
     session_id,
-    callback
+    callback,
   ) => {
     // Step 1: Resolve session_id first
     const resolveSessionId = (next) => {
@@ -2852,7 +2584,7 @@ export const Student = {
               if (countErr) return callback(countErr);
               const totalCount = countResult[0]?.total_count || 0;
               callback(null, { students, totalCount });
-            }
+            },
           );
         });
         return;

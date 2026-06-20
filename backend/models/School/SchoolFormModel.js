@@ -21,75 +21,6 @@ ORDER BY s.id DESC;
   },
 
   //get all school for paginations
-  // getAll: (page = 1, limit = 10, search = "", callback) => {
-  //   const offset = (page - 1) * limit;
-  //   let whereClause = "";
-  //   let queryParams = [];
-
-  //   if (search && search.trim() !== "") {
-  //     whereClause = `WHERE
-  //     s.school_name LIKE ? OR
-  //     s.school_email LIKE ? OR
-  //     c1.name LIKE ? OR
-  //     s1.name LIKE ? OR
-  //     d.name LIKE ? OR
-  //     c2.name LIKE ?`;
-  //     for (let i = 0; i < 6; i++) queryParams.push(`%${search}%`);
-  //   }
-
-  //   const query = `
-  //   SELECT
-  //     s.*,
-  //     c1.name AS country_name,
-  //     s1.name AS state_name,
-  //     d.name AS district_name,
-  //     c2.name AS city_name
-  //   FROM school s
-  //   LEFT JOIN countries c1 ON s.country = c1.id
-  //   LEFT JOIN states s1 ON s.state = s1.id
-  //   LEFT JOIN districts d ON s.district = d.id
-  //   LEFT JOIN cities c2 ON s.city = c2.id
-  //   ${whereClause}
-  //   ORDER BY s.id DESC
-  //   LIMIT ? OFFSET ?;
-  // `;
-
-  //   const countQuery = `
-  //   SELECT COUNT(*) AS total FROM school s
-  //   LEFT JOIN countries c1 ON s.country = c1.id
-  //   LEFT JOIN states s1 ON s.state = s1.id
-  //   LEFT JOIN districts d ON s.district = d.id
-  //   LEFT JOIN cities c2 ON s.city = c2.id
-  //   ${whereClause};
-  // `;
-
-  //   db.query(countQuery, queryParams, (err, countResult) => {
-  //     if (err) return callback(err);
-
-  //     const totalRecords = countResult[0].total;
-  //     const totalPages = Math.ceil(totalRecords / limit);
-  //     const nextPage = page < totalPages ? page + 1 : null;
-  //     const prevPage = page > 1 ? page - 1 : null;
-
-  //     db.query(
-  //       query,
-  //       [...queryParams, parseInt(limit), parseInt(offset)],
-  //       (err, result) => {
-  //         if (err) return callback(err);
-
-  //         callback(null, {
-  //           schools: result,
-  //           currentPage: page,
-  //           nextPage,
-  //           prevPage,
-  //           totalPages,
-  //           totalRecords,
-  //         });
-  //       }
-  //     );
-  //   });
-  // },
-
   getAll: (page = 1, limit = 10, search = "", callback) => {
     const offset = (page - 1) * limit;
     let whereClause = "";
@@ -177,6 +108,8 @@ ORDER BY s.id DESC;
     db.query(sql, [id], callback);
   },
 
+
+  
   create: (data) => {
     return new Promise((resolve, reject) => {
       const { state, city, school_name } = data;
@@ -189,7 +122,7 @@ ORDER BY s.id DESC;
         return reject(new Error("School name is required"));
       }
 
-      // ✅ Step 1: Query to get the latest school code
+      // Step 1: Query to get the latest school code
       const sqlGetLatestCode = `
       SELECT school_code FROM school 
       WHERE school_code LIKE ? 
@@ -197,7 +130,7 @@ ORDER BY s.id DESC;
     `;
       const stateCityPrefix = `${state}${city}`;
 
-      // ✅ Step 2: Resolve session_id dynamically
+      // Step 2: Resolve session_id dynamically
       const resolveSessionId = (next) => {
         if (data.session_id) {
           const verifyQuery = `SELECT id FROM gowvell_session WHERE id = ?`;
@@ -222,7 +155,7 @@ ORDER BY s.id DESC;
         }
       };
 
-      // ✅ Step 3: Get latest school code and insert
+      // Step 3: Get latest school code and insert
       resolveSessionId((sessionId) => {
         db.query(sqlGetLatestCode, [`${stateCityPrefix}%`], (err, results) => {
           if (err) return reject(err);
@@ -240,7 +173,7 @@ ORDER BY s.id DESC;
             schoolCode = `${stateCityPrefix}01`;
           }
 
-          // ✅ Step 4: Insert new school (no area_name, no duplicate check)
+          // Step 4: Insert new school (no area_name, no duplicate check)
           const sql = `
           INSERT INTO school (
             session_id, board, school_name, school_email, school_contact_number, school_landline_number,
@@ -310,6 +243,9 @@ ORDER BY s.id DESC;
       });
     });
   },
+
+
+
 
   bulkCreate: (schools) => {
     return new Promise((resolve, reject) => {

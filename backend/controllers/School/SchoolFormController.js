@@ -5,6 +5,7 @@ import { sendSms } from "../../controllers/School/smsService.js";
 import { db } from "../../config/db.js";
 import User from "../../models/User/userModel.js";
 import { logActivity } from "../../models/dashboard/activityModel.js";
+import axios from "axios";
 
 export const createSchool = async (req, res) => {
   const { id } = req.user;
@@ -53,6 +54,18 @@ export const createSchool = async (req, res) => {
     };
 
     // Step 4: Create school
+    // const results = await School.create(schoolData);
+
+    // if (!results || !results.insertId) {
+    //   return res
+    //     .status(500)
+    //     .json({ message: "School creation failed, no ID returned" });
+    // }
+
+    // const schoolId = results.insertId;
+    // const schoolCode = results.school_code;
+
+    // Step 4: Create school
     const results = await School.create(schoolData);
 
     if (!results || !results.insertId) {
@@ -64,7 +77,46 @@ export const createSchool = async (req, res) => {
     const schoolId = results.insertId;
     const schoolCode = results.school_code;
 
-    // ✅ Step 5: Log activity
+    //ADD THIS BLOCK HERE (WhatsApp send)
+    try {
+      const number = schoolData.principal_whatsapp?.startsWith("91")
+        ? schoolData.principal_whatsapp
+        : `91${schoolData.principal_whatsapp}`;
+
+      await axios.post(
+        "https://api.gupshup.io/wa/api/v1/msg",
+        new URLSearchParams({
+          channel: "whatsapp",
+          source: "919337071236",
+          destination: number,
+          message: JSON.stringify({
+            // type: "text",
+            // text: `School ${schoolData.school_name} created successfully`,
+            type: "template",
+            template: {
+              id: "school_registration", // MUST match approved template
+              params: [
+                schoolData.school_name, // 
+                schoolData.school_code, // {  
+              ],
+            },
+          }),
+          "src.name": "GowbellFoundation",
+        }),
+        {
+          headers: {
+            apikey: "sk_e8c12b6b5cd241c887aaae6c585a8d66",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        },
+      );
+
+      console.log("WhatsApp send successfully!");
+    } catch (err) {
+      console.log("WhatsApp error:", err.response?.data || err.message);
+    }
+
+    //  Step 5: Log activity
     logActivity({
       user_id: id,
       activity: `School ${data.school_name} has been created`,
@@ -72,7 +124,7 @@ export const createSchool = async (req, res) => {
       ip_address: req.ip || req.connection?.remoteAddress,
     });
 
-    // ✅ Success response
+    //  Success response
     return res.status(201).json({
       message: "School created successfully",
       id: schoolId,
@@ -83,7 +135,7 @@ export const createSchool = async (req, res) => {
   } catch (err) {
     console.error("Error during school creation:", err);
 
-    // ✅ Step 6: Handle duplicate validation cleanly
+    //  Step 6: Handle duplicate validation cleanly
     if (err.message && err.message.toLowerCase().includes("already exists")) {
       return res.status(409).json({
         message: "Duplicate entry",
@@ -168,7 +220,7 @@ export const updateSchool = (req, res) => {
       if (
         err.message &&
         err.message.includes(
-          "A school with the same name and area already exists"
+          "A school with the same name and area already exists",
         )
       ) {
         return res.status(409).json({ error: err.message });
@@ -258,51 +310,6 @@ export const deleteSchool = (req, res) => {
 };
 
 // Filter schools by location country, state., district, city
-// export const filterByLocation = (req, res) => {
-//   const { country, state, district, city } = req.query;
-
-//   const filters = {
-//     country: country || null,
-//     state: state || null,
-//     district: district || null,
-//     city: city || null,
-//   };
-
-//   School.getSchoolCountByLocation(filters)
-//     .then((schoolData) => {
-//       if (schoolData.length === 0) {
-//         return res.status(404).json({
-//           success: false,
-//           message: "No schools found for the selected filters",
-//         });
-//       }
-
-//       res.status(200).json({
-//         success: true,
-//         total_schools: schoolData.reduce(
-//           (sum, item) => sum + item.school_count,
-//           0
-//         ),
-//         data: schoolData.map((item) => ({
-//           country: item.country_name,
-//           state: item.state_name,
-//           district: item.district_name,
-//           city: item.city_name,
-//           school_count: item.school_count,
-//           schools: item.school_names ? item.school_names.split(",") : [],
-//         })),
-//       });
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching school count:", err);
-//       res.status(500).json({
-//         success: false,
-//         message: "Failed to fetch school count",
-//         error: err.message,
-//       });
-//     });
-// };
-
 export const filterByLocation = (req, res) => {
   const { country, state, district, city } = req.query;
 
@@ -343,7 +350,7 @@ export const filterByLocation = (req, res) => {
         level: groupingLevel,
         total_schools: schoolData.reduce(
           (sum, item) => sum + item.school_count,
-          0
+          0,
         ),
         data: groupedData,
       });
@@ -426,7 +433,7 @@ export const updateStatusApproved = async (req, res) => {
         const result = await School.updateStatusApprovedById(
           schoolId,
           status_approved,
-          username
+          username,
         );
 
         if (result.affectedRows === 0) {
@@ -479,7 +486,7 @@ export const updateStatusApproved = async (req, res) => {
               try {
                 await sendSms(school_contact_number, smsMessage);
                 console.log(
-                  `SMS sent to ${school_contact_number} for ${school_name}`
+                  `SMS sent to ${school_contact_number} for ${school_name}`,
                 );
               } catch (smsError) {
                 console.error("Error sending SMS:", smsError);
@@ -487,7 +494,7 @@ export const updateStatusApproved = async (req, res) => {
               }
             } else {
               console.log(
-                `No contact number available for ${school_name}, SMS not sent`
+                `No contact number available for ${school_name}, SMS not sent`,
               );
             }
           });
@@ -531,7 +538,7 @@ export const filterschoolIDByLocation = (req, res) => {
         success: true,
         total_schools: schoolData.reduce(
           (sum, item) => sum + item.school_count,
-          0
+          0,
         ),
         data: schoolData.map((item) => ({
           country: item.country_name,
@@ -614,6 +621,6 @@ export const getReportSchoolByIdCount = (req, res) => {
       }
 
       res.status(200).json({ success: true, data: result });
-    }
+    },
   );
 };

@@ -480,126 +480,15 @@ export const deleteStudent = (req, res) => {
 };
 
 //omr issues
-// export const getFilteredStudents = (req, res) => {
-//   const { schoolName, classList, subjectList, level } = req.body;
-
-//   // ✅ Validate input
-//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
-//     return res.status(400).json({ error: "Invalid input data" });
-//   }
-
-//   // ✅ Call model method
-//   Student.getStudentsByFilters(
-//     schoolName,
-//     classList,
-//     subjectList,
-//     level,
-//     (err, result) => {
-//       if (err) {
-//         console.error("Error fetching students:", err);
-//         return res.status(500).json({ error: "Failed to fetch students" });
-//       }
-
-//       const { students, totalCount, exam_date, center_name } = result;
-
-//       // ✅ Fetch class names
-//       Student.getClassNames(classList, (classErr, classNames) => {
-//         if (classErr) {
-//           console.error("Error fetching class names:", classErr);
-//           return res.status(500).json({ error: "Failed to fetch class names" });
-//         }
-
-//         // ✅ Fetch subject names
-//         Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
-//           if (subjectErr) {
-//             console.error("Error fetching subject names:", subjectErr);
-//             return res
-//               .status(500)
-//               .json({ error: "Failed to fetch subject names" });
-//           }
-
-//           // ✅ Return complete response
-//           res.json({
-//             students,
-//             totalCount,
-//             classNames,
-//             subjectNames,
-//             exam_date,
-//             center_name, // 👈 New field added
-
-//           });
-//         });
-//       });
-//     }
-//   );
-// };
-
-// ==============================
-// export const getFilteredStudents = (req, res) => {
-//   const { schoolName, classList, subjectList, level } = req.body;
-
-//   // ✅ Validate input
-//   if (!schoolName || !Array.isArray(classList) || !Array.isArray(subjectList)) {
-//     return res.status(400).json({ error: "Invalid input data" });
-//   }
-
-//   // ✅ Call model method
-//   Student.getStudentsByFilters(
-//     schoolName,
-//     classList,
-//     subjectList,
-//     level,
-//     (err, result) => {
-//       if (err) {
-//         console.error("Error fetching students:", err);
-//         return res.status(500).json({ error: "Failed to fetch students" });
-//       }
-
-//       const { students, totalCount, exam_date, center_name, school_level } =
-//         result;
-
-//       // ✅ Fetch class names
-//       Student.getClassNames(classList, (classErr, classNames) => {
-//         if (classErr) {
-//           console.error("Error fetching class names:", classErr);
-//           return res.status(500).json({ error: "Failed to fetch class names" });
-//         }
-
-//         // ✅ Fetch subject names
-//         Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
-//           if (subjectErr) {
-//             console.error("Error fetching subject names:", subjectErr);
-//             return res
-//               .status(500)
-//               .json({ error: "Failed to fetch subject names" });
-//           }
-
-//           // ✅ Return complete response
-//           res.json({
-//             students,
-//             totalCount,
-//             classNames,
-//             subjectNames,
-//             exam_date,
-//             center_name,
-//             school_level, // 👈 now automatically shows ongoing level
-//           });
-//         });
-//       });
-//     }
-//   );
-// };
-
-//===================================================
 export const getFilteredStudents = (req, res) => {
   const { school_id, classList, subjectList, level } = req.body;
 
-  // ✅ Validate input
+  //  Validate input
   if (!school_id || !Array.isArray(classList) || !Array.isArray(subjectList)) {
     return res.status(400).json({ error: "Invalid input data" });
   }
 
-  // ✅ Call model method
+  //  Call model method
   Student.getStudentsByFilters(
     school_id,
     classList,
@@ -614,14 +503,14 @@ export const getFilteredStudents = (req, res) => {
       const { students, totalCount, exam_date, center_name, school_level } =
         result;
 
-      // ✅ Fetch class names
+      //  Fetch class names
       Student.getClassNames(classList, (classErr, classNames) => {
         if (classErr) {
           console.error("Error fetching class names:", classErr);
           return res.status(500).json({ error: "Failed to fetch class names" });
         }
 
-        // ✅ Fetch subject names
+        //  Fetch subject names
         Student.getSubjectNames(subjectList, (subjectErr, subjectNames) => {
           if (subjectErr) {
             console.error("Error fetching subject names:", subjectErr);
@@ -630,7 +519,7 @@ export const getFilteredStudents = (req, res) => {
               .json({ error: "Failed to fetch subject names" });
           }
 
-          // ✅ Return complete response
+          //  Return complete response
           res.json({
             students,
             totalCount,

@@ -42,7 +42,7 @@ router.delete("/student/:id",authenticateToken,   deleteStudent);
 router.get("/allstudents", getAllstudentserach);
 
 //omr issues
-router.post("/student/filter", getFilteredStudents);
+router.post("/student/filter", getFilteredStudents); 
 
 //omr receipt
 router.post("/filter/omr-receipt", getFilteredStudentsomrreceipt);

@@ -56,38 +56,28 @@ export const getSubitemsByItemId = (req, res) => {
   });
 };
 
-// export const getNameFromParentId = (req, res) => {
-//   const { parent_id } = req.params;
+// export const getNames = (req, res) => {
+//   const { parent_id, item_id } = req.query;
 
-//   Subitem.getNamesByParentId(parent_id, (err, results) => {
+//   Subitem.getNames(parent_id, item_id, (err, results) => {
 //     if (err) return res.status(500).json({ error: err.message });
 
-//     if (results.length === 0) {
-//       return res.status(404).json({ message: "No names found" });
+//     if (!results || results.length === 0) {
+//       return res.status(404).json({ message: "No data found" });
 //     }
 
-//     // Return all names as an array
-//     const names = results.map((row) => row.name);
-//     res.json({ parent_id, names });
-//   });
-// };
-
-// export const getParentNameFromItemId = (req, res) => {
-//   const { item_id } = req.params;
-
-//   Subitem.getParentNameByItemid(item_id, (err, results) => {
-//     if (err) return res.status(500).json({ error: err.message });
-
-//     if (results.length === 0) {
-//       return res.status(404).json({ message: "No parent found" });
+//     if (parent_id) {
+//       const names = results.map((row) => row.name);
+//       return res.json({ parent_id, names });
+//     } else if (item_id) {
+//       const parentNames = results
+//         .filter((row) => row.parent_name !== null)
+//         .map((row) => ({
+//           parent_id: row.parent_id,
+//           parent_name: row.parent_name,
+//         }));
+//       return res.json({ item_id, parentNames });
 //     }
-
-//     // Extract all parent names into an array
-//     const parentNames = results
-//       .map((row) => row.parent_name)
-//       .filter((name) => name !== null);
-
-//     res.json({ item_id, parentNames });
 //   });
 // };
 
@@ -102,17 +92,15 @@ export const getNames = (req, res) => {
     }
 
     if (parent_id) {
-      const names = results.map((row) => row.name);
-      return res.json({ parent_id, names });
+      return res.json({
+        parent_id,
+        subitems: results,
+      });
     } else if (item_id) {
-      const parentNames = results
-        .filter((row) => row.parent_name !== null)
-        .map((row) => ({
-          parent_id: row.parent_id,
-          parent_name: row.parent_name,
-        }));
-      return res.json({ item_id, parentNames });
+      return res.json({
+        item_id,
+        subitems: results,
+      });
     }
   });
 };
-
