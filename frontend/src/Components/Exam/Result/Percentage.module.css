@@ -1,0 +1,884 @@
+@font-face {
+  font-family: "Gautami";
+  src: url("./assets/fonts/Gautami-Bold.woff") format("woff");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Gautami";
+  src: url("./assets/fonts/Gautami.woff") format("woff");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("./assets/fonts/Gilroy-Regular.woff2") format("woff2");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("./assets/fonts/Gilroy-Bold.woff") format("woff");
+  font-weight: bold;
+}
+
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+:global(body) {
+  margin: 0;
+  font-family: "Gilroy";
+}
+
+/* =========================
+   COVER PAGE
+========================= */
+
+.pageContainer {
+  width: 297mm;
+  height: 210mm;
+
+  position: relative;
+  margin: auto;
+
+  background-image: url("../../../assets/mainbg.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+}
+
+.pageContainer > * {
+  position: absolute;
+  color: white;
+}
+
+.pageContainer > h2 {
+  left: 46em;
+  top: 6.8em;
+  font-weight: 400;
+}
+
+.pageContainer > h1 {
+  left: 8.3em;
+  top: 3.6em;
+
+  font-size: 4.7em;
+
+  font-weight: bolder;
+
+  color: #003197;
+}
+
+.pageContainer > h3:nth-of-type(1) {
+  left: 20em;
+  top: 8.9em;
+
+  font-size: 2.45em;
+}
+
+.pageContainer > h3:nth-of-type(2) {
+  left: 27.5em;
+  top: 21.5em;
+
+  font-size: 1.3em;
+}
+
+.pageContainer > h3:nth-of-type(3) {
+  left: 30em;
+  top: 27.5em;
+
+  font-size: 1.2em;
+}
+
+.pageContainer > h3:nth-of-type(4) {
+  left: 30em;
+  top: 31.5em;
+
+  font-size: 1.2em;
+}
+
+/* =========================
+   SECOND PAGE
+========================= */
+
+.secondPageContentSection {
+  width: 297mm;
+  height: 210mm;
+
+  position: relative;
+  margin: 0 auto;
+
+  background-image: url("../../../assets/mainbg1.jpg");
+
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  page-break-before: always;
+}
+
+.tableOuterContainer {
+width: 93%;
+  height: 85%;
+  background: #f8f8f800;
+  border-radius: 22px;
+  padding: 20px 20px 16px 20px;
+  margin-top: 4em;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   TITLES
+========================= */
+
+.cutoffTitle,
+.resultLevelTitle {
+  width: fit-content;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  color: #123b9f;
+
+  font-family: "Gilroy";
+
+  font-weight: bold;
+}
+
+.cutoffTitle {
+  font-size: 18px;
+
+  margin-bottom: 16px;
+}
+
+/* =========================
+   RESULT TITLE - LEVEL-2 RESULT (Clean & Accurate)
+========================= */
+
+.resultLevelTitle {
+  width: fit-content;
+  margin: 25px auto 22px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #0c3ea8;
+  font-family: "Gilroy";
+  font-weight: 700;
+  font-size: 21px;
+  position: relative;
+  padding: 0 20px;
+  z-index: 2;
+}
+
+/* Middle Blue Circle with Trophy */
+.middleIcon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: #0c3ea8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(12, 62, 168, 0.3);
+  border: 3px solid #ffffff;
+  z-index: 3;
+  position: relative;
+}
+
+.middleIcon .footerSvg {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* White trophy */
+}
+
+/* Horizontal Lines + End Circles */
+.resultLevelTitle::before,
+.resultLevelTitle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 110px;
+  height: 2px;
+  background: #0c3ea8;
+  z-index: 1;
+}
+
+.resultLevelTitle::before {
+  left: -118px;
+}
+
+.resultLevelTitle::after {
+  right: -118px;
+}
+
+/* Small Blue Dots at the ends of the lines */
+.resultLevelTitle::before::after,
+.resultLevelTitle::after::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: #0c3ea8;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* Left side dot */
+.resultLevelTitle::before::after {
+  right: -4px;
+}
+
+/* Right side dot */
+.resultLevelTitle::after::after {
+  left: -4px;
+}
+.cutoffTitle {
+  width: fit-content;
+
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  color: #123b9f;
+
+  font-family: "Gilroy";
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* LEFT & RIGHT THIN LINES */
+
+.cutoffTitle::before,
+.cutoffTitle::after {
+  content: "";
+
+  width: 50px;
+  height: 1px;
+
+  background: #123b9f;
+
+  display: inline-block;
+}
+
+/* STAR COLOR */
+
+.cutoffTitle span {
+  color: #f4c400;
+}
+
+.cutoffTable td:first-child {
+  font-weight: bold;
+}
+
+/* =========================
+   MEDAL COLORS
+========================= */
+
+/* GOLD */
+.cutoffTable tbody tr:nth-child(1) td:first-child {
+  background: #fdf2b571 !important;   /* Gold */
+  color: #000;
+  font-weight: bold;
+}
+
+/* SILVER */
+.cutoffTable tbody tr:nth-child(2) td:first-child {
+  background: #dbdbdb62 !important;   /* Silver */
+  color: #000;
+  font-weight: bold;
+}
+
+/* BRONZE */
+.cutoffTable tbody tr:nth-child(3) td:first-child {
+  background: #f5cea670 !important;   /* Bronze */
+  color:  #000;
+  font-weight: bold;
+}
+
+th{
+  text-align: center ;
+}
+
+
+
+/* =========================
+   TABLES
+========================= */
+
+.cutoffTable,
+.resultTable {
+width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 0.5px solid #bbbcbc;           /* Outer border - light */
+  box-shadow: 0 4px 12px rgba(0, 57, 166, 0.08);
+}
+
+/* HEADERS */
+
+.cutoffTable th,
+.resultTable th {
+background: #0039a6;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 10px 4px;
+  height: 38px;
+  text-align: center;
+  vertical-align: middle;
+  border: 0.5px solid #a3bffa;         /* Thin light blue border */
+  position: relative;
+}
+
+/* BODY */
+
+.cutoffTable td,
+.resultTable td {
+border: 0.5px solid #bbbcbc;         /* Very thin light gray - matches image */
+  text-align: center;
+  vertical-align: middle;
+  padding: 8px 4px;
+  height: 34px;
+  font-size: 12px;
+  color: #1d1d1d;
+  background: white;
+}
+
+
+
+
+.cutoffTable {
+  margin-bottom: 18px;
+}
+
+.resultTable tbody tr:nth-child(even) {
+  background: #bfcae9 !important;
+}
+
+.resultTable tbody tr:nth-child(odd) {
+  background: #ffffff !important;
+}
+.resultTable tbody tr:nth-child(even) td {
+ background: #bfcae9 !important;
+}
+
+.resultTable tbody tr:nth-child(odd) td {
+  background: #ffffff !important;
+}
+/* Remove double borders */
+.cutoffTable th + th,
+.resultTable th + th,
+.cutoffTable td + td,
+.resultTable td + td {
+border-left: 0.5px solid #bbbcbc !important;
+}
+
+/* TABLE WRAPPER */
+
+.tableWrapper {
+  width: 100%;
+
+  overflow: hidden;
+display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+}
+
+/* COLUMN WIDTHS */
+
+.resultTable th:nth-child(1),
+.resultTable td:nth-child(1) {
+  width: 45px;
+}
+
+.resultTable th:nth-child(2),
+.resultTable td:nth-child(2) {
+  width: 150px;
+}
+
+.resultTable th:nth-child(3),
+.resultTable td:nth-child(3) {
+  width: 60px;
+}
+
+.resultTable th:nth-child(4),
+.resultTable td:nth-child(4) {
+  width: 50px;
+}
+
+.resultTable th:nth-child(5),
+.resultTable td:nth-child(5) {
+  width: 80px;
+}
+
+.resultTable th:nth-child(6),
+.resultTable td:nth-child(6) {
+  width: 110px;
+}
+
+.resultTable th:nth-child(7),
+.resultTable td:nth-child(7) {
+  width: 90px;
+}
+
+.resultTable th:nth-child(8),
+.resultTable td:nth-child(8) {
+  width: 70px;
+}
+
+.resultTable th:nth-child(9),
+.resultTable td:nth-child(9) {
+  width: 115px;
+}
+
+.resultTable th:nth-child(10),
+.resultTable td:nth-child(10) {
+  width: 140px;
+}
+
+.resultTable th:nth-child(11),
+.resultTable td:nth-child(11) {
+  width: 85px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+/* =========================
+   FOOTER
+========================= */
+
+/* .footerSection {
+  width: 90%;
+
+  position: absolute;
+  left: 50%;
+  bottom: 2.8em;
+
+  transform: translateX(-50%);
+
+  background: #f8f8f8;
+
+  border-radius: 18px;
+  border: 1px solid #d8dce7;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px 26px;
+
+  box-sizing: border-box;
+}
+
+
+
+.footerBlock {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  position: relative;
+
+  padding: 0 18px;
+}
+
+
+
+.footerBlock:not(:last-child)::after {
+  content: "";
+
+  position: absolute;
+
+  right: 0;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 1px;
+  height: 72px;
+
+  background: #1d4db3;
+
+  opacity: 0.45;
+}
+
+
+
+.footerIcon {
+  width: 58px;
+  height: 58px;
+
+  min-width: 58px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #0039a6;
+}
+
+
+
+.yellowIcon {
+  background: #f4c400;
+}
+
+
+.footerSvg {
+  width: 36px;
+  height: 36px;
+}
+
+
+.footerTitle {
+  color: #0039a6;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  margin-bottom: 4px;
+}
+
+
+
+.footerText {
+  font-size: 12px;
+
+  line-height: 1.4;
+
+  color: #111;
+} */
+
+/* MIDDLE TROPHY ICON */
+
+.middleIcon {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 50%;
+  background: #0c3ea8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 8px rgba(12, 62, 168, 0.3);
+  border: 3px solid #ffffff;
+  z-index: 3;
+  position: relative;
+}
+.middleIcon .footerSvg {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* White trophy */
+}
+/* Decorative Lines */
+.resultLevelTitle::before,
+.resultLevelTitle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 105px;
+  height: 2px;
+  background: #0c3ea8;
+  z-index: 1;
+}
+.cutoffTable td:first-child {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: bold;
+  background: #f8fafc;
+  padding: 8px 6px !important;
+}
+
+.cutoffTable td:first-child img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+
+/* =========================
+   PRINT
+========================= */
+/* =========================
+   CUTOFF TABLE - MEDAL COLUMN
+========================= */
+
+/* First column (Medals) - Make it wider and prevent wrapping */
+.cutoffTable td:first-child,
+.cutoffTable th:first-child {
+width: 110px;
+  min-width: 110px;
+  white-space: nowrap;
+  font-weight: bold;
+  background: #0c3ea8;
+  border-right: 1px solid #bbbcbc;
+}
+
+/* Make sure medal emojis + text stay in one line */
+.cutoffTable td:first-child {
+  font-weight: bold;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Optional: Slightly smaller font for cutoff medals if needed */
+.cutoffTable td:first-child {
+  font-size: 11.8px;
+}
+/* =========================
+   RESULT TITLE - EXACT MATCH TO IMAGE
+========================= */
+.resultLevelTitle {
+  width: fit-content;
+  margin: 26px auto 22px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: #0c3ea8;
+  font-family: "Gilroy";
+  font-weight: 700;
+  font-size: 21px;
+  position: relative;
+  padding: 0 15px;
+}
+
+/* Middle Trophy Circle */
+.middleIcon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: #0c3ea8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(12, 62, 168, 0.35);
+  border: 3.5px solid #ffffff;
+  z-index: 5;
+  position: relative;
+}
+
+.middleIcon .footerSvg {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+/* Left Line */
+.resultLevelTitle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -122px;
+  width: 118px;
+  height: 3px;
+  background: #0c3ea8;
+  z-index: 1;
+}
+
+/* Right Line */
+.resultLevelTitle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -122px;
+  width: 118px;
+  height: 3px;
+  background: #0c3ea8;
+  z-index: 1;
+}
+
+/* Left Small Circle */
+.resultLevelTitle::before::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -4.5px;
+  width: 9px;
+  height: 9px;
+  background: #0c3ea8;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* Right Small Circle */
+.resultLevelTitle::after::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -4.5px;
+  width: 9px;
+  height: 9px;
+  background: #0c3ea8;
+  border-radius: 50%;
+  z-index: 2;
+}
+/* Medal Icons in Cutoff Table */
+.cutoffTable td:first-child {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 6px !important;
+  font-weight: bold;
+  background: #f8fafc;
+}
+
+.cutoffTable td:first-child img {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* Trophy Icon */
+.middleIcon img {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+
+
+.resultTable tbody tr:nth-child(even) td,
+  .resultTable tbody tr:nth-child(even) {
+    background: #e4e9f5 !important;
+  }
+  
+  .resultTable tbody tr:nth-child(odd) td,
+  .resultTable tbody tr:nth-child(odd) {
+    background: #ffffff !important;
+  }
+
+
+
+@media print {
+
+  html,
+  body {
+    width: 297mm;
+    height: 210mm;
+
+    margin: 0;
+    padding: 0;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .secondPageContentSection {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cutoffTable,
+  .resultTable {
+    border: 0.5px solid #bbbcbc;
+  }
+  
+  .cutoffTable th,
+  .resultTable th,
+  .cutoffTable td,
+  .resultTable td {
+    border: 0.5px solid #bbbcbc !important;
+  }
+  
+  .cutoffTable td:first-child,
+  .cutoffTable th:first-child {
+    border-right: 0.5px solid #bbbcbc !important;
+  }
+
+  * {
+    page-break-inside: avoid !important;
+  }
+ .resultLevelTitle::before,
+  .resultLevelTitle::after {
+    height: 3px !important;
+  }
+  
+  .middleIcon {
+    border: 3.5px solid #ffffff !important;
+  }
+ .resultTable tbody tr:nth-child(even) td,
+  .resultTable tbody tr:nth-child(even) {
+    background: #e4e9f5 !important;
+  }
+  
+  .resultTable tbody tr:nth-child(odd) td,
+  .resultTable tbody tr:nth-child(odd) {
+    background: #ffffff !important;
+  }
+}
+
+
+
+.level1-notes {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    font-family: Arial, sans-serif;
+}
+ 
+.level1-notes h2 {
+    color: #1e3a8a;
+    margin-bottom: 16px;
+    font-size: 24px;
+}
+ 
+.level1-notes ul {
+    padding-left: 20px;
+    margin: 0;
+}
+ 
+.level1-notes li {
+    margin-bottom: 12px;
+    line-height: 1.7;
+    color: #333;
+}
+ 
+.level1-notes a {
+    color: #1e40af;
+    text-decoration: none;
+}
+ 
+.level1-notes a:hover {
+    text-decoration: underline;
+}

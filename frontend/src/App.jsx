@@ -79,7 +79,6 @@ import OmrUpdate from "./Components/Exam/omrco/OmrUpdate";
 import OmrAssign from "./Components/Exam/omrAssign/OmrAssign";
 import OmrEvalution from "./Components/Exam/omrEvalution/OmrEvalution";
 
-
 //question
 import QuestionIssues from "./Components/Exam/question/QuestionIssues";
 import QuestionCreate from "./Components/Exam/question/QuestionCreate";
@@ -128,6 +127,8 @@ import ResultForm from "./Components/Exam/Result/ResultForm";
 import UpdateResult from "./Components/Exam/Result/UpdateResult";
 import ProcessResult from "./Components/Exam/Result/ProcessResult";
 
+import EmailStudentResults from "./Components/Exam/Result/EmailStudentResults";
+
 import OMRreceipt from "./Components/Exam/omrReceipt/OMRreceipt";
 
 //menu
@@ -160,6 +161,9 @@ import FeesList from "./Components/Exam/Fees/FeesList";
 
 //subejct fees
 import FeeList from "./Components/Master/Fee-subject/FeeList";
+
+import SessionList from "./Components/Sessions/SessionList";
+
 
 function App() {
   return (
@@ -305,11 +309,11 @@ function App() {
 
           <Route
             path="/center-assign-list"
-            element={<ProtectedRoute element={<AssignCenterList/>} />}
+            element={<ProtectedRoute element={<AssignCenterList />} />}
           />
           <Route
             path="/center/assign/update/:id"
-            element={<ProtectedRoute element={<AssignCenterUpdate/>} />}
+            element={<ProtectedRoute element={<AssignCenterUpdate />} />}
           />
 
           {/* //inventory */}
@@ -372,7 +376,7 @@ function App() {
             path="/student/update/:id"
             element={<ProtectedRoute element={<StudentUpdate />} />}
           />
-          
+
           {/* omr route */}
           <Route
             path="/omr-list"
@@ -391,26 +395,23 @@ function App() {
             element={<ProtectedRoute element={<OmrUpdate />} />}
           />
 
-           {/* //omr assign */}
+          {/* //omr assign */}
           <Route
             path="/assign-omr"
-            element={<ProtectedRoute element={<OmrAssign/>} />}
+            element={<ProtectedRoute element={<OmrAssign />} />}
           />
-          
 
-            {/* //omr OmrEvalution  */}
+          {/* //omr OmrEvalution  */}
           <Route
             path="/omr-evalution"
-            element={<ProtectedRoute element={<OmrEvalution/>} />}
+            element={<ProtectedRoute element={<OmrEvalution />} />}
           />
 
-          
           {/* //omr receipt */}
           <Route
             path="/omr-receipt"
             element={<ProtectedRoute element={<OMRreceipt />} />}
           />
-
 
           {/* //result */}
           <Route
@@ -429,6 +430,12 @@ function App() {
             path="/resultprocess-list"
             element={<ProtectedRoute element={<ProcessResult />} />}
           />
+
+          <Route
+            path="/email-results"
+            element={<ProtectedRoute element={<EmailStudentResults />} />}
+          />
+
           {/* //question */}
           <Route
             path="/question-list"
@@ -602,6 +609,13 @@ function App() {
           <Route
             path="/subject-fee"
             element={<ProtectedRoute element={<FeeList />} />}
+          />
+
+
+          
+            <Route
+            path="/session"
+            element={<ProtectedRoute element={<SessionList />} />}
           />
         </Routes>
       </Router>

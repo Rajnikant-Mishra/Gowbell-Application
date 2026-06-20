@@ -104,100 +104,183 @@ export default function InventoryForm() {
   }, []);
 
   // Fetch sub-items when a main item is selected
-  useEffect(() => {
-    if (selectedItemId) {
-      setIsLoadingSubItems(true);
-      axios
-        .get(`${API_BASE_URL}/api/s1/subitems/names?item_id=${selectedItemId}`)
-        .then((response) => {
-          const subItemsData = Array.isArray(response.data?.parentNames)
-            ? response.data.parentNames.map((item) => ({
-                id: item.parent_id,
-                name: item.parent_name,
-              }))
-            : [];
-          setSubItems(subItemsData);
+  // useEffect(() => {
+  //   if (selectedItemId) {
+  //     setIsLoadingSubItems(true);
+  //     axios
+  //       .get(`${API_BASE_URL}/api/s1/subitems/names?item_id=${selectedItemId}`)
+  //       .then((response) => {
+  //         const subItemsData = Array.isArray(response.data?.parentNames)
+  //           ? response.data.parentNames.map((item) => ({
+  //               id: item.parent_id,
+  //               name: item.parent_name,
+  //             }))
+  //           : [];
+  //         setSubItems(subItemsData);
 
-          if (subItemsData.length === 0) {
-            Swal.fire({
-              position: "top-end",
-              icon: "info",
-              title: "No Subitems",
-              text: "No subitems available for this item.",
-              showConfirmButton: false,
-              timer: 1000,
-              toast: true,
-            });
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching subitems:", error);
-          setSubItems([]);
+  //         if (subItemsData.length === 0) {
+  //           Swal.fire({
+  //             position: "top-end",
+  //             icon: "info",
+  //             title: "No Subitems",
+  //             text: "No subitems available for this item.",
+  //             showConfirmButton: false,
+  //             timer: 1000,
+  //             toast: true,
+  //           });
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching subitems:", error);
+  //         setSubItems([]);
+  //         Swal.fire({
+  //           position: "top-end",
+  //           icon: "error",
+  //           title: "Error",
+  //           text: "Failed to load subitems.",
+  //           showConfirmButton: false,
+  //           timer: 1000,
+  //           toast: true,
+  //         });
+  //       })
+  //       .finally(() => setIsLoadingSubItems(false));
+  //   } else {
+  //     setSubItems([]);
+  //     setSubItemNames([]);
+  //     setSelectedSubItemId(null);
+  //   }
+  // }, [selectedItemId]);
+
+  useEffect(() => {
+  if (selectedItemId) {
+    setIsLoadingSubItems(true);
+
+    axios
+      .get(`${API_BASE_URL}/api/s1/subitems/names?item_id=${selectedItemId}`)
+      .then((response) => {
+        const subItemsData = Array.isArray(response.data?.subitems)
+          ? response.data.subitems.map((item) => ({
+              id: item.id,
+              name: item.name,
+            }))
+          : [];
+
+        setSubItems(subItemsData);
+
+        if (subItemsData.length === 0) {
           Swal.fire({
             position: "top-end",
-            icon: "error",
-            title: "Error",
-            text: "Failed to load subitems.",
+            icon: "info",
+            title: "No Subitems",
+            text: "No subitems available for this item.",
             showConfirmButton: false,
             timer: 1000,
             toast: true,
           });
-        })
-        .finally(() => setIsLoadingSubItems(false));
-    } else {
-      setSubItems([]);
-      setSubItemNames([]);
-      setSelectedSubItemId(null);
-    }
-  }, [selectedItemId]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching subitems:", error);
+        setSubItems([]);
+      })
+      .finally(() => setIsLoadingSubItems(false));
+  } else {
+    setSubItems([]);
+    setSubItemNames([]);
+    setSelectedSubItemId(null);
+  }
+}, [selectedItemId]);
 
   // Fetch third-tier names when a sub-item is selected
-  useEffect(() => {
-    if (selectedSubItemId) {
-      setIsLoadingNames(true);
-      axios
-        .get(
-          `${API_BASE_URL}/api/s1/subitems/names?parent_id=${selectedSubItemId}`
-        )
-        .then((response) => {
-          const namesData = Array.isArray(response.data.names)
-            ? response.data.names.map((name, index) => ({
-                id: `${selectedSubItemId}-${index}`,
-                name,
-              }))
-            : [];
-          setSubItemNames(namesData);
+  // useEffect(() => {
+  //   if (selectedSubItemId) {
+  //     setIsLoadingNames(true);
+  //     axios
+  //       .get(
+  //         `${API_BASE_URL}/api/s1/subitems/names?parent_id=${selectedSubItemId}`
+  //       )
+  //       .then((response) => {
+  //         const namesData = Array.isArray(response.data.names)
+  //           ? response.data.names.map((name, index) => ({
+  //               id: `${selectedSubItemId}-${index}`,
+  //               name,
+  //             }))
+  //           : [];
+  //         setSubItemNames(namesData);
 
-          if (namesData.length === 0) {
-            Swal.fire({
-              position: "top-end",
-              icon: "info",
-              title: "No Names",
-              text: "No names available for this sub-item.",
-              showConfirmButton: false,
-              timer: 1000,
-              toast: true,
-            });
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching sub-item names:", error);
-          setSubItemNames([]);
+  //         if (namesData.length === 0) {
+  //           Swal.fire({
+  //             position: "top-end",
+  //             icon: "info",
+  //             title: "No Names",
+  //             text: "No names available for this sub-item.",
+  //             showConfirmButton: false,
+  //             timer: 1000,
+  //             toast: true,
+  //           });
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching sub-item names:", error);
+  //         setSubItemNames([]);
+  //         Swal.fire({
+  //           position: "top-end",
+  //           icon: "error",
+  //           title: "Error",
+  //           text: "Failed to load sub-item names.",
+  //           showConfirmButton: false,
+  //           timer: 1000,
+  //           toast: true,
+  //         });
+  //       })
+  //       .finally(() => setIsLoadingNames(false));
+  //   } else {
+  //     setSubItemNames([]);
+  //   }
+  // }, [selectedSubItemId]);
+
+
+  useEffect(() => {
+  if (selectedSubItemId) {
+    setIsLoadingNames(true);
+
+    axios
+      .get(
+        `${API_BASE_URL}/api/s1/subitems/names?parent_id=${selectedSubItemId}`
+      )
+      .then((response) => {
+        const namesData = Array.isArray(response.data?.subitems)
+          ? response.data.subitems.map((item) => ({
+              id: item.id,
+              name: item.name,
+            }))
+          : [];
+
+        setSubItemNames(namesData);
+
+        if (namesData.length === 0) {
           Swal.fire({
             position: "top-end",
-            icon: "error",
-            title: "Error",
-            text: "Failed to load sub-item names.",
+            icon: "info",
+            title: "No Names",
+            text: "No names available for this sub-item.",
             showConfirmButton: false,
             timer: 1000,
             toast: true,
           });
-        })
-        .finally(() => setIsLoadingNames(false));
-    } else {
-      setSubItemNames([]);
-    }
-  }, [selectedSubItemId]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching sub-item names:", error);
+        setSubItemNames([]);
+      })
+      .finally(() => setIsLoadingNames(false));
+  } else {
+    setSubItemNames([]);
+  }
+}, [selectedSubItemId]);
+
+
 
   // Form submission
   const handleSubmit = async (values, { resetForm }) => {

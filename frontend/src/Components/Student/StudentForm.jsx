@@ -45,7 +45,7 @@ export default function StudentForm() {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");                
 
   // Schools state
   const [schools, setSchools] = useState([]);
@@ -102,7 +102,7 @@ export default function StudentForm() {
 
         if (!session_id) {
           throw new Error(
-            "No session selected. Please select a session from the header."
+            "No session selected. Please select a session from the header.",
           );
         }
 
@@ -153,14 +153,14 @@ export default function StudentForm() {
           throw new Error(
             responseData.error ||
               responseData.message ||
-              "Failed to create student"
+              "Failed to create student",
           );
         }
       } catch (error) {
         if (error.message.includes("Aadhaar number already exists")) {
           formik.setFieldError(
             "aadhaar_number",
-            "Aadhaar number already exists"
+            "Aadhaar number already exists",
           );
         } else {
           Swal.fire({
@@ -204,7 +204,7 @@ export default function StudentForm() {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
       if (response.data.success) {
         const schoolList = response.data.data.flatMap((location) =>
@@ -215,7 +215,7 @@ export default function StudentForm() {
             state_name: location.state,
             district_name: location.district,
             city_name: location.city,
-          }))
+          })),
         );
         setSchools(schoolList);
         return schoolList.length > 0;
@@ -246,7 +246,7 @@ export default function StudentForm() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (response.data.student) {
@@ -257,29 +257,29 @@ export default function StudentForm() {
           const country = countries.find((c) => c.id === student.country);
           if (!country) errors.push("Country ID not found");
           const state = states.find(
-            (s) => s.id === student.state && s.country_id === student.country
+            (s) => s.id === student.state && s.country_id === student.country,
           );
           if (!state && country) errors.push("State ID not found");
           const district = districts.find(
-            (d) => d.id === student.district && d.state_id === student.state
+            (d) => d.id === student.district && d.state_id === student.state,
           );
           if (!district && state) errors.push("District ID not found");
           const city = cities.find(
-            (c) => c.id === student.city && c.district_id === student.district
+            (c) => c.id === student.city && c.district_id === student.district,
           );
           if (!city && district) errors.push("City ID not found");
 
           // Set location states sequentially
           setSelectedCountry(country ? country.id : "");
           setFilteredStates(
-            country ? states.filter((s) => s.country_id === country.id) : []
+            country ? states.filter((s) => s.country_id === country.id) : [],
           );
 
           // Wait for states to be filtered before setting state
           if (country && state) {
             setSelectedState(state.id);
             setFilteredDistricts(
-              districts.filter((d) => d.state_id === state.id)
+              districts.filter((d) => d.state_id === state.id),
             );
           } else {
             setSelectedState("");
@@ -289,7 +289,9 @@ export default function StudentForm() {
           // Wait for districts to be filtered before setting district
           if (state && district) {
             setSelectedDistrict(district.id);
-            setFilteredCities(cities.filter((c) => c.district_id === district.id));
+            setFilteredCities(
+              cities.filter((c) => c.district_id === district.id),
+            );
           } else {
             setSelectedDistrict("");
             setFilteredCities([]);
@@ -388,7 +390,7 @@ export default function StudentForm() {
         setIsLoading(false);
       }
     }, 500),
-    [countries, states, districts, cities, schools, formik]
+    [countries, states, districts, cities, schools, formik],
   );
 
   // Fetch class options
@@ -403,7 +405,7 @@ export default function StudentForm() {
           response.data.map((cls) => ({
             value: cls.id,
             label: cls.name,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Error fetching classes:", error);
@@ -425,7 +427,7 @@ export default function StudentForm() {
           response.data.map((subject) => ({
             value: subject.id,
             label: subject.name,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Error fetching subjects:", error);
@@ -438,7 +440,9 @@ export default function StudentForm() {
   // Location filter effects
   useEffect(() => {
     if (selectedCountry) {
-      const newFilteredStates = states.filter((state) => state.country_id === selectedCountry);
+      const newFilteredStates = states.filter(
+        (state) => state.country_id === selectedCountry,
+      );
       setFilteredStates(newFilteredStates);
       if (!newFilteredStates.find((s) => s.id === selectedState)) {
         setSelectedState("");
@@ -471,7 +475,9 @@ export default function StudentForm() {
 
   useEffect(() => {
     if (selectedState) {
-      const newFilteredDistricts = districts.filter((district) => district.state_id === selectedState);
+      const newFilteredDistricts = districts.filter(
+        (district) => district.state_id === selectedState,
+      );
       setFilteredDistricts(newFilteredDistricts);
       if (!newFilteredDistricts.find((d) => d.id === selectedDistrict)) {
         setSelectedDistrict("");
@@ -498,7 +504,9 @@ export default function StudentForm() {
 
   useEffect(() => {
     if (selectedDistrict) {
-      const newFilteredCities = cities.filter((city) => city.district_id === selectedDistrict);
+      const newFilteredCities = cities.filter(
+        (city) => city.district_id === selectedDistrict,
+      );
       setFilteredCities(newFilteredCities);
       if (!newFilteredCities.find((c) => c.id === selectedCity)) {
         setSelectedCity("");
@@ -552,9 +560,13 @@ export default function StudentForm() {
               headers: { Authorization: `Bearer ${token}` },
             }),
           ]);
-        setCountries(Array.isArray(countriesRes?.data) ? countriesRes.data : []);
+        setCountries(
+          Array.isArray(countriesRes?.data) ? countriesRes.data : [],
+        );
         setStates(Array.isArray(statesRes?.data) ? statesRes.data : []);
-        setDistricts(Array.isArray(districtsRes?.data) ? districtsRes.data : []);
+        setDistricts(
+          Array.isArray(districtsRes?.data) ? districtsRes.data : [],
+        );
         setCities(Array.isArray(citiesRes?.data) ? citiesRes.data : []);
       } catch (error) {
         console.error("Error fetching location data:", error);
@@ -620,9 +632,8 @@ export default function StudentForm() {
           </div>
           <form className={styles.formContent} onSubmit={formik.handleSubmit}>
             <Grid container spacing={3}>
-
-               {/* //aadhaar number */}
-               <Grid item xs={12} sm={6} md={6}>
+              {/* //aadhaar number */}
+              <Grid item xs={12} sm={6} md={6}>
                 <TextField
                   className={styles.textInput}
                   label="Aadhaar Number"
@@ -677,7 +688,9 @@ export default function StudentForm() {
                     setSelectedCountry(e.target.value);
                   }}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.country && Boolean(formik.errors.country)}
+                  error={
+                    formik.touched.country && Boolean(formik.errors.country)
+                  }
                   helperText={formik.touched.country && formik.errors.country}
                   fullWidth
                   disabled={isLoading}
@@ -712,7 +725,9 @@ export default function StudentForm() {
                   }}
                   onBlur={formik.handleBlur}
                   disabled={!formik.values.state || isLoading}
-                  error={formik.touched.district && Boolean(formik.errors.district)}
+                  error={
+                    formik.touched.district && Boolean(formik.errors.district)
+                  }
                   helperText={formik.touched.district && formik.errors.district}
                   fullWidth
                 />
@@ -747,8 +762,12 @@ export default function StudentForm() {
                     setSelectedSchool(e.target.value);
                   }}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.school_id && Boolean(formik.errors.school_id)}
-                  helperText={formik.touched.school_id && formik.errors.school_id}
+                  error={
+                    formik.touched.school_id && Boolean(formik.errors.school_id)
+                  }
+                  helperText={
+                    formik.touched.school_id && formik.errors.school_id
+                  }
                   fullWidth
                   disabled={!formik.values.city || isLoading}
                 />
@@ -796,7 +815,9 @@ export default function StudentForm() {
                   value={formik.values.class_id}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.class_id && Boolean(formik.errors.class_id)}
+                  error={
+                    formik.touched.class_id && Boolean(formik.errors.class_id)
+                  }
                   helperText={formik.touched.class_id && formik.errors.class_id}
                   fullWidth
                   disabled={isLoading}
@@ -907,7 +928,7 @@ export default function StudentForm() {
                   onChange={(e, newValue) => {
                     formik.setFieldValue(
                       "student_subject",
-                      newValue.map((item) => item.value)
+                      newValue.map((item) => item.value),
                     );
                   }}
                   onBlur={formik.handleBlur}
@@ -922,7 +943,7 @@ export default function StudentForm() {
                       <li key={key} {...rest}>
                         <Checkbox
                           checked={formik.values.student_subject.includes(
-                            option.value
+                            option.value,
                           )}
                           color="primary"
                         />
@@ -965,7 +986,6 @@ export default function StudentForm() {
                   disabled={isLoading}
                 />
               </Grid>
-             
             </Grid>
 
             <Box

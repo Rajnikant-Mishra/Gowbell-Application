@@ -39,7 +39,7 @@ import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import OMRSheet50 from "./OMRSheet50";
+// import OMRSheet50 from "./OMRSheet50";
 import OMRSheet60 from "./OMRSheet60";
 import ReactDOM from "react-dom";
 import html2canvas from "html2canvas";
@@ -365,11 +365,8 @@ const ExaminationForm = () => {
   }, [fetchStudentCount]);
 
   /* ────── 5. PDF Generation ────── */
-  const getOMRSheetComponent = (className) => {
-    const lower = ["01", "02", "03", "1", "2", "3"];
-    const num = className?.replace(/\D/g, "") ?? "";
-    return lower.includes(num) ? OMRSheet50 : OMRSheet60;
-  };
+
+  const getOMRSheetComponent = () => OMRSheet60;
 
   const generatePDF = async (students, recordId) => {
     const doc = new jsPDF({
@@ -396,6 +393,7 @@ const ExaminationForm = () => {
         acc[s.id] = {
           id: s.id,
           student_name: s.student_name,
+          school_address:s.school_address,
           roll_no: s.roll_no,
           class_name: s.class_name,
           school_id: s.school_id,
@@ -464,6 +462,7 @@ const ExaminationForm = () => {
               <OMRComp
                 schoolName={schoolNames}
                 student={stuSub.student_name}
+                address={stuSub.school_address}
                 studentId={stuSub.id}
                 level={getLevelNum(selectedLevel)}
                 subject={stuSub.subject}

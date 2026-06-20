@@ -1,0 +1,27 @@
+g-header.ag-pivot-off.ag-header-allow-overflow {
+  /* background: #032b9f!important; */
+  color: #ffffff !important;
+}
+
+span.ag-icon.ag-icon-filter {
+  color: #fff !important;
+}
+
+span.ag-header-cell-text {
+  color: #fff !important;
+}
+.ag-header.ag-header-allow-overflow .ag-header-row {
+  background-color: #1230ae !important;
+}
+
+
+/* //for table right line or bottm line css */
+
+.ag-theme-alpine .ag-cell,
+.ag-theme-alpine .ag-header-cell {
+  border-right: 1px solid #e0e0e0 !important; /* vertical line */
+}
+
+.ag-theme-alpine .ag-row {
+  border-bottom: 1px solid #e0e0e0 !important; /* horizontal line */
+}

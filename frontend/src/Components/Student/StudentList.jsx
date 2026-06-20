@@ -1041,7 +1041,11 @@ export default function StudentDataTable() {
                           borderLeft: "none",
                         }}
                       >
-                        {row.created_by}
+                        {/* {row.created_by} */}
+                        {row.created_by
+                          ? row.created_by.charAt(0).toUpperCase() +
+                            row.created_by.slice(1)
+                          : ""}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -1051,7 +1055,11 @@ export default function StudentDataTable() {
                           borderLeft: "none",
                         }}
                       >
-                        {row.updated_by}
+                        {/* {row.updated_by} */}
+                        {row.updated_by
+                          ? row.created_by.charAt(0).toUpperCase() +
+                            row.created_by.slice(1)
+                          : ""}
                       </TableCell>
                       <TableCell
                         sx={{

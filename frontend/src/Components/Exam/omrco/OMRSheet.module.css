@@ -1,349 +1,20 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
+/* @import url("https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap");
+
 
 * {
   box-sizing: border-box;
 }
 
 .omrSheetContent {
-  height: 100%;
-  width: 100%;
-  max-width: 900px; 
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
- font-family:Arial, Helvetica, sans-serif;
-  display: flex;
-  gap: 8px; 
-  font-size: 12px !important;
-}
-
-.mainContent {
-  flex: 1;
-  max-width: 840px;
-}
-
-.header {
-  text-align: center;
-}
-
-.title {
-  font-weight: bold;
-  font-size: 22px;
-   color: #000;
-}
-
-.subtitle {
-  font-size: 16px;
-  color: #000;
-  margin-top:-10px;
-}
-
-.logo {
-  height: 50px;
-  width: 180px;
-  margin-top: -13.5%;
-}
-
-.formContainer {
- 
-  width: 100%;
-}
-
-.formContainer .inputGroup {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  margin-top: -10px;
-}
-
-.formContainer .labelContainer {
-  flex: none;
-  text-align: right;
-  padding-right: 8px;
-  white-space: nowrap;
-  width: 125px;
-}
-
-.formContainer .label {
-  display: block;
-  margin-bottom: -20px;
-}
-
-.formContainer .studentName {
- 
-    margin-left: 150px;
-  font-size: 20px !important;
-  font-weight: bold !important;
-}
-.formContainer .schoolName {
-  margin-left: 150px;
- 
-}
-
-.formContainer .inputContainer {
-  flex: 1;
-}
-
-.formContainer .inputField {
-  width: 100%;
-  border: none;
-  border-bottom: 1px solid #000;
-  outline: none;
-  background: transparent;
-  font-family: Arial, Helvetica, sans-serif !important;
-  text-align: center  !important;
-  padding-bottom: 3px;
-  margin-left: 0 !important;
-  border-radius: 0 !important;
-}
-
-.examDetails {
-  margin-bottom: 1rem;
-  width: 100%;
-}
-
-.examDetails .row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  width: 100%;
-}
-
-.examDetails .column {
-  flex: 1;
-  min-width: 0;
-  height: 100% !important;
-}
-
-.examDetails .detailBox {
-  width: 100%;
-  border: 1px solid black;
-  height: 70px;
-}
-
-.examDetails .detailBox label{
-  font-size: 14px;
-}
-
-.examDetails .textBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.examDetails .textBox label {
-  text-align: center;
-  margin-bottom: 8px;
-
-}
-
-.examDetails .textBox p {
-  margin-top: 5px;
-
-}
-
-.instructionDetails {
-  width: 100%;
-}
-
-.instructionDetails .row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-}
-
-.instructionDetails .column {
-  flex: 1.5;
-  min-width: 0;
-
-}
-.instructionDetails .column:first-child{
-    border: 1px solid black;
-}
-
-.instructionDetails .middleColumn {
-  flex: 2.4; 
-  min-width: 0;
-}
-
-.instructionDetails .detailBox {
-  width: 100%;
-  border: 1px solid black;
-}
-
-
-.instructionDetails .textBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.instructionDetails .textBox label {
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.instructionDetails .textBox p {
-  margin-top: 5px;
-}
-
-.rollno {
-  background-color: #000;
-  color: white;
-  font-size: 13px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
-.ruleBox {
-  margin-bottom: 0;
-  font-size: 11px;
-  line-height: 15px;
-  
-  padding-left: 1.2rem !important;
-  padding-right: 0.6rem !important;
-}
-
-.instructionBox1 {
-  border-bottom: 1px solid black;
-  border-top: 1px solid black;
-  justify-content: center;
-  text-align: center;
-
-}
-
-.instructionBoxLabel {
-  font-weight: bold;
-}
-
-.answerSectionTitle {
-  background-color: #000;
-   color: white;
-}
-.textBox1{
-  height: 230px;
-}
-.textBox2 {
-  margin-top: 6%;
-  height: 250px;
-  width: 100%;
-  border: 1px solid #000;
-  box-sizing: border-box;
-}
-
-.textBox3 {
-  height: 275px;
-  width: 100%;
-
-  border: 1px solid #000;
-  color: #000;
-  box-sizing: border-box;
-}
-
-.textBox4 {
-  height: 257px;
-  width: 100%;
-  border: 1px solid #000;
-  margin-top: 5%;
-  box-sizing: border-box;
-}
-
-.questiondiv {
-  width: 100%;
-  background-color: #000;
-  color: white;
-}
-
-
-
-table {
-  border: 1px solid black;
-  padding: 10px 0 !important;
-}
-
-td {
-  padding: 2px 8px !important;
-}
-
-.questionnumberdiv {
-  border-right: 1px solid black;
-  text-align: left !important;
-  font-size: 10px;
-
-}
-
-.footerdiv {
-  border: 1px solid black;
-  height: 60px;
-}
-
-.inputUnderline {
-  border: none;
-  border-bottom: 1px solid #000;
-  width: 90%;
-  height: 100%;
-  outline: none;
-  border-radius: 0 !important;
-  margin-left: 0 !important;
-  margin-top: 0 !important;
-}
-
-
-
-.footerdiv input {
-  height: 40px !important;
-}
-
-.bars {
-  margin-top: 10.5%;
-}
-
-.bars1 {
-  margin-top: 10.5%;
-}
-
-.omrtable {
-  border: 1px solid black;
-  padding: 10px 0 !important;
-}
-
-.barcodeContainer {
-  display: flex;
-  justify-content: center;
-  margin-top: 5px;
-  padding: 2px;
-  background-color: white;
-  height: 100%;
-  overflow: hidden;
-}
-
-.rollNumberText {
-
-  font-weight: bold;
-}
-.subjects{
-  font-size: 15px;
-}
-
-
- */
-
-
-@import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap');
-
-/* Base styles */
-* {
-  box-sizing: border-box;
-}
-
-.omrSheetContent {
-  width: 210mm; /* A4 width */
-  height: 297mm; /* A4 height */
+  width: 194mm;
+  height: 281mm;
+  margin: 8mm auto;
   font-family: Arial, Helvetica, sans-serif;
   display: flex;
-  gap: 8px;
+  gap: 3px;
   font-size: 12px !important;
-  background-color: white; /* Ensure white background for printing */
-  margin: 0;
-  padding: 0;
+  background-color: white;
+  box-sizing: border-box;
 }
 
 .headerContainer {
@@ -374,9 +45,9 @@ td {
 }
 
 .logo {
-  height: 40px;
-  width: 120px;
-  margin: 0;
+  height: 11mm;
+  width: 46mm;
+  margin-top: -18mm;
 }
 
 .formContainer {
@@ -387,7 +58,7 @@ td {
   display: flex;
   align-items: center;
   margin-bottom: 5px;
-  margin-top: -5px;
+  margin-top: 5px;
 }
 
 .labelContainer {
@@ -401,27 +72,12 @@ td {
 .label {
   display: block;
   margin-bottom: -15px;
-  font-size: 14px;
+  font-size: 12px;
   color: #000;
 }
 
 .inputField {
-  width: 90%;
-  border: none;
-  border-bottom: 1px solid #000;
-  font-size: 18px !important;
-  outline: none;
-  background: transparent;
-  font-family: Arial, Helvetica, sans-serif !important;
-  text-align: center !important;
-  margin-left: 10px !important;
-  border-radius: 0 !important;
-  color: #000;
-  padding-bottom: 0px !important;
- 
-}
-.inputField1 {
-  width: 100%;
+  width: 153mm;
   border: none;
   border-bottom: 1px solid #000;
   font-size: 14px !important;
@@ -429,7 +85,22 @@ td {
   background: transparent;
   font-family: Arial, Helvetica, sans-serif !important;
   text-align: center !important;
-  margin-left: -10px !important;
+  margin-left: -7px !important;
+  border-radius: 0 !important;
+  color: #000;
+  padding-bottom: 0px !important;
+}
+
+.inputField1 {
+  width: 157mm;
+  border: none;
+  border-bottom: 1px solid #000;
+  font-size: 12px !important;
+  outline: none;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-align: center !important;
+  margin-left: -22px !important;
   border-radius: 0 !important;
   color: #000;
   padding-bottom: 1px;
@@ -437,6 +108,458 @@ td {
 .examDetails {
   margin-bottom: 1rem;
   width: 100%;
+  margin-top: 3mm;
+}
+
+.examDetails .row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.examDetails .column {
+  flex: 1;
+  min-width: 0;
+  height: 100% !important;
+}
+
+.examDetails .detailBox {
+  width: 100%;
+  border: 1px solid black;
+  height: 17mm; 
+}
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+ 
+}
+.examDetails .detailBox label {
+  font-size: 12px;
+  color: #000;
+}
+
+.examDetails .textBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 100%;
+}
+
+.examDetails .textBox label {
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.examDetails .textBox p {
+  margin: 0;
+}
+
+.instructionDetails {
+  width: 100%;
+  margin-top: 2mm;
+}
+
+.instructionDetails .row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+
+.instructionDetails .column {
+  flex: 1.5;
+  min-width: 0;
+}
+
+.instructionDetails .column:first-child {
+  border: 1px solid black;
+}
+
+.instructionDetails .middleColumn {
+  flex: 2.4;
+  min-width: 0;
+}
+
+.instructionDetails .detailBox {
+  width: 100%;
+  border: 1px solid black;
+}
+
+.instructionDetails .textBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.instructionDetails .textBox label {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.instructionDetails .textBox p {
+  margin-top: 5px;
+}
+
+.instructionDetails .textBox1 {
+  height: 53mm; 
+}
+
+.rollno {
+  background-color: #000;
+  color: white;
+  font-size: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.ruleBox {
+  margin-bottom: 0;
+  font-size: 10px;
+  line-height: 13px;
+  padding-left: 1.2rem !important;
+  padding-right: 0.6rem !important;
+}
+
+.instructionBox1 {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  justify-content: center;
+  text-align: center;
+}
+
+.instructionBoxLabel {
+  font-weight: bold;
+  font-size: 12px;
+  color: #000;
+}
+
+.answerSectionTitle {
+  background-color: #000;
+  color: white;
+  width: 183mm; 
+  margin: 0 auto; 
+}
+
+.textBox3 {
+  width: 40.5mm;
+  height: 66mm;
+  border: 1px solid #000;
+  color: #000;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.verticalText {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 20px;
+  font-weight: bold;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+}
+
+.textBox4 {
+  height: 255px;
+  width: 100%;
+  border: 1px solid #000;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+.textBox41 {
+  width: 39mm;
+  height: 64.7mm;
+  width: 100%;
+  border: 1px solid #000;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+.questiondiv {
+  width: 100%;
+  background-color: #000;
+  color: white;
+}
+
+.questiondiv th {
+  font-size: 12px;
+}
+
+table {
+  padding: 5px 0 !important;
+  width: 44mm; 
+  height: auto;
+  border: 1px solid black;
+}
+.answerSectionWrapper {
+  flex: 1;
+  display: flex;
+}
+td {
+  padding: 1px 6px !important;
+}
+.table2 {
+  margin-left: -3.9mm !important;
+}
+.table2 + div {
+  margin-left: 1mm !important;
+}
+.table2 + div + div {
+  margin-left: 0.6mm !important;
+}
+.questionnumberdiv {
+  border-right: 1px solid black;
+  text-align: center !important;
+  width: 5mm;
+  font-size: 9px;
+}
+
+.footerdiv {
+  border: 1px solid black;
+  width: 89.8mm; 
+  height: 22mm; 
+  margin-top:-4mm !important;
+}
+
+.inputUnderline {
+  border: none;
+  border-bottom: 1px solid #000;
+  width: 90%;
+  height: 100%;
+  outline: none;
+  border-radius: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+}
+
+.footerdiv label {
+  font-size: 12px;
+  color: #000;
+}
+
+.footerdiv input {
+  height: 10mm !important; 
+  margin-top: 20px !important;
+}
+
+.bars {
+  margin-top: 8%;
+}
+
+.bars1 {
+  margin-top: 8%;
+  margin-left: -2mm;
+}
+
+.barcodeContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  padding: 2px;
+  background-color: white;
+  height: 100%;
+  overflow: hidden;
+}
+
+.subjects {
+  font-size: 14px;
+  width: 7mm; 
+  margin: 0 auto;
+  flex: 1;
+  text-align: center;
+  color: #000;
+}
+.answerSectionTitle {
+  width: 185mm !important;
+}
+
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    width: 212mm;
+    height: 297mm;
+    margin: 0;
+
+    padding: 0;
+  }
+  body {
+    overflow: hidden;
+  }
+
+  .omrSheetContent {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  .omrSheetContent {
+    width: 212mm;
+    height: 297mm;
+    padding: 7mm; 
+    margin: 0;
+    box-sizing: border-box;
+    
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+ 
+  * {
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+
+  
+  svg,
+  circle {
+    shape-rendering: crispEdges;
+  }
+  
+  .barcodeContainer {
+    background-color: white !important;
+  }
+  .inputField {
+    width: 155mm;
+  }
+  .inputField1 {
+    width: 159mm;
+  }
+  .answerSectionTitle {
+    width: 185mm !important;
+  }
+  .table2 {
+    margin-left: -3.9mm !important;
+  }
+  .table2 + div {
+    margin-left: 1mm !important;
+  }
+  .table2 + div + div {
+    margin-left: 0.6mm !important;
+  }
+} */
+
+@import url("https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap");
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+.omrSheetContent {
+  width: 195mm; /* 210mm - (8mm * 2) */
+  height: 281mm; /* 297mm - (8mm * 2) */
+  margin: 8mm auto; /* EXACT 8mm margin all sides */
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  gap: 3px;
+  font-size: 12px !important;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 0;
+}
+
+.headerText {
+  flex: 1;
+  text-align: center;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 20px;
+  color: #000;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #000;
+  margin: 0;
+  font-style: italic;
+}
+
+.logo {
+  height: 11mm;
+  width: 46mm;
+  margin-top: -18mm;
+}
+
+.formContainer {
+  width: 100%;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.labelContainer {
+  flex: none;
+  text-align: left;
+  padding-right: 8px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.label {
+  display: block;
+  margin-bottom: -15px;
+  font-size: 12px;
+  color: #000;
+}
+
+.inputField {
+  width: 157mm;
+  border: none;
+  border-bottom: 1px solid #000;
+  font-size: 14px !important;
+  outline: none;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-align: center !important;
+  margin-left: -7px !important;
+  border-radius: 0 !important;
+  color: #000;
+  padding-bottom: 0px !important;
+}
+.inputField1 {
+  width: 159mm;
+  border: none;
+  border-bottom: 1px solid #000;
+  font-size: 12px !important;
+  outline: none;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-align: center !important;
+  margin-left: -22px !important;
+  border-radius: 0 !important;
+  color: #000;
+  padding-bottom: 1px;
+}
+.examDetails {
+  margin-bottom: 1rem;
+  width: 100%;
+  margin-top: 3mm;
 }
 
 .examDetails .row {
@@ -457,7 +580,12 @@ td {
   border: 1px solid black;
   height: 17mm; /* 1.7cm as requested */
 }
-
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* SAME as table height */
+}
 .examDetails .detailBox label {
   font-size: 12px;
   color: #000;
@@ -467,7 +595,7 @@ td {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   height: 100%;
 }
 
@@ -482,6 +610,7 @@ td {
 
 .instructionDetails {
   width: 100%;
+  margin-top: 2mm;
 }
 
 .instructionDetails .row {
@@ -560,11 +689,13 @@ td {
 .answerSectionTitle {
   background-color: #000;
   color: white;
+  width: 183mm; /* 18.1 cm EXACT */
+  margin: 0 auto; /* center */
 }
 
 .textBox3 {
-  height: 280px;
-  width: 100%;
+  width: 40.5mm; /* already set */
+  height: 66mm;
   border: 1px solid #000;
   color: #000;
   box-sizing: border-box;
@@ -592,7 +723,8 @@ td {
 }
 
 .textBox41 {
-  height: 255px;
+  width: 39mm;
+  height: 64.7mm;
   width: 100%;
   border: 1px solid #000;
   margin-top: 5px;
@@ -606,29 +738,43 @@ td {
 }
 
 .questiondiv th {
-  font-size: 12px;
+  font-size: 9px;
 }
 
 table {
-  border: 1px solid black;
   padding: 5px 0 !important;
-  width: 43.5mm; /* 4.3cm as requested for OMR sections */
+  width: 44mm; /* 4.4 cm */
+  height: auto;
+  border: 1px solid black;
 }
-
+.answerSectionWrapper {
+  flex: 1;
+  display: flex;
+}
 td {
   padding: 1px 6px !important;
 }
-
+.table2 {
+  margin-left: -3.9mm !important;
+}
+.table2 + div {
+  margin-left: 1mm !important;
+}
+.table2 + div + div {
+  margin-left: 0.6mm !important;
+}
 .questionnumberdiv {
   border-right: 1px solid black;
   text-align: center !important;
-  font-size: 10px;
-  width: 15mm; /* Adjusted to fit within 4.3cm table width */
+  width: 5mm; /* 0.5 cm */
+  font-size: 9px;
 }
 
 .footerdiv {
   border: 1px solid black;
-  height: 20mm; /* 2.7cm as requested for signature divs */
+  width: 91mm; /* 8.9 cm */
+  height: 27mm;
+  margin-top: 0.2em;
 }
 
 .inputUnderline {
@@ -652,11 +798,13 @@ td {
 }
 
 .bars {
-  margin-top: 7%;
+  margin-top: 8%;
+  margin-left: 0em;
 }
 
 .bars1 {
-  margin-top: 7%;
+  margin-top: 8%;
+  margin-left: -2mm;
 }
 
 .barcodeContainer {
@@ -671,56 +819,89 @@ td {
 
 .subjects {
   font-size: 14px;
+  width: 7mm; /* 0.7 cm */
+  margin: 0 auto;
   flex: 1;
   text-align: center;
   color: #000;
 }
-
+.answerSectionTitle {
+  width: 185mm !important;
+}
 /* Print-specific styles */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
-  .omrSheetContent {
-    width: 210mm;
-    height: 297mm;
-    box-shadow: none !important; /* Remove shadow for printing */
-    margin: 0;
-    padding: 0;
-    -webkit-print-color-adjust: exact; /* Ensure colors print correctly */
-    print-color-adjust: exact;
-  }
-
+  html,
   body {
+    width: 212mm;
+    height: 297mm;
     margin: 0;
+
     padding: 0;
   }
+  body {
+    overflow: hidden;
+  }
 
-  /* Ensure all text and borders are black for high contrast */
-  .title,
-  .subtitle,
-  .label,
-  .examDetails .textBox label,
-  .examDetails .textBox p,
-  .instructionBoxLabel,
-  .verticalText,
-  .subjects,
-  .footerdiv label {
+  .omrSheetContent {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  .omrSheetContent {
+    width: 212mm;
+    height: 297mm;
+    padding: 7mm; /* your required margin */
+    margin: 0;
+    box-sizing: border-box;
+    /* transform: scale(0.96);
+    transform-origin: top left; */
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* FORCE PURE BLACK */
+  * {
     color: #000 !important;
+    border-color: #000 !important;
   }
 
-  /* Ensure backgrounds print correctly */
-  .rollno,
-  .answerSectionTitle,
-  .questiondiv {
-    background-color: #000 !important;
-    color: #fff !important;
+  /* Remove grey rendering */
+  svg,
+  circle {
+    shape-rendering: crispEdges;
+    shape-rendering: geometricPrecision !important;
   }
-
-  /* Remove any unnecessary effects */
-  .logo {
-    filter: none !important; /* Remove any filters that might affect the logo */
-  }
-
   /* Ensure barcode prints clearly */
   .barcodeContainer {
     background-color: white !important;
+  }
+  .inputField {
+    width: 155mm;
+  }
+  circle[fill^="url"] {
+    shape-rendering: auto !important;
+  }
+  .inputField1 {
+    width: 159mm;
+  }
+  .answerSectionTitle {
+    width: 185mm !important;
+  }
+  .table2 {
+    margin-left: -3.9mm !important;
+  }
+  .table2 + div {
+    margin-left: 1mm !important;
+  }
+  .table2 + div + div {
+    margin-left: 0.6mm !important;
   }
 }

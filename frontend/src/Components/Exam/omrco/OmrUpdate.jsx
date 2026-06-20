@@ -23,7 +23,7 @@ import "../../Common-Css/Swallfire.css";
 import ButtonComp from "../../School/CommonComp/ButtonComp";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import OMRSheet50 from "./OMRSheet50";
+// import OMRSheet50 from "./OMRSheet50";
 import OMRSheet60 from "./OMRSheet60";
 import ReactDOM from "react-dom";
 import html2canvas from "html2canvas";
