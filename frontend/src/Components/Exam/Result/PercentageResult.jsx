@@ -115,6 +115,57 @@ const ResultTemplate = ({ data }) => {
     chunkedData.push(formattedTableData.slice(i, i + rowsPerPage));
   }
 
+  const levelNotes = {
+    "LEVEL 1": [
+      "All participating students who do not qualify for the next level will receive a Certificate of Participation.",
+      "Level-1 qualifiers will receive a Certificate of Achievement and a Gold, Silver, or Bronze Medal based on their performance and ranking.",
+      "Qualified students will be eligible to appear for the Level-2 Examination.",
+      "To download results and scorecards, visit www.gowbell.org.",
+      "Requests for rechecking must be submitted by the School Principal/Coordinator via email to results@gowbell.org.",
+      "Rechecking requests will be accepted within 7 days from the date of result declaration.",
+      "The rechecking fee is ₹150/- per subject.",
+      "The decision of the Gowbell Foundation-India Examination Committee shall be final and binding.",
+    ],
+
+    "LEVEL 2": [
+      "Level-2 qualifiers will receive a Certificate of Achievement and a Gold, Silver, or Bronze Medal based on their performance and ranking.",
+      "Qualified students will be eligible to appear for the Level-3 Examination.",
+      "No Certificate of Participation shall be issued to students who do not qualify in Level-2.",
+      "To download results and scorecards, visit www.gowbell.org.",
+      "Requests for rechecking must be submitted by the School Principal/Coordinator via email to results@gowbell.org.",
+      "Rechecking requests will be accepted within 7 days from the date of result declaration.",
+      "The rechecking fee is ₹150/- per student.",
+      "The decision of the Gowbell Foundation-India Examination Committee shall be final and binding.",
+    ],
+
+    "LEVEL 3": [
+      "Level-3 qualifiers will receive a Certificate of Achievement and a Gold, Silver, or Bronze Medal based on their performance and ranking.",
+      "Gold Medalists will receive a Cash Award of ₹1,000/-.",
+      "Silver Medalists will receive a Cash Award of ₹750/-.",
+      "Bronze Medalists will receive a Cash Award of ₹500/-.",
+      "Qualified students will be eligible to appear for the Level-4 Examination.",
+      "No Certificate of Participation shall be issued to students who do not qualify in Level-3.",
+      "To download results and scorecards, visit www.gowbell.org.",
+      "Requests for rechecking must be submitted by the School Principal/Coordinator via email to results@gowbell.org.",
+      "Rechecking requests will be accepted within 7 days from the date of result declaration.",
+      "The rechecking fee is ₹150/- per student.",
+      "The decision of the Gowbell Foundation-India Examination Committee shall be final and binding.",
+    ],
+
+    "LEVEL 4": [
+      "Level-4 qualifiers will receive a Certificate of Achievement, Trophy, and a Cash Award of ₹10,000/-.",
+      "Level-4 is the Final Round of the Gowbell Olympiad Examination.",
+      "No Certificate of Participation shall be issued to students who do not qualify in Level-4.",
+      "To download results and scorecards, visit www.gowbell.org.",
+      "Requests for rechecking must be submitted by the School Principal/Coordinator via email to results@gowbell.org.",
+      "Rechecking requests will be accepted within 7 days from the date of result declaration.",
+      "The rechecking fee is ₹150/- per student.",
+      "The decision of the Gowbell Foundation-India Examination Committee shall be final and binding.",
+    ],
+  };
+
+  const currentNotes = levelNotes[level?.toUpperCase()] || [];
+
   return (
     <div className={styles.pdfWrapper}>
       {/* ========================= COVER PAGE ========================= */}
@@ -223,67 +274,25 @@ const ResultTemplate = ({ data }) => {
                   ))}
                 </tbody>
               </table>
-              <section class="level1-notes">
-                <h2>NOTE (LEVEL-1)</h2>
-
-                <ul>
-                  <li>
-                    All participating students who do not qualify for the next
-                    level will receive a
-                    <strong>Certificate of Participation</strong>.
-                  </li>
-
-                  <li>
-                    Level-1 qualifiers will receive a{" "}
-                    <strong>Certificate of Achievement</strong> and a
-                    <strong>Gold, Silver, or Bronze Medal</strong> based on
-                    their performance and ranking.
-                  </li>
-
-                  <li>
-                    Qualified students will be eligible to appear for the
-                    <strong>Level-2 Examination</strong>.
-                  </li>
-
-                  <li>
-                    To download results and scorecards, visit the official
-                    website
-                    <a href="https://www.gowbell.org" target="_blank">
-                      www.gowbell.org
-                    </a>
-                    .
-                  </li>
-
-                  <li>
-                    Requests for rechecking must be submitted by the School
-                    Principal/Coordinator via email to
-                    <a href="mailto:results@gowbell.org">results@gowbell.org</a>
-                    .
-                  </li>
-
-                  <li>
-                    Rechecking requests will be accepted within{" "}
-                    <strong>7 days</strong> from the date of result declaration.
-                  </li>
-
-                  <li>
-                    The rechecking fee is <strong>₹150/- per subject</strong>.
-                  </li>
-
-                  <li>
-                    The decision of the{" "}
-                    <strong>
-                      Gowbell Foundation-India Examination Committee
-                    </strong>{" "}
-                    shall be final and binding.
-                  </li>
-                </ul>
-              </section>
-              
             </div>
           </div>
         </div>
       ))}
+
+      <div className={styles.notesPage}>
+        <div className={styles.notesPageContent}>
+          <div className={styles.notesTitle}>
+            IMPORTANT INSTRUCTIONS ({level})
+          </div>
+
+          {currentNotes.map((note, index) => (
+            <div key={index} className={styles.noteRow}>
+              <span>{index + 1}.</span>
+              <span>{note}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

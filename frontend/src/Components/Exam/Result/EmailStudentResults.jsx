@@ -534,7 +534,10 @@ const OmrForm = () => {
             },
 
             pagebreak: {
+              // mode: ["css", "legacy"],
+              // avoid: ["tr", ".tableWrapper"],
               mode: ["css", "legacy"],
+              before: ".secondPageContentSection",
               avoid: ["tr", ".tableWrapper"],
             },
           })

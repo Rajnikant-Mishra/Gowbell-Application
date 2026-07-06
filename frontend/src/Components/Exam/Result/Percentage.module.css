@@ -882,3 +882,70 @@ width: 110px;
 .level1-notes a:hover {
     text-decoration: underline;
 }
+
+
+
+
+
+.instructionsSection {
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #000;
+}
+
+.instructionsTitle {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  text-decoration: underline;
+}
+
+.instructionsSection p {
+  margin: 0 0 8px 0;
+  text-align: justify;
+}
+
+.notesPage {
+  width: 1123px;
+  min-height: 794px;
+
+  page-break-before: always;
+  break-before: page;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 40px 60px;
+  box-sizing: border-box;
+}
+
+.notesPageContent {
+  width: 100%;
+}
+
+.notesTitle {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-decoration: underline;
+}
+
+.noteRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  font-size: 14px;
+  line-height: 1.8;
+
+  margin-bottom: 12px;
+}
+/* 
+//page separate */
+.secondPageContentSection:last-child {
+  page-break-after: auto;
+}

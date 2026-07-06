@@ -71,6 +71,47 @@ const Menu = () => {
   };
 
   // Handle form submission
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/api/permission/assign`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(menu),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (response.ok) {
+  //        Swal.fire({
+  //               position: "top-end",
+  //               icon: "success",
+  //               title: "Success!",
+  //               text: `Menu permission granted!`,
+  //               showConfirmButton: false,
+  //               timer: 1000,
+  //               timerProgressBar: true,
+  //               toast: true,
+  //               background: "#fff",
+  //               customClass: {
+  //                 popup: "small-swal",
+  //               },
+  //             });
+  //       navigate("/permissions-list");
+  //     } else {
+  //       Swal.fire("Error", data.error || "Failed to assign menu", "error");
+  //     }
+  //   } catch (error) {
+  //     Swal.fire("Error", "An error occurred", "error");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -87,26 +128,35 @@ const Menu = () => {
       const data = await response.json();
 
       if (response.ok) {
-         Swal.fire({
-                position: "top-end",
-                icon: "success",
-                title: "Success!",
-                text: `Menu permission granted!`,
-                showConfirmButton: false,
-                timer: 1000,
-                timerProgressBar: true,
-                toast: true,
-                background: "#fff",
-                customClass: {
-                  popup: "small-swal",
-                },
-              });
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Success!",
+          text: data.message || "Menu permission granted!",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          toast: true,
+          background: "#fff",
+          customClass: {
+            popup: "small-swal",
+          },
+        });
+
         navigate("/permissions-list");
       } else {
-        Swal.fire("Error", data.error || "Failed to assign menu", "error");
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: data.message || "Failed to assign menu.",
+        });
       }
     } catch (error) {
-      Swal.fire("Error", "An error occurred", "error");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -148,10 +198,10 @@ const Menu = () => {
                 >
                   {menuOptions.map((option) => (
                     <MenuItem key={option.id} value={option.id}>
-                     {option.parent_id === null ? (
+                      {option.parent_id === null ? (
                         option.title
                       ) : (
-                        <ul >
+                        <ul>
                           <li>{option.title}</li>
                         </ul>
                       )}
@@ -174,7 +224,8 @@ const Menu = () => {
                         <Chip
                           key={id}
                           label={
-                            roleOptions.find((role) => role.id === id)?.role_name
+                            roleOptions.find((role) => role.id === id)
+                              ?.role_name
                           }
                         />
                       ))

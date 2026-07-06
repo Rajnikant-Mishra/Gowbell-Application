@@ -1,305 +1,4 @@
-/* .parentDiv {
-  background-color: #1230ae;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-}
-.sidebar {
-  width: 270px;
-  font-family: "Nunito", sans-serif;
-  color: #8391a2;
-  overflow: hidden;
-  height: 100vh;
-  position: relative;
-  overflow-y: auto;
-  padding-top: 10px;
-  transition: all 0.25s ease-in-out;
-}
 
-.sidebar::-webkit-scrollbar {
-  width: 8px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-  background-color: #808183;
-  border-radius: 8px;
-  height: 12px;
-}
-.sidebar::-webkit-scrollbar-track {
-  background-color: #1d1c1c;
-  border-radius: 8px;
-}
-.collapsed {
-  width: 100%;
-}
-.collapsed .navLink {
-  justify-content: center;
-}
-.collapsed .icon {
-  margin-right: 0;
-}
-.collapsed .navLink span {
-  display: none;
-}
-.sidebarHeader {
-
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  border-bottom: 0.2px solid #ffffff1f;
-  height: 85px; 
-
-}
-.sidebarLogo {
-  display: flex;
-  align-items: center;
-  margin: 1% 0%;
-}
-.sidebarLogo img {
-  width: 150px;
-  height: 100%;
-}
-.nav {
-  list-style-type: none;
-  padding: 0;
-}
-.navLink {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 10px 18px 10px 15px;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 1rem;
-  line-height: 22.5px;
-  font-weight: 400;
-  width: 90%;
-  margin-left: 5%;
-  margin-bottom: 0 !important;
-  cursor: pointer;
-  position: relative;
-  
-}
-.navLink:hover {
- 
-  color: #ffffff;
-  background-color: #ffffff24;
-
-  width: 90%;
-  margin-left: 5%;
-  border-radius: 8px;
-  padding: 10px 18px 10px 15px;
-  
-}
-.navLink:active {
-
-  color: #ffffff !important;
-  background-color: #ffffff24 !important;
-  width: 90% !important;
-  margin-left: 5% !important;
-  border-radius: 8px !important;
-  padding: 10px 18px 10px 15px !important;
-}
-.icon {
-  
-  font-size: 1.5rem;
-  margin-right: 10px;
-}
-
-.submenu {
-  padding-left: 20px;
-  list-style-type: none;
-  color: white;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.7s ease, opacity 0.5s ease;
-}
-
-.submenu li a {
-  display: block;
-  color: white;
-  padding: 5px 0 5px 25px;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 400;
-  transition: color 0.2s;
-}
-
-.submenu li a:hover {
-  color: #ffffff;
- 
-  color: #ffffff;
-  background-color: #ffffff24;
-  border-radius: 8px !important;
-  border-radius: 2px;
-}
-
-.submenuArrow {
-  margin-left: auto;
-  font-size: 0.7rem;
-  transition: transform 0.5s ease;
-}
-.submenuArrow.rotate {
-  transform: rotate(90deg);
-}
-
-.submenu.expanded {
-  max-height: 500px;
-  opacity: 1;
-}
-
-.collapsedSubmenu.expanded {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.3s ease;
-  transition: visibility 0s 0s;
-}
-.collapsedSubmenu .closeBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: #fff;
-  background: transparent;
-  border: none;
-}
-.submenuItem {
-  padding: 4px 10px;
-}
-.submenuLink {
-  color: #fff;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-}
-.submenuLink:hover {
-  color: #bccee4;
-}
-
-img.sqichedicon {
-  height: 47px !important;
-  width: 100% !important;
-}
-
-.collapsed .navLink {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 10px 5px 10px 5px;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 1.04rem;
-  line-height: 22.5px;
-  font-weight: 400;
-  width: 90%;
-  margin-left: 5%;
-  margin-bottom: 0 !important;
-  cursor: pointer;
-  position: relative;
-  
-}
-.collapsed .navLink:hover {
-  color: #ffffff;
-  background-color: #ffffff24;
-  width: 90%;
-  margin-left: 5%;
-  border-radius: 8px;
-  padding: 10px 5px 10px 5px;
-}
-.collapsed .navLink:active {
-  color: #ffffff;
-  background-color: #ffffff24;
-  width: 90%;
-  margin-left: 5%;
-  border-radius: 8px;
-  padding: 10px 5px 10px 5px;
-}
-.collapsed .icon {
-  margin-left: 10px !important;
-}
-
-
-.submenu li a::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  position: absolute;
-  margin-top: 9px;
-  margin-left: -12px;
-  border-radius: 50%;
-  background: #b2b2b2;
-}
-img .sqichedicon {
-  height: 47px !important;
-  width: 100% !important;
-}
-
-.collapsed .submenu {
-  position: fixed;
-  width: 12%;
-  left: 60px;
-  margin-left: 0px;
-  background-color: #082375;
-  padding-left: 0px;
-  box-shadow: #00000059 0 6px 8px;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-.collapsed .submenu p {
-  margin-top: 0;
-  background-color: #0f2b9f;
-  padding: 5px 10px;
-  font-size: 17px;
-  color: white !important;
-}
-.collapsed .submenu li a {
-  color: #7c9ad0;
-  padding: 4px 5px;
- 
-}
-.collapsed .submenu li a:hover {
-  background-color: #082cc714;
-}
-
-.collapsed .submenu li a::before {
-  background-color: #3ea9f5 !important;
-}
-.collapsedheading {
-  font-size: 18px;
-}
-.collapsed .submenuItem {
-  padding: 4px 17px;
-}
-.collapsed .submenuItem:hover {
-  background-color: #0e3386;
-}
-@media (min-width: 769px) and (max-width: 1024px) {
-  .collapsed .submenu {
-    width: 17%;
-    margin-left: 19px;
-  }
-}
-
-@media (max-width: 768px) {
-  .collapsed .submenu {
-    width: 23%;
-    margin-left: 19px;
-  }
-}
-
-@media (max-width: 480px) {
-  .collapsed .submenu {
-    width: 40%;
-    margin-left: 19px;
-  }
-} */
 
 
 /* //============================ */
@@ -351,7 +50,7 @@ img .sqichedicon {
   background-color: #1230AE;
   flex-shrink: 0;
 }
-.sidebarLogo {
+/* .sidebarLogo {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -367,7 +66,28 @@ img .sqichedicon {
   object-fit: contain;
   margin-right: 10px;
   transition: width 0.4s ease-in-out;
+} */
+
+
+.sidebarLogo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
+
+.sqichedicon {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.fullLogo {
+  width: 200px;   /* Adjust according to your logo */
+  height: auto;
+  object-fit: contain;
+}
+
 .collapsed .sqichedicon {
   margin-right: 0;
 }
