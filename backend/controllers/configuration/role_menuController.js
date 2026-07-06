@@ -3,18 +3,44 @@
 import RoleMenu from "../../models/configuration/role_menuModel.js";
 
 // Assign a menu to multiple roles
+// export const assignMenu = (req, res) => {
+//   const { menu_id, role_ids } = req.body;
+
+//   if (!menu_id || !Array.isArray(role_ids) || role_ids.length === 0) {
+//       return res.status(400).json({ error: 'Invalid input. menu_id and role_ids are required.' });
+//   }
+
+//   RoleMenu.assignMenuToRole({ menu_id, role_ids }, (err, result) => {
+//       if (err) {
+//           return res.status(500).json({ error: 'Failed to assign menu to roles', details: err.message });
+//       }
+//       res.status(201).json({ message: 'Menu assigned to roles successfully', result });
+//   });
+// };
+
 export const assignMenu = (req, res) => {
   const { menu_id, role_ids } = req.body;
 
   if (!menu_id || !Array.isArray(role_ids) || role_ids.length === 0) {
-      return res.status(400).json({ error: 'Invalid input. menu_id and role_ids are required.' });
+    return res.status(400).json({
+      success: false,
+      message: "menu_id and role_ids are required."
+    });
   }
 
   RoleMenu.assignMenuToRole({ menu_id, role_ids }, (err, result) => {
-      if (err) {
-          return res.status(500).json({ error: 'Failed to assign menu to roles', details: err.message });
-      }
-      res.status(201).json({ message: 'Menu assigned to roles successfully', result });
+    if (err) {
+      return res.status(err.status || 500).json({
+        success: false,
+        message: err.message
+      });
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Menu assigned to roles successfully.",
+      data: result
+    });
   });
 };
 

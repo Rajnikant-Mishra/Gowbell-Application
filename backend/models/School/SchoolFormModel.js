@@ -20,6 +20,7 @@ ORDER BY s.id DESC;
     db.query(sql, callback);
   },
 
+
   //get all school for paginations
   getAll: (page = 1, limit = 10, search = "", callback) => {
     const offset = (page - 1) * limit;
@@ -97,7 +98,7 @@ ORDER BY s.id DESC;
             totalPages,
             totalRecords,
           });
-        }
+        },
       );
     });
   },
@@ -108,8 +109,6 @@ ORDER BY s.id DESC;
     db.query(sql, [id], callback);
   },
 
-
-  
   create: (data) => {
     return new Promise((resolve, reject) => {
       const { state, city, school_name } = data;
@@ -167,7 +166,7 @@ ORDER BY s.id DESC;
             const newNumericPart = numericPart + 1;
             schoolCode = `${stateCityPrefix}${String(newNumericPart).padStart(
               2,
-              "0"
+              "0",
             )}`;
           } else {
             schoolCode = `${stateCityPrefix}01`;
@@ -245,8 +244,6 @@ ORDER BY s.id DESC;
   },
 
 
-
-
   bulkCreate: (schools) => {
     return new Promise((resolve, reject) => {
       const codeTrackers = new Map();
@@ -316,7 +313,7 @@ ORDER BY s.id DESC;
           db.query(countrySql, [country], (err, countryResults) => {
             if (err)
               return reject(
-                new Error("Database error while validating country")
+                new Error("Database error while validating country"),
               );
             if (countryResults.length === 0)
               return reject(new Error(`Invalid country: ${country}`));
@@ -326,11 +323,11 @@ ORDER BY s.id DESC;
             db.query(stateSql, [state, countryId], (err, stateResults) => {
               if (err)
                 return reject(
-                  new Error("Database error while validating state")
+                  new Error("Database error while validating state"),
                 );
               if (stateResults.length === 0)
                 return reject(
-                  new Error(`Invalid state: ${state} for country ${country}`)
+                  new Error(`Invalid state: ${state} for country ${country}`),
                 );
               const stateId = stateResults[0].id;
 
@@ -341,13 +338,13 @@ ORDER BY s.id DESC;
                 (err, districtResults) => {
                   if (err)
                     return reject(
-                      new Error("Database error while validating district")
+                      new Error("Database error while validating district"),
                     );
                   if (districtResults.length === 0)
                     return reject(
                       new Error(
-                        `Invalid district: ${district} for state ${state}`
-                      )
+                        `Invalid district: ${district} for state ${state}`,
+                      ),
                     );
                   const districtId = districtResults[0].id;
 
@@ -355,13 +352,13 @@ ORDER BY s.id DESC;
                   db.query(citySql, [city, districtId], (err, cityResults) => {
                     if (err)
                       return reject(
-                        new Error("Database error while validating city")
+                        new Error("Database error while validating city"),
                       );
                     if (cityResults.length === 0)
                       return reject(
                         new Error(
-                          `Invalid city: ${city} for district ${district}`
-                        )
+                          `Invalid city: ${city} for district ${district}`,
+                        ),
                       );
                     const cityId = cityResults[0].id;
 
@@ -372,7 +369,7 @@ ORDER BY s.id DESC;
                       city_id: cityId,
                     });
                   });
-                }
+                },
               );
             });
           });
@@ -423,7 +420,7 @@ ORDER BY s.id DESC;
             };
 
             const missingFields = Object.keys(requiredFields).filter(
-              (key) => !requiredFields[key]
+              (key) => !requiredFields[key],
             );
 
             if (missingFields.length > 0) {
@@ -440,11 +437,11 @@ ORDER BY s.id DESC;
                 country,
                 state,
                 district,
-                city
+                city,
               );
               const schoolCode = await generateSchoolCode(
                 location.state_id,
-                location.city_id
+                location.city_id,
               );
 
               const schoolData = [
@@ -576,6 +573,7 @@ ORDER BY s.id DESC;
     });
   },
 
+
   update: (id, data, callback) => {
     // Ensure 'classes' is valid JSON
     const classes = data.classes ? JSON.stringify(data.classes) : "[]"; // Default empty array
@@ -598,7 +596,7 @@ ORDER BY s.id DESC;
         if (checkResult.length > 0) {
           return callback(
             new Error("A school with the same name and area already exists"),
-            null
+            null,
           );
         }
 
@@ -660,7 +658,7 @@ ORDER BY s.id DESC;
           }
           return callback(null, result);
         });
-      }
+      },
     );
   },
 
@@ -849,7 +847,7 @@ ORDER BY s.id DESC;
             if (!err2 && processed) processedSchools.push(processed);
             if (completed === schools.length) callback(null, processedSchools);
           },
-          session_id
+          session_id,
         ); // 👈 pass session_id here
       });
     });
@@ -880,7 +878,7 @@ function processSchool(school, callback, session_id = null) {
     // 🧮 Summarize student count
     school.student_count = countResult.reduce(
       (sum, r) => sum + r.student_count,
-      0
+      0,
     );
     school.session_id =
       countResult[0]?.session_id || session_id || school.session_id;
@@ -953,7 +951,7 @@ function processSchool(school, callback, session_id = null) {
             console.error(
               "Invalid student_subject:",
               row.student_subject,
-              e.message
+              e.message,
             );
           }
         });

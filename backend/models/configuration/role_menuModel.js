@@ -2,25 +2,72 @@ import { db } from "../../config/db.js";
 
 const RoleMenu = {
   // Assign a menu to multiple roles (store as a comma-separated string)
+  // assignMenuToRole: (roleMenuData, callback) => {
+  //   const { menu_id, role_ids } = roleMenuData;
+
+  //   // Convert the role_ids array to a comma-separated string
+  //   const roleIdsString = Array.isArray(role_ids)
+  //     ? role_ids.join(",")
+  //     : role_ids;
+
+  //   const query = `
+  //       INSERT INTO role_menu (menu_id, role_ids)
+  //       VALUES (?, ?)
+  //   `;
+
+  //   db.query(query, [menu_id, roleIdsString], (err, result) => {
+  //     if (err) {
+  //       console.error("Error while assigning menu to roles:", err); // Log the error
+  //       return callback(err, null);
+  //     }
+  //     callback(null, result);
+  //   });
+  // },
+
   assignMenuToRole: (roleMenuData, callback) => {
     const { menu_id, role_ids } = roleMenuData;
 
-    // Convert the role_ids array to a comma-separated string
     const roleIdsString = Array.isArray(role_ids)
       ? role_ids.join(",")
       : role_ids;
 
-    const query = `
-        INSERT INTO role_menu (menu_id, role_ids)
-        VALUES (?, ?)
+    // Check if the same menu_id and role_ids already exist
+    const checkQuery = `
+    SELECT id
+    FROM role_menu
+    WHERE menu_id = ? AND role_ids = ?
+  `;
+
+    db.query(checkQuery, [menu_id, roleIdsString], (checkErr, checkResult) => {
+      if (checkErr) {
+        console.error("Error checking duplicate assignment:", checkErr);
+        return callback(checkErr, null);
+      }
+
+      if (checkResult.length > 0) {
+        return callback(
+          {
+            status: 409,
+            message: "This menu is already assigned to the selected role. !please check",
+          },
+          null,
+        );
+      }
+
+      // Insert if not duplicate
+      const insertQuery = `
+      INSERT INTO role_menu (menu_id, role_ids)
+      VALUES (?, ?)
     `;
 
-    db.query(query, [menu_id, roleIdsString], (err, result) => {
-      if (err) {
-        console.error("Error while assigning menu to roles:", err); // Log the error
-        return callback(err, null);
-      }
-      callback(null, result);
+      db.query(insertQuery, [menu_id, roleIdsString], (err, result) => {
+        if (err) {
+          console.error("Error while assigning menu to roles:", err);
+          return callback(err, null);
+        }
+
+        callback(null, result);
+      });
     });
   },
 
@@ -37,11 +84,11 @@ const RoleMenu = {
 
   // getAllRoleMenuWithNames: (callback) => {
   //   const query = `
-  //     SELECT 
-  //     rm.id, 
-  //     m.title AS menu_title, 
+  //     SELECT
+  //     rm.id,
+  //     m.title AS menu_title,
   //     GROUP_CONCAT(r.role_name) AS role_names,
-  //     rm.created_at 
+  //     rm.created_at
   //     FROM role_menu rm
   //     JOIN menu m ON rm.menu_id = m.id
   //     JOIN roles r ON FIND_IN_SET(r.id, rm.role_ids)
@@ -57,6 +104,7 @@ const RoleMenu = {
   //     callback(null, results);
   //   });
   // },
+
   getAllRoleMenuWithNames: (callback) => {
     const query = `
       SELECT 
@@ -84,10 +132,6 @@ const RoleMenu = {
     const query = `DELETE FROM role_menu WHERE id = ?`;
     db.query(query, [id], callback);
   },
-
-
-  
-  
 };
 
 export default RoleMenu;

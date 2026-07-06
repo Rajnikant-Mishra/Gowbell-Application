@@ -145,7 +145,7 @@ export const loginUser = (req, res) => {
       const token = jwt.sign(
         { id: user.id, role: user.role, username: user.username },
         process.env.JWT_SECRET,
-        { expiresIn: "3600000" }
+        { expiresIn: "3000000" }
       );
 
       // Fetch menus by role
